@@ -3,11 +3,11 @@
 > The aim is to deliver a script that is stable and fills the gaps in the vanilla feature set of 2take1.<br/>
 > Whether you like to mess with people, help people out or just try to be low-key, this script offers something useful.<br/>
 > 
-> The feature list will be structured like the script is.
-> This means you can figure out where features are located based on the structure of this document.
-> Example: General settings > Settings > Save to default
-> If there's anything confusing or vague in the feature list, feel free to suggest improvements.
-> I'm open to people translating this to another language. You have to speak the language fluently.
+> The feature list will be structured like the script is.<br/>
+> This means you can figure out where features are located based on the structure of this document.<br/>
+> Example: General settings > Settings > Save to default<br/>
+> If there's anything confusing or vague in the feature list, feel free to suggest improvements.<br/>
+> I'm open to people translating this to another language. You have to speak the language fluently.<br/>
 
 ## Table of contents
 
