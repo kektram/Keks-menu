@@ -1,10 +1,11 @@
 # Keks-menu
 	Kek's menu is a 2take1 lua script that's focused on utilities and trolling.
 	The feature list will be structured like the script is.
-		This means you can figure out where features are located based on the structure of this document.
-		Example: General settings > Settings > Save to default
-		
+	> This means you can figure out where features are located based on the structure of this document.
+	> Example: General settings > Settings > Save to default
+
 	If there's anything confusing or vague in the feature list, feel free to suggest improvements.
+	I'm open to people translating this to another language. You have to speak the language fluently.
 
 ## Table of contents
 
@@ -56,7 +57,7 @@
 #### Hotkeys
 
 ##### Notifications
-	Toggle whether to show a notification whenever a hotkey is pressed
+	Toggle whether to show a notification whenever a hotkey is pressed or not
 
 ##### Hotkey mode
 	Before setting hotkeys, make sure you have set the right hotkey mode.
@@ -64,7 +65,8 @@
 	This means that setting the wrong input mode before setting hotkeys will lead to unpredictable behaviour.
 
 ##### Setting hotkeys
-	A hotkey can be bound to 1 - 3 keys.
+	A hotkey can be bound to 1 - 3 keys
+	Holding down a hotkey for 550ms will loop the feature every 80ms
 	The script uses gta 5's input system, so some keys can't be set as hotkeys.
 
 ##### Keys that can be set as hotkeys
