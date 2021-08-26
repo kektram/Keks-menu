@@ -33,9 +33,9 @@
 
 ### Table of contents
 
-#### [General settings](###General-settings)
+#### [General settings](#General-settings)
 
-#### [Modder detection](###Modder-detection)
+#### [Modder detection](#Modder-detection)
 
 ### General settings
 
