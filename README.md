@@ -13,9 +13,9 @@
 
 ## Table of contents
 
-### [Feature list](#Feature-list)
+### [Feature list](#Feature-list-1)
 
-### [How to install](#How-to-install)
+### [How to install](#How-to-install-1)
 
 ## How to install
 	1. Open keks_menu.zip
@@ -33,9 +33,9 @@
 
 ### Table of contents
 
-#### [General settings](#General-settings)
+#### [General settings](#General-settings-1)
 
-#### [Modder detection](#Modder-detection)
+#### [Modder detection](#Modder-detection-1)
 
 ### General settings
 
