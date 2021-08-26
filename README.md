@@ -1,11 +1,10 @@
 # Keks-menu
-	Kek's menu is a 2take1 lua script that's focused on utilities and trolling.
-	The feature list will be structured like the script is.
+> Kek's menu is a 2take1 lua script that's focused on utilities and trolling.
+> The feature list will be structured like the script is.
 > This means you can figure out where features are located based on the structure of this document.
 > Example: General settings > Settings > Save to default
-
-	If there's anything confusing or vague in the feature list, feel free to suggest improvements.
-	I'm open to people translating this to another language. You have to speak the language fluently.
+> If there's anything confusing or vague in the feature list, feel free to suggest improvements.
+> I'm open to people translating this to another language. You have to speak the language fluently.
 
 ## Table of contents
 
