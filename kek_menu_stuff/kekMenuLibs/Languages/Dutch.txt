@@ -1,0 +1,846 @@
+§Version§ 0.3.9.1 /;/DO NOT CHANGE THIS VALUE|_|
+Kek's menu §Kek's menu
+General settings §Algemene instellingen
+Vehicle §Voertuig
+Self §Zelf
+Vehicle peaceful §Voertuig vreedzaam
+Vehicle trolling §Voertuig trolling
+Vehicle settings §Voertuig instellingen
+Vehicle blacklist §Voertuig zwarte lijst
+Session malicious §Voertuig kwaadaardig
+Player history §Speler historiek
+Scripts §Scripts
+Settings §Instellingen
+Chat §Chat
+Custom chat judger §Eigen chat keurder
+Chat bot §Chat bot
+Chat spamming §Chat spamming
+Notification settings §Notificatie instellingen
+Hotkey settings §Sneltoets instellingen
+Modder detection §Modder detectie
+Blacklist §Zwarte lijst
+What to do with modders §Wat doen met modders
+Protections §Bescherming
+Modder logging settings §Modder log instellingen
+Modder unmark settings §Modder ontmarkering instellingen
+Auto kick tag settings §Auto kick tag instellingen
+Which modder detections are on §Welke modder detectie staat aan
+Weapons §Wapens
+Kek's utilities §Kek's gereedschap
+Script loader §Script lader
+Language configuration §Taal configuratie
+Kek's menu §Kek's menu
+Vehicle §Voertuig
+Weapons §Wapens
+Trolling §Trolling
+Chat §Chat
+Malicious §Kwaadaardig
+Player utilities §Speler gereedschap
+Blacklist §Zwarte lijst
+Scripts §Scripts
+Pedestrian §Voetganger
+Set §Stel in
+as default language. §als standaard taal
+Invert all switches §alle schakelaars omkeren
+Toggle on / off script loader §Schakel in / uit script lader
+Empty script loader file §Maak script lader leeg
+Add script to auto loader §Voeg script toe aan auto lader
+Remove script from auto loader §Verwijder script uit auto lader
+Modded stats, severity, click me §Modded statistieken, ernst, klik op mij
+Modded scid detection §Modded scid detectie
+Modded name detection §Modded naam detectie
+Modded net event detection §Modded net evenement detectie
+Blacklist §Zwarte lijst
+Check people's stats automatically §Controleer de statistieken van mensen automatisch
+Check everyone's stats §Controleer de statistieken van iedereen
+Check if anyone is in the blacklist §Controleer of iemand in de zwarte lijst staat
+Detect any modded spectate §Detecteer modded toeschouwers
+Detect too long off the radar §Detecteer te lang van de radar verdwenen
+Kick any vote kickers §Trap elke stem trapper buiten
+Add player / modify reason they were added §Voeg speler toe / verander reden waarom ze waren toegevoegd
+Remove player from blacklist §Verwijder speler van de zwarte lijst
+Add session to blacklist §Voeg een sessie toe aan de zwarte lijst
+Remove session from blacklist §Verwijder een sessie van de zwarte lijst
+Get host automatically §Verkrijg gastheer automatisch
+Log modders with selected tags to blacklist §Log modders met geselecteerde tags om toe te voegen aan de zwarte lijst
+Auto kick modders with selected tags §Trap modders met geselecteerde tags automatisch buiten
+Auto unmark modders with selected tags §Verwijder markering automatisch voor modders met geselecteerde tags
+Ram vehicle speed §Ram voertuig snelheid
+Ram everyone §Ram iedereen
+Effect type, click me §Effect type, klik op mij 
+Apply effect to nearby vehicles §Pas effect toe op nabije voertuigen
+Vehicle fly nearby vehicles §Voertuig laat nabije voertuigen vliegen
+Disable vehicles §Schakel voertuigen uit
+Vehicle storm §Voertuig storm
+Copy rid to clipboard §Kopieer rid naar klemboek
+Copy ip to clipboard §Kopieer ip naar klemboek
+Please click me for info §Klik aub op mij voor informatie
+Num of people, click to type §Aantal mensen, klik om te typen
+Player history §Speler historiek
+Clear searched player list §Maak gezochte speler lijst leeg
+Search (all players ever met) §Zoek (alle spelers ooit ontmoet)
+Add entry vehicle blacklist §Voeg voertuig toe aan zwarte lijst
+Remove entry vehicle blacklist §Verwijder voertuig uit zwarte lijst
+Empty vehicle blacklist §Maak voertuig zwarte lijst leeg
+Vehicle blacklist only on selected players §Voertuig zwarte lijst enkel op geselecteerde spelers
+Vehicle blacklist §Voertuig zwarte lijst
+What to ram people with §Waarmee mensen rammen
+Spawn vehicle for everyone §Spawn voertuig voor iedereen
+Max everyone's car §Max iedereen's voertuig
+Teleport session to current position §Teleporteer sessie naar huidige positie
+Teleport session to waypoint §Teleporteer sessie naar knooppunt
+Get host §Krijg host
+Kick session §Trap sessie 
+Crash session §Crash sessie
+Give session bounty §Geef sessie premie
+Never wanted §Nooit gezocht door politie
+off the radar §Niet zichtbaar op de radar
+Reapply bounty §Pas premie opnieuw toe
+Give 10k §Geef 10k 
+Block passive §Blokkeer passief
+Send to random mission §Stuur naar willekeurige missie
+Perico island §Perico eiland
+Apartment invites §Uitnodiging in appartement
+Ban CEO §Ban CEO
+Dismiss CEO §Ontsla CEO
+Terminate CEO §Vernietig CEO
+Transaction error §Transactie fout
+Add entry chat judger §Voeg chat keurder toe 
+Remove entry chat judger §Verwijder chat keurder 
+Empty chat judge file §Maak chat keurder bestand leeg
+What reaction, click me §Welke reactie, klik op mij
+Custom chat judge §Chat keurder op maat
+Judge only selected players §Keur enkel geselecteerde spelers
+Spam speed, click to type §Spam snelheid, klik om te typen
+Text to spam, type it in §Tekst om te spammen, type het in 
+Grab text from clipboard(what u copied) §Neem tekst van klembord (wat je hebt gekopieerd)
+Grab text from clipboard and send each line §Neem tekst van klembord en stuur iedere lijn
+Grab text from file §Neem tekst van klembord
+Random text from file §Willekeurige tekst van een file
+Chat spammer §Chat spammer
+Echo delay, click to type §Echo vertraging, klik om te typen
+Echo chat §Echo chat
+Echo selected players only §Echo enkel geselecteerde spelers
+Add entry to chat bot §Voeg toe aan de chat bot
+Remove entry from chat bot §Verwijder van de chat bot
+Remove all entries from chatbot §Verwijder alles van de chatbot
+Answer delay chatbot §Antwoord vertraging chatbot
+Chat bot §Chat bot
+Disconnect from session §Disconnecteer van de sessie
+Max car §Maximaliseer auto
+Max car loop §Maximasileer auto loop
+Change default vehicle §Verander standaard voertuig
+Change backplate text §Verander nummerplaat tekst
+What vehicle to spawn §Welke voertuig spawnen
+Spawn vehicle §Spawn voertuig
+Vehicle fly speed, click to type §Voertuig vlieg snelheid, klik om te typen
+Vehicle fly §Voertuig vlieg
+Type in what object §Typ welk object
+Object gun §Object geweer
+Airstrike gun §Luchtaanval geweer
+What vehicle vehicle gun §Welk voertuig voertuig geweer
+Vehicle gun §Voertuig geweer
+Entity type, click me for info §Type entiteit, klik op mij voor meer info
+Ignore other players entity clear §Wis negeren van andere spelers entiteit
+Clear entity type §Maak entiteit type leeg
+Shoot entity| get model name of entity §Schiet op entiteit| verkrijg model naam van entiteit
+Enable hotkeys §Schakel sneltoetsen in
+Save settings to default §Sla standaard instellingen op
+1 = Load profile §1 = Laad profiel
+2 = Overwrite/save profile §2 = Overschrijf/bewaar profiel
+3 = Change profile name §3 = Verander profiel naam
+Add player / modify reason they were added §Voeg speler toe / verander reden waarom ze werden toegevoegd
+Remove player from blacklist §Verwijder speler van zwarte lijst
+Ram vehicle speed §Ram voertuig snelheid
+Script event crash §Script crash evenement
+Brute force crash §Forceer crash
+Kick player §Trap spelen buiten
+Vehicle blacklist on this player §Voertuig zwarte lijst voor deze speler
+Get model name of their car to clipboard §Kopieer model naam van hun auto naar klembord
+Chat judge this player §Chat keur deze speler
+Echo this player §Echo deze speler
+Type in ped model §Type in ped model
+Spawn a ped §Spawn een ped
+Car godmode §Auto god mode
+Copy player's car §Kopieer spelers auto
+Max car §Maximalizeer auto
+Vehicle fly player §Voertuig vlieg spelen
+Spastic car §Spastische auto
+Max car loop §Maximalizeer auto loop
+Repair car loop §Herstel auto loop
+What vehicle to spawn §Welk voertuig spawnen
+Spawn vehicle §Span voertuig
+Teleport player & vehicle to waypoint §Teleporteer speler & voertuig naar knooppunt
+Teleport player & vehicle to you §Teleporteer speler & voertuig naar jou
+Disable vehicles §Schakel voertuigen uit
+Off the radar §Onzichtbaar op de radar
+10k ceo loop §10k ceo loop
+Block passive mode §Blokkeer passieve mode
+apply bounty §Pas premie toe
+Reapply bounty §Pas premie opnieuw toe
+Perico island §Perico eiland
+Apartment invites §Uitnodiging in appartement
+Send to random mission §Stuur op willekeurige missie
+Terminate CEO §Vernietig CEO
+Transaction error §Transactie fout
+Which vehicle §Welke voertuig
+Ram player with vehicle §Ram speler met voertuig
+Ram loop §Ram loop
+Spawn kek's chopper §Spawn kek's helicopter
+Vehicle hurricane §Voertuig orkaan
+Vehicle gun §Voertuig geweer
+Delete gun §Wis geweer
+Explosion gun §Explosie geweer
+Copy rid to clipboard §Kopieer rid naar klembord
+Copy position with decimals to clipboard §Kopieer positie met decimalen naar klembord
+Copy position without decimal to clipboard §Kopieer positie zonder decimalen naar klembord
+Copy ip to clipboard §Kopieer ip naar klembord
+Save all their stats to file §Bewaar al hun statistieken in bestand
+was set as the default language. §was gekozen als de standaard taal
+Current language file is outdated, switched to english. §Deze taal is te oud, selecteer Engels
+This language file is outdated, please update it. §Dit taalbestand is te oud, update naar een nieuwere versie
+You're missing a file in kekMenuLibs. Please reinstall Kek's menu. §Je mist een file in kekMenuLibs. Herinstalleer Kek's menu
+There's a library file which is the wrong version, please reinstall kek's menu. §Er is een bestand in de bibliotheek met een verkeerde versie, herinstalleer Kek's menu
+Something was wrong with the profiles names. Names set to default. §Er ging iets mis met de profiel namen. Alle namen staat terug op de standaard waarde.
+Kek's menu §Kek's menu
+Turned off script loader §Script lader uitgeschakeld
+Turned on script loader §Script lader ingeschakeld
+Emptied script loader §Script lader leeggemaakt
+Added §Toegevoegd
+to script loader §aan script lader
+is already in the script loader §staat reeds in de script lader
+Couldn't find file §Kan het bestand niet vinden
+Removed §Verwijderd
+from script loader §van de script lader
+autoexec doesn't exist §autoexec bestaat niet
+Chat judge:\nBounty set on §Chat keurder:\nPremie staat aan
+Chat judge:\nRamming §Chat keurder:\Rammen
+with explosive tankers §met explosieve tankers
+Chat judge:\nKicking player out of their vehicle. §Chat keurder:\nTrap speler uit hun voertuig.
+Chat judge:\nKicking §Chat keurder:\nTrappen
+Chat judge\nCrashing §Chat keurder:\nCrashen
+sent vote kick. Kicking them... §stem om eruit te trappen verstuuurd. Bezig met trappen...
+How many modded stat detections are needed to tag them as modder §Hoeveel modded statistieken detecties zijn nodig om hen als modder aan te duiden
+Minor detections are 1 in severity, severe ones like modded name, are 3. §Kleine detecties zijn 1 in ernst, ernstige zoals modded naam, zijn 3
+has: §had
+severity: §ernst
+has a modded scid. §heeft een modded scid.
+has a modded name. §heeft een modded naam.
+Recognized §Herkend
+\nDetected: §\nGedetecteerd
+\nTags:\n §\nTags
+Checked lobby for suspicious stats §Lobby nagekeken op verdachte statistieken
+Checked blacklist. §Zwarte lijst nagekeken
+is spectating §is aan het meekijken
+was off the radar for too long. §was te lang opzichtbaar op de radar
+Changed the reason this person was added to the blacklist. §Heeft de reden waarom deze persoon op de zwarte lijst stond veranderd
+Added to blacklist. §Toegevoegd op de zwarte lijst
+Removed rid. §Rid verwijderd
+Couldn't find player. §Kan de speler niet vinden.
+Blacklist file doesn't exist. §Het bestand met de zwarte lijst bestaat niet.
+You can't add yourself to the blacklist... §Je kan jezelf nie toevoegen in de zwarte lijst...
+Rid is too short / invalid. §Rid is te kort
+Session is empty... §Sessie is leeg...
+players to the blacklist.\nChanged reasons for §spelers op de zwarte lijst.\nReden veranderd omwille van
+people already in the blacklist §mensen staat al op de zwarte lijst
+Removed session from the blacklist. §Sessie verwijderd van de zwarte lijst
+Successfully obtained host. §Host succesvol gevonden
+Force host:\nHost is your friend! Cancelled host attempt. §Forceer host:\De host is je vriend! Host poging gestaakt.
+Force host:\nHost is invalid, pausing host attempt until valid target. §Forceer host:\nDe host is niet juist, stoppen met proberen totdat het juiste doel gevonden is.
+Kicking §Trappen
+, flags:\n §, vlaggen:
+1: Max cars\n2: Give godmode\n3: Repair cars\n4: Godmode & max\n5: Chaos mode §1. Maximaliseer autos\n2: Geef god mode\n3:Herstel autos\n4: God mode & maximaliseer\n5:Chaos mode
+Num of people, click to type, means how many people are shown in the player history. §Aantal mensen, klik om te typen, bedoeling hoeveel mensen worder getoond in de spelers historiek
+The higher it is, the longer the freeze when reseting lua state becomes. Default value is safe. §Des te hoger, des te langer de bevriezing wanneer lua state bevroren wordt. De standaard waarde is veilig.
+Input too short. §Invoer is te kort
+Entry is too short. §Invoer is te kort
+1 = EMP\n2 = Kick out\n3 = Kick out & destroy personal vehicle\n4 = Explode\n5 = Ram with tankers §1 = EMP\n2 = Trap er uit\n3 = Trap er uit & vernietig persoonlijk voertuig\n4 = Ontplof\n5 = Ram met tankers
+Modified reaction in existing entry. §Veranderde reactie in bestaande invoer
+Nothing was changed, same reaction as it previously was. §Niets was veranderd, zelfd reactie as er voor
+Invalid entry. §Foute invoer
+Couldn't find entry. §Kan de invoer niet vinden
+Emptied vehicle blacklist. §Voertuigen zwarte lijst leeggemaakt
+Vehicle blacklist:\nEMP'd §Voertuigen zwarte lijst:\nEMP'd
+Vehicle blacklist:\nKicked §Voertuigen zwarte lijst:\nGetrapt
+Vehicle blacklist:\nExploding §Voertuigen zwarte lijst:\nExplosie
+out of their §uit hun
+Vehicle blacklist:\nRamming §Voertuigen zwarte lijst:\nRammen
+Vehicle blacklist:\nCrashed §Voertuigen zwarte lijst:\nGecrasht
+for using §voor gebruik
+Copied §Gecopieerd
+to clipboard. §naar klembord
+Player isn't in a vehicle. §De speler zit niet in een voertuig.
+Cars spawned. §Auto gespawnd
+Maxed everyone's cars. §Maximalizeer iederees auto
+Please set a waypoint. §Zet aub een knooppunt
+You're already host! §Je bent al de host!
+Entry is already in there! §De invoer bestaat al!
+Emptied. §Leeggemaakt.
+0 = random(not kick / crash)\n1 = Set bounty\n2 = Ram player\n3 = Kick from vehicle §0 = willekeurig(geen trap / crash)\n1 = Zet premie\n2 = Ram speler\n3 = Trap uit voertuig
+4 = Kick player\n5 = Crash player §4 = Trap speler\n5 = Crash speler
+Cancelled. §Gecanceld
+Successfully added entry. §Invoer succesvol toegevoegd
+Entry was already added. §Invoer was reeds toegevoegd
+Removed entry. §Invoer verwijderd
+Removed all entries. §Alle invoeren verwijderd
+Disconnect attempt failed. Attempting method 2... §Poging tot verbreken gefaald. Methode 2 aan het proberen...
+The game will freeze, just wait 10 seconds. §Het spel zal bevriezen, gewoon 10 seconden wachten
+is not in a vehicle. §zit niet in een voertuig
+is too far away. §bevindt zich te ver weg.
+No vehicle to copy. §Geen voertuig om te kopieren
+Maxed §Gemaximaliseerd
+vehicle. §voertuig
+Failed to get control of their car. §Controle nemen over hun auto gefaald.
+Changed default vehicle. §Standaard voertuig veranderd.
+Invalid input. Default value remains the same. §Foute invoer. De standaard waarden blijven hetzelfde.
+Invalid input. Plate text remains the same. §Foute invoer. De nummerplaat tekst blijft hetzelfde.
+Changed default plate text. §Standaard nummerplaat tekst veranderd.
+No need to teleport yourself to yourself. §Het is niet nodig jezelf naar jezelf te teleporteren.
+Modded bounties does not work while you're script host. §Modded premies werken niet wanneer je een script host bent.
+Their position is unknown (invalid Z coordinate). Please get closer to them. §Hun positie is onbekend (foute Z coordinaten). Ga aub dichter bij hen.
+Invalid object. §Fout object.
+1: Vehicles\n2: Peds\n3: Objects\n4: Pickups\n5: Peds & Vehicles\n6: All §1: Voertuigen\n2: Peds\n3: Objecten\n4: Pickups\n5: Peds & voertuigen\n6: Alles
+This model is called: §Dit model heet:
+Saved their stats to a file. §Hun statistieken bewaard in een bestand.
+Hotkey:\nTurned on §Sneltoets:\nAangezet
+Hotkey:\nTurned off §Sneltoets:\nUitgezet
+Hotkey:\nMaxed vehicle. §Sneltoets:\nGemaximaliseerd voertuig.
+Hotkey:\nSpawned vehicle. §Sneltoets:\Spawned voertuig.
+Hotkey:\nRepaired vehicle. §Sneltoets:\nVoertuig gerepareerd.
+vehicle fly. §voertuig vlieg.
+vehicle gun. §voertuig geweer.
+airstrike gun. §luchtaanval geweer.
+Clear entity type. §Maak entiteit type leeg.
+Hotkey:\nTagged non modders & untagged modders with manual tag. §Sneltoets:\nAangeduide niet modders & niet aangeduide modders met manuele tag.
+Hotkey:\nDisconnected you from session. §Sneltoets:\nVerbroken van de sessie.
+Hotkey:\nIncreased vehicle fly speed. §Sneltoets:\nVlieg snelheid voertuig verhoogd.
+Hotkey:\nDecreased vehicle fly speed. §Sneltoets:\nVlieg snelheid voertuig verlaagd.
+Successfully changed keybinding.\nType nil to turn it off. §Link met de toets succesvol veranderd.
+Turned off the keybinding:\n\" §Link met de toets uitgeschakeld.
+Keybinding not changed. Empty input or input is the same as existing keybinding. §Link met de toets niet veranderd. Lege invoer of invoer is hetzelfde als de bestaande link.
+Invalid keybinding.\nIt's case sensitive, get it right. §Foute link met de toets.\nHet is hoofdlettergevoelig, herstel je fout.
+Most of the keys like, left shift. are written in all caps. Example: LSHIFT. §De meeste toesten zoals linker shift. zijn geschreven in hoofdletters. Voorbeeld: LSHIFT.
+Settings saved! §Instellingen opgeslagen!
+Successfully loaded §Succesvol ingeladen!
+The setting file doesn't exist.\nPlease save to this slot in order to use it. §Het bestand met de instellingen bestaat niet.\Gebruik aub dit slot om het te gebruiken.
+Saved §Opgeslagen
+Invalid name. §Foutieve naam.
+Saved profile name. §Opgeslagen profiel naam.
+Failed to save profile name. §Opslaan profiel naam mislukt.
+Successfully loaded Kek's menu. §Kek's menu succesvol geladen.
+Type in what car to use §Type welke auto je gebruikt.
+Type in the name of the lua script to add. §Type de naam van het toe te voegen lua script.
+Type in the lua script you want to remove. §Type de naam van het lua script dat je wilt verwijderen.
+Type in why you're adding this person. Typing in nothing makes the reason: Manually added. §Type de reden waarom je deze persoon toevoegt. Niets invoeren zet de standaard reden: Handmatig toegevoegd.
+Type in social club ID, also known as: rid / scid. §Type je social club ID, ook bekend als: rid / scid.
+Type in ip. §Type je ip in.
+Type in the why you're adding this person. Typing in nothing makes the reason: Manually added. §Type waarom je deze persoon toevoegt. Niets invoeren zet de standaard reden: Handmatig toegevoegd.
+Type in their name. §Type hun naam in.
+Type in the why you're adding everyone. Typing in nothing makes the reason: Manually added. §Type waarom je iedereen toevoegt. Niets invoeren zet de standaard reden: Handmatig toegevoegd.
+Type in ram speed §Type de ram snelheid.
+Type in history limit. §Type de historiek limiet.
+Type in what player you wanna search for. rid / name / ip §Type welke speler je wilt opzoeken. rid / naam / ip
+Type in what to add. §Type wat je wilt toevoegen.
+Type in what reaction. NUMBER, 0 to 8 §Type de reactie. NUMBER, 0 tot 8
+Type in what to remove. §Type wat te verwijderen
+Type in which car to ram people with. §Type in welke auto je mensen wilt rammen.
+Type in which car to spawn §Type welke auto je wilt spawnen.
+Type in part §Type een deel
+of the text. All of these will be merged into one text. §van de text. Alles zal samengevoegd worden in 1 tekst.
+Type in echo delay. §Type de echo vertraging.
+Type in what the bot will react to. §Type welke bot zal reageren.
+Type in what the bot will say to what you previously typed in. §Type wat de bot zal zeggen op wat je hiervoor ingetypt hebt.
+Type in what the text the bot reacts to in the entry you wish to remove. §Type wat te verwijderen voer wat de bot zal zeggen op je hiervoor ingetypt hebt.
+Type in answer delay. §Type de antwoord vertraging.
+Type in the name of the ped you want to spawn. §Type de naam van de ped die je wilt spawnen.
+Type in the vehicle you want to be default. §Type het voertuig dat je standaard wilt.
+Type in the text you want displayed on the backplate of your cars after maxing them. §Type de tekst die je wilt laten verschijnen op de nummerplaat van je auto na de maximalisatie.
+Type in vehicle speed §Type de voertuig snelheid.
+Type in which car to ram with §Type welke auto om te rammen.
+Type in what object to use. §Type welk object om te gebruiken.
+Type in which car to use for vehicle stuff. §Type welke auto te verbruiken voor voertuigen zaken.
+Type in what you want the keybinding to be. §Type welke toetsen binding je wilt.
+Type in the name of the profile. §Type de naam van het profiel.
+Log: §Log:
+Kick: §Trap: 
+Unmark: §Ontmarkeer:
+Max vehicle §Maximaliseer voertuig
+Spawn vehicle §Spawn voertuig
+Repair vehicle §Repareer voertuig
+Vehicle fly §Voertuig vlieg
+Vehicle gun §Voertuig geweer
+Airstrike gun §Luchtaanval geweer
+Change vehicle used for vehicle stuff §Verander voertuig dat gebruikt wordt voor voertuig zaken
+Tag / untag session §Tag / untag sessie
+Disconnect from session §Verbruik de sessie
+Clear entity type §Maak het type entiteit leeg
+Increase vehicle fly speed §Verhoog de vlieg snelheid van het voertuig
+Decrease vehicle fly speed §Verlaag de vlieg snelheid van het voertuig
+Hotkeys §Sneltoetsen
+Chat judge:\nBlaming §Chat keurder:\nDe schuld geven
+for killing session. §voor de sessie te killen.
+Glitch their vehicle §Rariteit met hun voertuig
+6 = Glitch their vehicle\n7 = Kick\n8 = Crash\n0 = random reaction(not kick or crash) §6 = Rariteit met hun voertuig\n7 = Trap\n8 = Crash\n0 = willekeurige reaction (geen trap of crash)
+Vehicle blacklist:\nGlitching /;/|_|Voertuig zwarte lijst:\Rariteiten
+Lag player §Lag speler
+Taze player §Taze speler
+Perma-cage §Permanente kooi
+Give player vehicle fly §Geef speler vliegend voertuig
+No available seat. §Geen beschikbare zetel.
+Ped crash §Voetganger crash
+Finished crash. §Crash uitgevoerd
+You can't use this on yourself. §Je kan dit niet op jezelf gebruiken.
+Sending crash. Takes about 15 seconds. §Bezig met crash te sturen. Dit duurt ongeveer 15 seconden.
+Exclude friends from attacks §Sluit vrienden uit van de aanvallen.
+Auto tag modders after sending kick §Tag modders automatisch na het versturen van de trap.
+You're too close to target. Get further away. §Je bent te dicht bij je doel. Ga verder weg.
+Give player vehicle fly [horn toggles it] §Geef spelen een vliegend voertuig
+Exclude friends from attacks §Sluit vrienden uit van de aanvallen.
+Auto tag modders after sending kick §Tag modders automatisch na het versturen van de trap.
+Self options §Eigen opties
+Max all weapons §Maximaliseer alle wapens
+Randomize all weapons §Willekeur op alle wapens
+Give all weapons §Geef alle wapens
+Max current weapon §Maximiseer het huidige wapen
+Randomize current weapon §Willekeur op het huidige wapen
+You're not holding a weapon. §Je houdt geen wapen vast
+Random weapon camo §Willekeurig wapen camouflage
+Has a lot of money & low rank. §Heeft veel geld en een lage rank.
+Has too much money for the rank. §Heeft teveel geld voor de rank.
+Has a lot of money. §Heeft veel geld.
+Has Negative lvl §Heeft een negatief level.
+Has Negative k/d §Heeft negatieve k/d
+Has a high rank. §Heeft een hoge rank.
+Has a high k/d. §Heeft hoge k/d.
+Has modded armor. §Heeft modded bescherming.
+Has too many wins. §Heeft teveel overwinningen.
+Block areas §Geblokkeerde zones
+Block all los santos customs §Blokkeer alle los santos customs
+Block all Ammu-Nations §Blokkeer alle Ammu-Nations
+Block casino §Blokkeer casino
+Teleport player far away §Teleporteer de speler ver weg
+Found player you were trying to add in your session. Added all their info. §De speler die je wilde toevoegen in je sessie werd gevonden. Al hun info toegevoegd.
+Rid §Rid
+IP §IP
+Name §Naam
+Successfully gave §Succesvol gegeven:
+vehicle §voertuig
+godmode. §god mode
+Failed to get control of §Niet geslaagd in controle te nemen over
+Set controller hotkeys §Stel sneltoetsen van de controller in
+Press key to set to hotkey.\nTo turn off hotkey, press f4. §Druk op de toets die je als sneltoets wilt gebruiken
+Turned off the hotkey:\n §Sneltoets uitgeschakeld
+Invalid hotkey. Please try again. §Foutieve sneltoet. Aub opnieuw proberen
+In order to set hotkeys for controller, this has to be on first! §Om sneltoetsen voor een controller in te stellen, gelieve deze eerst aan te zetten!
+Changed §Veranderd
+to §naar
+Turned off §Uitgeschakeld
+Hotkey:\nloaded §Sneltoets
+Load profile §Laad profiel
+Hotkey:\nRandomized current weapon. §Sneltoets:\nWillekeur op het huidige wapen.
+Max kicks for auto host §Maximale trap voor automatische gastheer
+Force host:\nCancelled. Requires to kick §Forceer gastheer:\nGecanceld. Trap is noodzakelijk
+people in order to get host. §van alle mensen om gastheer status te krijgen.
+Your host priority is lower than theirs. Cancelled. §Jouw gastheer prioriteit is lager dan die van hun. Gecanceld.
+Give them host §Geef hen gastheer
+Type in clear distance limit. §Type de afstand in om de weg leeg te maken
+Vehicle clear distance §Voertuigen verwijder afstand
+Ped clear distance §Voetgangers verwijder afstand
+Object clear distance §Objecten verwijder afstand
+Pickup clear distance §Pickup verwijder afstand
+Dump world §Dump wereld
+Send clown van §Stuurt clown busje
+Make nearby peds hostile §Make voetgangers in de buurt vijandig
+Kick gun §Trap geweer
+Kidnap player §Kidnap speler
+Teleport nearby personal vehicles §Teleport nabije persoonlijke voertuigen
+sent a modded script event. §stuur een modded evenement script
+Modded script event §Modded script evenement
+Backwards traffic §Achterstevoren verkeer
+Swap nearby cars §Wissen nabije voertuigen
+Notification spam §Spam notificatie
+Notification spam §Spam notificatie
+Host token §Gastheer token
+Copy host token to clipboard §Kopieer gastheer token naar klembord
+Vehicle blacklist:\nGlitching §Voertuig zwarte lijst
+4 = Blame kill lobby\n5 = Kick player\n6 = Crash player §4 = Geef de schuld van de kill lobby\n5 = Trap speler\n6 = Crash speler
+One of the people further in host queue is your friend! Cancelled. §Een van de spelers in de gastheer wachtlijst is je vriend! Gecanceld.
+This language file is outdated, please update it. You can still use it, no problem. §Dit taal bestand is oud, aub updaten. Je kan het wel nog gebruiken, dat is geen probleem.
+Hurricane §Orkaan
+Vehicle gun /;/player feature|_|
+Delete gun /;/player feature|_|
+Explosion gun /;/player feature|_|
+Copy rid to clipboard /;/player feature|_|
+Copy position with decimals to clipboard /;/player feature|_|
+Copy position without decimal to clipboard /;/player feature|_|
+Copy ip to clipboard /;/player feature|_|
+Save all their stats to file /;/player feature|_|
+was set as the default language. /;/msg|_|
+This language file is outdated, please update it. You can still use it, no problem. /;/msg|_|
+You're missing a file in kekMenuLibs. Please reinstall Kek's menu. /;/msg|_|
+There's a library file which is the wrong version, please reinstall kek's menu. /;/msg|_|
+Something was wrong with the profiles names. Names set to default. /;/msg|_|
+Turned off script loader /;/msg|_|
+Turned on script loader /;/msg|_|
+Emptied script loader /;/msg|_|
+Added /;/msg|_|
+to script loader /;/msg|_|
+is already in the script loader /;/msg|_|
+Couldn't find file /;/msg|_|
+Removed /;/msg|_|
+from script loader /;/msg|_|
+autoexec doesn't exist /;/msg|_|
+Chat judge:\nBounty set on /;/msg|_|
+Chat judge:\nRamming /;/msg|_|
+with explosive tankers /;/msg|_|
+Chat judge:\nKicking player out of their vehicle. /;/msg|_|
+Chat judge:\nKicking /;/msg|_|
+Chat judge\nCrashing /;/msg|_|
+sent vote kick. Kicking them... /;/msg|_|
+has: /;/msg|_|
+has a modded scid. /;/msg|_|
+has a modded name. /;/msg|_|
+Recognized /;/msg|_|
+\nDetected: /;/msg|_|
+\nTags:\n /;/msg|_|
+Checked lobby for suspicious stats /;/msg|_|
+Checked blacklist. /;/msg|_|
+is spectating /;/msg|_|
+Changed the reason this person was added to the blacklist. /;/msg|_|
+Added to blacklist. /;/msg|_|
+Removed rid. /;/msg|_|
+Couldn't find player. /;/msg|_|
+Blacklist file doesn't exist. /;/msg|_|
+You can't add yourself to the blacklist... /;/msg|_|
+Rid is too short / invalid. /;/msg|_|
+Session is empty... /;/msg|_|
+players to the blacklist.\nChanged reasons for /;/msg|_|
+people already in the blacklist /;/msg|_|
+Removed session from the blacklist. /;/msg|_|
+One of the people further in host queue is your friend! Cancelled. /;/msg|_|
+Kicking /;/msg|_|
+, flags:\n /;/msg|_|
+Input too short. /;/msg|_|
+Entry is too short. /;/msg|_|
+Invalid entry. /;/msg|_|
+Couldn't find entry. /;/msg|_|
+Emptied vehicle blacklist. /;/msg|_|
+Vehicle blacklist:\nEMP'd /;/msg|_|
+Vehicle blacklist:\nKicked /;/msg|_|
+Vehicle blacklist:\nExploding /;/msg|_|
+out of their /;/msg|_|
+Vehicle blacklist:\nRamming /;/msg|_|
+Vehicle blacklist:\nCrashed /;/msg|_|
+for using /;/msg|_|
+Copied /;/msg|_|
+to clipboard. /;/msg|_|
+Player isn't in a vehicle. /;/msg|_|
+Cars spawned. /;/msg|_|
+Maxed everyone's cars. /;/msg|_|
+Please set a waypoint. /;/msg|_|
+Entry is already in there! /;/msg|_|
+Emptied. /;/msg|_|
+Successfully added entry. /;/msg|_|
+Entry was already added. /;/msg|_|
+Removed entry. /;/msg|_|
+Removed all entries. /;/msg|_|
+Disconnect attempt failed. Attempting method 2... /;/msg|_|
+The game will freeze, just wait 10 seconds. /;/msg|_|
+is not in a vehicle. /;/msg|_|
+No vehicle to copy. /;/msg|_|
+Maxed /;/msg|_|
+vehicle. /;/msg|_|
+Failed to get control of their car. /;/msg|_|
+Changed default vehicle. /;/msg|_|
+Invalid input. Default value remains the same. /;/msg|_|
+Invalid input. Plate text remains the same. /;/msg|_|
+Changed default plate text. /;/msg|_|
+Invalid object. /;/msg|_|
+This model is called: /;/msg|_|
+Saved their stats to a file. /;/msg|_|
+Hotkey:\nTurned on /;/msg|_|
+Hotkey:\nTurned off /;/msg|_|
+Hotkey:\nMaxed vehicle. /;/msg|_|
+Hotkey:\nSpawned vehicle. /;/msg|_|
+Hotkey:\nRepaired vehicle. /;/msg|_|
+vehicle fly. /;/msg|_|
+vehicle gun. /;/msg|_|
+Hotkey:\nDisconnected you from session. /;/msg|_|
+Hotkey:\nIncreased vehicle fly speed. /;/msg|_|
+Hotkey:\nDecreased vehicle fly speed. /;/msg|_|
+Turned off the keybinding:\n\" /;/msg|_|
+Keybinding not changed. Empty input or input is the same as existing keybinding. /;/msg|_|
+Invalid keybinding.\nIt's case sensitive, get it right. /;/msg|_|
+Most of the keys like, left shift. are written in all caps. Example: LSHIFT. /;/msg|_|
+Settings saved! /;/msg|_|
+Successfully loaded /;/msg|_|
+The setting file doesn't exist.\nPlease save to this slot in order to use it. /;/msg|_|
+Saved /;/msg|_|
+Invalid name. /;/msg|_|
+Saved profile name. /;/msg|_|
+Failed to save profile name. /;/msg|_|
+Successfully loaded Kek's menu. /;/msg|_|
+Type in what car to use /;/input_does_not_support_unicode|_|
+Type in the name of the lua script to add. /;/input_does_not_support_unicode|_|
+Type in the lua script you want to remove. /;/input_does_not_support_unicode|_|
+Type in why you're adding this person. Typing in nothing makes the reason: Manually added. /;/input_does_not_support_unicode|_|
+Type in social club ID, also known as: rid / scid. /;/input_does_not_support_unicode|_|
+Type in ip. /;/input_does_not_support_unicode|_|
+Type in their name. /;/input_does_not_support_unicode|_|
+Type in the why you're adding everyone. Typing in nothing makes the reason: Manually added. /;/input_does_not_support_unicode|_|
+Type in what player you wanna search for. rid / name / ip /;/input_does_not_support_unicode|_|
+Type in what to add. /;/input_does_not_support_unicode|_|
+Type in what to remove. /;/input_does_not_support_unicode|_|
+Type in which car to spawn /;/input_does_not_support_unicode|_|
+Type in part /;/input_does_not_support_unicode|_|
+of the text. All of these will be merged into one text. /;/input_does_not_support_unicode|_|
+Type in echo delay. /;/input_does_not_support_unicode|_|
+Type in what the bot will react to. /;/input_does_not_support_unicode|_|
+Type in what the bot will say to what you previously typed in. /;/input_does_not_support_unicode|_|
+Type in what the text the bot reacts to in the entry you wish to remove. /;/input_does_not_support_unicode|_|
+Type in answer delay. /;/input_does_not_support_unicode|_|
+Type in the name of the ped you want to spawn. /;/input_does_not_support_unicode|_|
+Type in the vehicle you want to be default. /;/input_does_not_support_unicode|_|
+Type in the text you want displayed on the backplate of your cars after maxing them. /;/input_does_not_support_unicode|_|
+Type in vehicle speed /;/input_does_not_support_unicode|_|
+Type in which car to ram with /;/input_does_not_support_unicode|_|
+Type in what object to use. /;/input_does_not_support_unicode|_|
+Type in which car to use for vehicle stuff. /;/input_does_not_support_unicode|_|
+Type in what you want the keybinding to be. /;/input_does_not_support_unicode|_|
+Type in the name of the profile. /;/input_does_not_support_unicode|_|
+Log: /;/setting|_|
+Kick: /;/setting|_|
+Max vehicle /;/hotkey|_|
+Spawn vehicle /;/hotkey|_|
+Repair vehicle /;/hotkey|_|
+Vehicle fly /;/hotkey|_|
+Vehicle gun /;/hotkey|_|
+Change vehicle used for vehicle stuff /;/hotkey|_|
+Disconnect from session /;/hotkey|_|
+Increase vehicle fly speed /;/hotkey|_|
+Decrease vehicle fly speed /;/hotkey|_|
+Chat judge:\nBlaming /;/feature|_|
+for killing session. /;/feature|_|
+Glitch their vehicle /;/player feature|_|
+Vehicle blacklist:\nGlitching /;/msg|_|
+Taze player /;/player feature|_|
+Perma-cage /;/player feature|_|
+Exclude friends from attacks /;/feature|_|
+Auto tag modders after sending kick /;/feature|_|
+Self options /;/parent|_|
+Max all weapons /;/feature|_|
+Randomize all weapons /;/feature|_|
+Give all weapons /;/feature|_|
+Max current weapon /;/feature|_|
+Randomize current weapon /;/feature|_|
+You're not holding a weapon. /;/msg|_|
+Random weapon camo /;/feature|_|
+Has a lot of money. /;/msg|_|
+Has Negative lvl /;/msg|_|
+Has Negative k/d /;/msg|_|
+Has a high rank. /;/msg|_|
+Has a high k/d. /;/msg|_|
+Has modded armor. /;/msg|_|
+Block areas /;/parent|_|
+Block all los santos customs /;/feature|_|
+Block all Ammu-Nations /;/feature|_|
+Block casino /;/feature|_|
+Teleport player far away /;/player feature|_|
+Found player you were trying to add in your session. Added all their info. /;/msg|_|
+Rid /;/msg|_|
+IP /;/msg|_|
+Name /;/msg|_|
+Successfully gave /;/msg|_|
+vehicle /;/msg|_|
+godmode. /;/msg|_|
+Failed to get control of /;/msg|_|
+Set controller hotkeys /;/feature|_|
+Press key to set to hotkey.\nTo turn off hotkey, press f4. /;/msg|_|
+Turned off the hotkey:\n /;/msg|_|
+Changed /;/msg|_|
+to /;/msg|_|
+Turned off /;/feature|_|
+Hotkey:\nRandomized current weapon. /;/msg|_|
+Max kicks for auto host /;/feature|_|
+Type in clear distance limit. /;/input_does_not_support_unicode|_|
+Vehicle clear distance /;/feature|_|
+Ped clear distance /;/feature|_|
+Object clear distance /;/feature|_|
+Pickup clear distance /;/feature|_|
+Dump world /;/player feature|_|
+Send clown van /;/player feature|_|
+Make nearby peds hostile /;/player feature|_|
+Kick gun /;/player feature|_|
+Kidnap player /;/player feature|_|
+Teleport nearby personal vehicles /;/feature|_|
+Backwards traffic /;/feature|_|
+Swap nearby cars /;/feature|_|
+Notification spam /;/player feature|_|
+Notification spam /;/feature|_|
+Copy host token to clipboard /;/player feature|_|
+Spawn vehicles maxed /;/feature|_|
+Delete old vehicle /;/feature|_|
+Spawn inside of spawned vehicle /;/feature|_|
+Always spawn with f1 wheels /;/feature|_|
+Always ask what vehicle /;/feature|_|
+Spawn air vehicle mid-air /;/feature|_|
+Spawn vehicles in godmode /;/feature|_|
+Vehicle can't be locked on /;/player feature|_|
+Remove their vehicle /;/player feature|_|
+Freeze session /;/feature|_|
+Ai driving /;/parent|_|
+Stop before vehicles /;/feature|_|
+Stop before peds /;/feature|_|
+Avoid vehicles /;/feature|_|
+Avoid empty vehicles /;/feature|_|
+Avoid peds /;/feature|_|
+Avoid objects /;/feature|_|
+Unknown /;/feature|_|
+Stop at traffic lights /;/feature|_|
+Use blinkers /;/feature|_|
+Allow going wrong way /;/feature|_|
+Drive in reverse /;/feature|_|
+Take shortest path /;/feature|_|
+Allow overtaking vehicles /;/feature|_|
+Ignore roads /;/feature|_|
+Ignore all pathing /;/feature|_|
+Avoid highways /;/feature|_|
+Drive to waypoint /;/feature|_|
+Follow player /;/player feature|_|
+Wander around /;/feature|_|
+Drive speed /;/feature|_|
+Sort search from newest /;/feature|_|
+Drive style /;/parent|_|
+Max nearby cars /;/feature|_|
+Repair nearby cars /;/feature|_|
+Give nearby cars godmode /;/feature|_|
+Nearby cars have no collision /;/feature|_|
+Chaos mode /;/feature|_|
+Send clown vans to session /;/feature|_|
+Clear all owned entities /;/feature|_|
+Saved to /;/msg|_|
+Take revenge on death /;/feature|_|
+Aim protection /;/feature|_|
+Blame kill session /;/player feature|_|
+Nearby cars have zero gravity /;/feature|_|
+Entity manager /;/parent|_|
+Entity manager /;/feature|_|
+Vehicles /;/parent|_|
+Peds /;/parent|_|
+Objects /;/parent|_|
+Unknown_name /;/feature|_|
+Explode /;/feature|_|
+Delete /;/feature|_|
+Resurrect /;/feature|_|
+Teleport in front of you /;/feature|_|
+Godmode /;/feature|_|
+Zero gravity /;/feature|_|
+Copy position to clipboard /;/feature|_|
+Copy hash to clipboard /;/feature|_|
+Teleport in front of player /;/parent|_|
+Teleport to entity /;/feature|_|
+Follow entity /;/feature|_|
+Set yourself in seat /;/feature|_|
+All entities of this type /;/parent|_|
+Set speed /;/feature|_|
+Disable ped spawning /;/feature|_|
+Disable vehicle spawning /;/feature|_|
+Save all script events this person sent /;/feature|_|
+Cops clear distance /;/feature|_|
+Set on fire /;/feature|_|
+Clear ped tasks /;/feature|_|
+Send kek's chopper to session /;/feature|_|
+Session trolling /;/parent|_|
+Vehicles /;/feature|_|
+Peds /;/feature|_|
+Objects /;/feature|_|
+Pickups /;/feature|_|
+Peds & vehicles /;/feature|_|
+All /;/feature|_|
+Cops /;/feature|_|
+Kill player /;/feature|_|
+Send clown van /;/feature|_|
+Kick from session /;/feature|_|
+Crash /;/feature|_|
+Blame for killing session /;/feature|_|
+Random /;/feature|_|
+Bounty /;/feature|_|
+Ram /;/feature|_|
+Kick from vehicle /;/feature|_|
+EMP /;/feature|_|
+Explode /;/feature|_|
+Glitch their vehicle /;/feature|_|
+Remove /;/feature|_|
+30k ceo loop /;/player feature|_|
+Send army /;/feature|_|
+Chat logger /;/feature|_|
+Type in chat spam speed /;/input_does_not_support_unicode|_|
+Script quick access /;/feature|_|
+Log modders to join timeout /;/feature|_|
+Cleared owned entities. /;/msg|_|
+Clear owned entities /;/hotkey|_|
+Exclude you from session trolling /;/feature|_|
+Spam text /;/feature|_|
+From clipboard /;/feature|_|
+From clipboard & send each line /;/feature|_|
+From file /;/feature|_|
+From file & send each line /;/feature|_|
+Send each line /;/feature|_|
+Chat commands /;/parent|_|
+Chat commands /;/feature|_|
+Send chat command info every 15th min /;/feature|_|
+Remove wanted level /;/feature|_|
+Kill player /;/feature|_|
+Only friends can use commands /;/feature|_|
+Teleport to /;/feature|_|
+This player can't use chat commands /;/player feature|_|
+Cage player /;/feature|_|
+Kick /;/feature|_|
+Crash /;/feature|_|
+Teleport /;/parent|_|
+Type in name of teleport. /;/input_does_not_support_unicode|_|
+Save current position /;/feature|_|
+Rename /;/feature|_|
+Hotkey /;/feature|_|
+Send attack chopper /;/feature|_|
+Float /;/player feature|_|
+Show host from previous session /;/feature|_|
+Last host /;/feature|_|
+Modded vehicles /;/parent|_|
+Type in name of modded vehicle. /;/input_does_not_support_unicode|_|
+Search /;/feature|_|
+Modded vehicle /;/feature|_|
+Crash /;/player feature|_|
+Failed to load vehicle. /;/msg|_|
+exact /;/feature|_|
+pattern /;/feature|_|
+Godmode detection /;/feature|_|
+is in godmode. /;/feature|_|
+Suspicious activity /;/feature|_|
+bypassed max speed. /;/msg|_|
+super jumped. /;/msg|_|
+Kill /;/feature|_|
+Clowns /;/feature|_|
+Kill session /;/feature|_|
+Revenge: /;/feature|_|
+Turned off /;/feature|_|
+Horn boost /;/player feature|_|
+Notifications /;/feature|_|
+Auto kicker notifications /;/feature|_|
+Always /;/feature|_|
+If host /;/feature|_|
+Give nearby players horn boost /;/feature|_|
+Error /;/msg|_|
+Missing vehicle files. /;/msg|_|
+Turn everything off /;/feature|_|
+Menyoo vehicle /;/feature|_|
+Teleport player to player /;/player feature|_|
+First seen /;/feature|_|
+Last seen /;/feature|_|
+Seen /;/feature|_|
+times. /;/feature|_|
+Super jump detection /;/feature|_|
+Atomize /;/player feature|_|
+Load /;/feature|_|
+Save /;/feature|_|
+Change name /;/feature|_|

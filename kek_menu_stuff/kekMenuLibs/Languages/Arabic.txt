@@ -1,0 +1,616 @@
+Kek's menu §Kek's menu
+General settings §ﺔﻣﺎﻌﻟﺍ ﺕﺍﺩﺍﺪﻋﻻﺍ
+Vehicle §ﺕﺎﺒﻛﺮﻤﻟﺍ
+Self §ﻲﺴﻔﻧ
+Vehicle peaceful §ﺕﺎﺒﻛﺮﻤﻠﻟ ﺔﻤﻟﺎﺴﻣ ﺕﺍﺭﺎﻴﺧ
+Vehicle settings §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺕﺍﺩﺍﺪﻋﺍ
+Vehicle blacklist §ﺕﺎﺒﻛﺮﻤﻠﻟ ﺖﺴﻟ ﻙﻼﺒﻟﺍ
+Session malicious §ﻦﺸﻴﺴﻠﻟ ﻩﺭﺎﺿ ﺕﺍﺭﺎﻴﺧ
+Player history §ﻦﻴﺒﻋﻼﻟﺍ ﺦﻳﺭﺎﺗ
+Scripts §ﺕﺎﺘﺑﺮﻜﺴﻟﺍ
+Settings §ﺕﺍﺩﺍﺪﻋﻻﺍ
+Chat §ﺕﺎﺸﻟﺍ
+Custom chat judger §ﺺﺼﺨﻣ ﺕﺎﺷ ﻲﺿﺎﻗ
+Chat bot §ﺕﺎﺸﻟﺍ ﺕﻮﺑ
+Chat spamming §ﺕﺎﺸﻟﺍ ﻡﺎﺒﺳ
+Hotkey settings §ﺕﺍﺭﺎﺼﺘﺧﻻﺍ ﺕﺍﺩﺍﺪﻋﺍ
+Modder detection §ﺯﺭﺩﻮﻤﻟﺍ ﻒﺸﻛ
+Protections §ﺔﻳﺎﻤﺤﻟﺍ
+Modder logging settings §ﺯﺭﺩﻮﻤﻟﺍ ﻞﻴﺠﺴﺗ ﺕﺍﺩﺍﺪﻋﺍ
+Auto kick tag settings §ﻲﺋﺎﻘﻠﺘﻟﺍ ﺩﺮﻄﻠﻟ ﺰﻗﺎﺘﻟﺍ ﺕﺍﺩﺍﺪﻋﺍ
+Which modder detections are on §ﺔﻠﻌﻔﻣ ﺯﺭﺩﻮﻤﻟﺍ ﻑﺎﺸﺘﻛﺍ ﺕﺍﺩﺍﺪﻋﺍ ﻦﻣ ﻱﺃ
+Weapons §ﺔﺤﻠﺳﻻﺍ
+Kek's utilities §Kek's ﺕﺍﻭﺍﺩﺍ
+Script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺳ
+Language configuration §ﺔﻐﻠﻟﺍ ﺕﺍﺩﺍﺪﻋﺍ
+Trolling §ﻖﻨﻟﻭﺮﺗ
+Malicious §ﻩﺭﺎﺿ ﺕﺍﺭﺎﻴﺧ
+Scripts §ﺕﺎﺘﺑﺮﻜﺳ
+Set §ﻊﺿﻭ
+as default language. §ﺔﻴﺳﺎﺳﻻﺍ ﺔﻐﻠﻟﺍ ﻰﻟﺍ
+Empty script loader file §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻒﻠﻣ ﻍﺍﺮﻓﺍ
+Add script to auto loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻰﻠﻟﺍ ﺖﺑﺮﻜﺴﻟﺍ ﺔﻓﺎﺿﺍ
+Remove script from auto loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻦﻣ ﺖﺑﺮﻜﺴﻟﺍ ﺔﻟﺍﺯﺍ
+Modded name detection §ﺩﺩﻮﻤﻟﺍ ﻢﺳﻻﺍ ﻒﺸﻛ
+Entity crash protection §ﺕﺎﻨﺋﺎﻜﻟﺍ ﻦﻣ ﺵﺍﺮﻜﻟﺍ ﺔﻳﺎﻤﺣ
+Blacklist §ﺖﺴﻟ ﻙﻼﺒﻟﺍ
+Check people's stats automatically §ﺎﻴﺋﺎﻘﻠﺗ ﻦﻴﺒﻋﻼﻟﺍ ﺲﺗﺎﺘﺳ ﻦﻣ ﻖﻘﺤﺗ
+Detect any modded spectate §spectate ﺩﺩﻮﻤﻟﺍ ﻦﻋ ﻒﺸﻜﻟﺍ
+Kick any vote kickers §ﺩﺮﻄﻟﺍ ﻰﻠﻋ ﻦﻴﺗﻮﺼﻤﻟﺍ ﻱﺍ ﺩﺮﻃ
+Add session §ﻦﺸﻴﺴﻟﺍ ﺔﻓﺎﺿﺍ
+Remove session§ﻦﺸﻴﺴﻟﺍ ﺔﻟﺍﺯﺍ
+Get host automatically §ﺎﻴﺋﺎﻘﻠﺗ ﺖﺳﻮﻬﻟﺍ ﻰﻠﻋ ﻞﺼﺣﺍ
+Log modders with selected tags to blacklist §ﺓﺩﺪﺤﻤﻟﺍ ﺰﻗﺎﺘﻟﺍ ﻊﻣ ﺯﺭﺩﻮﻤﻟﺍ ﻞﻴﺠﺴﺗ
+Auto kicker §ﻲﺋﺎﻘﻠﺘﻟﺍ ﺩﺮﻄﻟﺍ
+Ram everyone §ﻊﻴﻤﺠﻟﺍ ﻡﺪﺻ
+Vehicle fly nearby vehicles §ﺔﺒﻳﺮﻘﻟﺍ ﺕﺎﺒﻛﺮﻤﻟﺎﺑ ﻥﺍﺮﻴﻄﻟﺍ
+Disable vehicles §ﺕﺎﺒﻛﺮﻤﻟﺍ ﻞﻴﻄﻌﺗ
+Copy rid to clipboard §ﻱﺩ ﻱﺍ ﺭﺎﺘﺴﻛﻭﺮﻟﺍ ﺦﺴﻧ
+Copy ip to clipboard §ﻲﺑ ﻱﻻﺍ ﺦﺴﻧ
+Player history §ﻦﻴﺒﻋﻼﻟﺍ ﺦﻳﺭﺎﺗ
+Clear search list §ﺚﺤﺒﻟﺍ ﺔﻤﺋﺎﻗ ﺔﻟﺍﺯﺍ
+Search §ﺚﺤﺑ
+Vehicle blacklist §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ
+Spawn vehicle for everyone §ﻊﻴﻤﺠﻠﻟ ﺔﺒﻛﺮﻣ ﻥﻭﺎﺒﺳ
+Max everyone's car §ﻲﺷ ﻰﻠﻋﻷ ﻊﻴﻤﺠﻟﺍ ﺕﺎﺒﻛﺮﻣ ﻝﺪﻋ
+Current position §ﻲﻟﺎﺤﻟﺍ ﻥﺎﻜﻤﻠﻟ
+Waypoint §ﺖﻨﻳﻮﺑ ﻱﺍﻮﻟﺍ
+Get host §ﺖﺳﻮﻬﻟﺍ ﻰﻠﻋ ﻞﺼﺣﺍ
+Give session bounty §ﻦﺸﻴﺴﻟﺍ ﻰﻠﻋ ﻲﺘﻧﻭﺎﺑ ﻊﺿ
+Never wanted §ﺔﻃﺮﺷ ﻥﻭﺪﺑ
+off the radar §ﺏﺎﻤﻟﺍ ﻦﻣ ﺀﺎﻔﺧﺍ
+Reapply bounty §ﻲﺘﻧﻭﺎﺒﻟﺍ ﻊﺿﻭ ﺓﺩﺎﻋﺍ
+Send to random mission §ﺔﻴﺋﺍﻮﺸﻋ ﺔﻤﻬﻣ ﻰﻟﺍ ﻝﺎﺳﺭﻻﺍ
+Perico island §ﻮﻛﺮﻴﺑ ﺓﺮﻳﺰﺟ
+Apartment invites §ﻖﻘﺸﻠﻟ ﺕﺍﻮﻋﺩ
+Ban §ﻥﺎﺑ
+Dismiss §ﺩﺮﻃ
+Terminate §ﺀﺎﻬﻧﺍ
+Transaction error §ﻦﺸﻛﺎﺴﻧﺍﺮﺘﻟﺍ ﻂﻠﻏ
+Custom chat judge §ﺺﺼﺨﻤﻟﺍ ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ
+Spam speed, click to type §ﺔﺑﺎﺘﻜﻠﻟ ﻂﻐﺿﺍ ,ﻡﺎﺒﺴﻟﺍ ﺔﻋﺮﺳ
+Text to spam, type it in §ﺐﺘﻜﺗ ﻥﺎﺸﻋ ﻂﻐﺿﺍ ,ﻡﺎﺒﺴﻟﺍ ﻡﻼﻛ
+Grab text from clipboard(what u copied) §(ﻪﺘﺨﺴﻧ ﻲﻠﻟﺍ) ﺩﺭﻮﺑ ﺐﻴﻠﻜﻟﺍ ﻦﻣ ﻡﻼﻜﻟﺍ ﺬﺧﺍ
+Grab text from clipboard and send each line §ﺮﻄﺳ ﻞﻛ ﻝﺎﺳﺭﺍ ﻭ ﺩﺭﻮﺑ ﺐﻴﻠﻜﻟﺍ ﻦﻣ ﻡﻼﻜﻟﺍ ﺬﺧﺍ
+Grab text from file §ﻒﻠﻣ ﻦﻣ ﻡﻼﻜﻟﺍ ﺬﺧﺍ
+Random text from file §ﻒﻠﻣ ﻦﻣ ﻲﺋﺍﻮﺸﻋ ﻡﻼﻛ
+Echo delay, click to type §ﻯﺪﺼﻟﺍ ﺮﻴﺧﺄﺗ
+Echo chat §ﺕﺎﺸﻟﺍ ﻯﺪﺻ
+Answer delay chatbot §ﺕﻮﺑ ﺕﺎﺸﻟﺍ ﺔﺑﺎﺟﺍ ﺮﻴﺧﺄﺗ
+Chat bot §ﺕﻮﺑ ﺕﺎﺸﻟﺍ
+Max car §ﺲﻛﺎﻤﻟﺍ ﻰﻟﺍ ﺓﺭﺎﻴﺴﻟﺍ ﻞﻳﺪﻌﺗ
+Change default vehicle §ﺔﻴﺳﺎﺳﻻﺍ ﺔﺒﻛﺮﻤﻟﺍ ﺮﻴﻴﻐﺗ
+Change backplate text §ﺔﺣﻮﻠﻟﺍ ﻢﻗﺭ ﺮﻴﻴﻐﺗ
+What vehicle to spawn §ﻥﻭﺎﺒﺴﻠﻟ ﺔﺒﻛﺮﻣ ﻱﺍ
+Spawn vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ
+Vehicle fly speed, click to type §ﺔﺒﻛﺮﻤﻟﺎﺑ ﻥﺍﺮﻴﻃ
+Vehicle fly §ﺔﺒﻛﺮﻤﻟﺎﺑ ﻥﺍﺮﻴﻃ
+Type in what object §ﺖﻜﻴﺠﺑﻭﺍ ﻱﺍ ﺐﺘﻛﺍ
+Object gun §ﺲﺘﻜﻴﺠﺑﻭﻻﺍ ﺡﻼﺳ
+Airstrike gun §(ﻚﻳﺍﺮﺘﺳ ﺮﻳﺍ) ﺔﻳﻮﺠﻟﺍ ﺔﺑﺮﻀﻟﺍ ﺡﻼﺳ
+What vehicle vehicle gun §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺡﻼﺴﻟ ﺔﺒﻛﺮﻣ ﻱﺍ
+Vehicle gun §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺡﻼﺳ
+Clear entity type §ﻦﺋﺎﻜﻟﺍ ﻉﻮﻧ ﻑﺬﺣ
+Shoot entity| get model name of entity §ﻦﺋﺎﻜﻟﺍ ﻦﻣ ﻞﻳﺩﻮﻤﻟﺍ ﻢﺳﺍ ﺬﺧﺍ | ﻦﺋﺎﻛ ﻖﻠﻃﺍ
+save to default §ﻲﺳﺎﺳﻻﺍ ﻰﻠﻋ ﺕﺍﺩﺍﺪﻋﻻﺍ ﻆﻔﺣ
+Script event crash §ﺵﺍﺮﻛ ﺖﺑﺮﻜﺳ
+Spawn a ped §ﺪﻴﺒﻠﻟ ﻥﻭﺎﺒﺳ
+Car godmode §ﺓﺭﺎﻴﺴﻠﻟ ﺩﻮﻗ
+Vehicle fly player §ﺐﻋﻼﻟﺍ ﺓﺭﺎﻴﺳ ﻥﺍﺮﻴﻃ
+Spastic car §ﺐﻋﻼﻟﺍ ﺓﺭﺎﻴﺴﻟ ﺞﻨﺸﺗ
+Off the radar §ﺏﺎﻤﻟﺍ ﻦﻣ ﺀﺎﻔﺧﺍ
+apply bounty §ﻲﺘﻧﻭﺎﺒﻟﺍ ﻊﺿﻭ
+Reapply bounty §ﻲﺘﻧﻭﺎﺒﻟﺍ ﻊﺿﻭ ﻩﺩﺎﻋﺍ
+Apartment invites §ﻖﻘﺸﻟﺍ ﺕﺍﻮﻋﺩ
+Send to random mission §ﺔﻴﺋﺍﻮﺸﻋ ﺕﺎﻤﻬﻣ ﻰﻟﺍ ﻝﺎﺳﺭﻻﺍ
+Ram player with vehicle §ﺔﺒﻛﺮﻤﻟﺎﺑ ﺐﻋﻼﻟﺍ ﻡﺪﺻ
+Hurricane §ﺭﺎﺼﻋﺍ
+Delete gun §ﻑﺬﺤﻟﺍ ﺡﻼﺳ
+Explosion gun §ﺕﺍﺭﺎﺠﻔﻧﻻﺍ ﺡﻼﺳ
+was set as the default language. §ﺔﻴﺴﻴﺋﺮﻟﺍ ﺔﻐﻠﻟﺍ ﺭﺎﺻ
+Current language file is outdated, switched to english. §.ﺔﻳﺰﻴﻠﻘﻧﻻﺍ ﻰﻟﺍ ﻞﻳﻮﺤﺗ ,ﺔﻤﻳﺪﻗ ﺔﻴﻟﺎﺤﻟﺍ ﺔﻐﻠﻟﺍ
+You're missing a file in kekMenuLibs. Please reinstall Kek's menu. §.Kek's Menu ﺖﻴﺒﺜﺗ ﺓﺩﺎﻋﺍ ﺀﺎﺟﺮﻟﺍ .kekMenuLibs ﻲﻓ ﺩﻮﻘﻔﻣ ﻒﻠﻣ
+There's a library file which is the wrong version, please reinstall kek's menu. §.Kek's Menu ﺖﻴﺒﺜﺗ ﺓﺩﺎﻋﺍ ﺀﺎﺟﺮﻟﺍ ,ﺢﻴﺤﺻ ﺮﻴﻏ ﺭﺍﺪﺻﺍ ﻊﻣ ﻒﻠﻣ ﻙﺎﻨﻫ
+Turned off script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﺀﺎﻔﻃﺍ ﻢﺗ
+Turned on script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻞﻴﻌﻔﺗ ﻢﺗ
+Emptied script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻍﺍﺮﻓﺍ ﻢﺗ
+Added §ﺔﻓﺎﺿﻻﺍ ﺖﻤﺗ
+to script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻰﻟﺍ
+is already in the script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻲﻓ ﺩﻮﺟﻮﻣ
+Couldn't find file §ﻒﻠﻤﻟﺍ ﺪﺟﻮﻳ ﻢﻟ
+Removed §ﺔﻟﺍﺯﻻﺍ ﺖﻤﺗ
+from script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻦﻣ
+autoexec doesn't exist §autoexec ﺪﺟﻮﻳ ﻢﻟ
+Chat judge:\nBounty set on §ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ:\nﻰﻠﻋ ﻲﺘﻧﻭﺎﺒﻟﺍ ﺖﻌﺿﻭ
+Chat judge:\nRamming §:ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\nﻡﺪﺻ ﻱﺭﺎﺟ
+with explosive tankers §ﺓﺮﺠﻔﺘﻣ ﺕﺎﻧﺍﺰﺧ ﻊﻣ
+out of their vehicle. §ﻢﻬﺘﺒﻛﺮﻣ ﺝﺭﺎﺧ
+Chat judge:\nKicking §ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\n:ﺩﺮﻃ ﻱﺭﺎﺟ
+Chat judge\nCrashing §ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\nﻰﻠﻋ ﺵﺍﺮﻜﻟﺍ ﻱﺭﺎﺟ
+sent vote kick. Kicking them... §...ﻩﺩﺮﻃ ﻱﺭﺎﺟ .ﺩﺮﻄﻠﻟ ﺖﻳﻮﺼﺗ ﻞﺳﺭﺍ
+tried to crash you. §ﺵﺍﺮﻛ ﻚﻠﻳﻮﺴﻳ ﻝﻭﺎﺣ
+has: §ﺓﺪﻨﻋ
+has a modded name. §Modded ﺔﻤﺳﺍ
+Recognized §ﻰﻠﻋ ﻑﺮﻌﺗ ﻢﺗ
+\nDetected: §\nﻑﺎﺸﺘﻛﺍ ﻢﺗ:
+\nTags:\n §\n:ﺕﺎﻗﺎﺗ\n
+Checked blacklist. §.ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﺺﺤﻓ ﻢﺗ
+is spectating §spectate ﻱﻮﺴﻳ
+Changed the reason this person was added to the blacklist. §.ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻰﻟﺍ ﺺﺨﺸﻟﺍ ﺍﺬﻫ ﺔﻓﺎﺿﺍ ﺐﺒﺳ ﺮﻴﻴﻐﺗ ﻢﺗ
+Added to blacklist. §.ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻰﻟﺍ ﺔﻓﺎﺿﻻﺍ ﺖﻤﺗ
+Removed rid. §.RIDﻝﺍ ﺔﻟﺍﺯﺍ ﺖﻤﺗ
+Couldn't find player. §.ﺐﻋﻼﻟﺍ ﺩﺎﺠﻳﺍ ﻦﻣ ﻦﻜﻤﺘﻳ ﻢﻟ
+Blacklist file doesn't exist. §.ﺩﻮﺟﻮﻣ ﺮﻴﻏ ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻒﻠﻣ
+You can't add yourself to the blacklist... §...ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻰﻟﺍ ﻚﺴﻔﻧ ﺔﻓﺎﺿﺍ ﻚﻨﻜﻤﻳ ﻻ
+Kicking §ﺩﺮﻄﻟﺍ ﻱﺭﺎﺟ
+, flags:\n §, ﺕﺎﻣﻼﻋ:\n
+6 = Kick\n7 = Crash\n0 = random reaction(not kick or crash) §6 = ﺩﺮﻃ\n7 = ﺵﺍﺮﻛ\n0 = (ﺵﺍﺮﻛ ﻭﺍ ﺩﺮﻃ ﺐﻣ) ﻲﺋﺍﻮﺸﻋ
+Invalid entry. §.ﺢﻴﺤﺻ ﺮﻴﻏ ﻝﺎﺧﺩﺍ
+Couldn't find entry. §.ﻞﺧﺪﻤﻟﺍ ﺩﺎﺠﻳﺍ ﻦﻣ ﻦﻜﻤﺘﻳ ﻢﻟ
+Emptied vehicle blacklist. §.ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ ﻍﺍﺮﻓﺍ ﻢﺗ
+Vehicle blacklist:\nEMP'd §:ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ\nEMPﻝﺍ ﻢﺗ
+Vehicle blacklist:\nKicked §:ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ\nﺩﺮﻄﻟﺍ ﻢﺗ
+Vehicle blacklist:\nExploding §:ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ\nﺮﻴﺠﻔﺗ
+out of their §ﺝﺭﺎﺧ
+Vehicle blacklist:\nRamming §:ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ\nﻡﺪﺻ
+Vehicle blacklist:\nCrashed §:ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ\nCrashﻝﺍ ﻢﺗ
+for using §ﻡﺍﺪﺨﺘﺳﻻ
+to clipboard. §ﺦﺴﻨﻟﺍ ﺔﻤﺋﺎﻗ ﻰﻟﺍ
+Cars spawned. §.ﺕﺍﺭﺎﻴﺴﻠﻟ ﻥﻭﺎﺒﺴﻟﺍ ﻢﺗ
+Maxed everyone's cars. §.ﺲﻛﺎﻤﻟﺍ ﻰﻟﺍ ﻊﻴﻤﺠﻟﺍ ﺕﺍﺭﺎﻴﺳ ﻞﻳﺪﻌﺗ ﻢﺗ
+Please set a waypoint. §.ﺖﻨﻳﻮﺑ ﻱﺍﻮﻟﺍ ﻊﺿﻭ ﺀﺎﺟﺮﻟﺍ
+Successfully added entry. §.ﺡﺎﺠﻨﺑ ﻞﺧﺪﻤﻟﺍ ﺔﻓﺎﺿﺍ ﻢﺗ
+Removed entry. §.ﻞﺧﺪﻤﻟﺍ ﺔﻟﺍﺯﺍ ﻢﺗ
+is not in a vehicle. §.ﺔﺒﻛﺮﻣ ﻲﻓ ﺲﻴﻟ
+Changed default vehicle. §.ﺔﻴﺳﺎﺳﻻﺍ ﺔﺒﻛﺮﻤﻟﺍ ﺮﻴﻴﻐﺗ ﻢﺗ
+Invalid input. Default value remains the same. §.ﺮﻴﻐﺘﺗ ﻢﻟ ﺔﻴﺳﺎﺳﻻﺍ ﺔﻤﻴﻘﻟﺍ .ﺢﻴﺤﺻ ﺮﻴﻏ ﻞﺧﺪﻤﻟﺍ
+Invalid object. §.ﺢﻴﺤﺻ ﺮﻴﻏ object
+Hotkey:\nTurned on §:ﺭﺎﺼﺘﺧﺍ\nﻞﻴﻌﻔﺘﻟﺍ ﻢﺗ
+Hotkey:\nTurned off §:ﺭﺎﺼﺘﺧﺍ\nﺀﺎﻔﻃﻻﺍ ﻢﺗ
+Hotkey:\nMaxed vehicle. §:ﺭﺎﺼﺘﺧﺍ\nﺲﻛﺎﻤﻟﺍ ﻰﻟﺍ ﻞﻳﺪﻌﺘﻟﺍ ﻢﺗ
+Hotkey:\nSpawned vehicle. §:ﺭﺎﺼﺘﺧﺍ\nﺔﺒﻛﺮﻤﻠﻟ ﻥﻭﺎﺒﺴﻟﺍ ﻢﺗ
+Hotkey:\nRepaired vehicle. §:ﺭﺎﺼﺘﺧﺍ\nﺔﺒﻛﺮﻤﻟﺍ ﺡﻼﺻﺍ ﻢﺗ
+vehicle fly. §.ﺔﺒﻛﺮﻤﻟﺍ ﻥﺍﺮﻴﻃ
+vehicle gun. §.ﺕﺎﺒﻛﺮﻤﻟﺍ ﺡﻼﺳ
+Turned off the keybinding:\n\" §:ﺭﺎﺼﺘﺧﻻﺍ ﺀﺎﻔﻃﺍ ﻢﺗ\n\"
+Keybinding not changed. Empty input or input is the same as existing keybinding. §.ﺩﻮﺟﻮﻣ ﺭﺎﺼﺘﺧﺍ ﺲﻔﻧ  ﻭﺍ ﻲﺿﺎﻓ ﻞﺧﺪﻤﻟﺍ .ﺮﻴﻐﺘﻳ ﻢﻟ ﺭﺎﺼﺘﺧﻻﺍ
+Invalid keybinding.\nIt's case sensitive, get it right. §.ﺢﻴﺤﺻ ﺮﻴﻏ ﺭﺎﺼﺘﺧﺍ\n.ﻑﺮﺤﻟﺍ ﻢﺠﺣ ﻰﻠﻋ ﺪﻤﺘﻌﺗ ﺕﺍﺭﺎﺼﺘﺧﻻﺍ
+Most of the keys like, left shift. are written in all caps. Example: LSHIFT. §.LSHIFT :ﻝﺎﺜﻣ .ﺓﺮﻴﺒﻛ ﻑﻭﺮﺤﺑ ﺔﺑﻮﺘﻜﻣ ﺮﻴﺼﺗ .left shift ﻱﺯ ﺭﺍﺭﺯﻻﺍ ﺐﻠﻏﺍ
+Settings saved! §!ﺕﺍﺩﺍﺪﻋﻻﺍ ﻆﻔﺣ ﻢﺗ
+Successfully loaded §ﺡﺎﺠﻨﺑ ﻞﻴﻤﺤﺘﻟﺍ ﻢﺗ
+Saved §tm al7f6'
+Saved profile name. §tm 7f6' alasm
+Successfully loaded Kek's menu. §Successfully loaded Kek's menu.
+Type in what car to use §ﻡﺍﺪﺨﺘﺳﻼﻟ ﺓﺭﺎﻴﺳ ﻱﺍ ﺐﺘﻛﺍ
+Type in the name of the lua script to add. §aktb al lua ally tryd a9'afth
+Type in the lua script you want to remove. §aktb al lua ally tryd azalth
+Type in why you're adding this person. §aktb lma4a a9'ft h4a alsh5s. a4a lm yktb shey alsbb sykon: an9'af ydoyan
+Type in social club ID, also known as: rid / scid. §aktb rockstar id
+Type in ip. §aktb ip
+Type in the why you're adding this person. Typing in nothing makes the reason: Manually added. §aktb lma4a a9'ft h4a alsh5s. a4a lm yktb shey alsbb sykon: an9'af ydoyan
+Type in their name. §aktb asmhm
+Type in why you're adding everyone. §aktb lma4a a9'ft al jmy3. a4a lm yktb shey alsbb sykon: an9'af ydoyan
+Type in what player you wanna search for. rid / name / ip §aktb ay la3b tryd al b7th 3nh. rockstar id \ asm \ ip
+Type in what to add. §aktb ma tryd a4afth
+Type in what to remove. §aktb ma tryd 74fh
+Type in which car to spawn §aktb ma al syarh allty tryd an tsoy spawn lha
+Type in echo delay. §aktb ta5yr al9da
+Type in what the bot will react to. §aktb ma al bot sof yrd 3lyh
+Type in what the bot will say to what you previously typed in. §aktb al rd 3la ma ktbta mn 8bl
+Type in what the text the bot reacts to in the entry you wish to remove. §aktb rdh al f3l al4y trydha
+Type in answer delay. §aktb ta5yr al ajabh
+Type in the name of the ped you want to spawn. §aktb asm al ped al4y tryd an tsoy spawn lh
+Type in the vehicle you want to be default. §aktb ma al mrkbh al4y tryd an tkon al assasyh
+Type in the text you want displayed on the backplate of your cars after maxing them. §ﺔﺣﻮﻠﻟﺍ ﻰﻠﻋ ﻊﻠﻄﻳ ﻲﺒﺗ ﺵﻭ ﺐﺘﻛﺍ
+Type in vehicle speed §aktb sr3h al mrkbh
+Type in which car to ram with §aktb ma al mrkbh alty tryd an t9dm alla3b bha
+Type in what object to use. §aktb ma al object al4y tryd an tst5dm
+Type in which car to use for vehicle stuff. §aktb ma al syarh alty tryd an tst5dmha la vehicle stuff
+Type in what you want the keybinding to be. §aktb ma tryd al a5t9ar an ykon
+Type in the name of the profile. §aktb asm al mlf 78 al a3dadat
+Log: §:ﻞﺠﺳ
+Kick: §:ﺩﺮﻃ
+Max vehicle §ﺲﻛﺎﻤﻟﺍ ﻰﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﻞﻳﺪﻌﺗ
+Spawn vehicle §ﺔﺒﻛﺮﻤﻠﻟ ﻥﻭﺎﺒﺳ
+Repair vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﺢﻴﻠﺼﺗ
+Vehicle fly §ﺔﺒﻛﺮﻤﻟﺍ ﻥﺍﺮﻴﻃ
+Vehicle gun §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺡﻼﺳ
+Glitch vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﺶﺘﻠﻗ
+Vehicle blacklist:\nGlitching §blacklist almrkbat:\nGlitch
+Chat judge:\nBlaming §:ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\nﻡﻮﻟ
+for killing session. §ﻦﺸﻴﺴﻟﺍ ﻞﺘﻘﻟ
+Lag session §ﻦﺸﻴﺴﻠﻟ ﻕﻻ
+Taze player §ﺐﻋﻼﻟﺍ ﺏﺮﻬﻛ
+Perma-cage §ﻢﺋﺍﺩ ﺺﻔﻗ
+Finished crash. §.ﺵﺍﺮﻜﻟﺍ ﺺﻠﺧ
+Exclude friends from attacks §ﺕﺎﻤﺠﻬﻟﺍ ﻦﻣ ﺀﺎﻗﺪﺻﻻﺍ ﻰﻨﺜﺘﺳﺍ
+Self options §ﻒﻠﻴﺴﻟﺍ ﺕﺍﺭﺎﻴﺧ
+Max all weapons §ﺔﺤﻠﺳﻻﺍ ﻊﻴﻤﺟ ﺲﻛﺎﻣ
+Randomize all weapons §ﺔﺤﻠﺳﻻﺍ ﻊﻴﻤﺠﻟ ﺔﻴﺋﺍﻮﺸﻋ ﺕﻼﻳﺪﻌﺗ
+Give all weapons §ﺔﺤﻠﺳﻻﺍ ﻊﻴﻤﺟ ﺀﺎﻄﻋﺍ
+Random weapon camo §ﻲﺋﺍﻮﺸﻋ ﺡﻼﺳ ﻥﻮﻟ
+Has a lot of money. §ﺮﻴﺜﻛ ﻝﺎﻣ ﺔﻳﺪﻟ
+Has Negative lvl §ﺐﻟﺎﺳ ﻚﻧﺍﺭ ﺔﻳﺪﻟ
+Has Negative k/d §ﺐﻟﺎﺳ ﺩ\ﻙ ﺔﻳﺪﻟ
+Has a high rank. §ﻲﻟﺎﻋ ﻚﻧﺍﺭ ﺔﻳﺪﻟ
+Has a high k/d. §ﻲﻟﺎﻋ ﺩ\ﻙ ﺔﻳﺪﻟ
+Has modded armor. §ﺩﺩﻮﻣ ﻉﺭﺩ ﺔﻳﺪﻟ
+Block areas §ﻖﻃﺎﻨﻣ ﺰﺠﺣ
+Los santos customs §Los Santos Customs
+Ammu-Nations §ﺔﺤﻠﺳﻻﺍ ﺕﻼﺤﻣ ﻊﻴﻤﺟ
+Casino §ﻮﻨﻳﺯﺎﻜﻟﺍ
+Rid §Rid
+IP §IP
+Name §ﻢﺳﺍ
+Press key to set to hotkey. §.ﺭﺎﺼﺘﺧﺍ ﻂﺤﺗ ﻥﺎﺸﻋ ﺭﺯ ﻂﻐﺿﺍ
+Turned off the hotkey:\n §:ﺭﺎﺼﺘﺧﻻﺍ ﺀﺎﻔﻃﺍ ﻢﺗ\n
+Changed §ﺮﻴﻴﻐﺗ ﻢﺗ
+to §ﻰﻟﺍ
+Turned off §ﺀﺎﻔﻃﺍ ﻢﺗ
+One of the people further in host queue is your friend! Cancelled. §a7d alla3been fy 6abor alhost 9dy8k! tm al al3'a
+Max kicks for auto host §ﺖﺳﻮﻫﻮﺗﻻﺍ ﺩﺮﻄﻟ ﻰﺼﻗﻻﺍ ﺪﺤﻟﺍ
+Type in clear distance limit. §aktb 7d masafh al 74f
+Vehicle clear distance §ﺕﺎﺒﻛﺮﻤﻟﺍ ﻑﺬﺣ ﺔﻓﺎﺴﻣ
+Ped clear distance §ﺪﻴﺒﻟﺍ ﻑﺬﺣ ﺔﻓﺎﺴﻣ
+Object clear distance §ﺖﻜﻴﺠﺑﻭﻻﺍ ﻑﺬﺣ ﺔﻓﺎﺴﻣ
+Pickup clear distance §ﺏﺍ ﻚﻴﺒﻟﺍ ﻑﺬﺣ ﺔﻓﺎﺴﻣ
+Dump world §ﻢﻟﺎﻌﻟﺍ ﺐﻛ
+Make nearby peds hostile §ﻦﻴﻴﻧﺍﻭﺪﻋ ﻦﻴﺒﻳﺮﻘﻟﺍ ﺯﺪﻴﺒﻟﺍ ﻞﻌﺟﺍ
+Kick gun §ﺩﺮﻄﻟﺍ ﺡﻼﺳ
+Kidnap player §ﺐﻋﻼﻟﺍ ﻑﺎﻄﺘﺧﺍ
+Swap nearby cars §ﺔﺒﻳﺮﻘﻟﺍ ﺕﺍﺭﺎﻴﺴﻟﺍ ﻝﺍﺪﺒﺘﺳﺍ
+Notification spam §ﺓﺮﻴﺜﻛ ﺕﺍﺭﺎﻌﺷﺍ ﻝﺎﺳﺭﺍ
+Spawn vehicles maxed §ﺲﻛﺎﻣ ﺔﻟﺪﻌﻣ ﺕﺎﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ
+Delete old vehicle §ﺔﻤﻳﺪﻘﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﻑﺬﺣﺍ
+Spawn inside of spawned vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﻞﺧﺍﺩ ﻥﻭﺎﺒﺳ
+Always spawn with f1 wheels §F1 ﺕﺍﺮﻔﻛﺎﺑ ﻥﻭﺎﺒﺳ ﺎﻣﺍﺩ
+Always ask what vehicle §ﺔﺒﻛﺮﻣ ﻱﺍ ﻝﺎﺳﺍ ﺎﻣﺍﺩ
+Spawn air vehicle mid-air §ﺀﺎﻤﺴﻟﺍ ﻲﻓ ﺕﺍﺮﺋﺎﻄﻟﺍ ﻥﻭﺎﺒﺳ
+Spawn vehicles in godmode §ﺩﻮﻣ ﺩﻮﻘﻟﺍ ﻊﺿﻭ ﻲﻓ ﺕﺎﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ
+Vehicle can't be locked on §ﺔﺒﻛﺮﻤﻟﺍ ﻰﻠﻋ ﻥﻭﺍ ﻙﻮﻠﻟﺍ ﺐﻳﻮﺼﺘﻟﺍ ﺖﻴﺒﺜﺗ ﻊﻨﻣ
+Stop before peds §ﺯﺪﻴﺒﻟﺍ ﻞﺒﻗ ﻒﻗﻮﺗ
+Avoid vehicles §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺐﻨﺠﺗ
+Avoid empty vehicles §ﺔﻏﺭﺎﻔﻟﺍ ﺕﺎﺒﻛﺮﻤﻟﺍ ﺐﻨﺠﺗ
+Avoid peds §ﺯﺪﻴﺒﻟﺍ ﺐﻨﺠﺗ
+Avoid objects §ﺲﺘﻜﻴﺠﺑﻭﻻﺍ ﺐﻨﺠﺗ
+Unknown §ﻑﻭﺮﻌﻣ ﺮﻴﻏ
+Stop at traffic lights §ﻉﺭﺎﺸﻟﺍ ﺕﺍﺭﺎﺷﺍ ﺪﻨﻋ ﻒﻗﻮﺗ
+Use blinkers §ﺕﺍﺭﺎﺷﻻﺍ ﻡﺍﺪﺨﺘﺳﺍ
+Allow going wrong way §ﺔﺴﻛﺎﻌﻤﻟﺍ ﺡﺎﻤﺳ
+Drive in reverse §ﺱﻮﻳﺮﻟﺎﺑ ﻕﻮﺳ
+Take shortest path §ﻖﻳﺮﻃ ﺮﺼﻗﺍ ﺬﺧ
+Allow overtaking vehicles §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺯﻭﺎﺠﺘﺑ ﺡﺎﻤﺴﻟﺍ
+Ignore roads §ﻪﺘﻠﻔﺴﻤﻟﺍ ﻕﺮﻄﻟﺍ ﻞﻫﺎﺠﺗ
+Ignore all pathing §ﻕﺮﻄﻟﺍ ﻊﻴﻤﺟ ﻞﻫﺎﺠﺗ
+Avoid highways §ﺔﻌﻳﺮﺴﻟﺍ ﻕﺮﻄﻟﺍ ﺐﻨﺠﺗ
+Freeze session §ﻦﺸﻴﺴﻟﺍ ﺪﻴﻤﺠﺗ
+Ai driving §ﻲﻋﺎﻨﺼﻟﺍ ﺀﺎﻛﺬﻟﺍ ﺓﺩﺎﻴﻗ
+waypoint §ﺖﻨﻳﻮﺑ ﻱﺍﻭ
+Follow player §ﺐﻋﻼﻟﺍ ﻖﺤﻟﺍ
+Wander §ﻝﻮﺠﺗ
+Drive speed §ﺓﺩﺎﻴﻘﻟﺍ ﺔﻋﺮﺳ
+Sort search from newest §ﺩﺪﺟﻻﺍ ﻦﻣ ﺚﺤﺒﻟﺍ ﻒﻴﻨﺼﺗ
+Drive style §ﺓﺩﺎﻴﻘﻟﺍ ﺏﻮﻠﺳﺍ
+Max nearby cars §ﺲﻛﺎﻤﻠﻟ ﺔﺒﻳﺮﻘﻟﺍ ﺕﺍﺭﺎﻴﺴﻟﺍ ﻞﻳﺪﻌﺗ
+Repair nearby cars §ﺔﺒﻳﺮﻘﻟﺍ ﺕﺍﺭﺎﻴﺴﻟﺍ ﺢﻴﻠﺼﺗ
+Give nearby cars godmode §ﺩﻮﻣ ﺩﻮﻗ ﺔﺒﻳﺮﻘﻟﺍ ﺕﺍﺭﺎﻴﺴﻟﺍ ﺀﺎﻄﻋﺍ
+Nearby cars have no collision §ﻦﺸﻴﻟﻮﻛ ﻼﺑ ﺔﺒﻳﺮﻘﻟﺍ ﺕﺍﺭﺎﻴﺴﻟﺍ ﻞﻌﺟ
+Clown vans §ﻦﻴﺟﺮﻬﻤﻟﺍ ﺕﺎﻧﺎﻓ
+Clear all owned entities §ﺎﻬﻜﻠﻤﺗ ﻲﺘﻠﻟﺍ ﺕﺎﻨﺋﺎﻜﻟﺍ ﻊﻴﻤﺟ ﻑﺬﺣ
+Aim protection §ﻢﻳﻻﺍ ﻦﻣ ﺔﻳﺎﻤﺣ
+Nearby cars have zero gravity §ﺔﺒﻳﺮﻘﻟﺍ ﺕﺍﺭﺎﻴﺴﻠﻟ ﺔﻴﺑﺫﺎﺠﻟﺍ ﺔﻟﺍﺯﺍ
+Entity manager §ﺕﺎﻨﺋﺎﻜﻟﺍ ﺓﺭﺍﺩﺍ
+Entity manager §ﺕﺎﻨﺋﺎﻜﻟﺍ ﺓﺭﺍﺩﺍ
+Vehicles §ﺕﺎﺒﻛﺮﻣ
+Peds §Peds
+Objects §Objects
+Unknown_name §ﻑﻭﺮﻌﻣ ﺮﻴﻏ_ﻢﺳﺍ
+Explode §ﺮﺠﻓ
+Delete §ﻑﺬﺣ
+Resurrect §ﻩﺎﻴﺤﻟﺍ ﻩﺩﺎﻋﺍ
+Godmode §ﺩﻮﻣ ﺩﻮﻗ
+Zero gravity §ﺔﻴﺑﺫﺎﺟ ﻼﺑ
+Teleport in front of player §ﺐﻋﻼﻟﺍ ﻡﺍﺪﻗ ﺕﺭﻮﺒﻴﻠﻴﺗ
+Teleport to entity §ﻦﺋﺎﻜﻠﻟ ﺕﺭﻮﺒﻴﻠﻴﺗ
+Follow entity §ﻦﺋﺎﻜﻟﺍ ﻊﺒﺘﺗ
+Set yourself in seat §ﻲﺳﺮﻜﻟﺍ ﻲﻓ ﻚﺴﻔﻧ ﻊﺿﻭ
+All entities of this type §ﻉﻮﻨﻟﺍ ﺍﺬﻫ ﻦﻣ ﺕﺎﻨﺋﺎﻜﻟﺍ ﻊﻴﻤﺟ
+Set speed §ﺔﻋﺮﺴﻟﺍ ﻊﺿﻭ
+Disable ped spawning §ﻥﻭﺎﺒﺳ ﺪﻴﺒﻟﺍ ﻞﻴﻄﻌﺗ
+Disable vehicle spawning §ﺕﺎﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ ﻞﻴﻄﻌﺗ
+Cops clear distance §ﺔﻃﺮﺸﻟﺍ ﻑﺬﺣ ﺔﻓﺎﺴﻣ
+Set on fire §ﻝﺎﻌﺷﺍ
+Clear ped tasks §ﺯﺪﻴﺒﻟﺍ ﺮﻣﺍﻭﺍ ﺀﺎﻐﻟﺍ
+Kek's chopper §Kek's ﺮﺑﻮﺸﺗ
+Session trolling §ﻦﺸﻴﺴﻠﻟ ﻖﻨﻟﻭﺮﺗ
+Vehicles §ﺕﺎﺒﻛﺮﻣ
+Peds §Peds
+Objects §Objects
+Pickups §Pickups
+Peds & vehicles §ﺕﺎﺒﻛﺮﻣ ﻭ Peds
+All §ﻢﻬﻠﻛ
+Cops §ﺔﻃﺮﺸﻟﺍ
+Kill player §ﺐﻋﻼﻟﺍ ﻞﺘﻗﺍ
+Send clown van §ﺝﺮﻬﻤﻟﺍ ﻥﺎﻓ ﻞﺳﺭﺍ
+Kick from session §ﻦﺸﻴﺴﻟﺍ ﻦﻣ ﺩﺮﻃﺍ
+Crash §ﺵﺍﺮﻛ
+Blame for killing session §ﻦﺸﻴﺴﻟﺍ ﻞﺘﻗ ﻡﻮﻟ
+Random §ﻲﺋﺍﻮﺸﻋ
+Bounty §ﻲﺘﻧﻭﺎﺑ
+Ram §ﻡﺪﺻ
+Kick from vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﻦﻣ ﺩﺮﻃ
+EMP §EMP
+Remove §ﻝﺯﺍ
+30k ceo loop §ﺏﻭﻮﻟ ﻒﻟﺍ ﻦﻴﺛﻼﺛ CEO
+Chat logger §ﺕﺎﺸﻟﺍ ﻞﺠﺳ
+Type in chat spam speed §ﻡﺎﺒﺳ ﺕﺎﺸﻟﺍ ﺔﻋﺮﺳ ﺐﺘﻛﺍ
+Script quick access §ﺖﺑﺮﻜﺴﻠﻟ ﻊﻳﺮﺳ ﻝﻮﺻﻭ
+Cleared owned entities. §ﺎﻬﻜﻠﻤﺗ ﻲﻟﺍ ﺕﺎﻨﺋﺎﻜﻟﺍ ﺔﻟﺍﺯﺍ ﻢﺗ
+Exclude you from session trolling §ﻖﻨﻟﻭﺮﺗ ﻦﺸﻴﺴﻟﺍ ﻦﻣ ﻚﺴﻔﻧ ﻰﻨﺜﺘﺳﺍ
+Spam text §ﺺﻧ ﻡﺎﺒﺳ
+From file & send each line §ﺮﻄﺳ ﻞﻛ ﻞﺳﺭﺍﻭ ﻒﻠﻣ ﻦﻣ
+Send each line §ﺮﻄﺳ ﻞﻛ ﻞﺳﺭﺍ
+Chat commands §ﺕﺎﺸﻟﺍ ﺮﻣﺍﻭﺍ
+Chat commands §ﺕﺎﺸﻟﺍ ﺮﻣﺍﻭﺍ
+Only friends can use commands §ﺕﺎﺸﻟﺍ ﺮﻣﺍﻭﺍ ﻡﺍﺪﺨﺘﺳﺍ ﻢﻬﻨﻜﻤﻳ ﺀﺎﻗﺪﺻﻻﺍ ﻂﻘﻓ
+Teleport to §ﻰﻟﺍ ﺕﺭﻮﺒﻴﻠﻴﺗ
+This player can't use chat commands §ﺕﺎﺸﻟﺍ ﺮﻣﺍﻭﺍ ﻡﺍﺪﺨﺘﺳﺍ ﺔﻨﻜﻤﻳﻻ ﺐﻋﻼﻟﺍ ﺍﺬﻫ
+Stop before vehicles §ﺕﺎﺒﻛﺮﻤﻟﺍ ﻞﺒﻗ ﻒﻗﻭ
+From clipboard §ﺦﺴﻨﻟﺍ ﺓﺮﻛﺍﺫ ﻦﻣ
+From clipboard & send each line §ﺮﻄﺳ ﻞﻛ ﻞﺳﺭﺍﻭ ﺥﻮﺴﻨﻤﻟﺍ ﻦﻣ
+From file §ﻒﻠﻣ ﻦﻣ
+Send chat command info every 15th min §ﺔﻋﺎﺳ ﻊﺑﺭ ﻞﻛ ﺕﺎﺸﻟﺍ ﺮﻣﺍﻭﺍ ﺕﺎﻣﻮﻠﻌﻣ ﻞﺳﺭﺍ
+Cage player §ﺺﻔﻗ ﻲﻓ ﺐﻋﻼﻟﺍ ﻊﺿ
+Kick §ﺩﺮﻃ
+Teleport §ﺕﺭﻮﺒﻴﻠﻴﺗ
+Send attack chopper §ﺮﺑﻮﺸﺗ ﻙﺎﺗﻻﺍ ﻞﺳﺭﺍ
+Float §ﻮﻔﻃ
+Type in name of menyoo vehicle. §aktb asm mrkbh menyoo.
+Godmode detection §ﺩﻮﻣ ﺩﻮﻘﻟﺍ ﻑﺎﺸﺘﻛﺍ
+is in godmode. §ﺩﻮﻣ ﺩﻮﻗ ﻮﻫ.
+Kill §ﻞﺘﻗﺍ
+Clowns §ﻦﻴﺟﺮﻬﻣ
+Kill session §ﻦﺸﻴﺴﻟﺍ ﻞﺘﻗﺍ
+Revenge §ﻡﺎﻘﺘﻧﺍ
+Turned off §ﺄﻔﻄﻣ
+Horn boost §ﺖﺳﻮﺒﻟﺍ ﻱﺭﻮﺑ
+Notifications §ﺕﺍﺭﺎﻌﺷﺍ
+Auto kicker notifications §ﻲﺋﺎﻘﻠﺘﻟﺍ ﺩﺮﻄﻟﺍ ﺕﺍﺭﺎﻌﺷﺍ
+Give nearby players horn boost §ﻱﺭﻮﺑﻟﺍ ﺖﺳﻭﺑ ﻦﻴﺒﻳﺮﻘﻟﺍ ﻦﻴﺒﻋﻼﻟﺍ ﺀﺎﻄﻋﺍ
+Turn everything off §ﺀﻲﺷ ﻞﻛ ﺀﺎﻔﻃﺍ
+Menyoo vehicle §ﻭﻮﻴﻨﻤﻟﺍ ﺕﺎﺒﻛﺮﻣ
+First seen §ﺔﻳﺅﺭ ﻝﻭﺍ
+Last seen §ﺔﻳﺅﺭ ﺮﺧﺍ
+Seen §ﺔﺘﻳﺅﺭ ﺖﻤﺗ
+times. §.ﺕﺍﺮﻣ
+Load §ﻡﺪﺨﺘﺳﺍ
+Save §ﻆﻔﺣ
+Change name §ﻢﺳﻻﺍ ﺮﻴﻴﻐﺗ
+keyboard §ﺩﺭﻮﺒﻴﻛ
+controller §ﺮﻟﻭﺮﺘﻨﻛ
+Hotkeys §ﺕﺍﺭﺎﺼﺘﺧﺍ
+Type in bounty amount §aktb 8ymh al bounty
+Turn all on or off §ﻊﻴﻤﺠﻟﺍ ﺀﺎﻔﻃﺍ ﻭﺍ ﻞﻴﻐﺸﺗ
+Cage session §ﻦﺸﻴﺴﻟﺍ ﻰﻠﻋ ﺺﻔﻗ ﻊﺿﻭ
+Drive force multiplier §ﺓﺩﺎﻴﻘﻟﺍ ﺔﻋﺮﺳ ﻒﻋﺎﻀﻣ
+The hash was copied to your clipboard, more info in the debug console. §ﺦﺴﻧﺍ ﺵﺎﻬﻟﺍ\n.ﻝﻮﺴﻧﻮﻛ ﻖﺒﻳﺪﻟﺍ ﻲﻓ ﺕﺎﻣﻮﻠﻌﻤﻟﺍ ﻦﻣ ﺓﺩﺎﻳﺯ 
+Send command list §ﺮﻣﺍﻭﻻﺃ ﺔﻤﺋﺎﻗ ﻞﺳﺭﺍ
+Friends can't be targeted §ﻢﻬﻓﺍﺪﻬﺘﺳﺍ ﻦﻜﻤﻳﻻ ﺀﺎﻗﺪﺻﻻﺍ
+You can't be targeted §ﻚﻓﺍﺪﻬﺘﺳﺍ ﻦﻜﻤﻳﻻ
+Number of responses §ﺩﻭﺩﺮﻠﻟ ﻢﻗﺭ
+Hotkey change timed out or failed. §antaha wa8t t3'yyr ala5t9ar ao fshl.
+Turn off §ﺀﺎﻔﻃﺍ
+1 key §ﺪﺣﺍﻭ ﺭﺯ
+2 keys §ﻦﻳﺭﺯ
+3 keys §ﺭﺍﺭﺯﺍ ﺙﻼﺛ
+Clear entities §ﺕﺎﻨﺋﺎﻜﻟﺍ ﻑﺬﺣ
+Set vehicle §ﺔﺒﻛﺮﻣ ﺩﺪﺣ
+Tp personal vehicle §ﺔﺻﺎﺨﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﺕﺭﻮﺒﻴﻠﻴﺗ
+Hotkey:\nTeleported into personal vehicle. §a5t9ar:\ntm teleport ala almrkbh al5a9h
+Auto tp to waypoint §ﺖﻨﻳﻮﺑ ﻱﺍﻮﻟﺍ ﻰﻟﺍ ﻲﺋﺎﻘﻠﺗ ﺕﺭﻮﺒﻴﻠﻴﺗ
+Turn on script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻞﻴﻌﻔﺗ
+Turn off script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﺀﺎﻔﻃﺍ
+With your name §ﻚﻤﺳﺍ ﻊﻣ
+Anonymous §ﻝﻮﻬﺠﻣ
+Change amount §ﺔﻴﻤﻜﻟﺍ ﺮﻴﻴﻐﺗ
+With random name §ﻲﺋﺍﻮﺸﻋ ﻢﺳﺍ ﻊﻣ
+Set bounty §ﻲﺘﻧﻭﺎﺒﻟﺍ ﻊﺿﻭ
+Chat judge reaction §ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ ﻞﻌﻓ ﺩﺭ
+Chat spammer §ﺮﻣﺎﺒﺳ ﺕﺎﺷ
+Clear entities §ﺕﺎﻨﺋﺎﻜﻟﺍ ﻑﺬﺣ
+Modify chatbot §ﺕﻮﺑ ﺕﺎﺸﻟﺍ ﻞﻳﺪﻌﺗ
+Hotkey mode §ﺕﺍﺭﺎﺼﺘﺧﻻﺍ ﻊﺿﻭ
+Driver's seat §ﻖﺋﺎﺴﻟﺍ ﻲﺳﺮﻛ
+Front passenger seat §ﻲﻣﺎﻣﻻﺍ ﺐﻛﺍﺮﻟﺍ ﻲﺳﺮﻛ
+Left backseat §ﺭﺎﺴﻴﻟﺍ ﻲﻔﻠﺨﻟﺍ ﺐﻛﺍﺮﻟﺍ ﻲﺳﺮﻛ
+Right backseat §ﻦﻴﻤﻴﻟﺍ ﻲﻔﻠﺨﻟﺍ ﺐﻛﺍﺮﻟﺍ ﻲﺳﺮﻛ
+Extra seat §ﺓﺩﺎﻳﺯ ﻲﺳﺮﻛ
+Commands §ﺮﻣﺍﻭﻻﺍ
+CEO §CEO
+Explode with blame §ﻡﻮﻠﻟﺍ ﻊﻣ ﺮﻴﺠﻔﺗ
+Explode §ﺮﻴﺠﻔﺗ
+Taze §ﺔﺑﺮﻬﻛ
+Invite to apartment §ﺔﻘﺸﻠﻟ ﺓﻮﻋﺩ
+Cage §ﺺﻔﻗ
+Give weapon §ﺡﻼﺳ ﺀﺎﻄﻋﺍ
+Remove weapon §ﺡﻼﺳ ﺔﻟﺍﺯﺍ
+Send clipboard to chat §ﺕﺎﺸﻠﻟ ﺥﻮﺴﻨﻤﻟﺍ ﺺﻨﻟﺍ ﻝﺎﺳﺭﺍ
+Clipboard to chat §ﺕﺎﺸﻟﺍ ﻰﻟﺍ ﺥﻮﺴﻨﻣ ﺺﻧ
+Send to session §ﻦﺸﻴﺴﻟﺍ ﻰﻟﺍ ﻞﺳﺭﺍ
+Army §ﺶﻴﺟ
+Teleport session §ﻦﺸﻴﺴﻟﺍ ﺕﺭﻮﺒﻴﻠﻴﺗ
+Force field §ﺪﻠﻴﻓ ﺱﺭﻮﻓ
+Force field radius §ﺪﻠﻴﻓ ﺱﺭﻮﻔﻟﺍ ﻢﺠﺣ
+Away from you §ﻚﻨﻋ ﻊﻓﺩ
+Towards you §ﻚﻳﻻﺍ ﺏﺬﺟ
+Entities §ﺕﺎﻨﺋﺎﻛ
+position §ﻥﺎﻜﻣ
+hash §ﺵﺎﻫ
+pos without dec §ﻱﺮﺸﻋ ﺩﺪﻋ ﻥﻭﺪﺑ ﻥﺎﻜﻣ
+Copy to clipboard §ﺦﺴﻧ
+model name §ﻝﺩﻮﻤﻟﺍ ﻢﺳﺍ
+name §ﻢﺳﺍ
+rid §RID
+ip §IP
+host token §ﺖﺳﻮﻬﻟﺍ ﺰﻣﺭ
+Add §ﺔﻓﺎﺿﺍ
+Exclude §ﻰﻨﺜﺘﺳﺍ
+players §ﻦﻴﺒﻋﻻ
+friends §ﺀﺎﻗﺪﺻﺍ
+no one §ﺪﺣﺍ ﻻ
+Offset §ﺖﻴﺴﻓﻭﺍ
+Strength towards you §ﻚﻳﻻﺍ ﺏﺬﺠﻟﺍ ﺓﻮﻗ
+Strength away from you §ﻚﻨﻋ ﻊﻓﺪﻟﺍ ﺓﻮﻗ
+Block passive §ﻒﺳﺎﺒﻟﺍ ﻊﻨﻣ
+Send §ﻞﺳﺭﺍ
+Rid §RID
+IP §IP
+Host token §ﺖﺳﻮﻬﻟﺍ ﺰﻣﺭ
+Position §ﻥﺎﻜﻣ
+Position without dec §ﺔﻳﺮﺸﻋ ﻡﺎﻗﺭﺍ ﻥﻭﺪﺑ ﻥﺎﻜﻤﻟﺍ
+Misc §ﻉﻮﻨﺘﻣ
+Ped model §ﺪﻴﺒﻟﺍ ﻝﺩﻮﻣ
+Spawn §ﻥﻭﺎﺒﺳ
+Vehicle hash §ﺔﺒﻛﺮﻤﻟﺍ ﺵﺎﻫ
+Ped hash §ﺪﻴﺒﻟﺍ ﺵﺎﻫ
+me §ﺎﻧﺍ
+far away §ﺍﺪﺟ ﺪﻴﻌﺑ
+Vehicle §ﺔﺒﻛﺮﻣ
+Max §ﺲﻛﺎﻣ
+Repair §ﺡﻼﺻﺍ
+Xml vehicles §ﻝﺍ ﻡﺍ ﺲﻛﻻﺍ ﺕﺎﺒﻛﺮﻣ
+Found no vehicle to save. §.ﺎﻬﻀﻔﺤﻟ ﺔﺒﻛﺮﻣ ﺪﺟﻮﻳ ﻢﻟ
+Existing file found. Please choose another name. §.ﺮﺧﺍ ﻢﺳﺍ ﺭﺎﻴﺘﺧﺍ ﺀﺎﺟﺮﻟﺍ .ﻢﺳﻻﺍ ﺲﻔﻨﺑ ﻒﻠﻣ ﺪﺟﻭ
+Illegal characters detected. Please try again. Illegal chars: §7rf 3'yr md3om fy alasm. alrja alm7awlh mrh a5ra. ala7rf al3'yr md3omh:
+Refresh list §ﺔﻤﺋﺎﻘﻟﺍ ﺚﻳﺪﺤﺗ
+Found no vehicle to spawn. §lm yojd mrkbh.
+Cancelled. §.ﻲﻐﻟﺍ
+Too few reactions to add entry. §ﺔﻠﻴﻠﻗ ﻞﻌﻓ ﺩﻭﺩﺭ .ﺔﻓﺎﺿﺍ ﻦﻜﻤﻳ ﻻ
+Glitch §ﺶﺘﻠﻗ
+Unglitch §ﺶﺘﻠﻘﻟﺍ ﺔﻟﺍﺯﺍ
+Block §ﺮﺠﺣ
+Unblock §ﺮﺠﺤﻟﺍ ﺔﻟﺍﺯﺍ
+Type in what to spam in chat §ﺕﺎﺸﻟﺍ ﻲﻓ ﻪﺑ ﻡﺎﺒﺳ ﻱﻮﺴﺗ ﻲﺒﺗ ﺵﻭ ﺐﺘﻛﺍ
+Xml file is empty. §ﻍﺭﺎﻓ ﻝﺍ ﻡﺍ ﺲﻛﺍ ﻒﻠﻣ
+File name §ﻒﻠﻤﻟﺍ ﻢﺳﺍ
+Wrong file extension. §ﺔﺌﻃﺎﺧ ﻒﻠﻣ ﺔﻐﻴﺻ
+Warning: missing "%" before any of these characters; §ﻱﺫﺎﻫ ﻑﺮﺣﻻﺍ ﻞﺒﻗ ﺓﺩﻮﺟﻮﻣ ﺮﻴﻏ "%" ﺔﻣﻼﻋ :ﺮﻳﺬﺤﺗ
+This is fine, just note that if you don't put the "%" before those characters, they mean something else. §.ﺮﺧﺍ ﻰﻨﻌﻣ ﺎﻬﻟ ﻥﻮﻜﻴﺳ ﻑﻭﺮﺤﻟﺍ ﻚﻠﺗ ﻞﺒﻗ "%" ﺔﻣﻼﻌﻟﺍ ﻊﻀﺗ ﻢﻟ ﺍﺫﺍ ﻦﻛﻻ ﺔﻠﻜﺸﻣ ﺔﻴﻓﺎﻣ
+Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §nm6 3'yr 97y7. 3la ala3'lb a7d al3lamat ha4y "[", "]", "(", ")" ao "%" mf8odh. 8d ykon "[]" mojod lanh y5rb alnm6.
+Give §ﺀﺎﻄﻋﺍ
+Attackers can't use planes. Cancelled. §.ﺀﺎﻐﻟﻻﺍ ﻢﺗ .ﺕﺍﺮﺋﺎﻄﻟﺍ ﻡﺍﺪﺨﺘﺳﺍ ﻢﻬﻨﻜﻤﻳﻻ ﻥﻮﻤﺟﺎﻬﻤﻟﺍ
+Chance to reply §ﺩﺮﻟﺍ ﺔﻴﻟﺎﻤﺘﺣﺍ
+Missing necessarry file. Please reinstall. Read the README that comes with the script for more information. §.ﺕﺎﻣﻮﻠﻌﻤﻟﺍ ﻦﻣ ﺪﻳﺰﻤﻠﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻊﻣ ﻲﺗﺎﻳ ﻱﺬﻠﻟﺍ ﻲﻧﺃﺮﻗﺍ ﻒﻠﻣ ﺀﺍﺮﻗﺍ .ﺖﻴﺒﺜﺗ ﺓﺩﺎﻋﺍ ﺀﺎﺟﺮﻟﺍ .ﺓﺩﻮﻘﻔﻣ ﺔﻳﺭﻭﺮﺿ ﺕﺎﻔﻠﻣ
+New profile §ﺪﻳﺪﺟ ﻞﻳﺎﻓﻭﺮﺑ
+Failed to find vehicle. Try again. §.ﺀﺍﺮﺧﺍ ﻩﺮﻣ ﻝﻭﺎﺣ .ﺔﺒﻛﺮﻤﻟﺍ ﺩﺎﺠﻳﺍ ﻲﻓ ﻞﺸﻓ
+Type in name of vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﻢﺳﺍ ﺐﺘﻛﺍ
+Vehicle name §ﺔﺒﻛﺮﻤﻟﺍ ﻢﺳﺍ
+Save to Menyoo vehicles §ﻭﻮﻴﻨﻣ ﺔﻜﺑﺮﻣ ﻰﻟﺍ ﻆﻔﺣﺍ
+Clone §ﺦﺴﻧ
+Send Menyoo vehicle attacker §ﻭﻮﻴﻨﻣ ﺔﺒﻛﺮﻣ ﻦﻴﻤﺟﺎﻬﻣ ﻞﺳﺭﺍ
+Spawn Menyoo vehicle §ﻭﻮﻴﻨﻣ ﺔﺒﻛﺮﻣ ﻥﻭﺎﺒﺳ
+Menyoo vehicles §ﻭﻮﻴﻨﻣ ﺕﺎﺒﻛﺮﻣ
+Create new judger profile §ﻲﺿﺎﻘﻠﻟ ﺪﻳﺪﺟ ﻞﻳﺎﻓﻭﺮﺑ ﺀﺎﺸﻧﺍ
+Create new chatbot profile §ﺕﻮﺑ ﺕﺎﺸﻠﻟ ﺪﻳﺪﺟ ﻞﻳﺎﻓﻭﺮﺑ ﺀﺎﺸﻧﺍ
+There can't be a ".." in the name. There also can't be a "." at the end of the name. §.ﻢﺳﻻﺍ ﺔﻳﺎﻬﻧ ﻲﻓ "." ﻭﺍ ﻢﺳﻻﺍ ﻲﻓ ".." ﻙﺎﻨﻫ ﻥﻮﻜﻳ ﻥﺍ ﻦﻜﻤﻳ ﻻ
+Unsupported file format. §.ﻡﻮﻋﺪﻣ ﺮﻴﻏ ﻒﻠﻣ
+How to use §ﻡﺍﺪﺨﺘﺳﻻﺍ ﺔﻴﻔﻴﻛ
+Part §ﺀﺰﺟ
+Failed to load profile. Error at line §ﺮﻄﺳ ﻲﻓ ﺀﺎﻄﺧ .ﻞﻳﺎﻓﻭﺮﺒﻟﺍ ﻖﻧﺩﻮﻟ ﻲﻓ ﻞﺸﻓ
+There are 2 special texts for the chat judger: [BLACKLIST] = Add people to the blacklist\n[JOIN TIMEOUT] = Add people to 2take1's join timeout. §ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻰﻟﺍ ﺹﺎﺨﺷﻻﺍ ﻒﻴﻀﻳ = [BLACKLIST] :ﺕﺎﺸﻟﺍ ﻲﺿﺎﻘﻟ ﺔﺻﺎﺧ ﻦﻴﺘﻤﻠﻛ ﺪﺟﻮﻳ\n.join timeout 2take1 ﻰﻟﺍ ﺱﺎﻨﻟﺍ ﻒﻴﻀﻳ = [JOIN TIMEOUT]
+Examples of how to use:\nmoney[BLACKLIST] -- This will add anyone saying the word money in a sentence to the blacklist §:ﻡﺍﺪﺨﺘﺳﻻﺍ ﻰﻠﻋ ﻞﺜﻣ\nﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻰﻟﺍﺔﻠﻤﺟ ﻲﻓ "money" ﺔﻤﻠﻛ ﻝﻮﻘﻳ ﺪﺣﺍ ﻱﺍ ﻒﻴﻀﻴﺑ ﺍﺬﻫ -- money[BLACKLIST]
+money[JOIN TIMEOUT][BLACKLIST] -- This will add anyone saying money to the timeout and blacklist. §.ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻭ Timeoutﻝﺍ ﻰﻟﺍ ﺔﻠﻤﺟ ﻲﻓ "money" ﻝﻮﻘﻳ ﺪﺣﺍ ﻱﺍ ﻒﻴﻀﻴﺑ ﺍﺬﻫ -- money[JOIN TIMEOUT][BLACKLIST]
+There are 3 special texts for the chatbot:\n[PLAYER_NAME] -- This grabs the player sending the message's name. §ﺕﻮﺑ ﺕﺎﺸﻠﻟ ﺔﺻﺎﺧ ﺕﺎﻤﻠﻛ ﺙﻼﺛ ﺪﺟﻮﻳ:\nﺔﻟﺎﺳﺮﻟﺍ ﻞﺳﺭﺍ ﻲﻠﻟﺍ ﺐﻋﻼﻟﺍ ﻢﺳﺍ ﺐﻴﺠﺗ ﻱﺫﺎﻫ -- [PLAYER_NAME]
+[MY_NAME] -- This gets your name\n[RANDOM_NAME] -- This gets a random player's name. §ﻚﻤﺳﺍ ﺐﻴﺠﺗ ﻱﺍﺬﻫ -- [MY_NAME]\n.ﻲﺋﺍﻮﺸﻋ ﺐﻋﻻ ﻢﺳﺍ ﺐﻴﺠﺗ ﻱﺫﺎﻫ -- [RANDOM_NAME]
+When adding entries, it's important to know about patterns. A pattern could look like this: %s+money%s+. This would look for people using money in the middle of a sentence. §.ﺔﻠﻤﺠﻟﺍ ﺺﻧ ﻲﻓ "money" ﺔﻤﻠﻜﻟﺍ ﻥﻮﻣﺪﺨﺘﺴﻳ ﻲﻠﻟﺍ ﺱﺎﻨﻟﺍ ﺭﻭﺪﻴﺑ ﺍﺬﻫ .%s+money%s+ :ﺍﺬﻛ ﺮﻴﺼﻳ ﻦﻜﻤﻣ ﻂﻤﻨﻟﺍ .ﻁﺎﻤﻧﻻﺍ ﻦﻋ ﻑﺮﻌﺗ ﻡﺯﻻ ,ﺕﻻﺎﺧﺩﺍ ﻒﻴﻀﺗ ﺎﻣﺪﻨﻋ
+Note that these characters: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" have special meanings. Google "Lua magic characters" to find out what they mean. §.ﻢﻫﺎﻨﻌﻣ ﺵﻭ ﻑﺮﻌﺗ ﻥﺎﺸﻋ ﻞﻗﻮﻗ ﻲﻓ "Lua magic characters" ﻦﻋ ﺚﺤﺑﺍ .ﺹﺎﺧ ﺎﻨﻌﻣ ﺎﻬﻟ "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" :ﻑﺮﺣﻻﺍ ﻲﻟﻭﺬﻫ ﻥﺍ ﻚﻟﺎﺑ ﻲﻓ ﻂﺣ
+For further assistance, join the Kek's menu discord. An invite comes with the script. It is in a file called "Discord invite.txt". §."Discord invite.txt" ﺔﻤﺳﺍ ﻒﻠﻣ ﻲﻓ .ﺖﺑﺮﻜﺴﻟﺍ ﻊﻣ ﻲﺠﺗ ﺔﻓﺎﺿﺍ ﻪﻴﻓ .ﺩﺭﻮﻜﺴﻳﺩ ﻲﻓ Kek's menu ﺮﻓﺮﻴﺳ ﻞﺧﺩﺍ ,ﺓﺩﺎﻳﺯ ﺓﺪﻋﺎﺴﻣ ﻲﺒﺗ ﺍﺫﺍ
+Get parachute §ﺕﻮﺷﺍﺭﺎﺑ ﺐﺟ
+Get invite to Kek's menu Discord server §ﺩﺭﻮﻜﺳﺩ ﻲﻓ Kek's menu ﺮﻓﺮﻴﺳ ﻰﻟﺍ ﺔﻓﺎﺿﺍ ﺐﺟ
+Invite to the Kek's menu Discord copied to the clipboard. §Kek's menu ﺮﻓﺮﻴﺳ ﻰﻟﺍ ﺔﻓﺎﺿﺍ ﺖﺨﺴﻨﻧﺍ\n.ﺩﺭﻮﻜﺳﺩ ﻲﻓ
+Anti stuck §ﺔﺒﺸﻨﻟﺍ ﺪﺿ
+Entry already exists in this profile. §.ﻞﻳﺎﻓﻭﺮﺒﻟﺍ ﺍﺬﻫ ﻲﻓ ﺎﻘﺒﺴﻣ ﺩﻮﺟﻮﻣ ﻞﺧﺪﻤﻟﺍ
+Clear tasks §ﻡﺎﻬﻤﻟﺍ ﺀﻼﺧﺍ
+Disable weapons §ﺔﺤﻠﺳﻻﺍ ﻞﻴﻄﻌﺗ
+Mad peds in their car §ﻢﻬﺘﺒﻛﺮﻣ ﻲﻓ ﺔﺒﺿﺎﻏ ﺱﺎﻧ
+Fill §ﻲﻠﻣ
+Fill & steal §ﺔﻗﺮﺳﻭ ﻲﻠﻣ
+Fill, steal & run away §ﺔﺸﺤﻧﻭ ﺔﻗﺮﺳﻭ ﻲﻠﻣ
+Display time §ﺖﻗﻮﻟﺍ ﺭﺎﻬﻇﺍ
+Type in where horizontally the time is displayed. §.ﻲﺿﺮﻌﻟﺍ ﺖﻗﻮﻟﺍ ﻥﺎﻜﻣ ﺐﺘﻛﺍ
+Type in where vertically the time is displayed. §.ﻱﺩﻮﻤﻌﻟﺍ ﺖﻗﻮﻟﺍ ﻥﺎﻜﻣ ﺐﺘﻛﺍ
+Type in RGB §(ﻕﺭﺯﺍ ﺮﻀﺧﺍ ﺮﻤﺣﺍ ﻥﺍﻮﻟﺍ) RGBﻝﺍ ﺐﺘﻛﺍ
+Display time opacity §ﺖﻗﻮﻟﺍ ﺔﻓﺎﻔﺷ
+Opacity §ﺔﻓﺎﻔﺷ
+Type in the size of the text. §.ﻡﻼﻜﻟﺍ ﻢﺠﺣ ﺐﺘﻛﺍ
+Size §ﻢﺠﺣ
+Font §ﻂﺧ
+time. §ﺕﺍﺮﻣ
+Outline §ﻂﻴﻄﺨﺗ
+Hotkey:\nTeleported forward. §:ﺭﺎﺼﺘﺧﺍ\n.ﻡﺍﺪﻗ ﺕﺭﻮﺒﻴﻠﻴﺘﻟﺍ ﻢﺗ
+Teleport forward §ﻡﺍﺪﻗ ﺕﺭﻮﺒﻴﻠﻴﺗ
+Vehicle blacklist:\nstealing §:ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ\nﺔﻗﺮﺳ
+Mount Chiliad & kill §ﻞﺘﻗ ﻭ Chiliad ﻞﺒﺟ
+Order personal vehicle §ﺔﺻﺎﺨﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﺐﻠﻃ
+Hotkey:\nOrdered personal vehicle. §:ﺭﺎﺼﺘﺧﺍ\n.ﺔﺻﺎﺨﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﺐﻠﻃ ﻢﺗ
+Close to you §ﻚﻳﻻﺍ ﺐﻳﺮﻗ
+In front of you §ﻚﻣﺍﺪﻗ
+Failed to find spawn location for personal vehicle. §.ﺔﺻﺎﺨﻟﺍ ﺔﺒﻛﺮﻤﻠﻟ ﻥﻭﺎﺒﺴﻟﺍ ﻥﺎﻜﻣ ﺩﺎﺠﻳﺍ ﻲﻓ ﻞﺸﻓ
+You are already in your personal vehicle. §.ﺔﺻﺎﺨﻟﺍ ﻚﺘﺒﻛﺮﻣ ﻲﻓ ﺩﻮﺟﻮﻣ ﺖﻧﺍ
+This vehicle is already your personal vehicle. §.ﺔﺻﺎﺨﻟﺍ ﻚﺘﺒﻛﺮﻣ ﺎﻴﻟﺎﺣ ﻲﻫ ﺔﺒﻛﺮﻤﻟﺍ ﻱﺫﺎﻫ
+Set personal vehicle §ﺔﺻﺎﺨﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﻊﺿﻭ
+Spawn inside §ﻞﺧﺍﺪﻟﺍ ﻲﻓ ﻥﻭﺎﺒﺳ
+Log chat & use as chatbot §ﺕﻮﺑ ﺕﺎﺸﻠﻟ ﻢﻣﺪﺨﺘﺳﺍﻭ ﺕﺎﺸﻟﺍ ﻆﻔﺣﺍ
+Compacts §Compacts
+Sedans §Sedans
+SUVs §SUVs
+Coupes §Coupes
+Muscle §Muscle
+Sports classics §Sports classics
+Sports §Sports
+Super §Super
+Motorcycles §Motorcycles
+Off-Road §Off-Road
+Industrial §Industrial
+Utility §Utility
+Vans §Vans
+Cycles §Cycles
+Boats §Boats
+Helicopters §Helicopters
+Planes §Planes
+Service §Service
+Emergency §Emergency
+Military §Military
+Commercial §Commercial
+Trains §Trains
+Open Wheel §Open Wheel
+Menyoo maps §Menyoo ﺕﺎﺑﺎﻣ
+Type in name of menyoo map. §Menyoo ﺏﺎﻣ ﻢﺳﺍ ﺐﺘﻛﺍ
+Found no map to spawn. §.ﺏﺎﻤﻟﺍ ﺪﺟﻮﻳ ﻢﻟ
+Set where you spawn §ﻥﻭﺎﺒﺴﻟﺍ ﻥﺎﻜﻣ ﻊﺿﻭ
+Teleport to map spawn §ﺏﺎﻤﻟﺍ ﻥﻭﺎﺒﺳ ﻥﺎﻜﻤﻟ ﺕﺭﻮﺒﻴﻠﻴﺗ
+Found no spawn. §ﻥﻭﺎﺒﺳ ﺪﺟﻮﻳ ﻢﻟ
+Failed to load spawn coordinates. §ﻥﻭﺎﺒﺴﻟﺍ ﺕﺎﻴﺛﺍﺪﺣﺍ ﻞﻴﻤﺤﺗ ﻲﻓ ﻞﺸﻓ
+Unload §ﻞﻴﻤﺤﺘﻟﺍ ﺀﺎﻐﻟﺍ
+Race ghosts §ﻕﺎﺒﺴﻟﺍ ﺢﺒﺷ
+Record race §ﻕﺎﺒﺴﻟﺍ ﻞﻴﺠﺴﺗ
+Type in name of race ghost. §.ﻕﺎﺒﺴﻟﺍ ﺢﺒﺷ ﻢﺳﺍ ﺐﺘﻛﺍ
+You must be in a vehicle in order to record. §.ﻞﻴﺠﺴﺘﻟﺍ ﻞﺟﻻ ﺔﺒﻛﺮﻣ ﻲﻓ ﻥﻮﻜﺗ ﻥﺍ ﻡﺯﻻ
+Teleport to start §ﺔﻳﺩﺎﺒﻠﻟ ﺕﺭﻮﺒﻴﻠﻴﺗ
+has finished lap §ﺔﻔﻟ ﺺﻠﺧ
+Failed to load file. §.ﻒﻠﻤﻟﺍ ﻞﻴﻤﺤﺗ ﻲﻓ ﻞﺸﻓ
+Cleared old race & recording a new one. §.ﺪﻳﺪﺠﻟﺍ ﻞﻴﺠﺴﺗﻭ ﻢﻳﺪﻘﻟﺍ ﻕﺎﺒﺴﻟﺍ ﺔﻟﺍﺯﺍ
+Save recorded race §.ﻞﺠﺴﻤﻟﺍ ﻕﺎﺒﺴﻟﺍ ﻆﻔﺣ
+Teleport to player when spectating §spectate ﻱﻮﺴﺗ ﺎﻣﺪﻨﻋ ﺐﻋﻼﻟﺍ ﻰﻟﺍ ﺕﺭﻮﺒﻴﻠﻴﺗ
+Flamethrower §ﺭﺎﻨﻟﺍ ﺡﻼﺳ
+Display notifications §ﺕﺍﺭﺎﻌﺷﻻﺍ ﺭﺎﻬﻇﺍ
+Display 2take1 notifications on screen §ﺔﺷﺎﺸﻟﺍ ﻰﻠﻋ 2take1 ﺕﺍﺭﺎﻌﺷﺍ ﺭﺎﻬﻇﺍ
+Number of notifications §ﺕﺍﺭﺎﻌﺷﻻﺍ ﺩﺪﻋ
+Filter §ﺮﺘﻠﻓ
+Log to console §Consoleﻝﺍ ﻲﻓ ﻞﻴﺠﺴﺗ
+Still §ﺖﺑﺎﺛ
+Upwards §ﻕﻮﻓ
+Downwards §ﺖﺤﺗ
+Stretch §ﺩﺪﻤﻧ
+Type in stretch §ﺩﺪﻤﺘﻟﺍ ﺐﺘﻛﺍ
+Atomize §Atomize

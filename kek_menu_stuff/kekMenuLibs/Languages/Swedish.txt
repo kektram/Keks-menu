@@ -1,0 +1,608 @@
+Kek's menu §Keks meny
+General settings §Allmänna inställningar
+Vehicle §Fordon
+Self §Mig
+Vehicle peaceful §Fordon icke-troll
+Vehicle settings §Fordons inställningar
+Vehicle blacklist §Fordons svartlista
+Session malicious §Session taskig
+Player history §Spelar historik
+Scripts §Skript
+Settings §Inställningar
+Chat §Chatt
+Custom chat judger §Custom chatt dömare
+Chat bot §Chatt bot
+Chat spamming §Chat spammare
+Hotkey settings §Hotkey inställningar
+Modder detection §Modder upptäckare
+Protections §Skydd
+Modder logging settings §Moddar-lagrings inställningar
+Auto kick tag settings §Auto kick tagg inställningar
+Which modder detections are on §Vilka modd upptäckare är på
+Weapons §Vapen
+Kek's utilities §Keks verktyg
+Script loader §Skript laddare
+Language configuration §Språk konfiguration
+Kek's menu §Keks meny
+Vehicle §Fordon
+Weapons §Vapen
+Trolling §Troll
+Malicious §Taskiga
+Scripts §Skript
+Set §Ställ in
+as default language. §som standardspråk
+Empty script loader file §Töm skript laddar filen
+Add script to auto loader §Lägg till skript i auto laddare
+Remove script from auto loader §Ta bort skript ifrån auto laddare
+Modded name detection §Moddat namn upptäckare
+Entity crash protection §Entity crash skydd
+Blacklist §Svartlista
+Check people's stats automatically §Kolla spelares stats automatiskt
+Detect any modded spectate §Upptäck moddade åskådare
+Kick any vote kickers §Kicka alla vote kickers
+Add session §Lägg till session
+Remove session §Ta bort session
+Get host automatically §Få host automatiskt
+Log modders with selected tags to blacklist §Lagra moddare med valda taggar till svartlista
+Auto kicker §Auto kicka
+Ram everyone §Ramma alla
+Vehicle fly nearby vehicles §Flygande fordon till fordon i närheten
+Disable vehicles §Inaktivera fordon
+Copy rid to clipboard §Kopiera rid till urklipp
+Copy ip to clipboard §Kopiera ip till urklipp
+Player history §Spelar historik
+Clear search list §Rensa sökhistorik
+Search §Sök
+Vehicle blacklist §Fordonssvartlista
+Spawn vehicle for everyone §Spawna fordon åt alla
+Max everyone's car §Maxa allas bilar
+Current position §Nuvarande position
+Waypoint §Markering
+Get host §Få host
+Give session bounty §Ge sessionen en bounty
+Never wanted §Aldrig efterlyst
+off the radar §off the radar
+Reapply bounty §Åter tillämpa bounty
+Send to random mission §Skicka till random uppdrag
+Perico island §Perico ön
+Apartment invites §Lägenhets invites
+Ban §Banna
+Dismiss §Avvisa
+Terminate §Terminera 
+Transaction error §Transaktions fel
+Custom chat judge §Skräddarsydd chatt dömare
+Spam speed, click to type §Spam hastighet, klicka för att skriva
+Text to spam, type it in §Text att spamma, skriv in det
+Random text from file §Random text från fil
+Echo delay, click to type §Försena upprepning, klicka för att skriva
+Echo chat §Upprepa chatt
+Answer delay chatbot §Försena svar chatt bot
+Chat bot §Chatt bot
+Max car §Maxa bil
+Change default vehicle §Ändra standard fordon
+Change backplate text §Ändra regplåt bak text
+What vehicle to spawn §Vilket fordon ska spawnas
+Spawn vehicle §Spawna fordon
+Vehicle fly speed, click to type §Flygande fordon hastiget, klicka för att skriva
+Vehicle fly §Flygande fordon
+Type in what object §Skriv vilket föremål
+Object gun §Föremåls skjutare
+Airstrike gun §Luftangrepps skjutare
+What vehicle vehicle gun §Vilket fordon fordons skjutare
+Vehicle gun §Fordons skjutare
+Clear entity type §Radera föremåls typ
+Shoot entity| get model name of entity §Skjut föremål|Hämta modelnamnet av föremål
+save to default §spara till standard
+Script event crash §Script event krasch
+Spawn a ped §Spawna ped
+Car godmode §Odödligt fordon
+Vehicle fly player §Flygande fordon spelare
+Spastic car §CP bil
+What vehicle to spawn §Vilket fordon att spawna
+Spawn vehicle §Spawna fordon
+Disable vehicles §Inaktivera fordon
+Off the radar §Off the radar
+apply bounty §Tillämpa bounty
+Reapply bounty §Åter tillämpa bounty
+Perico island §Perico ön
+Apartment invites §Lägenhets invites
+Send to random mission §Skicka till random uppdrag
+Transaction error §Transaktions fel
+Ram player with vehicle §Ramma spelare med fordon
+Hurricane §Orkan
+Vehicle gun §Fordons skjutare
+Delete gun §Raderings vapen
+Explosion gun §Explosions vapen
+was set as the default language. §är satt som standardspråk
+Current language file is outdated, switched to english. §Nuvarande språkfilen är utdaterad, ändrat till engelska.
+You're missing a file in kekMenuLibs. Please reinstall Kek's menu. §En fil saknas från kekMenuLibs. Vänligen ominstallera Keks meny.
+There's a library file which is the wrong version, please reinstall kek's menu. §En fil i arkivet har felaktig version, vänligen ominstallera keks meny.
+Turned off script loader §Skriptladdare avstängd
+Turned on script loader §Skriptladdare påsatt.
+Emptied script loader §Skriptladdare tömd
+Added §Tillagd
+to script loader §i skriptladdare
+is already in the script loader §finns redan i skriptladdaren
+Couldn't find file §Kunde inte hitta fil
+Removed §Borttagen
+from script loader §från skriptladdaren
+autoexec doesn't exist §autoexec existerar inte
+Chat judge:\nBounty set on §Chatt dömare:\nBounty satt på
+Chat judge:\nRamming §Chatt dömare:\nRammar
+with explosive tankers §med explosiva tankers
+Out of their vehicle. §Ut ur fordonet.
+Chat judge:\nKicking §Chatt dömare:\nSparkar 
+Chat judge\nCrashing §Chatt dömare:\nKraschar
+sent vote kick. Kicking them... §Skickat vote kick. Kickar dem...
+tried to crash you. §försökte krascha dig.
+has: §har:
+has a modded name. §har ett moddat namn.
+Recognized §Kände igen
+\nDetected: §\nUpptäckte:
+\nTags:\n §\nTaggar:
+Checked blacklist. §Kollade igenom svartlistan.
+is spectating §spectatear
+Changed the reason this person was added to the blacklist. §Ändrade anledningen varför spelaren las till i svartlistan.
+Added to blacklist. §Tillagd i svartlistan.
+Removed rid. §Tog bort rid.
+Couldn't find player. §Hittade inte spelaren.
+Blacklist file doesn't exist. §Svartliste filen existerar inte.
+You can't add yourself to the blacklist... §Du kan inte lägga till dig själv i svartlistan...
+Kicking §Kickar
+, flags:\n §, varningar:\n
+Invalid entry. §Ogiltligt inlägg.
+Couldn't find entry. §Hittade ej inlägg.
+Emptied vehicle blacklist. §Fordonssvartlista tömd.
+Vehicle blacklist:\nEMP'd §Fordonssvartlista:\nEMP'ad
+Vehicle blacklist:\nKicked §Fordonssvartlista:\nUtsparkad
+Vehicle blacklist:\nExploding §Fordonssvartlista:\nExploderar
+out of their §från deras
+Vehicle blacklist:\nRamming §Fordonsvartlista:\nRammar
+Vehicle blacklist:\nCrashed §Fordonssvartlista:\Kraschad
+for using §för att de använde
+to clipboard. §till urklipp.
+Cars spawned. §Fordon spawnade.
+Maxed everyone's cars. §Maxade allas fordon.
+Please set a waypoint. §Vänligen sätt ut en markering.
+You're already host! §Du är redan host!
+Successfully added entry. §Inlägg tillagt utan problem.
+Removed entry. §Tog bort inlägg.
+is not in a vehicle. §är inte i något fordon.
+Changed default vehicle. §Standardfordon ändrat.
+Invalid input. Default value remains the same. §Ogiltlig inmatning. Standardvärdet ändras inte.
+Invalid object. §Ogiltligt föremål.
+Hotkey:\nTurned on §Hotkey:\nAktiverad
+Hotkey:\nTurned off §Hotkey:\nInaktiverad
+Hotkey:\nMaxed vehicle. §Hotkey:\nMaxat fordon.
+Hotkey:\nSpawned vehicle. §Hotkey:\nSpawnat fordon.
+Hotkey:\nRepaired vehicle. §Hotkey:\nLagat fordon.
+vehicle fly. §flygande fordon.
+vehicle gun. §fordons skjutare.
+Turned off the keybinding:\n\" §Stängde av denna keybind:\n\"
+Keybinding not changed. Empty input or input is the same as existing keybinding. §Keybinding inte ändrad. Tom inmatning eller inmatning som redan finns som keybind.
+Invalid keybinding.\nIt's case sensitive, get it right. §Ogiltlig keybind.\nDet är skiftlägeskänsligt, kom igen nu, skärp dig.
+Most of the keys like, left shift. are written in all caps. Example: LSHIFT. §De flesta tangenter som, left shift. är skrivna i enbart stora bokstäver. Exempel: LSHIFT.
+Settings saved! §Inställningar sparade!
+Successfully loaded §Laddad utan problem
+Saved §Sparad
+Saved profile name. §Profilnamn sparat.
+Successfully loaded Kek's menu. §Lyckades ladda Keks meny.
+Type in what car to use §Ange namnet på det fordon som ska användas
+Type in the name of the lua script to add. §Ange namnet på det lua skript du vill lägga till.
+Type in the lua script you want to remove. §Ange namnet på det lua skript du vill ta bort.
+Type in why you're adding this person. §Ange varför du vill lägga till denna person.
+Type in social club ID, also known as: rid / scid. §Ange social club ID, även känt som: rid / scid.
+Type in ip. §Ange ip.
+Type in the why you're adding this person. Typing in nothing makes the reason: Manually added. §Skriv in anledningen till att du addar spelaren. Om du inte skrivit in text, blir anledningen: Tillagd manuellt.
+Type in their name. §Ange deras namn.
+Type in why you're adding everyone. §Skriv in anledningen till att du addar allihop.
+Type in what player you wanna search for. rid / name / ip §Skriv in vilken spelare du letar efter. rid / namn / ip
+Type in what to add. §Ange vad du vill lägga till.
+Type in what reaction. NUMBER, 0 to 8 §Ange vilken reaktion. NUMBER, 0 till 8
+Type in what to remove. §Ange vad du vill ta bort.
+Type in which car to spawn §Ange vilken bil att spawna.
+Type in echo delay. §Ange upprepnings försening.
+Type in what the bot will react to. §Skriv in vad boten ska reagera till.
+Type in what the bot will say to what you previously typed in. §Skriv in vad boten kommer att svara till vad du tidigare skrev in.
+Type in what the text the bot reacts to in the entry you wish to remove. §Skriv in texten boten reagerar till i inlagan du vill ta bort.
+Type in answer delay. §Skriv in svar försening.
+Type in the name of the ped you want to spawn. §Skriv in namnet av den ped du vill spawna.
+Type in the vehicle you want to be default. §Skriv in namnet av det fordon du vill ska vara standard.
+Type in the text you want displayed on the backplate of your cars after maxing them. §Skriv in texten du vill ska synas i regskylten efter att du maxat fordonet.
+Type in vehicle speed §Skriv in fordons hastighet.
+Type in which car to ram with §Skriv in vilket fordon som ska ramma
+Type in what object to use. §Skriv in vilket objekt som ska brukas.
+Type in which car to use for vehicle stuff. §Skriv in vilket fordon som ska brukas vid fordons grejer.
+Type in what you want the keybinding to be. §Skriv in vad du vill att keybinden ska vara.
+Type in the name of the profile. §Skriv in namnet av profilen.
+Log: §Lagra:
+Kick: §Kicka:
+Max vehicle §Maxa fordon
+Spawn vehicle §Spawna fordon
+Repair vehicle §Laga fordon
+Vehicle fly §Flygande fordon
+Vehicle gun §Fordons skjutare
+Chat judge:\nBlaming §Chatt dömare:\nSkyller på
+for killing session. §för att ha dödat sessionen.
+Glitch vehicle §Glitcha fordon
+Vehicle blacklist:\nGlitching §Fordonssvartlista:\nGlitcha
+Taze player §Ge spelaren stötar
+Perma-cage §Permanent bur
+Finished crash. §Krasch avslutad.
+Exclude friends from attacks §Exkludera vänner från attacker.
+Self options §Mina funktioner
+Max all weapons §Maxa alla vapen
+Randomize all weapons §Uppgradera alla vapen random
+Give all weapons §Ge alla vapen
+Random weapon camo §Random vapen camo
+Has a lot of money. §Har mycket pengar.
+Has Negative lvl §Har Negativ level
+Has Negative k/d §Har Negativ k/d
+Has a high rank. §Har en hög rank.
+Has a high k/d. §Har en hög k/d.
+Has modded armor. §Har moddad armor.
+Block areas §Blockera områden
+Los santos customs §Los santos customs
+Ammu-Nations §Ammu-Nations
+Casino §Casino
+Rid §Rid
+IP §IP
+Name §Namn
+Controller hotkeys §Sätt kontroll hotkeys
+Press key to set to hotkey. §Tryck för att sätta hotkey
+Turned off the hotkey:\n §Stängde av hotkey:\n
+Changed §Ändrade
+to §till
+Turned off §Avstängd
+Load profile §Ladda profil
+One of the people further in host queue is your friend! Cancelled. §En person längre fram i host kön är din vän! Avbryter.
+Type in clear distance limit. §Ange borttagnings omkrets limit.
+Vehicle clear distance §Fordons borttagnings sträcka
+Ped clear distance §Ped borttagnings sträcka
+Object clear distance §Objekt borttagnings sträcka
+Pickup clear distance §Pickup borttagnings sträcka
+Dump world §Dumpa världen
+Lag player §Lagga spelaren
+Max kicks for auto host §Max kicks för auto host
+Make nearby peds hostile §Gör peds i närheten arga
+Kick gun §Kick vapen
+Kidnap player §Kidnappa spelare
+Swap nearby cars §Byt ut bilar i närheten
+Notification spam §Spamma notifikation
+Notification spam §Spamma notifikation
+Spawn vehicles maxed §Spawna fordon maxade
+Delete old vehicle §Radera förra fordon
+Spawn inside of spawned vehicle §Spawna inuti spawnade fordon
+Always spawn with f1 wheels §Spawna alltid med f1 hjul
+Always ask what vehicle §Fråga alltid vilket fordon
+Spawn air vehicle mid-air §Spawna luft fordon i luften
+Spawn vehicles in godmode §Spawna fordon i god mode
+Vehicle can't be locked on §Lock-on inte tillgängligt på fordon
+Stop before vehicles §Stanna för fordon
+Stop before peds §Stanna för peds
+Avoid vehicles §Undvik fordon
+Avoid empty vehicles §Undvik tomma fordon
+Avoid peds §Undvik peds
+Avoid objects §Undvik föremål
+Unknown §Okänt
+Stop at traffic lights §Stanna vid traffikljus
+Use blinkers §Använd blinkers
+Allow going wrong way §Tillåt körning i fel riktning
+Drive in reverse §Kör baklänges
+Take shortest path §Ta kortaste vägen
+Allow overtaking vehicles §Tillåt omkörningar
+Ignore roads §Ignorera vägar
+Ignore all pathing §Ignorera alla vägar
+Avoid highways §Undvik motorväg
+Freeze session §Frys session
+Ai driving §Ai körning
+waypoint §waypoint
+Follow player §Följ spelare
+Wander §Åk omkring
+Drive speed §Kör hastighet
+Sort search from newest §Sortera sökning från nyaste
+Drive style §Kör stil
+Max nearby cars §Maxa fordon i närheten
+Repair nearby cars §Laga fordon i närheten
+Give nearby cars godmode §Ge fordon i närheten godmode
+Nearby cars have no collision §Ta bort kollision för fordon i närheten
+Clown vans §Clown van
+Clear all owned entities §Radera alla ägda objekt
+Aim protection §Aim skydd
+Nearby cars have zero gravity §Fordon i närheten har noll gravitation
+Entity manager §Föremåls hanterare
+Entity manager §Föremåls hanterare
+Vehicles §Fordon
+Peds §Peds
+Objects §Objekt
+Unknown_name §Okänt_namn
+Explode §Explodera
+Delete §Radera
+Resurrect §Återuppliva
+Godmode §Godmode
+Zero gravity §Noll gravitation
+Teleport in front of player §Teleportera framför spelaren
+Teleport to entity §Teleportera till föremål
+Follow entity §Följ efter föremål
+Set yourself in seat §Välj säte i fordonet
+All entities of this type §Alla föremål av denna typ
+Set speed §Sätt hastighet
+Disable ped spawning §Inaktivera ped spawning
+Disable vehicle spawning §Inaktivera fordons spawning
+Cops clear distance §Polis borttagare - räckvidd
+Set on fire §Tänd eld
+Clear ped tasks §Rensa ped tasks
+Kek's chopper §Keks helikopter
+Session trolling §Session troll-alternativ
+Vehicles §Fordon
+Peds §Peds
+Objects §Objekt
+Pickups §Pickups
+Peds & vehicles §Peds & fordon
+All §Alla
+Cops §Poliser
+Kill player §Döda spelaren 
+Send clown van §Skicka clown van
+Kick from session §Kicka från session
+Crash §Krascha
+Blame for killing session §Syndabock för lobby kill
+Random §Random
+Bounty §Bounty
+Ram §Ramma
+Kick from vehicle §Kicka från fordon
+EMP §EMP
+Explode §Explodera
+Glitch their vehicle §Glitcha deras fordon
+Remove §Ta bort
+30k ceo loop §30k ceo loop
+Send random angry vehicle §Skicka random arg bilist
+Chat logger §Chatt loggare
+Type in chat spam speed §Skriv in chatt-spam hastighet
+Script quick access §Skript snabbåtkomst
+Cleared owned entities. §Rensade egna föremål.
+Exclude you from session trolling §Exkludera dig själv från session troll
+Spam text §Spamma text
+From clipboard §Från urklipp
+From clipboard & send each line §Från urklipp & skicka radvis
+From file §Från fil
+From file & send each line §Från fil & skicka radvis
+Send each line §Skicka radvis
+Chat commands §Chatt kommandon
+Chat commands §Chatt kommandon
+Kill player §Döda spelaren
+Only friends can use commands §Endast vänner kan använda kommandon
+Remove wanted level §Ta bort Wanted Level
+Teleport to §Teleportera till
+This player can't use chat commands §Denna spelaren kan ej använda chatt-kommandon
+Cage player §Bura in spelaren
+Revenge §Hämnd
+Send chat command info every 15th min §Skicka chatt-kommando infor varje kvart
+Kick §Kicka
+Crash §Krascha
+Send attack chopper §Skicka attack helikopter
+Float §Sväva
+Show host from previous session §Visa föregående host
+Last host §Senaste host
+Type in name of menyoo vehicle. §Skriv namn av menyoo fordon.
+Search §Sök
+Crash §Krascha
+Godmode detection §Godmode upptäckare
+is in godmode. §är i godmode.
+Kill §Döda
+Clowns §Clowner
+Kill session §Döda session
+Revenge §Hämnas
+Turned off §Avaktiverad
+Horn boost §Nitro-tuta
+Notifications §Notifikationer
+Auto kicker notifications §Notifikationer för autokickare
+Give nearby players horn boost §Nitro-tuta för spelare i närheten
+Turn everything off §Avaktivera allting
+Menyoo vehicle §Menyoo fordon
+First seen §Sågs först
+Last seen §Sågs senast
+Seen §Syntes
+times. §gånger.
+Atomize §Atomisera
+Load §Ladda
+Save §Spara
+Change name §Ändra namn
+keyboard §tangentbord
+controller §kontroll
+Hotkeys §Hotkeys
+Type in bounty amount §Skriv in bounty siffra
+Turn all on or off §Aktivera eller avaktivera alla
+Cage session §Bura in session
+Drive force multiplier §Kraft multiplikator
+The hash was copied to your clipboard, more info in the debug console. §Hash kopierad till urklipp, mer info i debug console
+Send command list §Skicka kommando-lista
+Friends can't be targeted §Vänner kan ej väljas
+You can't be targeted §Du kan ej välja dig själv
+Number of responses §Antal svar
+Hotkey change timed out or failed. §Ändring av hotkey tog för lång tid/misslyckades.
+Turn off §Stäng av
+1 key §1 Knapp
+2 keys §2 Knappar
+3 keys §3 Knappar
+Clear entities §Rensa föremål
+Set vehicle §Sätt fordon
+Tp personal vehicle §TP personligt fordon
+Hotkey:\nTeleported into personal vehicle. §Hotkey: \nTeleporterade till personligt fordon.
+Auto tp to waypoint §Auto tp till markering
+Turn on script loader §Sätt på skript laddare	
+Turn off script loader §Stäng av skript laddare
+With your name §Med ditt namn
+Anonymous §Anonym
+Change amount §Ändra mängd
+With random name §Med random namn
+Set bounty §Sätt bounty
+Chat judge reaction §Chat-dömmar reaktion
+Chat spammer §Chat spammare
+Clear entities §Rensa föremål
+Modify chatbot §Ändra chatbot
+Hotkey mode §Hotkey läge
+Driver's seat §Förar säte
+Front passenger seat §Fram-passagerar säte
+Left backseat §Vänster baksäte
+Right backseat §Höger baksäte
+Extra seat §Extra säte
+Disable notifications §Stäng av notifikationer
+Commands §Kommandon
+CEO §CEO
+Explode with blame §Spräng och skyll
+Explode §Spräng
+Taze §Elstötar
+Invite to apartment §Bjud in till lägenhet
+Cage §Bur
+Give weapon §Ge vapen
+Remove weapon §Ta bort vapen
+Send clipboard to chat §Skicka urklipp til chatt
+Clipboard to chat §Urklipp till chatt
+Send to session §Skicka till session
+Army §Armè 
+Teleport session §Teleportera session
+Force field §Kraft fält
+Force field radius §Kraft fält radius
+Away from you §Bort från dig
+Towards you §Emot dig
+Entities §Föremål
+position §position
+hash §hash
+pos without dec §Pos utan dec
+Copy to clipboard §Kopiera till urklipp
+model name §model namn
+name §namn
+rid §rid
+ip §ip
+host token §host token
+Add §Lägg till
+Exclude §Exkludera
+players §spelare
+friends §vänner
+no one §ingen
+Offset §Offset
+Strength towards you §Styrka mot dig
+Strength away from you §Styrka ifrån dig
+Block passive §Blockera passive mode
+Send §Skicka
+Rid §Rid
+IP §IP
+Host token §Host token
+Position §Position
+Position without dec §Position utan dec
+Misc §Övrigt
+Ped model §Ped modell
+Spawn §Spawna
+Vehicle hash §Fordons hash
+Ped hash §Ped hash
+me §mig
+far away §långt bort
+Vehicle §Fordon
+Max §Max
+Repair §Reparera
+Xml vehicles §Xml fordon
+Found no vehicle to save. §Hittade inget fordon att spara
+Existing file found. Please choose another name. §Fil med detta namn hittad. Välj annat namn.
+Illegal characters detected. Please try again. Illegal chars: §Olagliga tecken upptäckta. Försök igen. Olagliga tecken:
+Refresh list §Uppdatera lista
+Found no vehicle to spawn. §Hittade inget fordon att spawna
+Cancelled. §Avbrytet.
+Too few reactions to add entry. §För få reaktioner för att lägga till.
+Glitch §Glitcha
+Unglitch §Av-glitcha
+Block §Blockera
+Unblock §Av-blockera
+Type in what to spam in chat §Skriv vad som ska spammas i chatt
+Xml file is empty. §Xml filen är tom.
+File name §Fil namn
+Wrong file extension. §Fel filtillägg.
+Warning: missing "%" before any of these characters; §Varning: "%" saknas före någon av dessa tecken;
+This is fine, just note that if you don't put the "%" before those characters, they mean something else. §Detta är ok, notera dock att om du inte sätter "%" framför dessa tecken så betyder de något annat.
+Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §Ogiltligt mönster. Troligen saknas en "[", "]", "(", ")" eller en "%" någonstans. Kan även vara "[]", då "[]" orsakar ett fel.
+Give §Ge
+Attackers can't use planes. Cancelled. §Attackerare kan inte använda flygplan. Avbryter.
+Chance to reply §Chans att svara
+Missing necessarry file. Please reinstall. Read the README that comes with the script for more information. §Nödvänding fil saknas. Vänligen ominstallera. Läs LÄSMIG filen som tillhör skriptet för mer info.
+New profile §Ny profil
+Failed to find vehicle. Try again. §Hittade ej fordonet. Försök igen.
+Type in name of vehicle §Ange fordonets namn
+Vehicle name §Fordons namn
+Save to Menyoo vehicles §Spara i Menyoo fordon
+Clone §Klona
+Send Menyoo vehicle attacker §Skicka Menyoo fordons attackerare
+Spawn Menyoo vehicle §Spawna Menyoo fordon
+Menyoo vehicles §Menyoo fordon
+Create new judger profile §Skapa ny dömare-profil
+Create new chatbot profile §Skapa ny chattbot profil
+There can't be a ".." in the name. There also can't be a "." at the end of the name. §Det får inte finnas ".." i namnet. Namnet får inte heller sluta med ".".
+Unsupported file format. §Fil formatet stöds ej.
+How to use §Hur man använder
+Part §Del
+Failed to load profile. Error at line §Kunde ej ladda profilen. Fel vid rad
+There are 2 special texts for the chat judger: [BLACKLIST] = Add people to the blacklist\n[JOIN TIMEOUT] = Add people to 2take1's join timeout. §Det finns 2 speciella texter för chattdömaren: [BLACKLIST] = Lägg till spelare i blacklist\n[JOIN TIMEOUT] = Lägg till spelare i 2take1's join timeout.
+Examples of how to use:\nmoney[BLACKLIST] -- This will add anyone saying the word money in a sentence to the blacklist §Exempel på hur man använder:\nmoney[BLACKLIST] -- Detta lägger till alla som skriver ordet money i en mening till blacklist
+money[JOIN TIMEOUT][BLACKLIST] -- This will add anyone saying money to the timeout and blacklist. §money[JOIN TIMEOUT][BLACKLIST] -- Detta lägger till alla som säger money till timeout och blacklist.
+There are 3 special texts for the chatbot:\n[PLAYER_NAME] -- This grabs the player sending the message's name. §Det finns 3 speciella texter för chatbotten:\n[PLAYER_NAME] -- Detta hämtar namnet av den spelare som skickar meddelandet.
+[MY_NAME] -- This gets your name\n[RANDOM_NAME] -- This gets a random player's name. §[MY_NAME] -- Detta hämtar ditt namn\n[RANDOM_NAME] -- Detta hämtar en random spelares namn.
+When adding entries, it's important to know about patterns. A pattern could look like this: %s+money%s+. This would look for people using money in the middle of a sentence. §När du lägger till inlägg så är det viktigt att känna till mönster. Ett mönster kan se ut såhär: %s+money%s+. Detta kommer leta efter ordet money i mitten av en mening.
+Note that these characters: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" have special meanings. Google "Lua magic characters" to find out what they mean. §Notera att dessa tecken: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" har specifika meningar. Googla "Lua magic characters" för att ta reda på vad de betyder.
+For further assistance, join the Kek's menu discord. An invite comes with the script. It is in a file called "Discord invite.txt". §För vidare hjälp, joina Kek's menu discord. Server invite kommer med skriptet. Den finns i en fil som heter "Discord invite.txt".
+Get parachute §Få fallskärm
+Get invite to Kek's menu Discord server §Få invite till Kek's menu Discord server
+Invite to the Kek's menu Discord copied to the clipboard. §Invite till Kek's menu Discord kopierad till urklipp.
+Anti stuck §Anti fastklämd
+Entry already exists in this profile. §Inlägg finns redan i denna profil.
+Clear tasks §Rensa uppgifter
+Disable weapons §Inaktivera vapen
+Mad peds in in their car §Galna bilister
+Fill §Fyll
+Fill & steal §Fyll & stjäl
+Fill, steal & run away §Fyll, stjäl & spring iväg
+Display time §Visa tiden
+Type in where horizontally the time is displayed. §Ange vart horisontellt tiden ska visas.
+Type in where vertically the time is displayed. §Ange vart vertikalt tiden ska visas.
+Type in RGB §Ange RGB
+Display time opacity §Visa tiden-transparens
+Opacity §Transparens
+Type in the size of the text. §Ange text storlek.
+Size §Storlek
+Font §Typsnitt
+time. §gång.
+Outline §Kontur
+Hotkey:\nTeleported forward. §Hotkey:\nTeleporterade framåt.
+Teleport forward §Teleportera framåt
+Vehicle blacklist:\nstealing §Fordons blacklist:\nstjäl
+Mount Chiliad & kill §Mount Chilliad & döda
+Order personal vehicle §Hämta personal vehicle
+Hotkey:\nOrdered personal vehicle. §Hotkey:\nPersonal vehicle hämtad.
+Close to you §Nära dig
+In front of you §Framför dig
+Failed to find spawn location for personal vehicle. §Hittade inte spawn plats för ditt fordon.
+You are already in your personal vehicle. §Du är redan i din personal vehicle.
+This vehicle is already your personal vehicle. §Detta fordon är redan din personal vehicle.
+Set personal vehicle §Sätt personal vehicle
+Spawn inside §Spawna innuti
+Log chat & use as chatbot §Spara chatt & använd som chatbot 
+Compacts §Compacts 
+Sedans §Sedans
+SUVs §SUVs
+Coupes §Coupes
+Muscle §Muscle
+Sports classics §Sports classics
+Sports §Sports
+Super §Super
+Motorcycles §Motorcycles
+Off-Road §Off-road
+Industrial §Industrial
+Utility §Utility
+Vans §Vans
+Cycles §Cycles
+Boats §Boats
+Helicopters §Helicopters
+Planes §Planes
+Service §Service
+Emergency §Emergency
+Military §Military
+Commercial §Commercial
+Trains §Trains
+Open Wheel §Open Wheel
