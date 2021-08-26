@@ -11,7 +11,7 @@
 > If there's anything confusing or vague in the feature list, feel free to suggest improvements.<br/>
 > I'm open to people translating this to another language. You have to speak the language fluently.
 
-<h1 align="center">[Join the kek's menu discord](https://discord.gg/CPSgPz4D7X)</h1>
+[Join the kek's menu discord](https://discord.gg/CPSgPz4D7X, "Kek's menu Discord")
 
 ## Table of contents
 
