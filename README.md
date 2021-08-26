@@ -1,7 +1,7 @@
 # Keks-menu
-> Kek's menu is a 2take1 lua script.;
-> The aim is to deliver a script that is stable and fills the gaps in the vanilla feature set of 2take1.;
-> Whether you like to mess with people, help people out or just try to be low-key, this script offers something useful.;
+> Kek's menu is a 2take1 lua script.<br/>
+> The aim is to deliver a script that is stable and fills the gaps in the vanilla feature set of 2take1.<br/>
+> Whether you like to mess with people, help people out or just try to be low-key, this script offers something useful.<br/>
 > 
 > The feature list will be structured like the script is.
 > This means you can figure out where features are located based on the structure of this document.
