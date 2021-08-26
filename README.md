@@ -4,7 +4,20 @@
 	If there's anything confusing or vague in the feature list, feel free to suggest improvements.
 
 ## Table of contents
+
 ### [General settings](#General-settings)
+
+## How to install
+	1. Open keks_menu.zip
+	2. Drag all the files to C:\Users\USERNAME\AppData\Roaming\PopstarDevs\2Take1Menu\scripts
+
+## Updating to a new version
+	1. Delete scripts\Kek's menu.lua
+	2. Delete scripts\kek_menu_stuff\kekMenuLibs
+	3. Open keks_menu.zip
+	4. Drag kek's menu.lua into the scripts folder
+	5. Open the kek_menu_stuff folder inside of keks_menu.zip
+	6. Drag kekMenuLibs to scripts\kek_menu_stuff
 
 ## General settings
 
