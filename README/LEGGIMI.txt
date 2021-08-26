@@ -1,0 +1,26 @@
+- Scarica uno di questi se non li hai ancora:
+       winrar: https://www.win-rar.com/download.html?L=0
+       7zip: https://www.7-zip.org/
+
+- Estrai Kek's menu X.X.X.X.zip
+- Trascina i file "Kek's menu" e "kek_menu_stuff" nella cartella "Scripts".
+- Sostituisci la vecchia cartella kekMenuLibs con quella nuova se stai aggiornando da una vecchia versione
+- Devi sostituire kekMenuLibs per i file lingua aggiornati.
+
+Il percorso per gli Script si trova qui:
+        C:\Users\YOURUSERNAME\AppData\Roaming\PopstarDevs\2Take1Menu\scripts\
+
+
+Se il procedimento non è andato a buon fine o non sei riuscito a capire:
+        Premi il tasto windows + r nello stesso momento
+        Una piccola finestra comparirà, chiedendoti di scrivere qualcosa.
+        Scrivi %appdata%
+        Trova la cartella "PopstarDevs", aprila
+        Apri la cartella "2Take1Menu" dentro "PopstarDevs"
+        Adesso, troverai una cartella chiamata "Scripts", se non ce ne sta una, creala tu.
+        Trascina i file "Kek's menu" e "kek_menu_stuff" nella cartella "Scripts".
+
+Ecco fatto! Se ancora non riesci a capire o qualcosa è sbagliato, manda un messaggio al Discord: kektram#8996.
+
+Se vuoi suggerire una funzione, segnalare bug o ricevere supporto, entra a far parte del Discord server di Kek:
+https://discord.gg/CPSgPz4D7X

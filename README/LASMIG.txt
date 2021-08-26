@@ -1,0 +1,34 @@
+- Ladda ner en av nedanstående om du inte redan har dem: 
+		winrar: https://www.win-rar.com/download.html?L=0
+	7zip: https://www.7-zip.org/
+
+- Extrahera Kek's Meny X.X.X.X.zip
+- Dra "Kek's menu" och "kek_menu_stuff" mappen till "Scripts" mappen.
+- Skriv över gammla kekMenuLibs mappen och Kek's menu.lua med den nya om du uppdaterar från en äldre version.
+- Du måste även skriva över kekMenuLibs för uppdaterade språk filer.
+
+Scripts mappen är i denna sökväg: 
+		C:\Users\YOURUSERNAME\AppData\Roaming\PopstarDevs\2Take1Menu\scripts\
+
+
+Om överstående inte fungerar eller om du inte förstår:
+
+
+		tryck på windows knappen + r samtidigt
+		Ett litet fönster kommer poppa upp, där du kan skriva.
+		Skriv in %appdata%
+		Hitta "PopstarDevs" mappen och öppna den.
+		Öppna "2take1Menu" mappen innuti "PopstarDevs".
+		Där kommer du hitta en mapp som heter "Scripts", om den inte finns, så är det bara till att skapa en.
+		Dra "Kek's Menu" och "kek_menu_stuff" mappen till "Scripts" mappen.
+
+Det är allt! Om du fortfarande inte har förstått eller om något är fel, skicka ett meddelande till mig på Discord: kektram#8996.
+
+Vänligen skriv till mig om du hittar några bugs eller om du har ett önskemål för ny funktion.
+
+
+
+För att ändra språket på menyn, gör följande:
+Gå till Kek's menu > general settings > language configuration
+Välj ditt språk.
+Ladda om lua state och sedan är Keks meny på ditt språk!

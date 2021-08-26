@@ -1,0 +1,30 @@
+- 이 프로그램 중 하나를 다운로드 받아 설치해주세요:
+	winrar: https://www.win-rar.com/download.html?L=0
+	7zip: https://www.7-zip.org/
+    (이 프로그램들 외에 다른 압축 프로그램도 괜찮습니다.)
+
+- Kek's menu X.X.X.X.zip 를 가져오세요
+- "Kek's menu"와 "kek_menu_stuff" 폴더를 "Scripts" 폴더 안에 드래그해서 넣으세요.
+- 만약 구 버전에서 업데이트를 한다면, 원래 있던 kekMenuLibs 폴더를 새로운 것으로 교체하세요.
+- kekMenuLibs 폴더의 업데이트된 언어 파일도 교체해야 합니다. 
+
+ Scripts 폴더는 이 위치에 있습니다:
+	C:\Users\YOURUSERNAME\AppData\Roaming\PopstarDevs\2Take1Menu\scripts\
+
+위의 방법이 잘 되지 않거나 이해되지 않을 경우 다른 방법:
+
+	윈도우+R 버튼을 동시에 입력하기
+	작은 창이 갑자기 나타나면서, 어떠한 것을 입력하도록 물을 것입니다.
+	%appdata%를 입력하고
+	"PopstarDevs" 폴더를 찾고, "PopstarDevs" 폴더를 여세요.
+	"PopstarDevs" 안에 있는 "2Take1Menu" 폴더를 여세요.
+	그러면, "Scripts"라는 폴더를 찾을 수 있을 것이며, 그 폴더가 거기에 없다면, 폴더를 만들면 됩니다.
+	폴더를 드래그하여 "Scripts" 폴더 안에 넣으세요.
+
+그게 전부입니다! 아직도 이해되지 않거나 무언가 잘못 되었다면, 디스코드: kektram#8996으로 메시지를 주세요.                                   
+
+메뉴 기능을 요청하고, 버그를 제보하거나 서포트를 받고 싶은 분은 Kek's menu 디스코드 서버에 가입하세요 : https://discord.gg/CPSgPz4D7X
+
+한국어 GTAV 모드 메뉴 커뮤니티 디스코드 서버 링크 : https://discord.gg/jdtvhFCMMw
+
+                            

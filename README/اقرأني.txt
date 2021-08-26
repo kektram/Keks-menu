@@ -1,0 +1,26 @@
+اضغط CTRL مع RSHIFT عشان يصير من يمين الى يسار
+
+- حمل واحد منهم اذا ماعندك ايهم: 
+	winrar: https://www.win-rar.com/download.html?L=0
+	7zip: https://www.7-zip.org
+
+- استخرج Kek's menu X.X.X.X.zip 
+- اسحب "Kek's menu" و "kek_menu_stuff" الى ملف "scripts". 
+- استبدل ملف kekMenuLibs القديم بالجديد اذا كنت تحدث من نسخة قديمة
+- لازم تستبدل ملف kekMenuLibs لملفات اللغة الجديدة.
+
+ملف scripts موجود هنا:
+	C:\Users\YOURUSERNAME\AppData\Roaming\PopstarDevs\2Take1Menu\scripts
+
+
+اذا اللي فوق ما ضبط او مافهمت: 
+
+	اضغط زر وندوز مع حرف R في نفس الوقت
+	بيطلع لك برنامج صغير اكتب فيه %appdata%
+	دور ملف "PopstarDevs" وافتحة
+	افتح ملف "2Take1Menu" داخل ملف "PopstarDevs"
+	بعدين, بتشوف ملف اسمة "scripts", اذا مافيه سو واحد.
+	اسحب "Kek's menu" و "kek_menu_stuff" الى ملف "scripts".
+
+اذا تبي تقترح شي, تبلغ عن بق او تبغى مساعدة, ادخل لسيرفر Kek's menu في دسكورد:
+https://discord.gg/CPSgPz4D7X

@@ -1,0 +1,28 @@
+- 如果你还没有安装解压软件，请先下载并安装以下任意一款解压软件: 
+	winrar: https://www.win-rar.com/download.html?L=0
+	7zip: https://www.7-zip.org/
+
+- 下载 Kek's menu X.X.X.X.zip 脚本压缩包
+- 将 "Kek's menu.lua" 文件和 "kek_menu_stuff" 文件夹解压或拖到 "Scripts" 文件夹内.
+- 如果你要更新脚本，用新的kekMenuLibs文件夹替换旧的kekMenuLibs文件夹
+- 你也必须替换kekMenuLibs -> Languages中的语言文件(如果你直接替换上面说到的kekMenuLibs整个文件夹可以无视这一步).
+
+脚本文件夹位于以下路径中：
+	C:\用户\你当前系统的用户名\AppData\Roaming\PopstarDevs\2Take1Menu\scripts\
+
+
+如果上面的方法没有效果或者你还是不明白：
+
+	在键盘上同时按下Windows(微软图标键) + R
+	屏幕左下角会弹出一个小窗口，要求你输入一些东西.
+	输入 %appdata% 然后点击确定
+	找到“PopstarDevs”文件夹，打开它
+	打开“PopstarDevs”中的“2Take1Menu”文件夹
+	然后，你会看到一个名称为“Scripts”的文件夹，如果没有，新建一个名为 Scripts 的文件夹.
+	将 "Kek's menu.lua" 文件和 "kek_menu_stuff "文件夹拖入 "Scripts "文件夹，如果提示是否替换，点击是.
+	
+就这样！如果你还是不明白或者觉得某些地方有问题，请在Discord上联系我：kektram#8996
+
+如果你发现了任何BUG、希望添加某些新功能或想获得支持，请加入Kek's Menu服务器
+
+Kek's Menu服务器邀请链接：https://discord.gg/CPSgPz4D7X
