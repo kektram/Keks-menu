@@ -13,6 +13,11 @@
 
 <h2 align="center">Kek's menu discord</h2>
 
+> Get support<br/>
+> Lots of resources such as packs of xml vehicles<br/>
+> Get the latest version of Moist's script<br/>
+> Share your creations related to Kek's menu
+
 [Join the kek's menu discord](https://discord.gg/CPSgPz4D7X, "Kek's menu Discord")
 
 ## Table of contents
