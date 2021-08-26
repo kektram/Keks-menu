@@ -11,6 +11,8 @@
 > If there's anything confusing or vague in the feature list, feel free to suggest improvements.<br/>
 > I'm open to people translating this to another language. You have to speak the language fluently.
 
+<h1 align="center">[Join the kek's menu discord](https://discord.gg/CPSgPz4D7X)</h1>
+
 ## Table of contents
 
 ### [Feature list](#Feature-list-1)
@@ -145,6 +147,7 @@
 	Remove from blacklist
 	Add session to blacklist
 	Remove session from blacklist
+	Blacklist notifications
 
 #### Turn all on or off
 	This feature is in Modder logging and auto kicker settings
