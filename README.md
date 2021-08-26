@@ -5,7 +5,9 @@
 
 ## Table of contents
 
-### [General settings](#General-settings)
+### [Feature list](#Feature-list)
+
+### [How to install](#How-to-install)
 
 ## How to install
 	1. Open keks_menu.zip
@@ -19,44 +21,50 @@
 	5. Open the kek_menu_stuff folder inside of keks_menu.zip
 	6. Drag kekMenuLibs to scripts\kek_menu_stuff
 
-## General settings
+## Feature list
 
-### Settings
+### Table of contents
 
-#### Save to default
+#### [General settings](#General-settings)
+
+### General settings
+
+#### Settings
+
+##### Save to default
 	Overwrites the kekSettings.ini file and the current settings become the defaults.
 
-#### New profile
+##### New profile
 	Creates a new settings profile.
 	These can be loaded and saved to. Very similar to 2take1 setting profiles.
 
-#### Setting profiles
+##### Setting profiles
 	Load
 	Rename
 	Save
 	Delete
 
-### Script loader
+#### Script loader
 	Turn it on / off
 	Empty the script loader
 	Add a script
 	Remove a script
 
-### Hotkeys
+#### Hotkeys
 
-#### Notifications
+##### Notifications
 	Toggle whether to show a notification whenever a hotkey is pressed
 
-#### Hotkey mode
+##### Hotkey mode
 	Before setting hotkeys, make sure you have set the right hotkey mode.
 	If it's set to keyboard, it looks for keyboard input. If it's set to controller, it looks for controller input.
 	This means that setting the wrong input mode before setting hotkeys will lead to unpredictable behaviour.
 
-#### Setting hotkeys
+##### Setting hotkeys
 	A hotkey can be bound to 1 - 3 keys.
 	The script uses gta 5's input system, so some keys can't be set as hotkeys.
 
-#### Keys that can be set as hotkeys
+##### Keys that can be set as hotkeys
 	A-Y (WITH EXCEPTION OF i, j and o)
 	Up, Down, Left, Right
 	f1 - f11 (f4 is not supported)
