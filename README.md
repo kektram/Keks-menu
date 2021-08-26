@@ -3,6 +3,7 @@
 > Kek's menu is a 2take1 lua script.<br/>
 > The aim is to deliver a script that is stable and fills the gaps in the vanilla feature set of 2take1.<br/>
 > Whether you like to mess with people, help people out or just try to be low-key, this script offers something useful.<br/>
+> Kek's menu is available in 10 languages.<br/>
 > 
 > The feature list will be structured like the script is.<br/>
 > This means you can figure out where features are located based on the structure of this document.<br/>
@@ -32,9 +33,13 @@
 
 ### Table of contents
 
-#### [General settings](#General-settings)
+#### [General settings](###General-settings)
+
+### [Modder detection](###Modder-detection)
 
 ### General settings
+
+> Miscellaneous settings and how to save your settings.
 
 #### Settings
 
@@ -95,3 +100,15 @@
 	Esc
 	Home
 	Enter
+
+#### Language configuration
+	To change your language, just click on one of the "set X as default language" and reset lua state.
+
+#### Script quick access
+	This will make accessing all features faster.
+	Normally, you need to: Script features > Kek's menu > Session trolling
+	After turning on quick access, it becomes: Script features > Session trolling
+
+### Modder detection
+
+> Detection of modders, the blacklist and what to do against detected modders.<br/>
