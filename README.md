@@ -9,7 +9,7 @@
 > This means you can figure out where features are located based on the structure of this document.<br/>
 > Example: General settings > Settings > Save to default<br/>
 > If there's anything confusing or vague in the feature list, feel free to suggest improvements.<br/>
-> I'm open to people translating this to another language. You have to speak the language fluently.<br/>
+> I'm open to people translating this to another language. You have to speak the language fluently.
 
 ## Table of contents
 
@@ -112,3 +112,55 @@
 ### Modder detection
 
 > Detection of modders, the blacklist and what to do against detected modders.<br/>
+> Friends are excluded from all the options in this category by default
+
+#### Which modder detections are on
+
+##### Godmode detection
+	Detects people with godmode status on + doing multiple things that can't be done when legit players are in godmode
+
+##### Modded name detection
+	Detects people with illegal characters in the name
+	Detects too short / long names
+	If multiple people have the same illegal name, it won't trigger the detection
+
+##### Check people's stats
+	Based on a system of severity
+	To triggers it detection, the person must have a severity of 3
+
+###### Severity table
+> Suspicious amount of money = 1<br/>
+> Suspicious rank = 1<br/>
+> Suspicious kd = 1<br/>
+> Negative stats = 3<br/>
+> Modded armor = 3
+
+##### Detect any modded spectate
+	Detects if someone is spectating people while not being inside of an interior and is alive
+
+#### Blacklist
+	Add to blacklist
+		Type in name, rid, ip and reason
+
+	Remove from blacklist
+	Add session to blacklist
+	Remove session from blacklist
+
+#### Turn all on or off
+	This feature is in Modder logging and auto kicker settings
+	If 1 or more setting is on, everything is turned off.
+	If nothing is on, everything is turned on.
+
+#### Log modders with selected tags to blacklist
+
+#### Modder logging settings
+	A list of all possible modder detections
+	Select which to log
+
+#### Auto kicker
+	Automatically kicks out people based on the auto kicker settings. Will use host kick if available.
+	Get notified when the auto kicker is triggered
+
+#### Auto kicker settings
+	A list of all possible modder detections
+	Select which detection will trigger the auto kicker
