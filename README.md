@@ -9,7 +9,9 @@
 > This means you can figure out where features are located based on the structure of this document.<br/>
 > Example: General settings > Settings > Save to default<br/>
 > If there's anything confusing or vague in the feature list, feel free to suggest improvements.<br/>
-> I'm open to people translating this to another language. You have to speak the language fluently.
+> I'm open to people translating this to another language. You have to speak the language fluently.<br/>
+>
+> The feature list isn't finished yet.
 
 <h2 align="center">Kek's menu discord</h2>
 
