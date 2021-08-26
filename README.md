@@ -3,6 +3,10 @@
 	The feature list will be structured like the script is.
 	If there's anything confusing or vague in the feature list, feel free to suggest improvements.
 
+## Table of contents
+
+### [Keys that can be set as hotkeys](#Keys-that-can-be-set-as-hotkeys)
+
 ## General settings
 
 ### Settings
@@ -38,26 +42,28 @@
 
 #### Setting hotkeys
 	A hotkey can be bound to 1 - 3 keys.
-	The script uses gta 5's input system, so some keys can't be set as hotkeys. List of available keys:
-		A-Y (WITH EXCEPTION OF i, j and o)
-		Up, Down, Left, Right
-		f1 - f11 (f4 is not supported)
-		1 - 9
-		Num 4 - Num 9
-		Scroll down, Scroll up
-		Lmouse, Rmouse
-		Page down, Page up
-		Num plus, Num minus
-		Alt
-		Shift
-		Break
-		Ctrl
-		Space
-		Insert
-		Caps lock
-		Delete
-		Tab
-		Backspace
-		Esc
-		Home
-		Enter
+	The script uses gta 5's input system, so some keys can't be set as hotkeys.
+
+#### Keys that can be set as hotkeys
+	A-Y (WITH EXCEPTION OF i, j and o)
+	Up, Down, Left, Right
+	f1 - f11 (f4 is not supported)
+	1 - 9
+	Num 4 - Num 9
+	Scroll down, Scroll up
+	Lmouse, Rmouse
+	Page down, Page up
+	Num plus, Num minus
+	Alt
+	Shift
+	Break
+	Ctrl
+	Space
+	Insert
+	Caps lock
+	Delete
+	Tab
+	Backspace
+	Esc
+	Home
+	Enter
