@@ -3,4 +3,4 @@
 
 ## General settings
 
-### Save to defaults > Overwrites the kekSettings.ini file and the current settings become the defaults.
+### Save to defaults < Overwrites the kekSettings.ini file and the current settings become the defaults. >
