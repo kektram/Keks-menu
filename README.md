@@ -4,8 +4,7 @@
 	If there's anything confusing or vague in the feature list, feel free to suggest improvements.
 
 ## Table of contents
-
-### [Keys that can be set as hotkeys](#Keys-that-can-be-set-as-hotkeys)
+	[General settings](#General-settings)
 
 ## General settings
 
