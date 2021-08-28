@@ -137,7 +137,7 @@
 
 ##### Check people's stats
 	Based on a system of severity
-	To triggers it detection, the person must have a severity of 3
+	To triggers it detection, the person must have a severity of 3 or higher
 
 ###### Severity table
 > Suspicious amount of money = 1<br/>
