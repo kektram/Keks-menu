@@ -37,7 +37,7 @@ Entity crash protection §检测尝试使用实体崩溃的作弊者
 Blacklist §黑名单
 Check people's stats automatically §自动检测每个战局的玩家数据
 Detect any modded spectate §检测是否有作弊者观看别人
-Kick any vote kickers §自动踢战局使用投票踢的玩家
+Kick any vote kickers §自动踢战局内使用投票踢的玩家
 Add session §添加战局
 Remove session §删除战局
 Get host automatically §自动获取每个战局主机
@@ -45,7 +45,7 @@ Log modders with selected tags to blacklist §将带有选定标签的作弊者�
 Auto kicker §自动踢出战局
 Ram everyone §载具撞击战局所有人
 Vehicle fly nearby vehicles §载具飞行附近的载具
-Disable vehicles §战局踢出载具循环
+Disable vehicles §踢出载具
 Copy rid to clipboard §复制R*ID到剪贴板
 Copy ip to clipboard §复制IP到剪贴板
 Player history §历史玩家
@@ -96,12 +96,12 @@ Car godmode §载具无敌
 Vehicle fly player §控制载具(先观看)
 Spastic car §抽搐载具
 What vehicle to spawn §想要生成什么载具
-Disable vehicles §踢出载具循环
+Disable vehicles §踢出载具
 Off the radar §人间蒸发
 apply bounty §给予赏金
 Reapply bounty §给予赏金
 Transaction error §交易错误
-Ram player with vehicle §载具撞击该玩家
+Ram player with vehicle §载具撞击
 Hurricane §飓风
 Delete gun §删除枪
 Explosion gun §爆炸枪
@@ -253,7 +253,7 @@ Ped clear distance §NPC清除距离
 Object clear distance §物体清除距离
 Pickup clear distance §可拾取物清除距离
 Dump world §将附近的实体砸向他
-Make nearby peds hostile §使附近的npc充满敌意
+Make nearby peds hostile §附近的npc充满敌意
 Kick gun §踢出枪
 Kidnap player §绑架玩家
 Swap nearby cars §将附近的载具更改为默认载具
@@ -368,8 +368,8 @@ Crash §崩溃玩家
 Godmode detection §无敌检测
 is in godmode. §开了无敌
 Kill §击杀
-Clowns §小丑
-Kill session §击杀战局
+Clowns §小丑面包车
+Kill session §栽赃
 Revenge §复仇
 Turned off §关闭
 Horn boost §喇叭加速
@@ -505,7 +505,7 @@ Type in name of vehicle §输入载具名称
 Vehicle name §载具名称
 Save to Menyoo vehicles §保存为模组载具
 Clone §复制
-Send Menyoo vehicle attacker §发送模组载具攻击者
+Send Menyoo vehicle attacker §派出模组NPC攻击
 Spawn Menyoo vehicle §生成模组载具
 Menyoo vehicles §模组载具
 Type in name of menyoo vehicle. §请输入模组载具名称
@@ -608,9 +608,10 @@ Display 2take1 notifications on screen §在屏幕上显示2take1通知日志
 Number of notifications §通知数量
 Filter §过滤无用信息
 Log to console §记录到控制台
-Still §仍然
+Still §悬空
 Upwards §向上
 Downwards §向下
 Stretch §拉伸
 Type in stretch §输入拉伸数值
-Atomize §雾化
+Atomize §原子能枪射击
+This feature doesn't work on yourself. §此功能不可用于你自己.
