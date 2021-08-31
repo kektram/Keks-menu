@@ -138,7 +138,7 @@ end
 		"1.0.5", -- Key mapper
 		"1.0.0", -- Drive style mapper
 		"2.0.0", -- Menyoo spawner
-		"1.3.0", -- Essentials
+		"1.3.1", -- Essentials
 		"1.1.4", -- Kek entity functions
 		"1.0.4", -- Kek's trolling entities
 		"0.1.2", -- Custom vehicle mods
@@ -586,7 +586,7 @@ do
 		{"Script quick access", false},
 		{"Chat commands", false},
 		{"Only friends can use chat commands", false},
-		{"Send command info every 15th minute", false},
+		{"Send command info", false},
 		{"Kick #chat command#", false, lang["Kick §"]},
 		{"Crash #chat command#", false, lang["Crash §"]},
 		{"apartmentinvite #chat command#", false, lang["Apartment invites §"], " <Number>"},
@@ -625,7 +625,8 @@ do
 		{"Display 2take1 notifications", false},
 		{"Number of notifications to display", 15},
 		{"Display notify filter", false},
-		{"Log 2take1 notifications to console", false}
+		{"Log 2take1 notifications to console", false},
+		{"Help interval", 14}
 	}
 	for i = 1, #t do
 		add_gen_set(table.unpack(t[i]))
@@ -2743,13 +2744,13 @@ end
 				while f.on do
 					system.yield(0)
 					for pid = 0, 31 do
-						globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 0, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
+						globals.send_script_event("CEO money", pid, {pid, 15000, -1292453789, 0, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
 					end
 					essentials.wait_conditional(15000, function() 
 						return f.on 
 					end)
 					for pid = 0, 31 do
-						globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
+						globals.send_script_event("CEO money", pid, {pid, 15000, -1292453789, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
 					end
 					essentials.wait_conditional(15000, function() 
 						return f.on 
@@ -3746,9 +3747,14 @@ end
 			send_chat_commands()
 		end)
 
-		toggle["Send command info every 15th minute"] = kek_menu.add_feature(lang["Send chat command info every 15th min §"], "toggle", u.chat_commands.id, function(f)
+		toggle["Send command info"] = kek_menu.add_feature(lang["Send command list every §"], "value_str", u.chat_commands.id, function(f)
 			while f.on do
-				if toggle["Chat commands"].on then
+				local time = utils.time_ms() + ((f.value + 1) * 60000)
+				local value = f.value
+				while f.on and time > utils.time_ms() and utils.time_ms() > u.new_session_timer and f.value == value do
+					system.yield(0)
+				end
+				if toggle["Chat commands"].on and toggle["Send command info"].on and value == f.value then
 					while utils.time_ms() < u.new_session_timer and f.on do
 						system.yield(0)
 					end
@@ -3757,12 +3763,20 @@ end
 					end
 				end
 				system.yield(0)
-				local time = utils.time_ms() + 900000
-				while f.on and time > utils.time_ms() and utils.time_ms() > u.new_session_timer do
-					system.yield(0)
-				end
 			end
 		end)
+		do
+			local str = {
+			lang["minute §"],
+			"2nd "..lang["minute §"],
+			"3rd "..lang["minute §"]
+		}
+			for i = 4, 120 do
+				str[i] = i.."th "..lang["minute §"]
+			end
+			toggle["Send command info"]:set_str_data(str)
+		end
+		valuei["Help interval"] = toggle["Send command info"]
 
 		u.chat_commands_parent = kek_menu.add_feature(lang["Commands §"], "parent", u.chat_commands.id)
 		for i, feat in pairs(general_settings) do
@@ -5243,11 +5257,11 @@ end
 		kek_menu.create_thread(function()
 			while f.on do
 				system.yield(0)
-				globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 0, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
+				globals.send_script_event("CEO money", pid, {pid, 15000, -1292453789, 0, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
 				essentials.wait_conditional(15000, function() 
 					return f.on 
 				end)
-				globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
+				globals.send_script_event("CEO money", pid, {pid, 15000, -1292453789, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
 				essentials.wait_conditional(15000, function() 
 					return f.on 
 				end)
