@@ -1,4 +1,4 @@
--- Lib Essentials version: 1.3.0
+-- Lib Essentials version: 1.3.1
 -- Copyright © 2020-2021 Kektram
 
 local essentials = {}
@@ -167,7 +167,7 @@ local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 		return #kek_menu.ptfx <= kek_menu.PTFX_LIMIT
 	end
 	function essentials.request_ptfx(str_asset)
-		if ptfx_count() and type(str_asset) == "string" and #kek_menu.ptfx <= kek_menu.PTFX_LIMIT then
+		if ptfx_count() then
 			graphics.request_named_ptfx_asset(str_asset)
 			local time = utils.time_ms() + 400
 			while not graphics.has_named_ptfx_asset_loaded(str_asset) and time > utils.time_ms() do
@@ -177,8 +177,6 @@ local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 				graphics.set_next_ptfx_asset(str_asset)
 				return true
 			end
-		else
-			essentials.log_error("Invalid ptfx asset.", true)
 		end
 	end
 
