@@ -20,7 +20,7 @@
 > Get the latest version of Moist's script<br/>
 > Share your creations related to Kek's menu
 
-[Join the kek's menu discord](https://discord.gg/CPSgPz4D7X, "Kek's menu Discord")
+[Join the kek's menu discord](https://discord.gg/CPSgPz4D7X "Kek's menu Discord")
 
 ## Table of contents
 
