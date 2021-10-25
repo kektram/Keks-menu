@@ -748,7 +748,7 @@ local hash_to_model_or_name = {
 
 local essentials = require("Essentials")
 local translated_vehicle_names
-if utils.file_exists(utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\Vehicle names\\"..kek_menu.what_language:gsub("%.txt$", ".lua")) then
+if utils.file_exists(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\Vehicle names\\"..kek_menu.what_language:gsub("%.txt$", ".lua")) then
 	translated_vehicle_names = require("\\Languages\\Vehicle names\\"..kek_menu.what_language:gsub("%.txt", ""))
 end
 

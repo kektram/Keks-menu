@@ -998,7 +998,7 @@ function weapon_mapper.get_table_of_heavy_weapons()
 	return get_hashes(heavy_weapons)
 end
 
-function weapon_mapper.get_table_of_weapons(rif, smg, sg, pis, xpl, throw, hev, mel, misc)
+function weapon_mapper.get_table_of_weapons(rif, smg, sg, pis, xpl, throw, hev, mel, Misc)
 	local Table = {}
 	if rif then
 		table.move(get_hashes(rifles), 1, #get_hashes(rifles), 1, Table)
@@ -1024,7 +1024,7 @@ function weapon_mapper.get_table_of_weapons(rif, smg, sg, pis, xpl, throw, hev, 
 	if mel then
 		table.move(get_hashes(melee_weapons), 1, #get_hashes(melee_weapons), 1, Table)
 	end
-	if misc then
+	if Misc then
 		table.move(get_hashes(misc), 1, #get_hashes(misc), 1, Table)
 	end
 	return Table

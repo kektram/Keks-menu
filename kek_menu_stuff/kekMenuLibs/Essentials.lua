@@ -4,7 +4,7 @@
 local essentials = {}
 local key_mapper = require("Key mapper")
 
-local home = utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\"
+local home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 
 -- Is feature name valid
@@ -125,7 +125,7 @@ local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 	function essentials.get_random_string(rand_min, rand_max, max)
 		local vecu64_table = {}
 		for i = 1, math.random(rand_min or 1, rand_max or 12) do
-			vecu64_table[#vecu64_table + 1] = math.random(1, max or 9146744073709551615)
+			vecu64_table[#vecu64_table + 1] = math.random(1, max or math.max_integer)
 		end
 		return utils.vecu64_to_str(vecu64_table)
 	end

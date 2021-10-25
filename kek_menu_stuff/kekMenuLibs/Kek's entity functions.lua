@@ -686,6 +686,7 @@ local essentials = require("Essentials")
 		if teleport_you_back_to_original_pos and had_to_teleport then
 			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
 		end
+		return status
 	end
 
 	function kek_entity.teleport_session(pos, f)

@@ -234,7 +234,7 @@ function key_mapper.do_table_of_gta_keys(keys, controller_type, time)
 end
 
 function key_mapper.get_virtual_key_of_2take1_bind(bind_name)
-	local file = io.open(utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\2Take1Menu.ini")
+	local file = io.open(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\2Take1Menu.ini")
 	if file then
 		local Key = file:read("*a")
 		file:close()

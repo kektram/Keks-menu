@@ -1,19 +1,18 @@
--- Kek's menu version 0.4.4.1
+-- Kek's menu version 0.4.5.0
 -- Copyright © 2020-2021 Kektram
 if type(kek_menu) == "table" and kek_menu.version then 
 	menu.notify("Kek's menu is already loaded! Intentional error.", "Initialization cancelled.", 3, 211) 
 	error("Keks menu was already loaded!")
 end
 
-local original_package_path = package.path
-package.path = utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\scripts\\kek_menu_stuff\\kekMenuLibs\\?.lua"
-local essentials
-if utils.file_exists(utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\scripts\\kek_menu_stuff\\kekMenuLibs\\Essentials.lua") then
-	essentials = require("Essentials")
-else
+if not (package.path or ""):find(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\?.lua;", 1, true) then
+	package.path = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\?.lua"..";"..(package.path or "")
+end
+if not utils.file_exists(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Essentials.lua") then
 	menu.notify("Missing a library file.", "Error", 3, 6)
 	error("Missing a library file.")
 end
+local essentials = require("Essentials")
 
 collectgarbage("incremental", 110, 100, 10)
 math.randomseed(math.floor(os.clock()) + os.time())
@@ -24,8 +23,8 @@ end
 -- Var init
 	local u = {}
 	local o = {
-		home = utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\",
-		kek_menu_stuff_path = utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\scripts\\kek_menu_stuff\\",
+		home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\",
+		kek_menu_stuff_path = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\",
 		listeners = {
 			["player_leave"] = {},
 			["player_join"] = {},
@@ -55,7 +54,7 @@ end
 		ENTITY_VEHICLE_LIMIT = 50,
 		ENTITY_OBJECT_LIMIT = 210,
 		PTFX_LIMIT = 180,
-		version = "0.4.4.1",
+		version = "0.4.5.0",
 		update_autoexec = false
 	}
 
@@ -81,7 +80,7 @@ end
 
 function kek_menu.add_feature(name, Type, parent, func)
 	if type(func) == "function" then
-		return menu.add_feature(name, Type, parent, function(f)
+		return menu.add_feature(name, Type, parent, function(f, data)
 			if type(f) == "userdata" then
 				func(f)
 			end
@@ -93,7 +92,7 @@ end
 
 function kek_menu.add_player_feature(name, Type, parent, func)
 	if type(func) == "function" then
-		return menu.add_player_feature(name, Type, parent, function(f, pid)
+		return menu.add_player_feature(name, Type, parent, function(f, pid, data)
 			if type(f) == "userdata" then
 				func(f, pid)
 			end
@@ -103,65 +102,42 @@ function kek_menu.add_player_feature(name, Type, parent, func)
 	end
 end
 
--- Language init
-do
-	if not utils.file_exists(o.kek_menu_stuff_path.."kekMenuLibs\\Languages\\language.ini") then
-		local file = io.open(o.kek_menu_stuff_path.."kekMenuLibs\\Languages\\language.ini", "w+")
-		essentials.file(file, "write", "English.txt")
-		essentials.file(file, "close")
-	end
-	kek_menu.what_language = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\language.ini", "*l")
-	if kek_menu.what_language ~= "English.txt" and utils.file_exists(o.kek_menu_stuff_path.."kekMenuLibs\\Languages\\"..kek_menu.what_language) then
-		for line in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\"..kek_menu.what_language, "*a"):gmatch("([^\n]*)\n?") do
-			local temp_entry = line:match("§(.+)")
-			if temp_entry then
-				temp_entry = temp_entry:gsub("%s", "")
-				local str = line:match("§(.+)")
-				if str then
-					str = str:gsub("\\n", "\n")
-					str = str:gsub("\\\\\"", "\\\"")
-					kek_menu.lang[line:match("(.+)§").."§"] = str
-				end
+if not utils.file_exists(o.kek_menu_stuff_path.."kekMenuLibs\\Languages\\language.ini") then
+	local file = io.open(o.kek_menu_stuff_path.."kekMenuLibs\\Languages\\language.ini", "w+")
+	essentials.file(file, "write", "English.txt")
+	essentials.file(file, "close")
+end
+kek_menu.what_language = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\language.ini", "*l")
+if kek_menu.what_language ~= "English.txt" and utils.file_exists(o.kek_menu_stuff_path.."kekMenuLibs\\Languages\\"..kek_menu.what_language) then
+	for line in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\"..kek_menu.what_language, "*a"):gmatch("([^\n]*)\n?") do
+		local temp_entry = line:match("§(.+)")
+		if temp_entry then
+			temp_entry = temp_entry:gsub("%s", "")
+			local str = line:match("§(.+)")
+			if str then
+				str = str:gsub("\\n", "\n")
+				str = str:gsub("\\\\\"", "\\\"")
+				kek_menu.lang[line:match("(.+)§").."§"] = str
 			end
 		end
 	end
 end
 
--- Library versions
-	local lib_versions = {
-		"1.3.1", -- Vehicle mapper
-		"1.2.1", -- Ped mapper
-		"1.2.1", -- Object mapper 
-		"1.2.5", -- Globals
-		"1.0.2", -- Weapon mapper
-		"0.4.2", -- Location mapper 
-		"1.0.5", -- Key mapper
-		"1.0.0", -- Drive style mapper
-		"2.0.0", -- Menyoo spawner
-		"1.3.1", -- Essentials
-		"1.1.4", -- Kek entity functions
-		"1.0.4", -- Kek's trolling entities
-		"0.1.2", -- Custom vehicle mods
-		"1.0.0", -- Admin mapper
-		"1.0.6" -- Vehicle saver
-	}
-
--- Validity check
-	for i, k in pairs({
-		"", 
-		"kekMenuData", 
-		"profiles", 
-		"kekMenuLogs", 
-		"kekMenuLibs", 
-		"Player history", 
-		"kekMenuLibs\\Languages",
-		"Chat judger profiles",
-		"Chatbot profiles"
-	}) do
-		if not utils.dir_exists(o.kek_menu_stuff_path..k) then
-			utils.make_dir(o.kek_menu_stuff_path..k)
-		end
+for i, k in pairs({
+	"", 
+	"kekMenuData", 
+	"profiles", 
+	"kekMenuLogs", 
+	"kekMenuLibs", 
+	"Player history", 
+	"kekMenuLibs\\Languages",
+	"Chat judger profiles",
+	"Chatbot profiles"
+}) do
+	if not utils.dir_exists(o.kek_menu_stuff_path..k) then
+		utils.make_dir(o.kek_menu_stuff_path..k)
 	end
+end
 
 local lang = kek_menu.lang
 setmetatable(lang, {
@@ -175,33 +151,28 @@ setmetatable(lang, {
 	end
 })
 
-
-for i, k in pairs(
-	{
-		"Vehicle mapper", 
-		"Ped mapper", 
-		"Object mapper", 
-		"Globals", 
-		"Weapon mapper", 
-		"Location mapper", 
-		"Key mapper", 
-		"Drive style mapper", 
-		"Menyoo spawner", 
-		"Essentials", 
-		"Kek's entity functions", 
-		"Kek's trolling entities", 
-		"custom upgrades",
-		"Admin mapper",
-		"Vehicle saver"
+for name, version in pairs({
+	["Vehicle mapper"] = "1.3.1", 
+	["Ped mapper"] = "1.2.1", 
+	["Object mapper"] = "1.2.1", 
+	["Globals"] = "1.2.5",
+	["Weapon mapper"] = "1.0.2",
+	["Location mapper"] = "0.4.2",
+	["Key mapper"] = "1.0.5",
+	["Drive style mapper"] = "1.0.0",
+	["Menyoo spawner"] = "2.0.0",
+	["Essentials"] = "1.3.1",
+	["Kek's entity functions"] = "1.1.4",
+	["Kek's trolling entities"] = "1.0.4",
+	["custom upgrades"] = "0.1.2",
+	["Admin mapper"] = "1.0.0",
+	["Vehicle saver"] = "1.0.6"
 }) do
-	if not utils.file_exists(o.kek_menu_stuff_path.."kekMenuLibs\\"..k..".lua") then
+	if not utils.file_exists(o.kek_menu_stuff_path.."kekMenuLibs\\"..name..".lua") then
 		essentials.msg(lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu. §"], 6, true)
 		error(lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu. §"])
 	end
-	local file = io.open(o.home.."scripts\\kek_menu_stuff\\kekMenuLibs\\"..k..".lua")
-	local str = essentials.file(file, "read", "*l")
-	essentials.file(file, "close")
-	if not str or str:match(": (.+)") ~= lib_versions[i] then
+	if essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuLibs\\"..name..".lua", "*l"):match(": (.+)") ~= version then
 		essentials.msg(lang["There's a library file which is the wrong version, please reinstall kek's menu. §"], 6, true)
 		error(lang["There's a library file which is the wrong version, please reinstall kek's menu. §"])
 	end
@@ -221,7 +192,6 @@ local troll_entity = require("Kek's trolling entities")
 local custom_upgrades = require("Custom upgrades")
 local admin_mapper = require("Admin mapper")
 local vehicle_saver = require("Vehicle saver")
-package.path = original_package_path
 
 for i, k in pairs({
 	"kekMenuData\\custom_chat_judge_data.txt", 
@@ -278,22 +248,23 @@ end
 
 local threads = {}
 function kek_menu.create_thread(func, value)
-	local count = 0
-	for i, thread in pairs(threads) do
-		if menu.has_thread_finished(thread) then
-			menu.delete_thread(thread)
-			threads[i] = nil
+	local temp = {}
+	for i = 1, #threads do
+		if menu.has_thread_finished(threads[i]) then
+			menu.delete_thread(threads[i])
 		else
-			count = count + 1
+			temp[#temp + 1] = threads[i]
 		end
 	end
-	local thread = -1
-	if count < 850 then
-		thread = menu.create_thread(function(value)
-			func(value)
-		end, value)
-		threads[#threads + 1] = thread
+	threads = temp
+	while #threads > 750 do
+		menu.delete_thread(threads[1])
+		table.remove(threads, 1)
 	end
+	local thread = menu.create_thread(function(value)
+		func(value)
+	end, value)
+	threads[#threads + 1] = thread
 	return thread
 end
 
@@ -347,6 +318,7 @@ end
 		end
 		u.session_trolling = kek_menu.add_feature(lang["Session trolling §"], "parent", u.kekMenu)
 		u.session_malicious = kek_menu.add_feature(lang["Session malicious §"], "parent", u.kekMenu)
+		u.weapon_blacklist = kek_menu.add_feature(lang["Weapon blacklist §"], "parent", u.session_malicious.id)
 		u.kek_utilities = kek_menu.add_feature(lang["Kek's utilities §"], "parent", u.kekMenu)
 		u.self_options = kek_menu.add_feature(lang["Self options §"], "parent", u.kekMenu)
 		u.weapons_self = kek_menu.add_feature(lang["Weapons §"], "parent", u.self_options.id)
@@ -393,10 +365,8 @@ end
 -- Useful functions
 	-- Request control
 		function kek_menu.get_control_of_entity(Entity, time_to_wait, no_condition)
-			if utils.time_ms() > u.new_session_timer and entity.is_an_entity(Entity) and not network.has_control_of_entity(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
-				if not time_to_wait then
-					time_to_wait = 500 
-				end
+			if not network.has_control_of_entity(Entity) and entity.is_an_entity(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) and utils.time_ms() > u.new_session_timer then
+				time_to_wait = time_to_wait or 400 
 				local types = {
 					[4] = 1,
 					[3] = 5,
@@ -409,13 +379,11 @@ end
 	       				system.yield(0)
 	    			end
 				end
-				if network.has_control_of_entity(Entity) then
-					if not entities_you_have_control_of[Entity] then
-						entities_you_have_control_of[Entity] = 1
-					end
-					return true
+			end
+			if network.has_control_of_entity(Entity) then
+				if not entities_you_have_control_of[Entity] then
+					entities_you_have_control_of[Entity] = 1
 				end
-			elseif entity.is_an_entity(Entity) then
 				return true
 			end
 		end
@@ -557,6 +525,7 @@ do
 		{"Hotkeys #notifications#", true, lang["Notifications §"], u.hotkey_settings},
 		{"Vehicle blacklist #notifications#", true, lang["Notifications §"], u.vehicle_blacklist},
 		{"Blacklist notifications #notifications#", true, lang["Blacklist §"].." "..lang["Notifications §"], u.modder_detection},
+		{"Weapon blacklist notifications #notifications#", true, lang["Weapon blacklist §"].." "..lang["Notifications §"], u.weapon_blacklist},
 		{"Always ask what #vehicle#", false, lang["Always ask what vehicle §"]}, 
 		{"Air #vehicle# spawn mid-air", true, lang["Spawn air vehicle mid-air §"]}, 
 		{"Plate vehicle text", "Kektram"}, 
@@ -626,7 +595,8 @@ do
 		{"Number of notifications to display", 15},
 		{"Display notify filter", false},
 		{"Log 2take1 notifications to console", false},
-		{"Help interval", 14}
+		{"Help interval", 14},
+		{"Weapon blacklist", false}
 	}
 	for i = 1, #t do
 		add_gen_set(table.unpack(t[i]))
@@ -727,15 +697,13 @@ do
 				essentials.file(file, "write", "if false then return end")
 				essentials.file(file, "write", "\n-- Version "..kek_menu.version)
 				essentials.file(file, "write", "\n-- sjhvnciuyu44khdjkhUSx\n")
-				essentials.file(file, "write", "local appdata_path = utils.get_appdata_path(\"PopstarDevs\", \"\")..\"\\\\2Take1Menu\\\\\"\n")
+				essentials.file(file, "write", "local appdata_path = utils.get_appdata_path(\"PopstarDevs\", \"2Take1Menu\")..\"\\\\\"\n")
 				essentials.file(file, "write", "local scripts = {}\n")
 				essentials.file(file, "write", "for i, k in pairs(scripts) do\n")
 				essentials.file(file, "write", "	if utils.file_exists(appdata_path..\"scripts\\\\\"..k) then\n")
-				essentials.file(file, "write", "		local original_path = package.path\n")
 				essentials.file(file, "write", "		if not require(k:gsub(\"%.lua$\", \"\")) then\n")
 				essentials.file(file, "write", "			menu.notify(\"Failed to load \"..k..\".\", \"\", 3, 6)\n")
 				essentials.file(file, "write", "		end\n")
-				essentials.file(file, "write", "		package.path = original_path\n")
 				essentials.file(file, "write", "	end\n")
 				essentials.file(file, "write", "end\n")
 				essentials.file(file, "flush")
@@ -1037,15 +1005,12 @@ end
 			while f.on do
 				system.yield(0)
 				for pid = 0, 31 do
-					if player.is_player_valid(pid) then
+					if player.is_player_valid(pid) and essentials.is_not_friend(pid) and player.player_id() ~= pid and not entity.is_entity_dead(player.get_player_ped(pid)) then
 						local spectate_target = network.get_player_player_is_spectating(pid)
 						if spectate_target
 						and spectate_target ~= pid
 						and (not tracker[player.get_player_scid(pid)] or utils.time_ms() > tracker[player.get_player_scid(pid)])
 						and not player.is_player_modder(pid, keks_custom_modder_flags["Modded-Spectate"]) 
-						and essentials.is_not_friend(pid) 
-						and player.player_id() ~= pid 
-						and not entity.is_entity_dead(player.get_player_ped(pid)) 
 						and interior.get_interior_from_entity(player.get_player_ped(pid)) == 0 then
 							essentials.msg(player.get_player_name(pid).." "..lang["is spectating §"].." "..player.get_player_name(spectate_target)..".", 6, true)
 							player.set_player_as_modder(pid, keks_custom_modder_flags["Modded-Spectate"])
@@ -1819,6 +1784,85 @@ end
 			lang["Explode with blame §"]
 		})
 
+do
+	local weapon_blacklist_settings = {}
+	if not utils.file_exists(o.kek_menu_stuff_path.."kekMenuData\\weapon_blacklist_settings.ini") then
+		local file = io.open(o.kek_menu_stuff_path.."kekMenuData\\weapon_blacklist_settings.ini", "w+")
+		essentials.file(file, "close")
+	end
+	local str = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", "*a")
+	local file = io.open(o.kek_menu_stuff_path.."kekMenuData\\weapon_blacklist_settings.ini", "a")
+	for i, hash in pairs(weapon.get_all_weapon_hashes()) do
+		if not str:find(hash, 1, true) then
+			essentials.file(file, "write", hash.."=".."false".."\n")
+		end
+	end
+	essentials.file(file, "flush")
+	essentials.file(file, "close")
+	for weapon in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", "*a"):gmatch("([^\n]*)\n?") do
+		weapon_blacklist_settings[tonumber(weapon:match("(%d+)="))] = {setting = weapon:match("=(.+)") == "true"}
+	end
+
+	toggle["Weapon blacklist"] = kek_menu.add_feature(lang["Weapon blacklist §"], "toggle", u.weapon_blacklist.id, function(f)
+		local tracker = {}
+		while f.on do
+			system.yield(0)
+			for _, hash in pairs(weapon.get_all_weapon_hashes()) do
+				if weapon_blacklist_settings[hash].feat.on then
+					for pid = 0, 31 do
+						if ((tracker[player.get_player_scid(pid)] or {})[hash] or 0) < utils.time_ms() and player.is_player_valid(pid) and essentials.is_not_friend(pid) and player.player_id() ~= pid and weapon.has_ped_got_weapon(player.get_player_ped(pid), hash) then
+							weapon.remove_weapon_from_ped(player.get_player_ped(pid), hash)
+							essentials.msg(lang["Removed §"].." "..player.get_player_name(pid).."\'s "..weapon.get_weapon_name(hash)..".", 6, kek_menu.settings["Weapon blacklist notifications #notifications#"])
+							if not tracker[player.get_player_scid(pid)] then
+								tracker[player.get_player_scid(pid)] = {}
+							end
+							tracker[player.get_player_scid(pid)][hash] = utils.time_ms() + 60000
+						end
+					end
+				end
+			end
+		end
+	end)
+
+	for i, weapon_group_name in pairs({
+		lang["Rifles §"],
+		lang["SMGs §"],
+		lang["Shotguns §"],
+		lang["Pistols §"],
+		lang["Explosives §"],
+		lang["Throwables §"],
+		lang["Heavy §"],
+		lang["Melee §"],
+		lang["Miscellaneous §"]
+	}) do
+		local Type = {}
+		for i2 = 1, 9 do
+			Type[i2] = i2 == i
+		end
+		local parent = kek_menu.add_feature(weapon_group_name, "parent", u.weapon_blacklist.id)
+		for _, hash in pairs(weapon_mapper.get_table_of_weapons(table.unpack(Type))) do
+			if not weapon_blacklist_settings[hash].feat then
+				weapon_blacklist_settings[hash].feat = kek_menu.add_feature(weapon.get_weapon_name(hash), "toggle", parent.id, function(f)
+					essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", {hash.."="..tostring(weapon_blacklist_settings[hash].setting), hash.."="..tostring(weapon_blacklist_settings[hash].feat.on)}, true, true)
+					weapon_blacklist_settings[hash].setting = weapon_blacklist_settings[hash].feat.on
+				end)
+				weapon_blacklist_settings[hash].feat.on = weapon_blacklist_settings[hash].setting
+			end
+		end
+		if i == 9 then
+			for _, hash in pairs(weapon.get_all_weapon_hashes()) do
+				if not weapon_blacklist_settings[hash].feat then
+					weapon_blacklist_settings[hash].feat = kek_menu.add_feature(weapon.get_weapon_name(hash), "toggle", parent.id, function(f)
+						essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", {hash.."="..tostring(weapon_blacklist_settings[hash].setting), hash.."="..tostring(weapon_blacklist_settings[hash].feat.on)}, true, true)
+						weapon_blacklist_settings[hash].setting = weapon_blacklist_settings[hash].feat.on
+					end)
+					weapon_blacklist_settings[hash].feat.on = weapon_blacklist_settings[hash].setting
+				end
+			end
+		end
+	end
+end
+
 -- Initialize player history
 	local player_history = {
 		year_parents = {},
@@ -1882,25 +1926,6 @@ end
 					kek_menu.add_feature(lang["Seen §"].." "..#seen.." "..lang["time. §"], "action", parent.id)
 				end
 			end
-		end
-
-		function player_history.get_date()
-			local day_num = tonumber(os.date("%d"))
-			if day_num == 1 then
-				day_num = "1st"
-			elseif day_num == 2 then
-				day_num = "2nd"
-			elseif day_num == 3 then
-				day_num = "3rd"
-			else
-				day_num = day_num.."th"
-			end
-			local month = os.date("%B").."_".. os.date("%m")
-			local day = os.date("%A").." "..day_num.." of "..month:match("(.+)_")
-			local year = os.date("%Y")
-			local time = os.date("%H").." o'clock"
-			local date = os.date("%x")
-			return month, day, year, time, date
 		end
 
 	-- Player history
@@ -1979,7 +2004,21 @@ end
 				for pid = 0, 31 do
 					system.yield(0)
 					if not player_history.players_added_to_history[player.get_player_scid(pid)] and f.on and pid ~= player.player_id() and player.is_player_valid(pid) then
-						local month, day, year, time, date = player_history.get_date()
+						local day_num = os.date("%d")
+						if day_num == "1" then
+							day_num = "1st"
+						elseif day_num == "2" then
+							day_num = "2nd"
+						elseif day_num == "3" then
+							day_num = "3rd"
+						else
+							day_num = day_num.."th"
+						end
+						local month = os.date("%B").."_".. os.date("%m")
+						local day = os.date("%A").." "..day_num.." of "..month:match("(.+)_")
+						local year = os.date("%Y")
+						local time = os.date("%H").." o'clock"
+						local date = os.date("%x")
 						if not utils.dir_exists(o.kek_menu_stuff_path.."Player history\\"..year) then
 							utils.make_dir(o.kek_menu_stuff_path.."Player history\\"..year)
 						end
@@ -2370,13 +2409,6 @@ end
 						kek_entity.get_table_of_close_entity_type(1),
 						50,
 						true
-					},
-					{
-						kek_entity.get_table_of_close_entity_type(3),
-						50,
-						false,
-						100,
-						true
 					}
 				},
 				essentials.get_ped_closest_to_your_pov()
@@ -2508,13 +2540,42 @@ end
 						kek_entity.teleport_session(pos, f)
 						system.yield(0)
 					end
+				elseif f.value == 2 then
+					local players = {}
+					for pid = 0, 31 do
+						if f.value ~= 2 or not f.on then
+							break
+						end
+						if player.is_player_valid(pid) and essentials.is_not_friend(pid) and player.player_id() ~= pid then
+							local status = kek_entity.teleport_player_and_vehicle_to_position(pid, v3(491.9401550293, 5587, 794.00347900391), player.player_id() ~= pid, false)
+							if status then
+								globals.disable_vehicle(pid)
+								players[#players + 1] = pid
+							end
+						end
+					end
+					essentials.wait_conditional(1500, function()
+						return f.on and f.value == 2
+					end)
+					for i = 1, #players do
+						if not entity.is_entity_dead(player.get_player_ped(players[i])) then
+							for i2 = 1, 10 do
+								system.yield(0)
+								essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(players[i]), 29, true, false, 0, player.get_player_ped(players[i]))
+							end
+						end
+					end
+				elseif f.value == 3 then
+					kek_entity.teleport_session(v3(24000, -24000, 2300), f)
 				end
 				system.yield(0)
 			end
 			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
 		end):set_str_data({
 			lang["Current position §"],
-			lang["Waypoint §"]
+			lang["Waypoint §"],
+			lang["Mount Chiliad & kill §"],
+			lang["far away §"]
 		})
 
 	-- Force host
@@ -5699,7 +5760,7 @@ end
 	-- Taze player
 		kek_menu.add_player_feature(lang["Taze player §"], "toggle", u.player_trolling_features, function(f, pid)
 			while f.on do
-				gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 0.3), select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f1, v3())), 0, 911657153, player.get_player_ped(player.player_id()), true, false, 1000)
+				gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), essentials.random_real(-0.5, 0.5)) + v3(0, 0, essentials.random_real(0, 1)), select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f2, v3())), 0, 911657153, player.get_player_ped(player.player_id()), true, false, 2000)
 				system.yield(1000)
 			end
 		end)
@@ -5715,17 +5776,19 @@ end
 				end
 			end, nil)
 			while f.on do
-				essentials.use_ptfx_function(
-					gameplay.shoot_single_bullet_between_coords, 
-					kek_entity.get_vector_relative_to_entity(essentials.get_most_relevant_entity(pid), 1),
-					entity.get_entity_coords(essentials.get_most_relevant_entity(pid)),
-					1,
-					2939590305, 
-					player.get_player_ped(player.player_id()), 
-					true, 
-					false, 
-					1000
-				)
+				if not entity.is_entity_dead(player.get_player_ped(pid)) then
+					essentials.use_ptfx_function(
+						gameplay.shoot_single_bullet_between_coords, 
+						kek_entity.get_vector_relative_to_entity(essentials.get_most_relevant_entity(pid), 1),
+						entity.get_entity_coords(essentials.get_most_relevant_entity(pid)),
+						1,
+						2939590305, 
+						player.get_player_ped(player.player_id()), 
+						true, 
+						false, 
+						1000
+					)
+				end
 				system.yield(math.floor(1000 - f.value))
 			end
 		end)
@@ -6939,11 +7002,11 @@ initialize_settings("scripts\\kek_menu_stuff\\keksettings.ini")
 			end
 		end
 		for name, id_list in pairs(o.listeners) do
-			for name, id in pairs(id_list) do
+			for _, id in pairs(id_list) do
 				event.remove_event_listener(name, id)
 			end
 		end
-		for name, id in pairs(o.nethooks) do
+		for _, id in pairs(o.nethooks) do
 			hook.remove_net_event_hook(id)
 		end
 	end)

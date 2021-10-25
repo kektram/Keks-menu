@@ -614,3 +614,4 @@ Downwards §Nedover
 Stretch §Stretch
 Type in stretch §Skriv inn stretch
 Atomize §Atomiser
+This feature doesn't work on yourself. §Dette featuren fungerer ikke på deg selv.
