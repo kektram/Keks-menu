@@ -75,9 +75,7 @@ local function get_properties(Entity, initial)
 		for i = 0, 19 do
 			info["PedProperties"]["FacialFeatures"]["_"..i] = ped.get_ped_face_feature(Entity, i)
 		end
-		for name, data in pairs(ped.get_ped_head_blend_data(Entity) or {}) do
-			info["PedProperties"]["BlendData"][name] = data
-		end
+		info["PedProperties"]["BlendData"] = ped.get_ped_head_blend_data(Entity) or {}
 		for i = 0, 9 do
 			info["PedProperties"]["PedProps"]["_"..i] = ped.get_ped_prop_index(Entity, i)..","..ped.get_ped_prop_texture_index(Entity, i)
 		end

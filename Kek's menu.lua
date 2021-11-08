@@ -162,7 +162,7 @@ for name, version in pairs({
 	["Drive style mapper"] = "1.0.0",
 	["Menyoo spawner"] = "2.0.0",
 	["Essentials"] = "1.3.1",
-	["Kek's entity functions"] = "1.1.4",
+	["Kek's entity functions"] = "1.1.5",
 	["Kek's trolling entities"] = "1.0.4",
 	["custom upgrades"] = "0.1.2",
 	["Admin mapper"] = "1.0.0",
@@ -257,7 +257,8 @@ function kek_menu.create_thread(func, value)
 		end
 	end
 	threads = temp
-	while #threads > 750 do
+	print(#threads)
+	while #threads > 250 do
 		menu.delete_thread(threads[1])
 		table.remove(threads, 1)
 	end
@@ -596,7 +597,9 @@ do
 		{"Display notify filter", false},
 		{"Log 2take1 notifications to console", false},
 		{"Help interval", 14},
-		{"Weapon blacklist", false}
+		{"Weapon blacklist", false},
+		{"Show red sphere clear entities", true},
+		{"Force field sphere", true}
 	}
 	for i = 1, #t do
 		add_gen_set(table.unpack(t[i]))
@@ -923,7 +926,7 @@ end
 					and essentials.is_not_friend(event.player) then
 						if #player.get_player_name(event.player) <= 5 
 						or #player.get_player_name(event.player) > 16 
-						or player.get_player_name(event.player):gsub("[%.%-%_]", ""):find("%p%s%c") then
+						or player.get_player_name(event.player):gsub("[%.%-_]", ""):find("%p%s%c") then
 							local count = 0
 							for pid = 0, 31 do
 								if player.is_player_valid(pid) and player.get_player_name(pid) == player.get_player_name(event.player) then
@@ -1030,9 +1033,9 @@ end
 				if not reason or #reason == 0 then
 					reason = "Manually added"
 				end
-				local B = essentials.log("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", "§"..name.."§ /"..rid.."/ &"..ip.."& <"..reason..">", {"/"..rid.."/", "&"..ip.."&", "§"..name.."§"})
-				if B then
-					essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", {B, B:match("(.+)<").."<"..reason..">"}, true, true)
+				local results = essentials.log("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", "§"..name.."§ /"..rid.."/ &"..ip.."& <"..reason..">", {"/"..rid.."/", "&"..ip.."&", "§"..name.."§"})
+				if results then
+					essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", {results, results:match("(.+)<").."<"..reason..">"}, true, true)
 					essentials.msg(lang["Changed the reason this person was added to the blacklist. §"], 212, text)
 				else
 					essentials.msg(lang["Added to blacklist. §"], 210, text)
@@ -2091,6 +2094,13 @@ end
 		lang["Explode with blame §"]
 	})
 
+	kek_menu.add_player_feature(lang["Disable vehicles §"], "toggle", u.malicious_player_features, function(f, pid)
+		while f.on do
+			globals.disable_vehicle(pid)
+			system.yield(2000)
+		end
+	end)
+
 	kek_menu.add_player_feature(lang["Script event crash §"], "action", u.malicious_player_features, function(f, pid)
 		globals.script_event_crash(pid) 
 	end)
@@ -2167,13 +2177,6 @@ end
 			end
 		end
 		kek_entity.hard_remove_entity_and_its_attachments(Ped)
-	end)
-
-	kek_menu.add_player_feature(lang["Disable vehicles §"], "toggle", u.malicious_player_features, function(f, pid)
-		while f.on do
-			globals.disable_vehicle(pid)
-			system.yield(2000)
-		end
 	end)
 
 -- Session
@@ -2395,47 +2398,6 @@ end
 			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
 			essentials.msg(lang["Maxed everyone's cars. §"], 212, true)
 		end)	
-
-	-- Dump world on player
-		kek_menu.add_player_feature(lang["Dump world §"], "action", u.player_trolling_features, function(f, pid)
-			local entities = kek_entity.get_table_of_entities_with_respect_to_distance_and_set_limit(
-				{
-					{
-						kek_entity.get_table_of_close_entity_type(2),
-						50,
-						true
-					},
-					{
-						kek_entity.get_table_of_close_entity_type(1),
-						50,
-						true
-					}
-				},
-				essentials.get_ped_closest_to_your_pov()
-			)
-			local temp = {}
-			local count = 0
-			for i = 1, #entities do
-				local index = math.random(1, #entities)
-				temp[#temp + 1] = entities[index]
-				table.remove(entities, index)
-			end
-			entities = temp
-			for i = 1, #entities do
-				if count > 50 then
-					break
-				end
-				if kek_menu.get_control_of_entity(entities[i], 0) then
-					entity.set_entity_coords_no_offset(entities[i], v3(
-						player.get_player_coords(pid).x + essentials.random_real(-8, 8), 
-						player.get_player_coords(pid).y + essentials.random_real(-8, 8), 
-						location_mapper.get_most_accurate_position(player.get_player_coords(pid)).z + essentials.random_real(2, 10)
-						)
-					)
-					count = count + 1
-				end
-			end
-		end)
 
 	-- Make nearby peds hostile
 		kek_menu.add_player_feature(lang["Make nearby peds hostile §"], "toggle", u.player_trolling_features, function(f, pid)
@@ -4411,6 +4373,15 @@ end
 
 	kek_menu.add_feature(lang["Force field §"], "value_str", u.force_field.id, function(f)
 		if f.on then
+			local pos = v3()
+			kek_menu.create_thread(function()
+				while f.on do
+					if toggle["Force field sphere"].on then
+						graphics.draw_marker(28, pos, v3(0, 90, 0), v3(0, 90, 0), v3(u.force_field_radius.value, u.force_field_radius.value, u.force_field_radius.value), 0, 255, 0, 35, false, false, 2, false, nil, "MarkerTypeDebugSphere", false)
+					end
+					system.yield(0)
+				end
+			end, nil)
 			local vehicles, peds
 			while f.on do
 				system.yield(0)
@@ -4438,7 +4409,7 @@ end
 					entities = essentials.merge_tables(vehicles, {peds})
 				end
 				for i, Entity in pairs(entities) do
-					local pos = player.get_player_coords(player.player_id()) + v3(u.force_field_offset_x.value, u.force_field_offset_y.value, u.force_field_offset_z.value)
+					pos = player.get_player_coords(player.player_id()) + v3(u.force_field_offset_x.value, u.force_field_offset_y.value, u.force_field_offset_z.value)
 					if essentials.get_distance_between(pos, Entity) < u.force_field_radius.value and kek_menu.get_control_of_entity(Entity, 0) then
 						if f.value == 0 then
 							entity.set_entity_velocity(Entity, (entity.get_entity_coords(Entity) - pos) * (u.strength_away.value / essentials.get_distance_between(pos, Entity)))
@@ -4462,6 +4433,8 @@ end
 		lang["Away from you §"],
 		lang["Towards you §"]
 	})
+
+	toggle["Force field sphere"] = kek_menu.add_feature(lang["Show sphere §"], "toggle", u.force_field.id)
 
 	u.force_field_radius = kek_menu.add_feature(lang["Force field radius §"], "action_slider", u.force_field.id)
 	u.force_field_radius.max = 225
@@ -5435,7 +5408,8 @@ end
 		lang["far away §"]
 	})
 
-	kek_menu.add_player_feature(lang["Vehicle §"], "action_value_str", u.player_vehicle_features, function(f, pid)
+do
+	local feat = kek_menu.add_player_feature(lang["Vehicle §"], "action_value_str", u.player_vehicle_features, function(f, pid)
 		local initial_pos = player.get_player_coords(player.player_id())
 		local relative_pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 7)
 		local status, had_to_teleport = kek_entity.is_target_viable(pid)
@@ -5445,21 +5419,45 @@ end
 			elseif f.value == 1 then
 				kek_entity.repair_car(player.get_player_vehicle(pid))
 			elseif f.value == 2 then
+				if not f.data.vehicles then
+					f.data.vehicles = {}
+				end
+				if kek_menu.get_control_of_entity(player.get_player_vehicle(pid)) then
+					if not f.data.vehicles[player.get_player_vehicle(pid)] or f.data.vehicles[player.get_player_vehicle(pid)] == 1 then
+						vehicle.set_vehicle_engine_health(player.get_player_vehicle(pid), -4000)
+						f.data.vehicles[player.get_player_vehicle(pid)] = 0
+					else
+						vehicle.set_vehicle_engine_health(player.get_player_vehicle(pid), 1000)
+						f.data.vehicles[player.get_player_vehicle(pid)] = 1
+					end
+				end
+			elseif f.value == 3 then
+				if kek_menu.get_control_of_entity(player.get_player_vehicle(pid)) then
+					vehicle.set_vehicle_doors_locked(player.get_player_vehicle(pid), 4)
+				end
+			elseif f.value == 4 then
 				globals.send_script_event("Destroy personal vehicle", pid, {pid, pid})
 				kek_entity.remove_player_vehicle(pid)
-			elseif f.value == 3 then
+			elseif f.value == 5 then
 				menyoo.clone_vehicle(player.get_player_vehicle(pid), relative_pos)
 			end
 		end
 		if had_to_teleport then
 			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
 		end
-	end):set_str_data({
+	end).id
+	menu.get_player_feature(feat):set_str_data({
 		lang["Max §"],
 		lang["Repair §"],
+		lang["Toggle engine §"],
+		lang["Lock player inside §"],
 		lang["Remove §"],
 		lang["Clone §"]
 	})
+	for i = 0, 31 do
+		menu.get_player_feature(feat).feats[i].data = {}
+	end
+end
 
 	kek_menu.add_player_feature(lang["Spawn vehicle §"], "action", u.player_vehicle_features, function(f, pid)
 		kek_menu.spawn_entity(vehicle_mapper.get_hash_from_name_or_model(kek_menu.what_vehicle_model_in_use), function()
@@ -5665,22 +5663,7 @@ end
 		end)
 
 		kek_menu.add_feature(lang["Get parachute §"], "action", u.self_options.id, function(f)
-			local initial_pos = player.get_player_coords(player.player_id())
-			local count = 1
-			repeat
-				kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), location_mapper.PARACHUTE_LOCATIONS[count])
-				count = count + 1
-				system.yield(0)
-				local status
-				local pickups = object.get_all_pickups()
-				for i = 1, #pickups do
-					if entity.get_entity_model_hash(pickups[i]) == 1746997299 and essentials.get_distance_between(player.get_player_ped(player.player_id()), pickups[i]) < 10 then
-						status = true
-					end
-				end
-			until count > #location_mapper.PARACHUTE_LOCATIONS or status
-			system.yield(50)
-			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
+			weapon.give_delayed_weapon_to_ped(player.get_player_ped(player.player_id()), 4222310262, 1, 0)
 		end)
 
 		kek_menu.add_feature(lang["Set personal vehicle §"], "action", u.self_options.id, function(f)
@@ -6097,6 +6080,15 @@ end
 -- Kek's utilities
 	-- Clear entity type
 		kek_menu.add_feature(lang["Clear entities §"], "value_str", u.kek_utilities.id, function(f)
+			local radius = 0
+			kek_menu.create_thread(function()
+				while f.on do
+					if toggle["Show red sphere clear entities"].on and f.value ~= 4 and f.value ~= 5 and radius < 10001 then
+						graphics.draw_marker(28, player.get_player_coords(player.player_id()), v3(0, 90, 0), v3(0, 90, 0), v3(radius, radius, radius), 255, 0, 0, 85, false, false, 2, false, nil, "MarkerTypeDebugSphere", false)
+					end
+					system.yield(0)
+				end
+			end, nil)
 			while f.on do
 				system.yield(0)
 				if f.value == 6 then
@@ -6112,6 +6104,7 @@ end
 							true,
 							valuei["Vehicle clear distance"].value
 						}
+						radius = valuei["Vehicle clear distance"].value
 					end
 					if f.value == 1 or f.value == 4 or f.value == 5 then
 						entities[#entities + 1] = 
@@ -6121,6 +6114,7 @@ end
 							true,
 							valuei["Ped clear distance"].value
 						}
+						radius = valuei["Ped clear distance"].value
 					end
 					if f.value == 2 or f.value == 5 then
 						entities[#entities + 1] = 
@@ -6130,6 +6124,7 @@ end
 							false,
 							valuei["Object clear distance"].value
 						}
+						radius = valuei["Object clear distance"].value
 					end
 					if f.value == 3 or f.value == 5 then
 						entities[#entities + 1] = 
@@ -6139,6 +6134,7 @@ end
 							false,
 							valuei["Pickup clear distance"].value
 						}
+						radius = valuei["Pickup clear distance"].value
 					end
 					kek_entity.clear_entities(kek_entity.get_table_of_entities_with_respect_to_distance_and_set_limit(entities, essentials.get_ped_closest_to_your_pov()))
 				end
@@ -6152,6 +6148,8 @@ end
 			lang["All §"], 	
 			lang["Cops §"]
 		})
+
+		toggle["Show red sphere clear entities"] = kek_menu.add_feature(lang["Show sphere §"], "toggle", u.kek_utilities.id)
 
 		for i, name in pairs({
 			"Vehicle clear distance §", 
@@ -6195,7 +6193,7 @@ end
 					local Entity = player.get_entity_player_is_aiming_at(player.player_id())
 					local hash = entity.get_entity_model_hash(Entity)
 					if ped.is_ped_shooting(player.get_player_ped(player.player_id())) then
-						if streaming.is_model_an_object(hash) or streaming.is_model_a_world_object(hash) then
+						if streaming.is_model_an_object(hash) then
 							model_name = object_mapper.GetModelFromHash(hash)
 						elseif streaming.is_model_a_ped(hash) then
 							model_name = ped_mapper.get_model_from_hash(hash)

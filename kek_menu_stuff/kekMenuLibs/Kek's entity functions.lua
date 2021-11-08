@@ -1,4 +1,4 @@
--- Lib Kek's entity functions version: 1.1.4
+-- Lib Kek's entity functions version: 1.1.5
 -- Copyright © 2020-2021 Kektram
 
 local kek_entity = {}

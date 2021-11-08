@@ -306,14 +306,14 @@ end
 	end
 
 -- Get a parent's decendants
-	function essentials.get_descendants(parent, Table, add)
+	function essentials.get_descendants(parent, Table, add_parent_of_descendants)
 		for i, feat in pairs(parent.children) do
 			if feat.type == 2048 and feat.child_count > 0 then
 				essentials.get_descendants(feat, Table, true)
 			end
 			Table[#Table + 1] = feat
 		end
-		if add then
+		if add_parent_of_descendants then
 			Table[#Table + 1] = parent
 		end
 		return Table
@@ -321,7 +321,7 @@ end
 
 -- Get pid from name
 	function essentials.name_to_pid(name)
-		if name and #name > 0 then
+		if type(name) == "string" then
 			name = name:lower()
 			for pid = 0, 31 do
 				if player.is_player_valid(pid) and player.get_player_name(pid):lower():find(name, 1, true) then
@@ -369,12 +369,12 @@ end
 
 -- Check if player is valid
 	function essentials.is_player_completely_valid(pid)
-		return player.is_player_valid(pid) 
-		and player.is_player_playing(pid) 
-		and entity.is_an_entity(player.get_player_ped(pid)) 
+		return player.is_player_valid(pid)
+		and not player.is_player_modder(pid, -1) 
+		and player.is_player_playing(pid)
+		and entity.is_an_entity(player.get_player_ped(pid))
 		and essentials.is_z_coordinate_correct(player.get_player_coords(pid))
 		and interior.get_interior_from_entity(player.get_player_ped(pid)) == 0 
-		and not player.is_player_modder(pid, -1)
 	end
 
 -- Is any true
