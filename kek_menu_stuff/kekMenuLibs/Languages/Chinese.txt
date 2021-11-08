@@ -1,5 +1,5 @@
 ﻿Kek's menu §Kek菜单
-General settings §常规设置
+General settings §通用设置
 Vehicle §载具选项
 Self §自我
 Vehicle peaceful §战局载具
@@ -26,7 +26,7 @@ Language configuration §语言切换
 Vehicle §载具选项
 Weapons §武器
 Trolling §恶搞
-Malicious §强力恶搞
+Malicious §恶意
 Set §设置
 as default language. §作为默认语言
 Empty script loader file §清空脚本加载器
@@ -95,7 +95,7 @@ Spawn a ped §生成NPC
 Car godmode §载具无敌
 Vehicle fly player §控制载具(先观看)
 Spastic car §抽搐载具
-What vehicle to spawn §想要生成什么载具
+What vehicle to spawn §输入要生成的载具
 Disable vehicles §踢出载具
 Off the radar §人间蒸发
 apply bounty §给予赏金
@@ -252,7 +252,6 @@ Vehicle clear distance §载具清除距离
 Ped clear distance §NPC清除距离
 Object clear distance §物体清除距离
 Pickup clear distance §可拾取物清除距离
-Dump world §将附近的实体砸向他
 Make nearby peds hostile §附近的npc充满敌意
 Kick gun §踢出枪
 Kidnap player §绑架玩家
@@ -358,7 +357,7 @@ Kill player §击杀玩家
 Only friends can use commands §仅对好友生效
 Teleport to §传送到
 This player can't use chat commands §禁用聊天命令
-Send chat command info every 15th min §每15分钟发送一次聊天命令列表
+Send command list every § §每隔一段时间发送命令列表
 Cage player §套笼子
 Kick §踢出战局
 Send attack chopper §派出攻击直升机
@@ -615,3 +614,17 @@ Stretch §拉伸
 Type in stretch §输入拉伸数值
 Atomize §原子能枪射击
 This feature doesn't work on yourself. §此功能不可用于你自己.
+minute §分钟
+Weapon blacklist §武器黑名单
+Rifles §步枪
+SMGs §冲锋枪
+Shotguns §霰弹枪
+Pistols §手枪
+Explosives §炸药
+Throwables §投掷式武器
+Heavy §重型武器
+Melee §近战武器
+Miscellaneous §其他
+Toggle engine §开关引擎
+Show sphere §显示球状
+Lock player inside §将玩家锁在里面
