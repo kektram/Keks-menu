@@ -12,7 +12,7 @@ local xml_start = {
 }
 
 local custom_vehicles = {}
-local home = utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\"
+local home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 
 local essentials = require("Essentials")
 local kek_entity = require("Kek's entity functions")

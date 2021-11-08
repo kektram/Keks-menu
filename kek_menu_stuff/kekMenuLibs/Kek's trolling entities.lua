@@ -11,7 +11,7 @@ local essentials = require("Essentials")
 local kek_entity = require("Kek's entity functions")
 local custom_vehicles = require("Custom vehicle spawner")
 
-local home = utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\"
+local home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 
 -- Spawning standards

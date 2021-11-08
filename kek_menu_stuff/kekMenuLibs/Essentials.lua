@@ -1,10 +1,10 @@
--- Lib Essentials version: 1.3.0
+-- Lib Essentials version: 1.3.1
 -- Copyright © 2020-2021 Kektram
 
 local essentials = {}
 local key_mapper = require("Key mapper")
 
-local home = utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\"
+local home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 
 -- Is feature name valid
@@ -125,7 +125,7 @@ local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 	function essentials.get_random_string(rand_min, rand_max, max)
 		local vecu64_table = {}
 		for i = 1, math.random(rand_min or 1, rand_max or 12) do
-			vecu64_table[#vecu64_table + 1] = math.random(1, max or 9146744073709551615)
+			vecu64_table[#vecu64_table + 1] = math.random(1, max or math.max_integer)
 		end
 		return utils.vecu64_to_str(vecu64_table)
 	end
@@ -167,7 +167,7 @@ local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 		return #kek_menu.ptfx <= kek_menu.PTFX_LIMIT
 	end
 	function essentials.request_ptfx(str_asset)
-		if ptfx_count() and type(str_asset) == "string" and #kek_menu.ptfx <= kek_menu.PTFX_LIMIT then
+		if ptfx_count() then
 			graphics.request_named_ptfx_asset(str_asset)
 			local time = utils.time_ms() + 400
 			while not graphics.has_named_ptfx_asset_loaded(str_asset) and time > utils.time_ms() do
@@ -177,8 +177,6 @@ local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 				graphics.set_next_ptfx_asset(str_asset)
 				return true
 			end
-		else
-			essentials.log_error("Invalid ptfx asset.", true)
 		end
 	end
 
