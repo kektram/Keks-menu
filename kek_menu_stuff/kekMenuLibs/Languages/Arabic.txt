@@ -178,19 +178,19 @@ Invalid keybinding.\nIt's case sensitive, get it right. §.ﺢﻴﺤﺻ ﺮﻴ�
 Most of the keys like, left shift. are written in all caps. Example: LSHIFT. §.LSHIFT :ﻝﺎﺜﻣ .ﺓﺮﻴﺒﻛ ﻑﻭﺮﺤﺑ ﺔﺑﻮﺘﻜﻣ ﺮﻴﺼﺗ .left shift ﻱﺯ ﺭﺍﺭﺯﻻﺍ ﺐﻠﻏﺍ
 Settings saved! §!ﺕﺍﺩﺍﺪﻋﻻﺍ ﻆﻔﺣ ﻢﺗ
 Successfully loaded §ﺡﺎﺠﻨﺑ ﻞﻴﻤﺤﺘﻟﺍ ﻢﺗ
-Saved §tm al7f6'
-Saved profile name. §tm 7f6' alasm
-Successfully loaded Kek's menu. §Successfully loaded Kek's menu.
+Saved §ﻆﻔﺤﻟﺍ ﻢﺗ
+Saved profile name. §.ﻢﺳﻻﺍ ﻆﻔﺣ ﻢﺗ
+Successfully loaded Kek's menu. §.ﺡﺎﺠﻨﺑ Kek's menuﻞﻴﻐﺸﺗ ﻢﺗ
 Type in what car to use §ﻡﺍﺪﺨﺘﺳﻼﻟ ﺓﺭﺎﻴﺳ ﻱﺍ ﺐﺘﻛﺍ
-Type in the name of the lua script to add. §aktb al lua ally tryd a9'afth
-Type in the lua script you want to remove. §aktb al lua ally tryd azalth
-Type in why you're adding this person. §aktb lma4a a9'ft h4a alsh5s. a4a lm yktb shey alsbb sykon: an9'af ydoyan
-Type in social club ID, also known as: rid / scid. §aktb rockstar id
-Type in ip. §aktb ip
-Type in the why you're adding this person. Typing in nothing makes the reason: Manually added. §aktb lma4a a9'ft h4a alsh5s. a4a lm yktb shey alsbb sykon: an9'af ydoyan
+Type in the name of the lua script to add. §.ﺔﻔﻴﻀﺗ ﻲﺒﺗ ﻲﻠﻟﺍ lua ﻝﺍ ﺐﺘﻛﺍ
+Type in the lua script you want to remove. §.ﺔﻓﺬﺤﺗ ﻲﺒﺗ ﻲﻠﻟﺍ lua ﻝﺍ ﺐﺘﻛﺍ
+Type in why you're adding this person. §.ﺺﺨﺸﻟﺍ ﺍﺬﻫ ﺔﻓﺎﺿﺍ ﺐﺒﺳ ﺐﺘﻛﺍ
+Type in social club ID, also known as: rid / scid. §.SCID ﻭﺍ RID ﺐﺘﻛﺍ
+Type in ip. §IP ﺐﺘﻛﺍ
+Type in the why you're adding this person. Typing in nothing makes the reason: Manually added. §.ﺎﻳﻭﺪﻳ ﻑﺎﻀﻣ :ﺐﺒﺴﻟﺍ ﻥﻮﻜﻴﺳ ﺀﻲﺷ ﺐﺘﻜﻳ ﻢﻟ ﺍﺫﺍ ,ﺺﺨﺸﻟﺍ ﺍﺬﻫ ﺔﻓﺎﺿﺍ ﺐﺒﺳ ﺐﺘﻛﺍ
 Type in their name. §aktb asmhm
 Type in why you're adding everyone. §aktb lma4a a9'ft al jmy3. a4a lm yktb shey alsbb sykon: an9'af ydoyan
-Type in what player you wanna search for. rid / name / ip §aktb ay la3b tryd al b7th 3nh. rockstar id \ asm \ ip
+Type in what player you wanna search for. rid / name / ip §ip / ﻢﺳﺍ / rid .ﻪﻨﻋ ﺚﺤﺒﺗ ﻲﺒﺗ ﺐﻋﻻ ﻱﺍ ﺐﺘﻛﺍ
 Type in what to add. §aktb ma tryd a4afth
 Type in what to remove. §aktb ma tryd 74fh
 Type in which car to spawn §aktb ma al syarh allty tryd an tsoy spawn lha
@@ -254,7 +254,6 @@ Vehicle clear distance §ﺕﺎﺒﻛﺮﻤﻟﺍ ﻑﺬﺣ ﺔﻓﺎﺴﻣ
 Ped clear distance §ﺪﻴﺒﻟﺍ ﻑﺬﺣ ﺔﻓﺎﺴﻣ
 Object clear distance §ﺖﻜﻴﺠﺑﻭﻻﺍ ﻑﺬﺣ ﺔﻓﺎﺴﻣ
 Pickup clear distance §ﺏﺍ ﻚﻴﺒﻟﺍ ﻑﺬﺣ ﺔﻓﺎﺴﻣ
-Dump world §ﻢﻟﺎﻌﻟﺍ ﺐﻛ
 Make nearby peds hostile §ﻦﻴﻴﻧﺍﻭﺪﻋ ﻦﻴﺒﻳﺮﻘﻟﺍ ﺯﺪﻴﺒﻟﺍ ﻞﻌﺟﺍ
 Kick gun §ﺩﺮﻄﻟﺍ ﺡﻼﺳ
 Kidnap player §ﺐﻋﻼﻟﺍ ﻑﺎﻄﺘﺧﺍ
@@ -267,7 +266,7 @@ Always spawn with f1 wheels §F1 ﺕﺍﺮﻔﻛﺎﺑ ﻥﻭﺎﺒﺳ ﺎﻣﺍ
 Always ask what vehicle §ﺔﺒﻛﺮﻣ ﻱﺍ ﻝﺎﺳﺍ ﺎﻣﺍﺩ
 Spawn air vehicle mid-air §ﺀﺎﻤﺴﻟﺍ ﻲﻓ ﺕﺍﺮﺋﺎﻄﻟﺍ ﻥﻭﺎﺒﺳ
 Spawn vehicles in godmode §ﺩﻮﻣ ﺩﻮﻘﻟﺍ ﻊﺿﻭ ﻲﻓ ﺕﺎﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ
-Vehicle can't be locked on §ﺔﺒﻛﺮﻤﻟﺍ ﻰﻠﻋ ﻥﻭﺍ ﻙﻮﻠﻟﺍ ﺐﻳﻮﺼﺘﻟﺍ ﺖﻴﺒﺜﺗ ﻊﻨﻣ
+Vehicle can't be locked on §ﺔﺒﻛﺮﻤﻟﺍ ﻰﻠﻋ ﻥﻭﺍ ﻙﻮﻠﻟﺍ ﻊﻨﻣ
 Stop before peds §ﺯﺪﻴﺒﻟﺍ ﻞﺒﻗ ﻒﻗﻮﺗ
 Avoid vehicles §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺐﻨﺠﺗ
 Avoid empty vehicles §ﺔﻏﺭﺎﻔﻟﺍ ﺕﺎﺒﻛﺮﻤﻟﺍ ﺐﻨﺠﺗ
@@ -359,7 +358,7 @@ Stop before vehicles §ﺕﺎﺒﻛﺮﻤﻟﺍ ﻞﺒﻗ ﻒﻗﻭ
 From clipboard §ﺦﺴﻨﻟﺍ ﺓﺮﻛﺍﺫ ﻦﻣ
 From clipboard & send each line §ﺮﻄﺳ ﻞﻛ ﻞﺳﺭﺍﻭ ﺥﻮﺴﻨﻤﻟﺍ ﻦﻣ
 From file §ﻒﻠﻣ ﻦﻣ
-Send chat command info every 15th min §ﺔﻋﺎﺳ ﻊﺑﺭ ﻞﻛ ﺕﺎﺸﻟﺍ ﺮﻣﺍﻭﺍ ﺕﺎﻣﻮﻠﻌﻣ ﻞﺳﺭﺍ
+Send command list every §ﻝﻛ ﺕﺎﻣﻮﻠﻌﻤﻟﺍ ﻞﺳﺭﺍ
 Cage player §ﺺﻔﻗ ﻲﻓ ﺐﻋﻼﻟﺍ ﻊﺿ
 Kick §ﺩﺮﻃ
 Teleport §ﺕﺭﻮﺒﻴﻠﻴﺗ
@@ -615,3 +614,17 @@ Stretch §ﺩﺪﻤﻧ
 Type in stretch §ﺩﺪﻤﺘﻟﺍ ﺐﺘﻛﺍ
 Atomize §Atomize
 This feature doesn't work on yourself. §.ﻚﺴﻔﻧ ﻰﻠﻋ ﻞﻐﺘﺸﻳﺎﻣ ﺭﺎﻴﺨﻟﺍ ﺍﺬﻫ
+minute §ﺔﻘﻴﻗﺩ
+Weapon blacklist §ﺔﺤﻠﺳﻻﺍ ﺖﺴﻟ ﻙﻼﺑ
+Rifles §Rifles
+SMGs §SMGs
+Shotguns §Shotguns
+Pistols §Pistols
+Explosives §Explosives
+Throwables §Throwables
+Heavy §Heavy
+Melee §Melee
+Miscellaneous §Miscellaneous
+Toggle engine §ﻙﺮﺤﻤﻟﺍ ﻞﻴﻐﺸﺗ\ﺀﺎﻔﻃﺍ
+Show sphere §ﺓﺭﻮﻜﻟﺍ ﺭﺎﻬﺿﺍ
+Lock player inside §ﺎﻬﻠﺧﺍﺩ ﺐﻋﻼﻟﺍ ﺲﺒﺣ
