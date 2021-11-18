@@ -102,6 +102,52 @@ function kek_menu.add_player_feature(name, Type, parent, func)
 	end
 end
 
+for i, feat in pairs({
+		kek_menu.add_feature("", "action_value_str", 0),
+		kek_menu.add_player_feature("", "action_value_str", 0)
+}) do
+	local original___newindex = getmetatable(feat).__newindex
+	local original___index = getmetatable(feat).__index
+	local original_set_str_data = getmetatable(feat).set_str_data
+	getmetatable(feat).__newindex = nil
+	getmetatable(feat).str_data = {}
+	getmetatable(feat).set_str_data = nil
+	getmetatable(feat).__index = function(feat, index)
+		if index == "set_str_data" then
+			return feat
+		else
+			return original___index(feat, index)
+		end
+	end
+	getmetatable(feat).__call = function(_, feat, Table)
+		local real_feat
+		if feat then
+			if feat.feats then
+				real_feat = feat.feats[0]
+			else
+				real_feat = feat
+			end
+		end
+		if real_feat 
+		and essentials.FEATURE_ID_MAP[real_feat.type]:find("str", 1, true) 
+		and type(Table) == "table" then
+			getmetatable(feat).__newindex = nil
+			original_set_str_data(feat, Table)
+			getmetatable(feat).str_data[feat.id] = Table
+			getmetatable(feat).__newindex = original___newindex
+		else
+			::error::
+			error("[Error] You can't call a feature object, dum-dum. Kind regards, Kektram.")
+		end
+	end
+	getmetatable(feat).__newindex = original___newindex
+	if i == 1 then
+		menu.delete_feature(feat.id)
+	else
+		menu.delete_player_feature(feat.id)
+	end
+end
+
 if not utils.file_exists(o.kek_menu_stuff_path.."kekMenuLibs\\Languages\\language.ini") then
 	local file = io.open(o.kek_menu_stuff_path.."kekMenuLibs\\Languages\\language.ini", "w+")
 	essentials.file(file, "write", "English.txt")
@@ -257,7 +303,6 @@ function kek_menu.create_thread(func, value)
 		end
 	end
 	threads = temp
-	print(#threads)
 	while #threads > 250 do
 		menu.delete_thread(threads[1])
 		table.remove(threads, 1)
@@ -313,9 +358,10 @@ end
 	-- Global
 		local str = essentials.get_file_string("scripts\\kek_menu_stuff\\keksettings.ini", "*a")
 		if str:match("Script quick access=(%a%a%a%a)") == "true" then
-			u.kekMenu = 0
+			u.kekMenu, u.kekMenuP = 0, 0
 		else
 			u.kekMenu = kek_menu.add_feature(lang["Kek's menu §"], "parent", 0).id
+			u.kekMenuP = kek_menu.add_player_feature(lang["Kek's menu §"], "parent", 0).id
 		end
 		u.session_trolling = kek_menu.add_feature(lang["Session trolling §"], "parent", u.kekMenu)
 		u.session_malicious = kek_menu.add_feature(lang["Session malicious §"], "parent", u.kekMenu)
@@ -351,11 +397,6 @@ end
 		u.vehicle_blacklist = kek_menu.add_feature(lang["Vehicle blacklist §"], "parent", u.gvehicle.id)
 
 	-- Player
-		if str:match("Script quick access=(%a%a%a%a)") == "true" then
-			u.kekMenuP = 0
-		else
-			u.kekMenuP = kek_menu.add_player_feature(lang["Kek's menu §"], "parent", 0).id
-		end
 		u.malicious_player_features = kek_menu.add_player_feature(lang["Malicious §"], "parent", u.kekMenuP).id
 		u.player_trolling_features = kek_menu.add_player_feature(lang["Trolling §"], "parent", u.kekMenuP).id
 		u.script_stuff = kek_menu.add_player_feature(lang["Scripts §"], "parent", u.kekMenuP).id
@@ -599,7 +640,9 @@ do
 		{"Help interval", 14},
 		{"Weapon blacklist", false},
 		{"Show red sphere clear entities", true},
-		{"Force field sphere", true}
+		{"Force field sphere", true},
+		{"Anti chat spam", false},
+		{"Anti chat spam reaction", 0}
 	}
 	for i = 1, #t do
 		add_gen_set(table.unpack(t[i]))
@@ -833,7 +876,6 @@ end
 -- Modder detection
 	-- Godmode detection
 		toggle["Godmode detection"] = kek_menu.add_feature(lang["Godmode detection §"], "toggle", u.modder_detection_settings.id, function(f)
-			local tracker = {}
 			while f.on do
 				system.yield(0)
 				for pid = 0, 31 do
@@ -844,10 +886,10 @@ end
 					and not entity.is_entity_dead(player.get_player_ped(pid))
 					and not ai.is_task_active(player.get_player_ped(pid), 440)
 					and essentials.is_not_friend(pid)
-					and (not tracker[player.get_player_scid(pid)] or utils.time_ms() > tracker[player.get_player_scid(pid)]) 
+					and (not f.data[player.get_player_scid(pid)] or utils.time_ms() > f.data[player.get_player_scid(pid)]) 
 					and interior.get_interior_from_entity(player.get_player_ped(pid)) == 0	
 					and kek_entity.is_any_tasks_active(player.get_player_ped(pid), {295, 128, 287, 289, 298, 8}) then
-						tracker[player.get_player_scid(pid)] = utils.time_ms() + 10000
+						f.data[player.get_player_scid(pid)] = utils.time_ms() + 10000
 						kek_menu.create_thread(function()
 							local scid = player.get_player_scid(pid)
 							local time = utils.time_ms() + 7500
@@ -864,13 +906,14 @@ end
 							if utils.time_ms() >= time and scid == player.get_player_scid(pid) then
 								essentials.msg(player.get_player_name(pid).." "..lang["is in godmode. §"], 6, true)
 								player.set_player_as_modder(pid, keks_custom_modder_flags["Godmode"])
-								tracker[player.get_player_scid(pid)] = utils.time_ms() + 120000
+								f.data[player.get_player_scid(pid)] = utils.time_ms() + 120000
 							end
 						end, nil)
 					end
 				end
 			end
 		end)
+		toggle["Godmode detection"].data = {}
 
 	-- Stat detect function
 		local function suspicious_stats(pid)
@@ -884,23 +927,23 @@ end
 				or globals.get_player_kd(pid) ~= globals.get_player_kd(player.player_id())) then
 				local severity = 0
 				local what_flags_they_have_text = ""
-				if globals.get_player_money(pid) > 120000000 or 0 > globals.get_player_money(pid) then
+				if globals.get_player_money(pid) > 120000000 or globals.get_player_money(pid) < -0.1 then
 					severity = severity + 1
 					what_flags_they_have_text = what_flags_they_have_text..lang["Has a lot of money. §"].."\n"
 				end
-				if globals.get_player_rank(pid) < 0 then
+				if globals.get_player_rank(pid) < 1 then
 					what_flags_they_have_text = what_flags_they_have_text..lang["Has Negative lvl §"].."\n"
 					severity = severity + 3
 				end
-				if globals.get_player_kd(pid) < 0 then
+				if globals.get_player_kd(pid) < -0.1 then
 					what_flags_they_have_text = what_flags_they_have_text..lang["Has Negative k/d §"].."\n"
 					severity = severity + 3
 				end
-				if globals.get_player_rank(pid) > 1000 then
+				if globals.get_player_rank(pid) > 1200 then
 					severity = severity + 1
 					what_flags_they_have_text = what_flags_they_have_text..lang["Has a high rank. §"].."\n"
 				end
-				if globals.get_player_kd(pid) > 8 then
+				if globals.get_player_kd(pid) > 10 then
 					severity = severity + 1
 					what_flags_they_have_text = what_flags_they_have_text..lang["Has a high k/d. §"].."\n"
 				end
@@ -1004,7 +1047,6 @@ end
 
 	-- Spectate detection
 		toggle["Modded spectate detection"] = kek_menu.add_feature(lang["Detect any modded spectate §"], "toggle", u.modder_detection_settings.id, function(f)
-			local tracker = {}
 			while f.on do
 				system.yield(0)
 				for pid = 0, 31 do
@@ -1012,17 +1054,18 @@ end
 						local spectate_target = network.get_player_player_is_spectating(pid)
 						if spectate_target
 						and spectate_target ~= pid
-						and (not tracker[player.get_player_scid(pid)] or utils.time_ms() > tracker[player.get_player_scid(pid)])
+						and (not f.data[player.get_player_scid(pid)] or utils.time_ms() > f.data[player.get_player_scid(pid)])
 						and not player.is_player_modder(pid, keks_custom_modder_flags["Modded-Spectate"]) 
 						and interior.get_interior_from_entity(player.get_player_ped(pid)) == 0 then
 							essentials.msg(player.get_player_name(pid).." "..lang["is spectating §"].." "..player.get_player_name(spectate_target)..".", 6, true)
 							player.set_player_as_modder(pid, keks_custom_modder_flags["Modded-Spectate"])
-							tracker[player.get_player_scid(pid)] = utils.time_ms() + 120000
+							f.data[player.get_player_scid(pid)] = utils.time_ms() + 120000
 						end
 					end
 				end
 			end
 		end)
+		toggle["Modded spectate detection"].data = {}
 
 	-- Blacklist
 		-- Add to blacklist function
@@ -1094,18 +1137,17 @@ end
 	-- Vote kick protection
 		toggle["Kick any vote kickers"] = kek_menu.add_feature(lang["Kick any vote kickers §"], "toggle", u.protections.id, function(f)
 			if f.on then
-				local tracker = {}
 				o.nethooks["vote_kick_protex"] = hook.register_net_event_hook(function(pid, me, event)
 					if event == 64
 					and pid ~= me
-					and	(not tracker[player.get_player_scid(pid)] or utils.time_ms() > tracker[player.get_player_scid(pid)])
+					and	(not f.data[player.get_player_scid(pid)] or utils.time_ms() > f.data[player.get_player_scid(pid)])
 					and essentials.is_not_friend(pid) then
 						essentials.msg(player.get_player_name(pid).." "..lang["sent vote kick. Kicking them... §"], 6, true)
 						if network.network_is_host() then
 							network.network_session_kick_player(pid)
 						else
 							script.trigger_script_event(globals.get_script_event_hash("Netbail kick"), pid, {pid, globals.generic_player_global(pid)})
-							tracker[player.get_player_scid(pid)] = utils.time_ms() + 2500
+							f.data[player.get_player_scid(pid)] = utils.time_ms() + 2500
 						end
 					end
 				end)
@@ -1114,6 +1156,7 @@ end
 				o.nethooks["vote_kick_protex"] = nil
 			end
 		end)
+		toggle["Kick any vote kickers"].data = {}
 
 	-- Revenge
 		toggle["Revenge"] = kek_menu.add_feature(lang["Revenge §"], "value_str", u.protections.id, function(f)
@@ -1478,22 +1521,22 @@ end
 		end		
 
 		valuei["Horn boost speed"] = kek_menu.add_feature(lang["Give nearby players horn boost §"], "slider", u.vehicle_friendly.id, function(f)
-			local tracker = {}
 			while f.on do
 				kek_menu.settings["Horn boost speed"] = f.value
 				system.yield(0)
 				for pid = 0, 31 do
 					if player.is_player_valid(pid) 
 					and not menu.get_player_feature(player_feat_ids["Player horn boost"]).feats[pid].on 
-					and (not tracker[player.get_player_scid(pid)] or utils.time_ms() > tracker[player.get_player_scid(pid)]) 
+					and (not f.data[player.get_player_scid(pid)] or utils.time_ms() > f.data[player.get_player_scid(pid)]) 
 					and player.is_player_pressing_horn(pid) 
 					and kek_menu.get_control_of_entity(player.get_player_vehicle(pid)) then
 						vehicle.set_vehicle_forward_speed(player.get_player_vehicle(pid), math.min(150, entity.get_entity_speed(player.get_player_vehicle(pid)) + f.value))
-						tracker[player.get_player_scid(pid)] = utils.time_ms() + 550
+						f.data[player.get_player_scid(pid)] = utils.time_ms() + 550
 					end
 				end
 			end
 		end)
+		valuei["Horn boost speed"].data = {}
 		valuei["Horn boost speed"].max = 100
 		valuei["Horn boost speed"].min = 5
 		valuei["Horn boost speed"].mod = 5
@@ -1807,25 +1850,29 @@ do
 	end
 
 	toggle["Weapon blacklist"] = kek_menu.add_feature(lang["Weapon blacklist §"], "toggle", u.weapon_blacklist.id, function(f)
-		local tracker = {}
 		while f.on do
 			system.yield(0)
 			for _, hash in pairs(weapon.get_all_weapon_hashes()) do
 				if weapon_blacklist_settings[hash].feat.on then
 					for pid = 0, 31 do
-						if ((tracker[player.get_player_scid(pid)] or {})[hash] or 0) < utils.time_ms() and player.is_player_valid(pid) and essentials.is_not_friend(pid) and player.player_id() ~= pid and weapon.has_ped_got_weapon(player.get_player_ped(pid), hash) then
+						if player.player_id() ~= pid
+						and player.is_player_valid(pid)
+						and weapon.has_ped_got_weapon(player.get_player_ped(pid), hash)
+						and ((f.data[player.get_player_scid(pid)] or {})[hash] or 0) < utils.time_ms() 
+						and essentials.is_not_friend(pid) then
 							weapon.remove_weapon_from_ped(player.get_player_ped(pid), hash)
 							essentials.msg(lang["Removed §"].." "..player.get_player_name(pid).."\'s "..weapon.get_weapon_name(hash)..".", 6, kek_menu.settings["Weapon blacklist notifications #notifications#"])
-							if not tracker[player.get_player_scid(pid)] then
-								tracker[player.get_player_scid(pid)] = {}
+							if not f.data[player.get_player_scid(pid)] then
+								f.data[player.get_player_scid(pid)] = {}
 							end
-							tracker[player.get_player_scid(pid)][hash] = utils.time_ms() + 60000
+							f.data[player.get_player_scid(pid)][hash] = utils.time_ms() + 60000
 						end
 					end
 				end
 			end
 		end
 	end)
+	toggle["Weapon blacklist"].data = {}
 
 	for i, weapon_group_name in pairs({
 		lang["Rifles §"],
@@ -2891,11 +2938,10 @@ end
 
 	-- Chatlogger
 		toggle["Chat logger"] = kek_menu.add_feature(lang["Chat logger §"], "toggle", u.chat_stuff.id, function(f)
-			local tracker = {}
 			if f.on then
 				o.listeners["chat"]["logger"] = event.add_event_listener("chat", function(event)
 					if player.is_player_valid(event.player)
-					and (not tracker[player.get_player_scid(event.player)] or utils.time_ms() + 10000 > tracker[player.get_player_scid(event.player)]) then
+					and (not f.data[player.get_player_scid(event.player)] or utils.time_ms() + 10000 > f.data[player.get_player_scid(event.player)]) then
 						local name = player.get_player_name(event.player).."                "
 						local str = ""
 						for line in event.body:gmatch("([^\n]*)\n?") do
@@ -2904,10 +2950,10 @@ end
 							end
 						end
 						essentials.log("scripts\\kek_menu_stuff\\kekMenuLogs\\Chat log.log", str)
-						if tracker[player.get_player_scid(event.player)] and utils.time_ms() < tracker[player.get_player_scid(event.player)] then
-							tracker[player.get_player_scid(event.player)] = tracker[player.get_player_scid(event.player)] + 2000
+						if f.data[player.get_player_scid(event.player)] and utils.time_ms() < f.data[player.get_player_scid(event.player)] then
+							f.data[player.get_player_scid(event.player)] = f.data[player.get_player_scid(event.player)] + 2000
 						else
-							tracker[player.get_player_scid(event.player)] = utils.time_ms() + 1000
+							f.data[player.get_player_scid(event.player)] = utils.time_ms() + 1000
 						end
 					end
 					system.yield(0)
@@ -2917,6 +2963,69 @@ end
 				o.listeners["chat"]["logger"] = nil
 			end
 		end)
+		toggle["Chat logger"].data = {}
+
+	-- Anti chat spam
+		toggle["Anti chat spam"] = kek_menu.add_feature(lang["Anti chat spam §"], "value_str", u.chat_stuff.id, function(f)
+			if f.on then
+				if o.listeners["chat"]["anti spam"] then
+					return
+				end
+				o.listeners["chat"]["anti spam"] = event.add_event_listener("chat", function(event)
+					local scid = player.get_player_scid(event.player)
+					if utils.time_ms() > (f.data.since_last_reaction[scid] or 0) and event.player ~= player.player_id() then
+						if f.data[scid] then
+							if f.data[scid].previous_msg == event.body then
+								f.data[scid].same_in_a_row_count = f.data[scid].same_in_a_row_count + 1
+							else
+								f.data[scid].same_in_a_row_count = 1
+								f.data[scid].previous_msg = event.body
+							end
+						else
+							f.data[scid] = {
+								same_in_a_row_count = 1,
+								previous_msg = event.body,
+								fast_spam_count = 0,
+								time = utils.time_ms() + 1000
+							}
+						end
+						f.data[scid].fast_spam_count = f.data[scid].fast_spam_count + 1
+						if utils.time_ms() > f.data[scid].time then
+							f.data[scid].time = 0
+							f.data[scid].fast_spam_count = 0
+						end
+						if f.data[scid].same_in_a_row_count >= 3 or f.data[scid].fast_spam_count > 2 then
+							f.data.since_last_reaction[scid] = utils.time_ms() + 90000
+							if f.data[scid].same_in_a_row_count >= 3 then
+								essentials.msg(player.get_player_name(event.player) .. " " .. lang["kicked for sending the same message 3 times in a row. §"], 212, true, 6)
+							else
+								essentials.msg(player.get_player_name(event.player) .. " " .. lang["kicked for spamming chat. §"], 212, true, 6)
+							end
+							f.data[scid] = nil
+							if f.value == 0 then
+								globals.kick(event.player)
+							elseif f.value == 2 then
+								globals.script_event_crash(event.player)
+							end
+							if f.value == 1 or f.value == 3 then
+								essentials.add_to_timeout(event.player)
+							end
+						end
+					end
+				end)
+			else
+				event.remove_event_listener("chat", o.listeners["chat"]["anti spam"])
+				o.listeners["chat"]["anti spam"] = nil			
+			end
+		end)
+		valuei["Anti chat spam reaction"] = toggle["Anti chat spam"]
+		valuei["Anti chat spam reaction"]:set_str_data({
+			lang["Kick §"],
+			lang["Kick & add to timeout §"],
+			lang["Crash §"],
+			lang["Crash & add to timeout §"]
+		})
+		toggle["Anti chat spam"].data = {since_last_reaction = {}}
 
 	-- Ai driving
 		local function create_anti_stuck_thread(f, wp)
@@ -3082,7 +3191,7 @@ end
 
 	-- Player chat features 
 		kek_menu.add_player_feature(lang["This player can't use chat commands §"], "toggle", u.player_misc_features, function(f, pid)
-			u.player_chat_command_blacklist[player.get_player_scid(pid)] = f.on
+			toggle["Chat commands"].data.player_chat_command_blacklist[player.get_player_scid(pid)] = f.on
 		end)
 
 	-- Custom chat judger
@@ -3185,62 +3294,57 @@ end
 
 		toggle["Custom chat judger"] = kek_menu.add_feature(lang["Custom chat judge §"], "value_str", u.custom_chat_judger.id, function(f)
 			if f.on then
-				local tracker = {}
-				local blacklist_tracker = {}
-				local timeout_tracker = {}
-				local str = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\custom_chat_judge_data.txt", "*a")
-				local count = 1
-				for chat_judge_entry in str:gmatch("([^\n]*)\n?") do
-					if not pcall(function()
-						return str:find(chat_judge_entry)
-					end) then
-						essentials.msg("["..lang["Custom chat judge §"].."]: "..lang["Failed to load profile. Error at line §"]..": "..count.."\nscripts\\kek_menu_stuff\\kekMenuData\\custom_chat_judge_data.txt", 6, true, 12)
-						str = ""
+				if o.listeners["chat"]["judger"] then
+					return
+				end
+				f.data.str = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\custom_chat_judge_data.txt", "*a"):lower()
+				do
+					local count = 1
+					for chat_judge_entry in f.data.str:gmatch("([^\n]*)\n?") do
+						if not pcall(function()
+							return f.data.str:find(chat_judge_entry)
+						end) then
+							essentials.msg("["..lang["Custom chat judge §"].."]: "..lang["Failed to load profile. Error at line §"]..": "..count.."\nscripts\\kek_menu_stuff\\kekMenuData\\custom_chat_judge_data.txt", 6, true, 12)
+							f.data.str = ""
+						end
+						count = count + 1
 					end
-					count = count + 1
 				end
 				o.listeners["chat"]["judger"] = event.add_event_listener("chat", function(event)
 					if player.is_player_valid(event.player)
 					and event.player ~= player.player_id()
-					and (not tracker[player.get_player_scid(event.player)] or utils.time_ms() > tracker[player.get_player_scid(event.player)])
+					and (not f.data.tracker[player.get_player_scid(event.player)] or utils.time_ms() > f.data.tracker[player.get_player_scid(event.player)])
 					and essentials.is_not_friend(event.player) then
 						if o.update_chat_judge then
-							str = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\custom_chat_judge_data.txt", "*a")
+							f.data.str = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\custom_chat_judge_data.txt", "*a"):lower()
 							o.update_chat_judge = false
 						end
-						for chat_judge_entry in str:gmatch("([^\n]*)\n?") do
-							essentials.random_wait(250)
-							local blacklist = chat_judge_entry:find("[BLACKLIST]", 1, true) ~= nil
-							chat_judge_entry = chat_judge_entry:gsub("%[BLACKLIST%]", "")
-							local timeout = chat_judge_entry:find("[JOIN TIMEOUT]", 1, true) ~= nil
-							chat_judge_entry = chat_judge_entry:gsub("%[JOIN TIMEOUT%]", "")
-							if #chat_judge_entry:gsub("%s", "") > 0 and event.body:lower():find(chat_judge_entry:lower()) then
-								tracker[player.get_player_scid(event.player)] = utils.time_ms() + 5000
+						local msg = event.body:lower()
+						for chat_judge_entry in f.data.str:gmatch("([^\n]*)\n?") do
+							local is_blacklist = chat_judge_entry:find("[blacklist]", 1, true) ~= nil
+							local is_timeout = chat_judge_entry:find("[join timeout]", 1, true) ~= nil
+							chat_judge_entry = (chat_judge_entry:gsub("%[join timeout%]", "")):gsub("%[blacklist%]", "")
+							if msg:find(chat_judge_entry) then
+								f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 4000
 								if player.is_player_valid(event.player) then
 									local player_name = player.get_player_name(event.player)
-									if not blacklist_tracker[player.get_player_scid(event.player)] and blacklist then
-										add_to_blacklist(player.get_player_name(event.player), player.get_player_ip(event.player), player.get_player_scid(event.player), lang["Custom chat judge §"]..": \""..chat_judge_entry.."\"")
-										blacklist_tracker[player.get_player_scid(event.player)] = true
+									if not f.data.blacklist_tracker[player.get_player_scid(event.player)] and is_blacklist then
+										add_to_blacklist(player_name, player.get_player_ip(event.player), player.get_player_scid(event.player), lang["Custom chat judge §"]..": \""..chat_judge_entry.."\"")
+										f.data.blacklist_tracker[player.get_player_scid(event.player)] = true
 									end
-									if not timeout_tracker[player.get_player_scid(event.player)] and timeout then
+									if not f.data.timeout_tracker[player.get_player_scid(event.player)] and is_timeout then
 										essentials.add_to_timeout(event.player)
-										timeout_tracker[player.get_player_scid(event.player)] = true
+										f.data.timeout_tracker[player.get_player_scid(event.player)] = true
 									end
-									if f.value == 0 then 
-										globals.set_bounty(event.player, false, true)
-										essentials.msg(lang["Chat judge:\\nBounty set on §"].." "..player_name..".", 140, kek_menu.settings["Chat judge #notifications#"])
-									elseif f.value == 1 then
+									if f.value == 0 then
 										ped.clear_ped_tasks_immediately(player.get_player_ped(event.player))
 										essentials.msg(lang["Chat judge:\\nRamming §"].." "..player_name.." "..lang["with explosive tankers §"], 140, kek_menu.settings["Chat judge #notifications#"])
-										local time = utils.time_ms() + 3000
+										local time = utils.time_ms() + 2000
 										while time > utils.time_ms() and not entity.is_entity_dead(player.get_player_ped(event.player)) do
 											essentials.use_ptfx_function(kek_entity.spawn_and_push_a_vehicle_in_direction, event.player, true, 8, 3564062519)
 											system.yield(250)
 										end
-									elseif f.value == 2 then
-										globals.disable_vehicle(event.player)
-										essentials.msg(lang["Chat judge:\\nKicking §"].." "..player_name.." "..lang["out of their vehicle. §"], 140, kek_menu.settings["Chat judge #notifications#"])
-									elseif f.value == 3 then
+									elseif f.value == 1 then
 										local their_pid = event.player
 										for pid = 0, 31 do
 											if player.is_player_valid(pid) and pid ~= their_pid and pid ~= player.player_id() and not entity.is_entity_dead(player.get_player_ped(pid)) then
@@ -3250,11 +3354,11 @@ end
 											end
 										end
 										essentials.msg(lang["Chat judge:\\nBlaming §"].." "..player_name.." "..lang["for killing session. §"], 140, kek_menu.settings["Chat judge #notifications#"])
-									elseif f.value == 4 then
+									elseif f.value == 2 then
 										essentials.msg(lang["Chat judge:\\nKicking §"].." "..player_name, 140, kek_menu.settings["Chat judge #notifications#"])
 										script.trigger_script_event(globals.get_script_event_hash("Netbail kick"), event.player, {event.player, globals.generic_player_global(event.player)})
 										globals.kick(event.player)
-									elseif f.value == 5 then
+									elseif f.value == 3 then
 										essentials.msg(lang["Chat judge\\nCrashing §"].." "..player_name, 140, kek_menu.settings["Chat judge #notifications#"])
 										globals.script_event_crash(event.player)
 									end
@@ -3270,10 +3374,13 @@ end
 			end
 		end)
 		valuei["Chat judge reaction"] = toggle["Custom chat judger"]
+		valuei["Chat judge reaction"].data = {
+			tracker = {},
+			blacklist_tracker = {},
+			timeout_tracker = {}
+		}
 		valuei["Chat judge reaction"]:set_str_data({
-			lang["Bounty §"], 
 			lang["Ram §"], 
-			lang["Kick from vehicle §"], 
 			lang["Blame for killing session §"], 
 			lang["Kick from session §"], 
 			lang["Crash §"]
@@ -3431,56 +3538,6 @@ end
 
 		toggle["You can't be targeted"] = kek_menu.add_feature(lang["You can't be targeted §"], "toggle", u.chat_commands.id)
 
-	do
-		local tracker = {}
-		local hashes_not_allowed_to_spam = {
-			gameplay.get_hash_key("cargoplane"),
-			gameplay.get_hash_key("jet"),
-			gameplay.get_hash_key("kosatka"),
-			gameplay.get_hash_key("cargobob"),
-			gameplay.get_hash_key("cargobob2"),
-			gameplay.get_hash_key("cargobob3"),
-			gameplay.get_hash_key("cargobob4"),
-			gameplay.get_hash_key("tug"),
-			gameplay.get_hash_key("blimp"),
-			gameplay.get_hash_key("blimp2"),
-			gameplay.get_hash_key("blimp3"),
-			gameplay.get_hash_key("bombushka"),
-			gameplay.get_hash_key("volatol"),
-			gameplay.get_hash_key("alkonost"),
-			gameplay.get_hash_key("avenger"),
-			gameplay.get_hash_key("avenger2"),
-			gameplay.get_hash_key("titan")
-		}
-
-		local function send_chat_commands()
-			local str = "Chat Commands:\n"
-			for i = 1, #general_settings do
-				if kek_menu.settings[general_settings[i][1]] and general_settings[i][1]:find("#chat command#", 1, true) then
-					local short_version_of_command = general_settings[i][5]
-					local extra_cmd_info = general_settings[i][4]
-					if not short_version_of_command then
-						short_version_of_command = ""
-					end
-					if not extra_cmd_info then
-						extra_cmd_info = ""
-					end
-					str = str.."!"..general_settings[i][1]:lower():gsub("#chat command#", "")..short_version_of_command.."<Player>"..extra_cmd_info.."\n"
-				end
-				if #str > 205 then
-					essentials.send_message(str)
-					str = " "
-				end
-			end
-			if #str > 210 then
-				essentials.send_message(str)
-				str = " "
-			end
-			str = str.."To show this again, do !help"
-			essentials.send_message(str)
-		end
-
-		u.player_chat_command_blacklist = {}
 		toggle["Chat commands"] = kek_menu.add_feature(lang["Chat commands §"], "toggle", u.chat_commands.id, function(f)
 			local command_strings = {
 				tp = true,
@@ -3493,13 +3550,13 @@ end
 			end
 			if f.on then
 				o.listeners["chat"]["commands"] = event.add_event_listener("chat", function(event)
-					if command_strings[(event.body:match("^%p(%w+)") or ""):lower()] and utils.time_ms() > (tracker[player.get_player_scid(event.player)] or 0) then
-						tracker[player.get_player_scid(event.player)] = utils.time_ms() + 1000
+					if command_strings[(event.body:match("^%p(%w+)") or ""):lower()] and utils.time_ms() > (f.data.tracker[player.get_player_scid(event.player)] or 0) then
+						f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 1000
 						if player.is_player_modder(event.player, -1) then
 							essentials.send_message("[Chat commands]: You can't use chat commands, "..player.get_player_name(event.player)..". You've been marked as a modder.", event.player == player.player_id())
 							return
 						end
-						if u.player_chat_command_blacklist[player.get_player_scid(event.player)] then
+						if f.data.player_chat_command_blacklist[player.get_player_scid(event.player)] then
 							essentials.send_message("[Chat commands]: Your chat command access have been revoked, "..player.get_player_name(event.player)..".", event.player == player.player_id())
 							return
 						end
@@ -3534,7 +3591,7 @@ end
 										return
 									end
 									local hash = vehicle_mapper.get_hash_from_name_or_model(str:match("^%pspawn%s+(.*)"))
-									if player.player_id() ~= event.player and essentials.get_index_of_value(hashes_not_allowed_to_spam, hash) then
+									if player.player_id() ~= event.player and essentials.get_index_of_value(f.data.hashes_not_allowed_to_spam, hash) then
 										num = 1
 									end
 									if not streaming.is_model_a_vehicle(hash) then
@@ -3752,7 +3809,7 @@ end
 									menu.get_player_feature(player_feat_ids["player otr"]).feats[pid]:toggle()
 								elseif str:find("^%phelp%s*$") then
 									if not admin_mapper.is_there_admin_in_session() then
-										send_chat_commands()
+										f.data.send_chat_commands()
 									end
 								end
 							end
@@ -3766,8 +3823,58 @@ end
 			end
 		end)
 
+		toggle["Chat commands"].data = {
+			tracker = {},
+			player_chat_command_blacklist = {},
+			hashes_not_allowed_to_spam = {
+				gameplay.get_hash_key("cargoplane"),
+				gameplay.get_hash_key("jet"),
+				gameplay.get_hash_key("kosatka"),
+				gameplay.get_hash_key("cargobob"),
+				gameplay.get_hash_key("cargobob2"),
+				gameplay.get_hash_key("cargobob3"),
+				gameplay.get_hash_key("cargobob4"),
+				gameplay.get_hash_key("tug"),
+				gameplay.get_hash_key("blimp"),
+				gameplay.get_hash_key("blimp2"),
+				gameplay.get_hash_key("blimp3"),
+				gameplay.get_hash_key("bombushka"),
+				gameplay.get_hash_key("volatol"),
+				gameplay.get_hash_key("alkonost"),
+				gameplay.get_hash_key("avenger"),
+				gameplay.get_hash_key("avenger2"),
+				gameplay.get_hash_key("titan")
+			},
+			send_chat_commands = function()
+				local str = "Chat Commands:\n"
+				for i = 1, #general_settings do
+					if kek_menu.settings[general_settings[i][1]] and general_settings[i][1]:find("#chat command#", 1, true) then
+						local short_version_of_command = general_settings[i][5]
+						local extra_cmd_info = general_settings[i][4]
+						if not short_version_of_command then
+							short_version_of_command = ""
+						end
+						if not extra_cmd_info then
+							extra_cmd_info = ""
+						end
+						str = str.."!"..general_settings[i][1]:lower():gsub("#chat command#", "")..short_version_of_command.."<Player>"..extra_cmd_info.."\n"
+					end
+					if #str > 205 then
+						essentials.send_message(str)
+						str = " "
+					end
+				end
+				if #str > 210 then
+					essentials.send_message(str)
+					str = " "
+				end
+				str = str.."To show this again, do !help"
+				essentials.send_message(str)
+			end
+		}
+
 		kek_menu.add_feature(lang["Send command list §"], "action", u.chat_commands.id, function()
-			send_chat_commands()
+			toggle["Chat commands"].data.send_chat_commands()
 		end)
 
 		toggle["Send command info"] = kek_menu.add_feature(lang["Send command list every §"], "value_str", u.chat_commands.id, function(f)
@@ -3782,7 +3889,7 @@ end
 						system.yield(0)
 					end
 					if not admin_mapper.is_there_admin_in_session() then
-						send_chat_commands()
+						toggle["Chat commands"].data.send_chat_commands()
 					end
 				end
 				system.yield(0)
@@ -3809,7 +3916,6 @@ end
 				end)
 			end
 		end
-	end
 
 	-- Echo chat
 		valuei["Echo delay"] = kek_menu.add_feature(lang["Echo delay, click to type §"], "action_value_i", u.chat_spammer.id, function(f)
@@ -4076,7 +4182,6 @@ end
 			if f.on then
 				local data = {}
 				local index = ""
-				local tracker = {}
 				for line in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Clever bot.ini", "*a"):gmatch("([^\n]*)\n?") do
 					if line:find("§|§", 1, true) then
 						index = line:match("(.*)§|§")
@@ -4087,8 +4192,8 @@ end
 				end
 				local last_response
 				o.listeners["chat"]["Clever bot"] = event.add_event_listener("chat", function(event)
-					if not tracker[player.get_player_scid(event.player)] or utils.time_ms() > tracker[player.get_player_scid(event.player)] then
-						tracker[player.get_player_scid(event.player)] = utils.time_ms() + 1000
+					if not f.data[player.get_player_scid(event.player)] or utils.time_ms() > f.data[player.get_player_scid(event.player)] then
+						f.data[player.get_player_scid(event.player)] = utils.time_ms() + 1000
 						if data[event.body] and event.player ~= player.player_id() then
 							essentials.send_message(data[event.body][math.random(1, #data[event.body])])
 						end
@@ -4122,6 +4227,7 @@ end
 				event.remove_event_listener("chat", o.listeners["chat"]["Clever bot"])
 			end
 		end)
+		toggle["Clever bot"].data = {}
 
 		for i, file in pairs(utils.get_all_files_in_directory(o.kek_menu_stuff_path.."Chatbot profiles", "ini")) do
 			create_chatbot_feat(file)
@@ -4165,7 +4271,16 @@ end
 	end)
 
 -- Display stuff
-	local function display_settings(parent, name_of_feature, x, y, scale, max_scale)
+	local function display_settings(parent, name_of_feature, x, y, scale, max_scale, stretch)
+		if stretch then
+			valuei[name_of_feature.." stretch"] = kek_menu.add_feature(lang["Stretch §"], "action_value_f", parent.id, function(f)
+				essentials.value_i_setup(f, lang["Type in stretch §"], 5)
+			end)
+			valuei[name_of_feature.." stretch"].min = 0.2
+			valuei[name_of_feature.." stretch"].max = 250
+			valuei[name_of_feature.." stretch"].mod = 0.2
+			add_gen_set(name_of_feature.." stretch", 35)
+		end
 		valuei[name_of_feature.." X"] = kek_menu.add_feature("X", "action_value_i", parent.id, function(f)
 			essentials.value_i_setup(f, lang["Type in where horizontally the time is displayed. §"])
 		end)
@@ -4344,15 +4459,7 @@ end
 			toggle["Display 2take1 notifications"].data = true
 		end)
 
-		valuei["Display 2take1 notifications stretch"] = kek_menu.add_feature(lang["Stretch §"], "action_value_f", u.display_notifications.id, function(f)
-			essentials.value_i_setup(f, lang["Type in stretch §"], 5)
-		end)
-		valuei["Display 2take1 notifications stretch"].min = 0.2
-		valuei["Display 2take1 notifications stretch"].max = 250
-		valuei["Display 2take1 notifications stretch"].mod = 0.2
-		add_gen_set("Display 2take1 notifications stretch", 35)
-
-		display_settings(u.display_notifications, "Display 2take1 notifications", 1560, 40, 9, 25)
+		display_settings(u.display_notifications, "Display 2take1 notifications", 1560, 40, 9, 25, true)
 
 	-- Time osd
 		u.display_time = kek_menu.add_feature(lang["Display time §"], "parent", u.self_options.id)
@@ -6934,6 +7041,138 @@ end
 		lang["keyboard §"],
 		lang["controller §"]				
 	})
+
+-- Search features
+	o.search_features = kek_menu.add_feature(lang["Search §"], "parent", u.kekMenu, function(f)
+		if f.child_count > 1 then
+			for _, fake_feat in pairs(f.children) do
+				if type(fake_feat.data) == "table" 
+				and type(fake_feat.data.real_feat) == "userdata"
+				and fake_feat.type ~= 2048 then
+					fake_feat.data.time = utils.time_ms() + 100
+					if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
+						fake_feat.on = fake_feat.data.real_feat.on
+					end
+					fake_feat.name = fake_feat.data.real_feat.name
+					if fake_feat.value then
+						fake_feat.value = fake_feat.data.real_feat.value
+					end
+				end
+			end
+		end
+	end)
+
+	o.searcher_feat = kek_menu.add_feature(lang["Search §"], "action", o.search_features.id, function(search_main_feat)
+		local input, status = essentials.get_input(lang["Type in name of a player or regular feature. §"], "", 128, 0)
+		if status == 2 then
+			return
+		end
+		input = input:lower()
+		for _, fake_feat in pairs(o.search_features.children) do
+			if fake_feat.data ~= "dead" then
+				fake_feat.data = "dead"
+				if fake_feat.type == 2048 and fake_feat.child_count > 0 then
+					for _, child in pairs(fake_feat.children) do
+						if child.data ~= "dead" then
+							child.data = "dead"
+							menu.delete_feature(child.id)
+						end
+					end
+				end
+				menu.delete_feature(fake_feat.id)
+			end
+		end
+		local map = essentials.get_all_features()
+		map.feats[o.search_features.id] = nil
+		for type_of_feature, parents in pairs(map) do
+			for _, parent in pairs(parents) do
+				local features = {}
+				if (parent.feats and parent.feats[0].type == 2048) or parent.type == 2048 then
+					if parent.feats then
+						features = essentials.get_player_descendants(parent, {})
+					else
+						features = essentials.get_descendants(parent, {})
+					end
+				end
+				for _, FEAT in pairs(features) do
+					local real_feat
+					if FEAT.feats then
+						real_feat = FEAT.feats[0]
+					else
+						real_feat = FEAT
+					end
+					if real_feat.type ~= 2048
+					and (not essentials.FEATURE_ID_MAP[real_feat.type]:find("str", 1, true) or getmetatable(FEAT).str_data[FEAT.id])
+					and real_feat.name:lower():find(input, 1, true) then
+						if type_of_feature == "player_feats" then
+							local fake_feat = kek_menu.add_feature(real_feat.name, "parent", o.search_features.id, function(fake_feat)
+								if fake_feat.child_count == 0 then
+									for pid = 0, 31 do
+										local fake_feat = kek_menu.add_feature(player.get_player_name(pid) or "", essentials.FEATURE_ID_MAP[real_feat.type], fake_feat.id, function(fake_feat)
+											if utils.time_ms() > fake_feat.data then
+												menu.get_player_feature(real_feat.id).feats[pid].on = fake_feat.on
+												if fake_feat.value then
+													menu.get_player_feature(real_feat.id).feats[pid].value = fake_feat.value
+												end
+											end
+										end)
+										fake_feat.data = utils.time_ms() + 100
+										fake_feat.hidden = not player.is_player_valid(pid)
+										if fake_feat.value then
+											if essentials.FEATURE_ID_MAP[real_feat.type]:find("str", 1, true) then
+												fake_feat:set_str_data(getmetatable(menu.get_player_feature(real_feat.id)).str_data[real_feat.id])
+											else
+												fake_feat.min = menu.get_player_feature(real_feat.id).feats[pid].min
+												fake_feat.max = menu.get_player_feature(real_feat.id).feats[pid].max
+												fake_feat.mod = menu.get_player_feature(real_feat.id).feats[pid].mod
+											end
+											fake_feat.value = menu.get_player_feature(real_feat.id).feats[pid].value
+										end
+										fake_feat.on = menu.get_player_feature(real_feat.id).feats[pid].on
+									end
+								else
+									for pid, child in pairs(fake_feat.children) do
+										child.data = utils.time_ms() + 100
+										child.hidden = not player.is_player_valid(pid - 1)
+										if player.is_player_valid(pid - 1) then
+											child.name = player.get_player_name(pid - 1)
+										end
+										child.on = menu.get_player_feature(real_feat.id).feats[pid - 1].on
+										if child.value then
+											child.value = menu.get_player_feature(real_feat.id).feats[pid - 1].value
+										end
+									end
+								end
+							end)
+						else
+							local fake_feat = kek_menu.add_feature(real_feat.name, essentials.FEATURE_ID_MAP[real_feat.type], o.search_features.id, function(fake_feat)
+								if utils.time_ms() > fake_feat.data.time then
+									real_feat.on = fake_feat.on
+									if fake_feat.value then
+										real_feat.value = fake_feat.value
+									end
+								end
+								fake_feat.name = real_feat.name
+							end)
+							fake_feat.data = {time = utils.time_ms() + 100, real_feat = real_feat}
+							if fake_feat.value then
+								if essentials.FEATURE_ID_MAP[fake_feat.type]:find("str", 1, true) then
+									fake_feat:set_str_data(getmetatable(real_feat).str_data[real_feat.id])
+								else
+									fake_feat.min = real_feat.min
+									fake_feat.max = real_feat.max
+									fake_feat.mod = real_feat.mod
+								end
+								fake_feat.value = real_feat.value
+							end
+							fake_feat.on = real_feat.on
+						end
+					end
+				end
+			end
+		end
+	end)
+	o.searcher_feat.data = "dead"
 
 	for i, setting_name in pairs(general_settings) do
 		if setting_name[1]:find("#keybinding#", 1, true) then

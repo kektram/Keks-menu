@@ -7,6 +7,40 @@ local key_mapper = require("Key mapper")
 local home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 
+-- Feature type ids
+	essentials.FEATURE_ID_MAP = {
+		[512]   = "action",
+		[1]     = "toggle",
+		[2048]  = "parent",
+		[11]    = "value_i",
+		[131]   = "value_f",
+		[7]     = "slider",
+		[35]    = "value_str",
+		[522]   = "action_value_i",
+		[642]   = "action_value_f",
+		[518]   = "action_slider",
+		[546]   = "action_value_str",
+		[1034]  = "autoaction_value_i",
+		[1154]  = "autoaction_value_f",
+		[1030]  = "autoaction_slider",
+		[1058]  = "autoaction_value_str",
+		[33280] = "action",
+		[32769] = "toggle",
+		[2048]  = "parent",
+		[32779] = "value_i",
+		[32899] = "value_f",
+		[32775] = "slider",
+		[32803] = "value_str",
+		[33290] = "action_value_i",
+		[33410] = "action_value_f",
+		[33286] = "action_slider",
+		[33314] = "action_value_str",
+		[33802] = "autoaction_value_i",
+		[33922] = "autoaction_value_f",
+		[33798] = "autoaction_slider",
+		[33826] = "autoaction_value_str"
+	}
+
 -- Is feature name valid
 	function essentials.get_safe_feat_name(name)
 		local pattern = name:gsub("[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz%d%s%p]", "")
@@ -14,6 +48,43 @@ local kek_menu_stuff_path = home.."scripts\\kek_menu_stuff\\"
 			name = name:gsub("["..pattern.."]", "")
 		end
 		return name
+	end
+
+-- Get all features from all luas
+	function essentials.get_all_features()
+		local feat_map = {feats = {}, player_feats = {}}
+		local i, feat = 1, 0
+		while i < 15000 do
+			if i % 1000 == 0 then
+				system.yield(0)
+			end
+			feat = menu.add_feature("", "action", i)
+			if feat then
+				local id = feat.id
+				local parent = feat.parent
+				while parent do
+					feat = parent
+					parent = feat.parent
+				end
+				feat_map.feats[feat.id] = feat
+				menu.delete_feature(id)
+			end
+			i = i + 1
+		end
+		i = 0
+		while i < 10 or menu.get_player_feature(i) do
+			if menu.get_player_feature(i) then
+				local parent = i
+				while parent ~= 4294967295 
+				and menu.get_player_feature(parent) 
+				and menu.get_player_feature(parent).parent_id ~= 4294967295 do
+					parent = menu.get_player_feature(parent).parent_id
+				end
+				feat_map.player_feats[parent] = menu.get_player_feature(parent)
+			end
+			i = i + 1
+		end
+		return feat_map
 	end
 
 -- Interact with file
@@ -312,6 +383,21 @@ end
 				essentials.get_descendants(feat, Table, true)
 			end
 			Table[#Table + 1] = feat
+		end
+		if add_parent_of_descendants then
+			Table[#Table + 1] = parent
+		end
+		return Table
+	end
+
+-- Get a parent's decendants
+	function essentials.get_player_descendants(parent, Table, add_parent_of_descendants)
+		for i, feat in pairs(parent.feats[0].children) do
+			feat = menu.get_player_feature(feat.id)
+			if feat.feats[0].type == 2048 and feat.feats[0].child_count > 0 then
+				essentials.get_player_descendants(menu.get_player_feature(feat.id), Table, true)
+			end
+			Table[#Table + 1] = menu.get_player_feature(feat.id)
 		end
 		if add_parent_of_descendants then
 			Table[#Table + 1] = parent

@@ -54,7 +54,7 @@ local function get_properties(Entity, initial)
 			["CanRagdoll"] = ped.can_ped_ragdoll(Entity),
 			["PedProps"] = {},
 			["PedComps"] = {},
-			["BlendData"] = {},
+			["BlendData"] = ped.get_ped_head_blend_data(Entity) or {},
 			["FacialFeatures"] = {},
 			["HeadOverlay"] = {},
 			["PedVehicleSeat"] = kek_entity.get_seat_ped_is_in(ped.get_vehicle_ped_is_using(Entity), Entity),
@@ -75,7 +75,6 @@ local function get_properties(Entity, initial)
 		for i = 0, 19 do
 			info["PedProperties"]["FacialFeatures"]["_"..i] = ped.get_ped_face_feature(Entity, i)
 		end
-		info["PedProperties"]["BlendData"] = ped.get_ped_head_blend_data(Entity) or {}
 		for i = 0, 9 do
 			info["PedProperties"]["PedProps"]["_"..i] = ped.get_ped_prop_index(Entity, i)..","..ped.get_ped_prop_texture_index(Entity, i)
 		end
