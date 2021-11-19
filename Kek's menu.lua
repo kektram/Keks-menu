@@ -7046,23 +7046,115 @@ end
 	o.search_features = kek_menu.add_feature(lang["Search §"], "parent", u.kekMenu, function(f)
 		if f.child_count > 1 then
 			for _, fake_feat in pairs(f.children) do
-				if type(fake_feat.data) == "table" 
-				and type(fake_feat.data.real_feat) == "userdata"
-				and fake_feat.type ~= 2048 then
-					fake_feat.data.time = utils.time_ms() + 100
+				if type(fake_feat.data) == "userdata" then
 					if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
-						fake_feat.on = fake_feat.data.real_feat.on
+						fake_feat.on = fake_feat.data.on
 					end
-					fake_feat.name = fake_feat.data.real_feat.name
 					if fake_feat.value then
-						fake_feat.value = fake_feat.data.real_feat.value
+						fake_feat.value = fake_feat.data.value
 					end
+					fake_feat.name = fake_feat.data.name
 				end
 			end
 		end
 	end)
+	o.search_features.data = {
+		feat_logic = function(real_feat, fake_feat)
+			if essentials.FEATURE_ID_MAP[fake_feat.type] == "action" then
+				real_feat.on = true
+			end
+			if fake_feat.value then
+				if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
+					real_feat.on = true
+					real_feat.value = fake_feat.value
+					local real_value = real_feat.value
+					local fake_value = fake_feat.value
+					while fake_feat.on and real_feat.on do
+						system.yield(0)
+						if fake_feat.value ~= fake_value then
+							real_feat.value = fake_feat.value
+							fake_value = fake_feat.value
+							real_value = fake_feat.value
+						elseif real_feat.value ~= real_value then
+							fake_feat.value = real_feat.value
+							fake_value = real_feat.value
+							real_value = real_feat.value
+						end
+					end
+					fake_feat.on = false
+					real_feat.on = false
+				else
+					real_feat.value = fake_feat.value
+					if key_mapper.is_table_of_virtual_keys_all_pressed(key_mapper.get_virtual_key_of_2take1_bind("MenuSelect")) then
+						real_feat.on = true
+					end
+				end
+			elseif essentials.FEATURE_ID_MAP[fake_feat.type] == "toggle" then
+				real_feat.on = true
+				while fake_feat.on and real_feat.on do
+					system.yield(0)
+				end
+				real_feat.on = false
+				fake_feat.on = false
+			end
+		end,
+		player_feat_logic = function(real_feat, fake_feat, pid)
+			if essentials.FEATURE_ID_MAP[fake_feat.type] == "action" then
+				menu.get_player_feature(real_feat.id).feats[pid].on = true
+			end
+			if fake_feat.value then
+				if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
+					menu.get_player_feature(real_feat.id).feats[pid].on = true
+					menu.get_player_feature(real_feat.id).feats[pid].value = fake_feat.value
+					local real_value = menu.get_player_feature(real_feat.id).feats[pid].value
+					local fake_value = fake_feat.value
+					while fake_feat.on and menu.get_player_feature(real_feat.id).feats[pid].on do
+						system.yield(0)
+						if fake_feat.value ~= fake_value then
+							menu.get_player_feature(real_feat.id).feats[pid].value = fake_feat.value
+							fake_value = fake_feat.value
+							real_value = fake_feat.value
+						elseif menu.get_player_feature(real_feat.id).feats[pid].value ~= real_value then
+							fake_feat.value = menu.get_player_feature(real_feat.id).feats[pid].value
+							fake_value = menu.get_player_feature(real_feat.id).feats[pid].value
+							real_value = menu.get_player_feature(real_feat.id).feats[pid].value
+						end
+					end
+					fake_feat.on = false
+					menu.get_player_feature(real_feat.id).feats[pid].on = false
+				else
+					real_feat.value = fake_feat.value
+					if key_mapper.is_table_of_virtual_keys_all_pressed(key_mapper.get_virtual_key_of_2take1_bind("MenuSelect")) then
+						real_feat.on = true
+					end
+				end
+			elseif essentials.FEATURE_ID_MAP[fake_feat.type] == "toggle" then
+				real_feat.on = true
+				while fake_feat.on and real_feat.on do
+					system.yield(0)
+				end
+				real_feat.on = false
+				fake_feat.on = false
+			end
+		end,
+		set_feat_properties = function(real_feat, fake_feat, real_feat_player_if_relevant)
+			if fake_feat.value then
+				if essentials.FEATURE_ID_MAP[fake_feat.type]:find("str", 1, true) then
+					fake_feat:set_str_data(getmetatable(real_feat_player_if_relevant or real_feat).str_data[real_feat.id])
+				else
+					fake_feat.min = real_feat.min
+					fake_feat.max = real_feat.max
+					fake_feat.mod = real_feat.mod
+				end
+				fake_feat.value = real_feat.value
+			end
+			if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
+				fake_feat.on = real_feat.on
+			end
+		end
+	}
 
-	o.searcher_feat = kek_menu.add_feature(lang["Search §"], "action", o.search_features.id, function(search_main_feat)
+	kek_menu.add_feature(lang["Search §"], "action", o.search_features.id, function()
 		local input, status = essentials.get_input(lang["Type in name of a player or regular feature. §"], "", 128, 0)
 		if status == 2 then
 			return
@@ -7105,39 +7197,28 @@ end
 					and (not essentials.FEATURE_ID_MAP[real_feat.type]:find("str", 1, true) or getmetatable(FEAT).str_data[FEAT.id])
 					and real_feat.name:lower():find(input, 1, true) then
 						if type_of_feature == "player_feats" then
-							local fake_feat = kek_menu.add_feature(real_feat.name, "parent", o.search_features.id, function(fake_feat)
+							local fake_feat = kek_menu.add_feature(menu.get_player_feature(real_feat.id).feats[0].name, "parent", o.search_features.id, function(fake_feat)
 								if fake_feat.child_count == 0 then
 									for pid = 0, 31 do
-										local fake_feat = kek_menu.add_feature(player.get_player_name(pid) or "", essentials.FEATURE_ID_MAP[real_feat.type], fake_feat.id, function(fake_feat)
-											if utils.time_ms() > fake_feat.data then
-												menu.get_player_feature(real_feat.id).feats[pid].on = fake_feat.on
-												if fake_feat.value then
-													menu.get_player_feature(real_feat.id).feats[pid].value = fake_feat.value
-												end
-											end
-										end)
-										fake_feat.data = utils.time_ms() + 100
-										fake_feat.hidden = not player.is_player_valid(pid)
-										if fake_feat.value then
-											if essentials.FEATURE_ID_MAP[real_feat.type]:find("str", 1, true) then
-												fake_feat:set_str_data(getmetatable(menu.get_player_feature(real_feat.id)).str_data[real_feat.id])
-											else
-												fake_feat.min = menu.get_player_feature(real_feat.id).feats[pid].min
-												fake_feat.max = menu.get_player_feature(real_feat.id).feats[pid].max
-												fake_feat.mod = menu.get_player_feature(real_feat.id).feats[pid].mod
-											end
-											fake_feat.value = menu.get_player_feature(real_feat.id).feats[pid].value
+										local feat_type = essentials.FEATURE_ID_MAP[menu.get_player_feature(real_feat.id).feats[pid].type]
+										if feat_type:find("action", 1, true) and not feat_type:find("auto", 1, true) and feat_type ~= "action" then
+											feat_type = "auto"..feat_type
 										end
-										fake_feat.on = menu.get_player_feature(real_feat.id).feats[pid].on
+										local fake_feat = kek_menu.add_feature(player.get_player_name(pid) or "", feat_type, fake_feat.id, function(fake_feat)
+											o.search_features.data.player_feat_logic(menu.get_player_feature(real_feat.id).feats[pid], fake_feat, pid)
+										end)
+										fake_feat.hidden = not player.is_player_valid(pid)
+										o.search_features.data.set_feat_properties(menu.get_player_feature(real_feat.id).feats[pid], fake_feat, menu.get_player_feature(real_feat.id))
 									end
 								else
 									for pid, child in pairs(fake_feat.children) do
-										child.data = utils.time_ms() + 100
 										child.hidden = not player.is_player_valid(pid - 1)
 										if player.is_player_valid(pid - 1) then
 											child.name = player.get_player_name(pid - 1)
 										end
-										child.on = menu.get_player_feature(real_feat.id).feats[pid - 1].on
+										if not essentials.FEATURE_ID_MAP[child.type]:find("action", 1, true) then
+											child.on = menu.get_player_feature(real_feat.id).feats[pid - 1].on
+										end
 										if child.value then
 											child.value = menu.get_player_feature(real_feat.id).feats[pid - 1].value
 										end
@@ -7145,34 +7226,21 @@ end
 								end
 							end)
 						else
-							local fake_feat = kek_menu.add_feature(real_feat.name, essentials.FEATURE_ID_MAP[real_feat.type], o.search_features.id, function(fake_feat)
-								if utils.time_ms() > fake_feat.data.time then
-									real_feat.on = fake_feat.on
-									if fake_feat.value then
-										real_feat.value = fake_feat.value
-									end
-								end
-								fake_feat.name = real_feat.name
-							end)
-							fake_feat.data = {time = utils.time_ms() + 100, real_feat = real_feat}
-							if fake_feat.value then
-								if essentials.FEATURE_ID_MAP[fake_feat.type]:find("str", 1, true) then
-									fake_feat:set_str_data(getmetatable(real_feat).str_data[real_feat.id])
-								else
-									fake_feat.min = real_feat.min
-									fake_feat.max = real_feat.max
-									fake_feat.mod = real_feat.mod
-								end
-								fake_feat.value = real_feat.value
+							local feat_type = essentials.FEATURE_ID_MAP[real_feat.type]
+							if feat_type:find("action", 1, true) and not feat_type:find("auto", 1, true) and feat_type ~= "action" then
+								feat_type = "auto"..feat_type
 							end
-							fake_feat.on = real_feat.on
+							local fake_feat = kek_menu.add_feature(real_feat.name, feat_type, o.search_features.id, function(fake_feat)
+								o.search_features.data.feat_logic(real_feat, fake_feat)
+							end)
+							o.search_features.data.set_feat_properties(real_feat, fake_feat)
+							fake_feat.data = real_feat
 						end
 					end
 				end
 			end
 		end
-	end)
-	o.searcher_feat.data = "dead"
+	end).data = "dead"
 
 	for i, setting_name in pairs(general_settings) do
 		if setting_name[1]:find("#keybinding#", 1, true) then
