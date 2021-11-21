@@ -626,5 +626,11 @@ Heavy §重型武器
 Melee §近战武器
 Miscellaneous §其他
 Toggle engine §开关引擎
-Show sphere §显示球状
+Show sphere §显示球面
 Lock player inside §将玩家锁在里面
+Anti chat spam §反聊天轰炸
+kicked for spamming chat. §因聊天轰炸已踢出战局.
+kicked for sending the same message 3 times in a row. §因连续发送3条相同的信息已踢出战局.
+Kick & add to timeout §踢出并添加到加入超时
+Crash & add to timeout §崩溃并添加到加入超时
+Type in name of a player or regular feature. §输入玩家或通用功能的名称
