@@ -132,7 +132,7 @@
 > Suspicious rank = 1<br/>
 > Suspicious kd = 1<br/>
 > Negative stats = 3<br/>
-> Modded armor = 3
+> Modded armor = 3<br/>
 > Illegal weapons = 2
 
 ##### Detect any modded spectate
