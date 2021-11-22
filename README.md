@@ -145,6 +145,7 @@
 > Suspicious kd = 1<br/>
 > Negative stats = 3<br/>
 > Modded armor = 3
+> Illegal weapons = 2
 
 ##### Detect any modded spectate
 	Detects if someone is spectating people while not being inside of an interior and is alive
