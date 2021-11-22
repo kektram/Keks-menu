@@ -21,6 +21,26 @@ function essentials.get_read_only_meta()
 	}
 end
 
+function essentials.players(...)
+	local dont_ignore_me <const> = ...
+	local pid, me = -1
+	if not dont_ignore_me then
+		me = player.player_id()
+	end
+	return function()
+		if pid < 31 then
+			local is_valid
+			repeat
+				pid = pid + 1
+				is_valid = player.is_player_valid(pid) and (dont_ignore_me or me ~= pid)
+			until pid == 31 or is_valid
+			if is_valid then
+				return pid
+			end
+		end
+	end
+end
+
 -- Feature type ids
 	essentials.FEATURE_ID_MAP = {
 		[512]   = "action",
@@ -186,7 +206,7 @@ end
 		max <const> = ...
 		local vecu64_table = {}
 		for i = 1, math.random(rand_min or 1, rand_max or 12) do
-			vecu64_table[#vecu64_table + 1] = math.random(1, max or math.max_integer)
+			vecu64_table[#vecu64_table + 1] = math.random(1, max or math.maxinteger)
 		end
 		return utils.vecu64_to_str(vecu64_table)
 	end
@@ -314,8 +334,8 @@ end
 	function essentials.get_random_player_except(...)
 		local exclusions <const> = ...
 		local pids = {}
-		for pid = 0, 31 do
-			if player.is_player_valid(pid) and not essentials.get_index_of_value(exclusions, pid) then
+		for pid in essentials.players(true) do
+			if not essentials.get_index_of_value(exclusions, pid) then
 				pids[#pids + 1] = pid
 			end
 		end
@@ -419,8 +439,8 @@ end
 		local name = ...
 		if type(name) == "string" then
 			name = name:lower()
-			for pid = 0, 31 do
-				if player.is_player_valid(pid) and player.get_player_name(pid):lower():find(name, 1, true) then
+			for pid in essentials.players(true) do
+				if player.get_player_name(pid):lower():find(name, 1, true) then
 					return pid
 				end
 			end

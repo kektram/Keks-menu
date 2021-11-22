@@ -299,10 +299,8 @@ do -- Extra functionality to api functions
 		local feat
 		if type(func) == "function" then
 			feat = originals.add_feature(name, Type, parent, function(f, data)
-				if type(f) == "userdata" then
-					if func(f) == HANDLER_CONTINUE then
-						return HANDLER_CONTINUE
-					end
+				if type(f) == "userdata" and func(f, data) == HANDLER_CONTINUE then
+					return HANDLER_CONTINUE
 				end
 			end)
 		else
@@ -322,10 +320,8 @@ do -- Extra functionality to api functions
 		local feat
 		if type(func) == "function" then
 			feat = originals.add_player_feature(name, Type, parent, function(f, pid, data)
-				if type(f) == "userdata" then
-					if func(f, pid) == HANDLER_CONTINUE then
-						return HANDLER_CONTINUE
-					end
+				if type(f) == "userdata" and func(f, pid, data) == HANDLER_CONTINUE then
+					return HANDLER_CONTINUE
 				end
 			end)
 		else
@@ -534,7 +530,7 @@ end
 		for Entity, weight in pairs(entities_you_have_control_of) do
 			if network.has_control_of_entity(Entity) then
 				if entity.is_entity_a_vehicle(Entity) then
-					for pid = 0, 31 do
+					for pid in essentials.players(true) do
 						if player.get_player_vehicle(pid) == Entity then
 							goto skip
 						end
@@ -1042,13 +1038,11 @@ end
 			end
 			local hosts, friends = {}, {}
 			local player_host_priority <const> = player.get_player_host_priority(player.player_id())
-			for pid = 0, 31 do
-				if player.is_player_valid(pid) and pid ~= player.player_id() then
-					if player.get_player_host_priority(pid) <= player_host_priority or player.is_player_host(pid) then
-						hosts[#hosts + 1] = pid
-						if network.is_scid_friend(player.get_player_scid(pid)) then
-							friends[#friends + 1] = pid
-						end
+			for pid in essentials.players() do
+				if player.get_player_host_priority(pid) <= player_host_priority or player.is_player_host(pid) then
+					hosts[#hosts + 1] = pid
+					if network.is_scid_friend(player.get_player_scid(pid)) then
+						friends[#friends + 1] = pid
 					end
 				end
 			end
@@ -1076,11 +1070,9 @@ end
 		toggle["Godmode detection"] = menu.add_feature(lang["Godmode detection §"], "toggle", u.modder_detection_settings.id, function(f)
 			while f.on do
 				system.yield(0)
-				for pid = 0, 31 do
-					if player.is_player_valid(pid)
-					and player.is_player_god(pid)
+				for pid in essentials.players() do
+					if player.is_player_god(pid)
 					and not player.is_player_modder(pid, -1)
-					and player.player_id() ~= pid
 					and not entity.is_entity_dead(player.get_player_ped(pid))
 					and not ai.is_task_active(player.get_player_ped(pid), 440)
 					and essentials.is_not_friend(pid)
@@ -1171,24 +1163,25 @@ end
 		toggle["Modded name detection"] = menu.add_feature(lang["Modded name detection §"], "toggle", u.modder_detection_settings.id, function(f)
 			if f.on then
 				o.listeners["player_join"]["modded_name_detection"] = event.add_event_listener("player_join", function(event)
+					local player_name = player.get_player_name(event.player)
 					if player.is_player_valid(event.player) 
-					and player.player_id() ~= event.player 
+					and player.player_id() ~= event.player
 					and not player.is_player_modder(event.player, keks_custom_modder_flags["Modded-Name"]) 
 					and essentials.is_not_friend(event.player) then
-						if #player.get_player_name(event.player) <= 5 
-						or #player.get_player_name(event.player) > 16 
-						or player.get_player_name(event.player):gsub("[%.%-_]", ""):find("%p%s%c") then
+						if #player_name <= 5 
+						or #player_name > 16 
+						or player_name:gsub("[%.%-_]", ""):find("[%p%s%c]") then
 							local count = 0
-							for pid = 0, 31 do
-								if player.is_player_valid(pid) and player.get_player_name(pid) == player.get_player_name(event.player) then
+							for pid in essentials.players() do
+								if player.get_player_name(pid) == player_name then
 									count = count + 1
 								end
 								if count > 1 then
-									break
+									return
 								end
 							end
 							if count == 1 then
-								essentials.msg(player.get_player_name(event.player).." "..lang["has a modded name. §"], 6, true)
+								essentials.msg(player_name.." "..lang["has a modded name. §"], 6, true)
 								player.set_player_as_modder(event.player, keks_custom_modder_flags["Modded-Name"])
 							end
 						end 
@@ -1242,8 +1235,8 @@ end
 		toggle["Automatically check player stats"] = menu.add_feature(lang["Check people's stats automatically §"], "toggle", u.modder_detection_settings.id, function(f)
 			while f.on do
 				system.yield(0)
-				for pid = 0, 31 do
-					if f.on and player.is_player_valid(pid) and player.player_id() ~= pid and not player.is_player_modder(pid, keks_custom_modder_flags["Has-Suspicious-Stats"]) then
+				for pid in essentials.players() do
+					if f.on and not player.is_player_modder(pid, keks_custom_modder_flags["Has-Suspicious-Stats"]) then
 						suspicious_stats(pid)
 					end
 				end
@@ -1357,8 +1350,8 @@ end
 				system.yield(0)
 				if entity.is_entity_dead(player.get_player_ped(player.player_id())) then
 					local pid
-					for p = 0, 31 do
-						if player.is_player_valid(p) and player.player_id() ~= p and entity.has_entity_been_damaged_by_entity(player.get_player_ped(player.player_id()), player.get_player_ped(p)) then
+					for p in essentials.players() do
+						if player.player_id() ~= p and entity.has_entity_been_damaged_by_entity(player.get_player_ped(player.player_id()), player.get_player_ped(p)) then
 							pid = p
 						end
 					end
@@ -1377,8 +1370,8 @@ end
 							globals.script_event_crash(pid)
 						elseif f.value == 4 then
 							local their_pid <const> = pid
-							for pid = 0, 31 do
-								if essentials.is_player_completely_valid(pid) and pid ~= their_pid and pid ~= player.player_id() then
+							for pid in essentials.players() do
+								if pid ~= their_pid then
 									essentials.use_ptfx_function(fire.add_explosion, location_mapper.get_most_accurate_position(player.get_player_coords(pid)), 29, true, false, 0, player.get_player_ped(their_pid))
 								end
 							end					
@@ -1405,8 +1398,8 @@ end
 				cage = {}
 			}
 			while f.on do
-				for pid = 0, 31 do
-					if player.is_player_valid(pid) and player.player_id() ~= pid and player.get_entity_player_is_aiming_at(pid) == player.get_player_ped(player.player_id()) then
+				for pid in essentials.players() do
+					if player.get_entity_player_is_aiming_at(pid) == player.get_player_ped(player.player_id()) then
 						if f.value == 0 or f.value == 1 then
 							if essentials.is_in_vehicle(pid) then
 								ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
@@ -1447,9 +1440,8 @@ end
 	toggle["Log modders"] = menu.add_feature(lang["Log modders with selected tags to blacklist §"], "toggle", u.modder_detection.id, function(f)
 		while f.on do
 			system.yield(0)
-			for pid = 0, 31 do
-				if player.is_player_valid(pid)
-				and not f.data[player.get_player_scid(pid)]
+			for pid in essentials.players() do
+				if not f.data[player.get_player_scid(pid)]
 				and player.is_player_modder(pid, -1)
 				and not player.is_player_modder(pid, keks_custom_modder_flags["Blacklist"])  
 				and essentials.is_not_friend(pid) then
@@ -1474,12 +1466,10 @@ end
 	toggle["Auto kicker"] = menu.add_feature(lang["Auto kicker §"], "toggle", u.modder_detection.id, function(f)
 		while f.on do
 			system.yield(0)
-			for pid = 0, 31 do
-				if player.is_player_valid(pid)
-				and (not f.data[player.get_player_scid(pid)] or utils.time_ms() > f.data[player.get_player_scid(pid)])
+			for pid in essentials.players() do
+				if (not f.data[player.get_player_scid(pid)] or utils.time_ms() > f.data[player.get_player_scid(pid)])
 				and player.is_player_modder(pid, -1) 
-				and essentials.is_not_friend(pid) 
-				and pid ~= player.player_id() then
+				and essentials.is_not_friend(pid) then
 					local number_of_flags , modder_flags = get_all_modder_flags(pid, o.modder_flag_setting_properties[2][1])
 					if number_of_flags > 0 then
 						if toggle["Log modders"].on then
@@ -1549,8 +1539,8 @@ end
 				system.yield(0)
 			end
 			add_to_blacklist(name, ip, scid, reason, true)
-			for pid = 0, 31 do
-				if player.is_player_valid(pid) and player.get_player_scid(pid) == scid then
+			for pid in essentials.players() do
+				if player.get_player_scid(pid) == scid then
 					player.set_player_as_modder(pid, keks_custom_modder_flags["Blacklist"])
 				end
 			end
@@ -1571,20 +1561,16 @@ end
 			end
 			local number_of_players_added = 0
 			local number_of_players_modified = 0
-			for pid = 0, 31 do
-				if player.is_player_valid(pid) and pid ~= player.player_id() then
-					if add_to_blacklist(player.get_player_name(pid), player.get_player_ip(pid), player.get_player_scid(pid), reason) then
-						number_of_players_added = number_of_players_added + 1
-					else
-						number_of_players_modified = number_of_players_modified + 1
-					end
+			for pid in essentials.players() do
+				if add_to_blacklist(player.get_player_name(pid), player.get_player_ip(pid), player.get_player_scid(pid), reason) then
+					number_of_players_added = number_of_players_added + 1
+				else
+					number_of_players_modified = number_of_players_modified + 1
 				end
 			end
 		elseif f.value == 3 then
-			for pid = 0, 31 do
-				if player.is_player_valid(pid) and player.player_id() ~= pid then
-					remove_from_blacklist(player.get_player_name(pid), player.get_player_ip(pid), player.get_player_scid(pid))
-				end
+			for pid in essentials.players() do
+				remove_from_blacklist(player.get_player_name(pid), player.get_player_ip(pid), player.get_player_scid(pid))
 			end
 		end
 	end):set_str_data({
@@ -1622,9 +1608,8 @@ end
 			while f.on do
 				kek_menu.settings["Horn boost speed"] = f.value
 				system.yield(0)
-				for pid = 0, 31 do
-					if player.is_player_valid(pid) 
-					and not menu.get_player_feature(player_feat_ids["Player horn boost"]).feats[pid].on 
+				for pid in essentials.players() do
+					if not menu.get_player_feature(player_feat_ids["Player horn boost"]).feats[pid].on 
 					and (not f.data[player.get_player_scid(pid)] or utils.time_ms() > f.data[player.get_player_scid(pid)]) 
 					and player.is_player_pressing_horn(pid) 
 					and kek_menu.get_control_of_entity(player.get_player_vehicle(pid)) then
@@ -1839,13 +1824,11 @@ end
 		menu.add_feature(lang["Ram everyone §"], "toggle", u.session_trolling.id, function(f)
 			while f.on do
 				local entities = {}
-				for pid = 0, 31 do
-					if essentials.is_player_completely_valid(pid)
-					and f.on
+				for pid in essentials.players() do
+					if f.on
 					and essentials.is_not_friend(pid) 
 					and not player.is_player_god(pid)
-					and not entity.is_entity_dead(player.get_player_ped(pid))
-					and pid ~= player.player_id() then
+					and not entity.is_entity_dead(player.get_player_ped(pid)) then
 						entities[#entities + 1] = essentials.use_ptfx_function(kek_entity.spawn_and_push_a_vehicle_in_direction, pid, false, 8, vehicle_mapper.get_hash_from_name_or_model(kek_menu.what_vehicle_model_in_use))
 					end
 					if #entities > 0 then
@@ -1862,8 +1845,8 @@ end
 
 		menu.add_feature(lang["Disable vehicles §"], "toggle", u.session_malicious.id, function(f)
 			while f.on do
-				for pid = 0, 31 do
-					if player.is_player_valid(pid) and pid ~= player.player_id() and (player.get_player_vehicle(player.player_id()) == 0 or player.get_player_vehicle(pid) ~= player.get_player_vehicle(player.player_id())) then
+				for pid in essentials.players() do
+					if (player.get_player_vehicle(player.player_id()) == 0 or player.get_player_vehicle(pid) ~= player.get_player_vehicle(player.player_id())) then
 						globals.disable_vehicle(pid, true)
 					end
 				end
@@ -1916,8 +1899,8 @@ end
 		menu.add_feature(lang["Disable weapons §"], "value_str", u.session_malicious.id, function(f, pid)
 			while f.on do
 				system.yield(0)
-				for pid = 0, 31 do
-					if player.is_player_valid(pid) and player.player_id() ~= pid and essentials.is_not_friend(pid) then
+				for pid in essentials.players() do
+					if essentials.is_not_friend(pid) then
 						disable_weapons(f, pid)
 					end
 				end
@@ -1951,10 +1934,8 @@ do
 			system.yield(0)
 			for _, hash in pairs(weapon.get_all_weapon_hashes()) do
 				if weapon_blacklist_settings[hash].feat.on then
-					for pid = 0, 31 do
-						if player.player_id() ~= pid
-						and player.is_player_valid(pid)
-						and weapon.has_ped_got_weapon(player.get_player_ped(pid), hash)
+					for pid in essentials.players() do
+						if weapon.has_ped_got_weapon(player.get_player_ped(pid), hash)
 						and ((f.data[player.get_player_scid(pid)] or {})[hash] or 0) < utils.time_ms() 
 						and essentials.is_not_friend(pid) then
 							weapon.remove_weapon_from_ped(player.get_player_ped(pid), hash)
@@ -2045,8 +2026,8 @@ end
 							return
 						end
 						add_to_blacklist(name, essentials.ipv4_to_dec(ip), rid, input, true)
-						for pid = 0, 31 do
-							if player.is_player_valid(pid) and rid == player.get_player_scid(pid) then
+						for pid in essentials.players() do
+							if rid == player.get_player_scid(pid) then
 								player.set_player_as_modder(pid, keks_custom_modder_flags["Blacklist"])
 								break
 							end
@@ -2148,9 +2129,8 @@ end
 		toggle["Player history"] = menu.add_feature(lang["Player history §"], "toggle", u.player_history.id, function(f)
 			while f.on do
 				system.yield(0)
-				for pid = 0, 31 do
-					system.yield(0)
-					if not player_history.players_added_to_history[player.get_player_scid(pid)] and f.on and pid ~= player.player_id() and player.is_player_valid(pid) then
+				for pid in essentials.players() do
+					if not player_history.players_added_to_history[player.get_player_scid(pid)] and f.on then
 						local day_num = os.date("%d")
 						if day_num == "1" then
 							day_num = "1st"
@@ -2213,6 +2193,7 @@ end
 							player_history.players_added_to_history[rid] = true
 						end
 					end
+					system.yield(0)
 				end
 			end
 		end)
@@ -2425,10 +2406,8 @@ end
 			local str <const> = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", "*a")
 			local recently_activated_blacklist = {}
 			while f.on do
-				for pid = 0, 31 do
-					if player.is_player_valid(pid)
-					and player.player_id() ~= pid 
-					and f.on
+				for pid in essentials.players() do
+					if f.on
 					and utils.time_ms() > u.new_session_timer
 					and player.is_player_in_any_vehicle(pid)
 					and vehicle_blacklist_settings[entity.get_entity_model_hash(player.get_player_vehicle(pid))] ~= "Turned off"
@@ -2516,13 +2495,11 @@ end
 			end
 			local hash <const> = vehicle_mapper.get_hash_from_name_or_model(model:lower())
 			if streaming.is_model_valid(hash) then
-				for pid = 0, 31 do
-					if essentials.is_player_completely_valid(pid) and pid ~= player.player_id() then
-						local car <const> = kek_menu.spawn_entity(hash, function()
-							return location_mapper.get_most_accurate_position(player.get_player_coords(pid)), player.get_player_heading(pid)
-						end, toggle["Spawn #vehicle# in godmode"].on, false, toggle["Spawn #vehicle# maxed"].on)
-						decorator.decor_set_int(car, "MPBitset", 1 << 10)
-					end
+				for pid in essentials.players() do
+					local car <const> = kek_menu.spawn_entity(hash, function()
+						return location_mapper.get_most_accurate_position(player.get_player_coords(pid)), player.get_player_heading(pid)
+					end, toggle["Spawn #vehicle# in godmode"].on, false, toggle["Spawn #vehicle# maxed"].on)
+					decorator.decor_set_int(car, "MPBitset", 1 << 10)
 				end
 				essentials.msg(lang["Cars spawned. §"], 140, true)
 			end
@@ -2531,7 +2508,7 @@ end
 	-- Max everyone's car
 		menu.add_feature(lang["Max everyone's car §"], "action", u.vehicle_friendly.id, function()
 			local initial_pos <const> = player.get_player_coords(player.player_id())
-			for pid = 0, 31 do
+			for pid in essentials.players() do
 				if kek_entity.is_target_viable(pid) then
 					kek_entity.max_car(player.get_player_vehicle(pid))
 				end
@@ -2645,12 +2622,12 @@ end
 					end
 				elseif f.value == 2 then
 					local players = {}
-					for pid = 0, 31 do
+					for pid in essentials.players() do
 						if f.value ~= 2 or not f.on then
 							break
 						end
-						if player.is_player_valid(pid) and essentials.is_not_friend(pid) and player.player_id() ~= pid then
-							local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, v3(491.9401550293, 5587, 794.00347900391), player.player_id() ~= pid, false)
+						if essentials.is_not_friend(pid) then
+							local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, v3(491.9401550293, 5587, 794.00347900391), true, false)
 							if status then
 								globals.disable_vehicle(pid)
 								players[#players + 1] = pid
@@ -2830,10 +2807,8 @@ end
 	menu.add_feature(lang["Freeze session §"], "toggle", u.session_malicious.id, function(f)
 		while f.on do
 			system.yield(0)
-			for pid = 0, 31 do
-				if player.is_player_valid(pid) 
-				and player.player_id() ~= pid 
-				and essentials.is_not_friend(pid) 
+			for pid in essentials.players() do
+				if essentials.is_not_friend(pid) 
 				and not player.is_player_modder(pid, -1) 
 				and not entity.is_entity_dead(player.get_player_ped(pid)) then
 					ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
@@ -2843,10 +2818,8 @@ end
 	end)	
 
 	menu.add_feature(lang["Cage session §"], "action", u.session_malicious.id, function()
-		for pid = 0, 31 do
-			if essentials.is_player_completely_valid(pid) 
-			and essentials.is_not_friend(pid)
-			and player.player_id() ~= pid then
+		for pid in essentials.players() do
+			if essentials.is_not_friend(pid) then
 				kek_entity.create_cage(pid)
 			end
 		end
@@ -2861,7 +2834,7 @@ end
 				end
 				kek_menu.settings["Bounty amount"] = input
 			else
-				for pid = 0, 31 do
+				for pid in essentials.players() do
 					globals.set_bounty(pid, true, f.value == 0)
 				end
 			end
@@ -2873,8 +2846,8 @@ end
 
 		menu.add_feature(lang["Reapply bounty §"], "value_str", u.session_trolling.id, function(f)
 			while f.on do
-				for pid = 0, 31 do
-					if player.is_player_valid(pid) and entity.is_entity_dead(player.get_player_ped(pid)) then
+				for pid in essentials.players() do
+					if entity.is_entity_dead(player.get_player_ped(pid)) then
 						globals.set_bounty(pid, true, f.value == 0)
 					end
 				end
@@ -2887,8 +2860,8 @@ end
 
 		menu.add_feature(lang["Never wanted §"], "toggle", u.session_trolling.id, function(f)
 			while f.on do
-				for pid = 0, 31 do
-					if player.is_player_valid(pid) and player.get_player_wanted_level(pid) > 0 and not player.is_player_modder(pid, -1) then
+				for pid in essentials.players() do
+					if player.get_player_wanted_level(pid) > 0 and not player.is_player_modder(pid, -1) then
 						globals.send_script_event("Remove wanted level", pid, {pid, globals.generic_player_global(pid)}, true)
 					end
 				end
@@ -2898,8 +2871,8 @@ end
 
 		menu.add_feature(lang["off the radar §"], "toggle", u.session_trolling.id, function(f)
 			while f.on do
-				for pid = 0, 31 do
-					if player.is_player_valid(pid) and not globals.is_player_otr(pid) and not player.is_player_modder(pid, -1) then
+				for pid in essentials.players() do
+					if not globals.is_player_otr(pid) and not player.is_player_modder(pid, -1) then
 						globals.send_script_event("Give OTR or ghost organization", pid, {pid, utils.time() - 60, utils.time(), 1, 1, globals.generic_player_global(pid)}, true)
 					end
 				end
@@ -2912,13 +2885,13 @@ end
 			menu.create_thread(function()
 				while f.on do
 					system.yield(0)
-					for pid = 0, 31 do
+					for pid in essentials.players() do
 						globals.send_script_event("CEO money", pid, {pid, 15000, -1292453789, 0, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
 					end
 					essentials.wait_conditional(15000, function() 
 						return f.on 
 					end)
-					for pid = 0, 31 do
+					for pid in essentials.players() do
 						globals.send_script_event("CEO money", pid, {pid, 15000, -1292453789, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
 					end
 					essentials.wait_conditional(15000, function() 
@@ -2927,7 +2900,7 @@ end
 				end
 			end, nil)
 			while f.on do
-				for pid = 0, 31 do
+				for pid in essentials.players() do
 					globals.send_script_event("CEO money", pid, {pid, 30000, 198210293, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
 				end
 				essentials.wait_conditional(120000, function() 
@@ -2940,22 +2913,22 @@ end
 		menu.add_feature(lang["Block passive §"], "toggle", u.session_trolling.id, function(f)
 			while f.on do
 				system.yield(0)
-				for pid = 0, 31 do
-					if player.is_player_valid(pid) and not player.is_player_modder(pid, -1) then
+				for pid in essentials.players() do
+					if not player.is_player_modder(pid, -1) then
 						globals.send_script_event("Block passive", pid, {pid, 1})
 					end
 					system.yield(0)
 				end
 			end
-			for pid = 0, 31 do
-				if player.is_player_valid(pid) and not player.is_player_modder(pid, -1) then
+			for pid in essentials.players() do
+				if not player.is_player_modder(pid, -1) then
 					globals.send_script_event("Block passive", pid, {pid, 0})
 				end
 			end
 		end)
 
 		menu.add_feature(lang["Send to random mission §"], "action", u.session_trolling.id, function(f)
-			for pid = 0, 31 do
+			for pid in essentials.players() do
 				if not player.is_player_modder(pid, -1) then
 					globals.send_script_event("Send to mission", pid, {pid, math.random(1, 7)}, true)
 				end
@@ -2964,13 +2937,13 @@ end
 
 		menu.add_feature(lang["Perico island §"], "toggle", u.session_trolling.id, function(f)
 			if f.on then
-				for pid = 0, 31 do
+				for pid in essentials.players() do
 					if not player.is_player_modder(pid, -1) then
 						globals.send_script_event("Send to Perico island", pid, {pid, globals.get_script_event_hash("Send to Perico island"), 0, 0}, true)
 					end
 				end
 			else
-				for pid = 0, 31 do
+				for pid in essentials.players() do
 					if not player.is_player_modder(pid, -1) then
 						globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, 1, 1, 1, 1}, true)
 					end
@@ -2980,7 +2953,7 @@ end
 
 		menu.add_feature(lang["Apartment invites §"], "toggle", u.session_trolling.id, function(f)
 			while f.on do
-				for pid = 0, 31 do
+				for pid in essentials.players() do
 					if not player.is_player_modder(pid, -1) then
 						globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 114), 1, 1, 1}, true)
 					end
@@ -2991,19 +2964,19 @@ end
 
 		menu.add_feature(lang["CEO §"], "action_value_str", u.session_trolling.id, function(f)
 			if f.value == 0 then
-				for pid = 0, 31 do
+				for pid in essentials.players() do
 					if not player.is_player_modder(pid, -1) then
 						globals.send_script_event("CEO ban", pid, {pid, 1}, true)
 					end
 				end
 			elseif f.value == 1 then
-				for pid = 0, 31 do
+				for pid in essentials.players() do
 					if not player.is_player_modder(pid, -1) then
 						globals.send_script_event("Dismiss or terminate from CEO", pid, {pid, 1, 5}, true)
 					end
 				end
 			elseif f.value == 2 then
-				for pid = 0, 31 do
+				for pid in essentials.players() do
 					if not player.is_player_modder(pid, -1) then
 						globals.send_script_event("Dismiss or terminate from CEO", pid, {pid, 1, 6}, true)
 					end
@@ -3018,7 +2991,7 @@ end
 		menu.add_feature(lang["Notification spam §"], "toggle", u.session_trolling.id, function(f)
 			while f.on do
 				system.yield(0)
-				for pid = 0, 31 do
+				for pid in essentials.players() do
 					globals.send_script_event("Insurance notification", pid, {pid, math.random(-2147483647, 2147483647)}, true)
 				end
 			end
@@ -3026,7 +2999,7 @@ end
 
 		menu.add_feature(lang["Transaction error §"], "toggle", u.session_trolling.id, function(f)
 			while f.on do
-				for pid = 0, 31 do
+				for pid in essentials.players() do
 					if not player.is_player_modder(pid, -1) then
 						globals.send_script_event("Transaction error", pid, {pid, 50000, 0, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair(), 1})
 					end
@@ -3450,8 +3423,8 @@ end
 										end
 									elseif f.value == 1 then
 										local their_pid <const> = event.player
-										for pid = 0, 31 do
-											if player.is_player_valid(pid) and pid ~= their_pid and pid ~= player.player_id() and not entity.is_entity_dead(player.get_player_ped(pid)) then
+										for pid in essentials.players() do
+											if pid ~= their_pid and not entity.is_entity_dead(player.get_player_ped(pid)) then
 												ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 												system.yield(0)
 												essentials.use_ptfx_function(fire.add_explosion, location_mapper.get_most_accurate_position(player.get_player_coords(pid)), 29, true, false, 0, player.get_player_ped(their_pid))
@@ -6508,11 +6481,9 @@ end
 				end
 				local player_names = {player.get_player_name(player.player_id())}
 				teleport_all_in_front_of_player[i].data = {player.player_id()}
-				for pid = 0, 31 do
-					if player.is_player_valid(pid) and pid ~= player.player_id() then
-						player_names[#player_names + 1] = player.get_player_name(pid)
-						teleport_all_in_front_of_player[i].data[#teleport_all_in_front_of_player[i].data + 1] = pid
-					end
+				for pid in essentials.players() do
+					player_names[#player_names + 1] = player.get_player_name(pid)
+					teleport_all_in_front_of_player[i].data[#teleport_all_in_front_of_player[i].data + 1] = pid
 				end
 				teleport_all_in_front_of_player[i]:set_str_data(player_names)
 			end)
@@ -6614,8 +6585,8 @@ end
 							if not entity.is_an_entity(f.data) then
 								f2.on = false
 							elseif entity.is_entity_a_vehicle(f.data) then
-								for pid = 0, 31 do
-									if player.is_player_valid(pid) and player.get_player_vehicle(pid) == f.data and kek_entity.remove_player_vehicle(pid) then
+								for pid in essentials.players(true) do
+									if player.get_player_vehicle(pid) == f.data and kek_entity.remove_player_vehicle(pid) then
 										f2.on = false
 									end
 								end
@@ -6669,11 +6640,9 @@ end
 					end
 					local player_names = {player.get_player_name(player.player_id())}
 					teleport_in_front_of_player[i].data = {player.player_id()}
-					for pid = 0, 31 do
-						if player.is_player_valid(pid) and pid ~= player.player_id() then
-							player_names[#player_names + 1] = player.get_player_name(pid)
-							teleport_in_front_of_player[i].data[#teleport_in_front_of_player[i].data + 1] = pid
-						end
+					for pid in essentials.players() do
+						player_names[#player_names + 1] = player.get_player_name(pid)
+						teleport_in_front_of_player[i].data[#teleport_in_front_of_player[i].data + 1] = pid
 					end
 					teleport_in_front_of_player[i]:set_str_data(player_names)
 				end)

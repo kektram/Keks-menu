@@ -408,7 +408,7 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 			else
 				anonymous = 0
 			end
-			for pid = 0, 31 do
+			for pid in essentials.players() do
 				globals.send_script_event("Bounty", pid, {pid, script_target, 3, amount, 1, anonymous, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_9__10_globals_pair()})
 			end
 		end

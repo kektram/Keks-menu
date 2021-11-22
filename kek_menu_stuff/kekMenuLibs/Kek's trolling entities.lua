@@ -19,16 +19,15 @@ local kek_menu_stuff_path <const> = home.."scripts\\kek_menu_stuff\\"
 		local f <const>,
 		pid <const>,
 		grief_function <const> = ...
-		for pid = 0, 31 do
-			system.yield(0)
-			if essentials.is_player_completely_valid(pid)
-			and essentials.is_not_friend(pid)
+		for pid in essentials.players(true) do
+			if essentials.is_not_friend(pid)
 			and (not kek_menu.toggle["Exclude yourself from trolling"].on or player.player_id() ~= pid) then
 				repeat
 					system.yield(0)
 					local Entity <const> = grief_function(pid)
-				until not essentials.is_player_completely_valid(pid) or not f.on or kek_entity.is_entity_valid(Entity) or Entity == -1
+				until not player.is_player_valid(pid) or not f.on or kek_entity.is_entity_valid(Entity) or Entity == -1
 			end
+			system.yield(0)
 		end
 	end
 

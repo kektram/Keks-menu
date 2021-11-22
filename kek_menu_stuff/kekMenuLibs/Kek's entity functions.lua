@@ -90,7 +90,7 @@ local essentials = kek_menu.require("Essentials")
 			if entity.is_an_entity(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
 				local status = true
 				if entity.is_entity_a_vehicle(Entity) then
-					for pid = 0, 31 do
+					for pid in essentials.players(true) do
 						if player.get_player_vehicle(pid) == Entity then
 							status = nil
 							break
@@ -758,11 +758,9 @@ local essentials = kek_menu.require("Essentials")
 	function kek_entity.teleport_session(...)
 		local pos <const>, f <const> = ...
 		local pids = {}
-		for pid = 0, 31 do
-			if player.is_player_valid(pid) 
-			and (player.is_player_in_any_vehicle(pid) or player.get_player_coords(pid).z == -50) 
-			and player.player_id() ~= pid 
-			and essentials.get_distance_between(player.get_player_coords(pid), pos) > 35 
+		for pid in essentials.players() do
+			if (player.is_player_in_any_vehicle(pid) or player.get_player_coords(pid).z == -50)
+			and essentials.get_distance_between(player.get_player_coords(pid), pos) > 35
 			and essentials.is_not_friend(pid) then
 				pids[#pids + 1] = pid
 			end
