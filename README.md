@@ -135,9 +135,6 @@
 > Modded armor = 3<br/>
 > Illegal weapons = 2
 
-##### Detect any modded spectate
-	Detects if someone is spectating people while not being inside of an interior and is alive
-
 #### Blacklist
 	Add to blacklist
 		Type in name, rid, ip and reason
