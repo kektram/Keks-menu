@@ -22,12 +22,6 @@
 
 [Join the kek's menu discord](https://discord.gg/CPSgPz4D7X "Kek's menu Discord")
 
-## Table of contents
-
-### [Feature list](#Feature-list-1)
-
-### [How to install](#How-to-install-1)
-
 ## How to install
 	1. Open keks_menu.zip
 	2. Drag all the files to C:\Users\USERNAME\AppData\Roaming\PopstarDevs\2Take1Menu\scripts
@@ -41,12 +35,6 @@
 	6. Drag kekMenuLibs to scripts\kek_menu_stuff
 
 ## Feature list
-
-### Table of contents
-
-#### [General settings](#General-settings-1)
-
-#### [Modder detection](#Modder-detection-1)
 
 ### General settings
 
