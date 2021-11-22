@@ -1,10 +1,11 @@
--- Lib Ped mapper version: 1.2.1
 -- Copyright © 2020-2021 Kektram
 
-local ped_mapper = {}
-local essentials = require("Essentials")
+kek_menu.lib_versions["Ped mapper"] = "1.2.2"
 
-local ped_models = {
+local ped_mapper = {}
+local essentials = kek_menu.require("Essentials")
+
+local ped_models <const> = {
 	[808859815] = "a_f_m_beach_01",
 	[3188223741] = "a_f_m_bevhills_01",
 	[2688103263] = "a_f_m_bevhills_02",
@@ -916,21 +917,25 @@ ped_mapper.PED_HASHES = {}
 for hash, model in pairs(ped_models) do
 	ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = hash
 end
+setmetatable(ped_mapper.PED_HASHES, essentials.get_read_only_meta())
 
 local model_to_hash = {}
 
 for hash, model in pairs(ped_models) do
 	model_to_hash[model] = hash
 end
+setmetatable(model_to_hash, essentials.get_read_only_meta())
 
-function ped_mapper.get_model_from_hash(hash)
+function ped_mapper.get_model_from_hash(...)
+	local hash <const> = ...
 	if ped_models[hash] then
 		return ped_models[hash]
 	end
 	return ""
 end
 
-function ped_mapper.get_hash_from_model(model, no_animals)
+function ped_mapper.get_hash_from_model(...)
+	local model <const>, no_animals <const> = ...
 	if model == "?" then
 		if no_animals then
 			return ped_mapper.PED_HASHES[math.random(1, #ped_mapper.PED_HASHES - 33)]
@@ -975,5 +980,6 @@ ped_mapper.LIST_OF_SPECIAL_PEDS = {
 	"u_m_m_jesus_01",
 	"s_m_y_clown_01"
 }
+setmetatable(ped_mapper.LIST_OF_SPECIAL_PEDS, essentials.get_read_only_meta())
 
 return ped_mapper
