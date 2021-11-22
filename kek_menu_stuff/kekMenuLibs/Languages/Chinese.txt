@@ -35,8 +35,7 @@ Remove script from auto loader §取消自动加载某个脚本(点击输入脚�
 Modded name detection §检测虚假名称
 Entity crash protection §检测尝试使用实体崩溃的作弊者
 Blacklist §黑名单
-Check people's stats automatically §自动检测每个战局的玩家数据
-Detect any modded spectate §检测是否有作弊者观看别人
+Check people's stats automatically §自动检查玩家的统计数据
 Kick any vote kickers §自动踢战局内使用投票踢的玩家
 Add session §添加战局
 Remove session §删除战局
@@ -135,7 +134,6 @@ Recognized §检测到黑名单玩家:
 \nDetected: §\n信息:\n
 \nTags:\n §\n添加原因:\n
 Checked blacklist. §已检查黑名单
-is spectating §正在观看
 Changed the reason this person was added to the blacklist. §更改了此玩家被添加到黑名单的原因.
 Added to blacklist. §已添加到黑名单.
 Removed rid. §已黑名单中删除
@@ -525,8 +523,6 @@ When adding entries, it's important to know about patterns. A pattern could look
 Note that these characters: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" have special meanings. Google "Lua magic characters" to find out what they mean. §请注意,这些字符: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ") "有特殊的含义.\n使用谷歌或百度搜索: "Lua magic characters" 以找出它们的含义.
 For further assistance, join the Kek's menu discord. An invite comes with the script. It is in a file called "Discord invite.txt". §如需进一步帮助,请加入Kek's menu Discord服务器.\n脚本压缩包里有邀请链接.它在一个名为 "Discord invite.txt "的文本文件中.
 Get parachute §获得降落伞
-Get invite to Kek's menu Discord server §获取Kek脚本的Discord服务器邀请链接
-Invite to the Kek's menu Discord copied to the clipboard. §邀请链接已复制到剪贴板.\n可复制到浏览器地址栏中打开.
 Anti stuck §防堵车
 Entry already exists in this profile. §此配置文件中已存在该条目.
 Clear tasks §冻结
@@ -550,15 +546,6 @@ Hotkey:\nTeleported forward. §快捷键:\n向前传送
 Teleport forward §向前传送
 Vehicle blacklist:\nstealing §载具黑名单:\n抢车
 Mount Chiliad & kill §C山山顶 & 击杀
-Order personal vehicle §标记的载具
-Hotkey:\nOrdered personal vehicle. §快捷键:\n标记的载具
-Close to you §传送到附近
-In front of you §传送到面前
-Failed to find spawn location for personal vehicle. §未能找到标记的载具.
-You are already in your personal vehicle. §你已经在标记的载具中.
-This vehicle is already your personal vehicle. §这辆载具已经标记.
-Set personal vehicle §标记当前载具
-Spawn inside §传送到载具里
 Log chat & use as chatbot §记录聊天信息并作为聊天机器人使用
 Compacts §小型汽车
 Sedans §轿车
@@ -634,3 +621,4 @@ kicked for sending the same message 3 times in a row. §因连续发送3条相�
 Kick & add to timeout §踢出并添加到加入超时
 Crash & add to timeout §崩溃并添加到加入超时
 Type in name of a player or regular feature. §输入玩家或通用功能的名称
+Has modded weapons. §拥有作弊者武器.
