@@ -300,7 +300,9 @@ do -- Extra functionality to api functions
 		if type(func) == "function" then
 			feat = originals.add_feature(name, Type, parent, function(f, data)
 				if type(f) == "userdata" then
-					func(f)
+					if func(f) == HANDLER_CONTINUE then
+						return HANDLER_CONTINUE
+					end
 				end
 			end)
 		else
@@ -321,7 +323,9 @@ do -- Extra functionality to api functions
 		if type(func) == "function" then
 			feat = originals.add_player_feature(name, Type, parent, function(f, pid, data)
 				if type(f) == "userdata" then
-					func(f, pid)
+					if func(f, pid) == HANDLER_CONTINUE then
+						return HANDLER_CONTINUE
+					end
 				end
 			end)
 		else
@@ -333,7 +337,6 @@ do -- Extra functionality to api functions
 			return feat
 		end
 	end
-
 	menu.delete_feature = function(...)
 		local id <const> = ...
 		if kek_menu.features.feats[id] then
@@ -785,7 +788,7 @@ do
 		{"Player history", true},
 		{"Modded name detection", true},
 		{"Random weapon camos", false},
-		{"Max number of people to kick in force host", 1},
+		{"Max number of people to kick in force host", 31},
 		{"Vehicle clear distance", 500},
 		{"Ped clear distance", 500},
 		{"Object clear distance", 500},
