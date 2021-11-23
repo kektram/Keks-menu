@@ -477,7 +477,6 @@ Found no vehicle to save. §.ﺎﻬﻀﻔﺤﻟ ﺔﺒﻛﺮﻣ ﺪﺟﻮﻳ ﻢ
 Existing file found. Please choose another name. §.ﺮﺧﺍ ﻢﺳﺍ ﺭﺎﻴﺘﺧﺍ ﺀﺎﺟﺮﻟﺍ .ﻢﺳﻻﺍ ﺲﻔﻨﺑ ﻒﻠﻣ ﺪﺟﻭ
 Illegal characters detected. Please try again. Illegal chars: §7rf 3'yr md3om fy alasm. alrja alm7awlh mrh a5ra. ala7rf al3'yr md3omh:
 Refresh list §ﺔﻤﺋﺎﻘﻟﺍ ﺚﻳﺪﺤﺗ
-Found no vehicle to spawn. §lm yojd mrkbh.
 Cancelled. §.ﻲﻐﻟﺍ
 Too few reactions to add entry. §ﺔﻠﻴﻠﻗ ﻞﻌﻓ ﺩﻭﺩﺭ .ﺔﻓﺎﺿﺍ ﻦﻜﻤﻳ ﻻ
 Glitch §ﺶﺘﻠﻗ
@@ -496,7 +495,6 @@ Attackers can't use planes. Cancelled. §.ﺀﺎﻐﻟﻻﺍ ﻢﺗ .ﺕﺍﺮ�
 Chance to reply §ﺩﺮﻟﺍ ﺔﻴﻟﺎﻤﺘﺣﺍ
 Missing necessarry file. Please reinstall. Read the README that comes with the script for more information. §.ﺕﺎﻣﻮﻠﻌﻤﻟﺍ ﻦﻣ ﺪﻳﺰﻤﻠﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻊﻣ ﻲﺗﺎﻳ ﻱﺬﻠﻟﺍ ﻲﻧﺃﺮﻗﺍ ﻒﻠﻣ ﺀﺍﺮﻗﺍ .ﺖﻴﺒﺜﺗ ﺓﺩﺎﻋﺍ ﺀﺎﺟﺮﻟﺍ .ﺓﺩﻮﻘﻔﻣ ﺔﻳﺭﻭﺮﺿ ﺕﺎﻔﻠﻣ
 New profile §ﺪﻳﺪﺟ ﻞﻳﺎﻓﻭﺮﺑ
-Failed to find vehicle. Try again. §.ﺀﺍﺮﺧﺍ ﻩﺮﻣ ﻝﻭﺎﺣ .ﺔﺒﻛﺮﻤﻟﺍ ﺩﺎﺠﻳﺍ ﻲﻓ ﻞﺸﻓ
 Type in name of vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﻢﺳﺍ ﺐﺘﻛﺍ
 Vehicle name §ﺔﺒﻛﺮﻤﻟﺍ ﻢﺳﺍ
 Save to Menyoo vehicles §ﻭﻮﻴﻨﻣ ﺔﻜﺑﺮﻣ ﻰﻟﺍ ﻆﻔﺣﺍ
@@ -569,7 +567,6 @@ Trains §Trains
 Open Wheel §Open Wheel
 Menyoo maps §Menyoo ﺕﺎﺑﺎﻣ
 Type in name of menyoo map. §Menyoo ﺏﺎﻣ ﻢﺳﺍ ﺐﺘﻛﺍ
-Found no map to spawn. §.ﺏﺎﻤﻟﺍ ﺪﺟﻮﻳ ﻢﻟ
 Set where you spawn §ﻥﻭﺎﺒﺴﻟﺍ ﻥﺎﻜﻣ ﻊﺿﻭ
 Teleport to map spawn §ﺏﺎﻤﻟﺍ ﻥﻭﺎﺒﺳ ﻥﺎﻜﻤﻟ ﺕﺭﻮﺒﻴﻠﻴﺗ
 Found no spawn. §ﻥﻭﺎﺒﺳ ﺪﺟﻮﻳ ﻢﻟ
@@ -619,3 +616,4 @@ Kick & add to timeout §timeout ﻰﻟﺍ ﺔﻓﺎﺿﺍ & ﺩﺮﻃ
 Crash & add to timeout §timeout ﻰﻟﺍ ﺔﻓﺎﺿﺍ & ﺵﺍﺮﻛ
 Type in name of a player or regular feature. §.ﺔﻳﺩﺎﻋ ﺔﻴﺻﺎﺧ ﻭﺍ ﺐﻋﻻ ﻢﺳﺍ ﺐﺘﻛﺍ
 Has modded weapons. §.ﺪﻳﺩﺩﻮﻣ ﻪﺤﻠﺳﺍ ﺔﻳﺪﻟ
+Type in name of entity. §.ﻦﺋﺎﻜﻟﺍ ﻢﺳﺍ ﺐﺘﻛﺍ
