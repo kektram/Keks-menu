@@ -503,6 +503,7 @@ end
 				return true
 			end
 		end
+		return false
 	end
 
 -- Is all true
@@ -510,7 +511,7 @@ end
 		local Table <const>, conditions <const> = ...
 		for i = 1, #Table do
 			if not conditions(Table[i]) then
-				return
+				return false
 			end
 		end
 		return true
@@ -590,7 +591,7 @@ end
 				system.yield(0)
 			until input_status ~= 1
 			key_mapper.do_vk(10000, Keys)
-			if not text or #text:gsub("%s", "") == 0 or input_status == 2 then
+			if not text or input_status == 2 then
 				essentials.msg(kek_menu.lang["Cancelled. §"], 6, true)
 				return "", 2
 			else

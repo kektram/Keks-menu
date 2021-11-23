@@ -56,14 +56,12 @@ math.randomseed(math.floor(os.clock()) + os.time())
 		features = {
 			feats = {},
 			player_feats = {}
-		},
-		last_created_feature,
-		last_created_player_feat
+		}
 	}
 
 	function kek_menu.require(...)
 		local name <const> = ...
-		local lib = package.loaded[name] or require(name)
+		local lib <const> = package.loaded[name] or require(name)
 		if not lib then
 			menu.notify("Failed to load "..name..". Fix it goddamnit...", "Error", 6, 112)
 			error(debug.traceback("Failed to load "..name..". Fix it goddamnit...", 2))
@@ -308,7 +306,6 @@ do -- Extra functionality to api functions
 		end
 		if feat then
 			kek_menu.features.feats[feat.id] = feat
-			last_created_feature = feat.id
 			return feat
 		end
 	end
@@ -329,7 +326,6 @@ do -- Extra functionality to api functions
 		end
 		if feat then
 			kek_menu.features.player_feats[feat.id] = feat.id
-			last_created_player_feat = feat.id
 			return feat
 		end
 	end
@@ -528,7 +524,7 @@ end
 		local ped_count, misc_count, object_count = 0, 0, 0
 		local veh_count = 0
 		for Entity, weight in pairs(entities_you_have_control_of) do
-			if network.has_control_of_entity(Entity) then
+			if entity.is_an_entity(Entity) then
 				if entity.is_entity_a_vehicle(Entity) then
 					for pid in essentials.players(true) do
 						if player.get_player_vehicle(pid) == Entity then
@@ -537,7 +533,7 @@ end
 					end
 					veh_count = veh_count + weight
 					temp_table[Entity] = weight
-					::skip::;
+					::skip::
 				elseif entity.is_entity_a_ped(Entity) then
 					if not ped.is_ped_a_player(Entity) then
 						ped_count = ped_count + weight
@@ -879,13 +875,9 @@ end
 	-- Mod tag related settings
 		for index_of_setting_properties, setting_property in pairs(o.modder_flag_setting_properties) do
 			menu.add_feature(lang["Turn all on or off §"], "action", setting_property[3].id, function()
-				if essentials.is_any_true(table.move(setting_property[3].children, 2, #setting_property[3].children, 1, {}), function(f) 
+				local bool = not essentials.is_any_true(table.move(setting_property[3].children, 2, #setting_property[3].children, 1, {}), function(f) 
 					return f.on 
-				end) then
-					bool = false
-				else
-					bool = true
-				end
+				end)
 				for i = 1, #modIdStuff do
 					toggle[setting_property[1]..player.get_modder_flag_text(modIdStuff[i])].on = bool
 					kek_menu.settings[setting_property[1]..player.get_modder_flag_text(modIdStuff[i])] = bool
@@ -2087,7 +2079,10 @@ end
 				essentials.msg(lang["Couldn't find player. §"], 6, true)
 			elseif f.value == 1 then
 				for i, parent in pairs(player_history.searched_players) do
-					parent.hidden = true
+					for _, child in pairs(parent.children) do
+						menu.delete_feature(child.id)
+					end
+					menu.delete_feature(parent.id)
 				end
 				player_history.searched_players = {}
 			end
@@ -2362,45 +2357,34 @@ end
 		end)
 
 		local parent <const> = menu.add_feature(lang["Search §"], "parent", u.vehicle_blacklist.id)
-		local search_feat = menu.add_feature(lang["Search §"], "action_value_str", parent.id, function(f)
-			if f.value == 0 then
-				local status, input
-				while true do
-					input, status = essentials.get_input(lang["Type in name of vehicle §"], input, 128, 0)
-					if status == 2 then
-						return
-					end
-					if streaming.is_model_valid(vehicle_mapper.get_hash_from_name_or_model(input)) then
-						f.data[#f.data + 1] = menu.add_feature(vehicle_mapper.get_translated_vehicle_name(vehicle_mapper.get_hash_from_name_or_model(input)), "autoaction_value_str", parent.id, function(f)
-							essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", {f.data.."="..vehicle_blacklist_settings[f.data], f.data.."="..vehicle_blacklist_reaction_names[f.value + 1]}, true, true)
-							vehicle_blacklist_settings[f.data] = vehicle_blacklist_reaction_names[f.value + 1]
-							for i, feat in pairs(essentials.get_descendants(u.vehicle_blacklist, {})) do
-								if feat ~= f and feat.data == f.data then
-									feat.value = f.value
-								end
+		local search_feat = menu.add_feature(lang["Search §"], "action", parent.id, function(f)
+			local input, status <const> = essentials.get_input(lang["Type in name of vehicle §"], "", 128, 0)
+			if status == 2 then
+				return
+			end
+			for i, feat in pairs(f.data) do
+				menu.delete_feature(feat.id)
+			end
+			f.data = {}
+			input = input:lower()
+			for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
+				if vehicle_mapper.get_translated_vehicle_name(hash):lower():find(input) then
+					f.data[#f.data + 1] = menu.add_feature(vehicle_mapper.get_translated_vehicle_name(hash), "autoaction_value_str", parent.id, function(f)
+						essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", {f.data.."="..vehicle_blacklist_settings[f.data], f.data.."="..vehicle_blacklist_reaction_names[f.value + 1]}, true, true)
+						vehicle_blacklist_settings[f.data] = vehicle_blacklist_reaction_names[f.value + 1]
+						for i, feat in pairs(essentials.get_descendants(u.vehicle_blacklist, {})) do
+							if feat ~= f and feat.data == f.data then
+								feat.value = f.value
 							end
-						end)
-						f.data[#f.data]:set_str_data(vehicle_blacklist_reactions)
-						f.data[#f.data].data = vehicle_mapper.get_hash_from_name_or_model(input)
-						f.data[#f.data].value = essentials.get_index_of_value(vehicle_blacklist_reaction_names, vehicle_blacklist_settings[f.data[#f.data].data]) - 1
-						break
-					else
-						essentials.msg(lang["Failed to find vehicle. Try again. §"], 6, true, 7)
-					end
-					system.yield(0)
+						end
+					end)
+					f.data[#f.data]:set_str_data(vehicle_blacklist_reactions)
+					f.data[#f.data].data = hash
+					f.data[#f.data].value = essentials.get_index_of_value(vehicle_blacklist_reaction_names, vehicle_blacklist_settings[f.data[#f.data].data]) - 1
 				end
-			elseif f.value == 1 then
-				for i, feat in pairs(f.data) do
-					feat.hidden = true
-				end
-				f.data = {}
 			end
 		end)
 		search_feat.data = {}
-		search_feat:set_str_data({
-			lang["Search §"],
-			lang["Clear search list §"]
-		})
 
 		toggle["Vehicle blacklist"] = menu.add_feature(lang["Vehicle blacklist §"], "toggle", u.vehicle_blacklist.id, function(f)
 			local str <const> = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", "*a")
@@ -4680,7 +4664,7 @@ end
 		if name:find("..", 1, true) or name:find("%.$") or name ~= essentials.get_safe_feat_name(name) then
 			return
 		end
-		menu.add_feature(essentials.get_safe_feat_name(name), "action_value_str", u.saved_custom_vehicles.id, function(f)
+		local feat = menu.add_feature(essentials.get_safe_feat_name(name), "action_value_str", u.saved_custom_vehicles.id, function(f)
 			if f.value == 0 then
 				if toggle["Delete old #vehicle#"].on then
 					for i, car in pairs(kek_menu.your_vehicle_entity_ids) do
@@ -4722,7 +4706,9 @@ end
 				essentials.file("scripts\\Menyoo Vehicles\\"..f.name..".xml", "rename", "scripts\\Menyoo Vehicles\\"..input..".xml")	
 				f.name = input
 			end
-		end):set_str_data({
+		end)
+		feat.data = "MENYOO"
+		feat:set_str_data({
 			lang["Spawn §"],
 			lang["Delete §"],
 			lang["Change name §"]
@@ -4738,20 +4724,11 @@ do
 				return
 			end
 			input = input:lower()
-			for i, file in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
-				if file:lower():find(input, 1, true) then
-					if toggle["Delete old #vehicle#"].on then
-						for i, car in pairs(kek_menu.your_vehicle_entity_ids) do
-							kek_entity.hard_remove_entity_and_its_attachments(car)
-						end
-					end
-					local Entity <const> = menyoo.spawn_custom_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..file, player.player_id())
-					kek_entity.vehicle_preferences(Entity, true)
-					kek_menu.your_vehicle_entity_ids[#kek_menu.your_vehicle_entity_ids + 1] = Entity
-					return
-				end		
+			for _, feature in pairs(u.saved_custom_vehicles.children) do
+				if feature.data == "MENYOO" then
+					feature.hidden = feature.name:lower():find(input, 1, true) == nil
+				end
 			end
-			essentials.msg(lang["Found no vehicle to spawn. §"], 6, true)
 		elseif f.value == 1 then
 			if not entity.is_an_entity(player.get_player_vehicle(player.player_id())) then
 				essentials.msg(lang["Found no vehicle to save. §"], 6, true)
@@ -4784,10 +4761,12 @@ do
 		elseif f.value == 2 then
 			local feats = {}
 			for i, feat in pairs(u.saved_custom_vehicles.children) do
-				if not feat.hidden and not feat.data and not utils.file_exists(paths.home.."scripts\\Menyoo Vehicles\\"..feat.name..".xml") then
-					feat.name = ";:~"
-					feat.hidden = true 
-				elseif not feat.data then
+				if not feat.hidden 
+				and feat.data ~= "MENYOO" 
+				and feat.data ~= "MAIN_FEAT" 
+				and not utils.file_exists(paths.home.."scripts\\Menyoo Vehicles\\"..feat.name..".xml") then
+					menu.delete_feature(feat.id)
+				elseif feat.data == "MENYOO" then
 					feats[#feats + 1] = feat
 				end
 			end
@@ -4805,7 +4784,7 @@ do
 		lang["Save §"],
 		lang["Refresh list §"]
 	})
-	main_feat.data = true
+	main_feat.data = "MAIN_FEAT"
 
 	for i, file in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
 		create_custom_vehicle_feature(file:gsub("%.xml$", ""))
@@ -5040,7 +5019,7 @@ do
 		if name:find("..", 1, true) or name:find("%.$") or name ~= essentials.get_safe_feat_name(name) then
 			return
 		end
-		menu.add_feature(essentials.get_safe_feat_name(name), "action_value_str", custom_maps_parent.id, function(f)
+		local feat = menu.add_feature(essentials.get_safe_feat_name(name), "action_value_str", custom_maps_parent.id, function(f)
 			if f.value == 0 then
 				menyoo.spawn_map(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml", player.player_id(), true)
 			elseif f.value == 1 then
@@ -5125,7 +5104,9 @@ do
 				essentials.file("scripts\\Menyoo Maps\\"..f.name..".xml", "rename", "scripts\\Menyoo Maps\\"..input..".xml")	
 				f.name = input
 			end
-		end):set_str_data({
+		end)
+		feat.data = "MENYOO"
+		feat:set_str_data({
 			lang["Spawn §"],
 			lang["Teleport to map spawn §"],
 			lang["Set where you spawn §"],
@@ -5141,13 +5122,11 @@ do
 				return
 			end
 			input = input:lower()
-			for i, file in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")) do
-				if file:lower():find(input, 1, true) then
-					menyoo.spawn_map(paths.home.."scripts\\Menyoo Maps\\"..file, player.player_id(), true)
-					return
-				end		
+			for _, feature in pairs(custom_maps_parent.children) do
+				if feature.data == "MENYOO" then
+					feature.hidden = feature.name:lower():find(input, 1, true) == nil
+				end
 			end
-			essentials.msg(lang["Found no map to spawn. §"], 6, true)
 		elseif f.value == 1 then
 			local input, status
 			while true do
@@ -5250,10 +5229,12 @@ do
 		elseif f.value == 2 then
 			local feats = {}
 			for i, feat in pairs(custom_maps_parent.children) do
-				if not feat.hidden and not feat.data and not utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..feat.name..".xml") then
-					feat.name = ";:~"
-					feat.hidden = true 
-				elseif not feat.data then
+				if not feat.hidden 
+				and feat.data ~= "MENYOO"
+				and feat.data ~= "MAIN_FEAT"
+				and not utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..feat.name..".xml") then
+					menu.delete_feature(feat.id)
+				elseif feat.data == "MENYOO" then
 					feats[#feats + 1] = feat
 				end
 			end
@@ -5271,7 +5252,7 @@ do
 		lang["Save §"],
 		lang["Refresh list §"]
 	})
-	main_feat.data = true
+	main_feat.data = "MAIN_FEAT"
 	for i, file in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")) do
 		create_custom_map_feature(file:gsub("%.xml$", ""))
 	end
@@ -6372,6 +6353,11 @@ end
 					{},
 					{}
 				}
+			local filters = {
+				"",
+				"",
+				""
+			}
 			local free_parents = 
 				{
 					{},
@@ -6400,6 +6386,16 @@ end
 			lang["Left backseat §"],
 			lang["Right backseat §"]
 		}
+		local function entities_ite(i)
+			local ents = kek_entity.remove_player_entities(kek_entity.get_table_of_close_entity_type(i))
+			local i2 = 0
+			return function()
+				repeat
+					i2 = i2 + 1
+				until not ents[i2] or (get_names[i](entity.get_entity_model_hash(ents[i2])):lower()):find(filters[i], 1, true)
+				return ents[i2]
+			end
+		end
 		for i = 1, 20 do
 			seat_strings[#seat_strings + 1] = lang["Extra seat §"].." "..i
 		end
@@ -6407,8 +6403,13 @@ end
 		for i = 1, 3 do
 			menu.add_feature(lang["All entities of this type §"], "parent", entity_manager_parents[i].id, function(f)
 				if f.child_count == 0 then
+					menu.add_feature(lang["Delete §"], "action", f.id, function(f)
+						for Entity in entities_ite(i) do
+							kek_entity.hard_remove_entity_and_its_attachments(Entity)
+						end
+					end)
 					local exp_type = menu.add_feature(lang["Explode §"], "action_value_i", f.id, function(f)
-						for i, Entity in pairs(kek_entity.remove_player_entities(kek_entity.get_table_of_close_entity_type(i))) do
+						for Entity in entities_ite(i) do
 							if not entity.is_entity_attached(Entity) then
 								essentials.use_ptfx_function(fire.add_explosion, entity.get_entity_coords(Entity), f.value, true, false, 0, player.get_player_ped(player.player_id()))
 							end
@@ -6418,7 +6419,7 @@ end
 					exp_type.value = 29
 					if i == 1 then
 						local speed_set = menu.add_feature(lang["Set speed §"], "action_value_i", f.id, function(f)
-							for i, Entity in pairs(kek_entity.remove_player_entities(kek_entity.get_table_of_close_entity_type(i))) do
+							for Entity in entities_ite(i) do
 								if not entity.is_entity_attached(Entity) and kek_menu.get_control_of_entity(Entity, 1) and player.get_player_vehicle(player.player_id()) ~= Entity then
 									entity.set_entity_max_speed(Entity, 45000)
 									vehicle.set_vehicle_forward_speed(Entity, f.value)
@@ -6431,13 +6432,13 @@ end
 					if i == 2 then
 						menu.add_feature(lang["Set on fire §"], "toggle", f.id, function(f)
 							if f.on then
-								for i, Entity in pairs(kek_entity.remove_player_entities(kek_entity.get_table_of_close_entity_type(i))) do
+								for Entity in entities_ite(i) do
 									if not entity.is_entity_attached(Entity) then
 										fire.start_entity_fire(Entity)
 									end
 								end
 							else
-								for i, Entity in pairs(kek_entity.remove_player_entities(kek_entity.get_table_of_close_entity_type(i))) do
+								for Entity in entities_ite(i) do
 									if not entity.is_entity_attached(Entity) then
 										fire.stop_entity_fire(Entity)
 									end
@@ -6445,28 +6446,24 @@ end
 							end								
 						end)
 						menu.add_feature(lang["Clear ped tasks §"], "action", f.id, function()
-							for i, Entity in pairs(kek_entity.remove_player_entities(kek_entity.get_table_of_close_entity_type(i))) do
+							for Entity in entities_ite(i) do
 								ped.clear_ped_tasks_immediately(Entity)
 							end
 						end)
 					end
 					teleport_all_in_front_of_player[i] = menu.add_feature(lang["Teleport in front of player §"], "action_value_str", f.id, function(f)
 						if player.is_player_valid(f.data[f.value + 1]) then
-							local entities <const> = kek_entity.remove_player_entities(kek_entity.get_table_of_close_entity_type(i))
-							for i, Entity in pairs(entities) do
+							for Entity in entities_ite(i) do
 								if not entity.is_entity_attached(Entity) then
 									kek_entity.teleport(Entity, location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(f.data[f.value + 1]), 10)), 1)
 									entity.set_entity_as_no_longer_needed(Entity)
-									if i > 40 then 
-										break
-									end
 								end
 							end
 						end
 					end)
 					if i == 1 or i == 2 then
 						menu.add_feature(lang["Resurrect §"], "action", f.id, function()
-							for i, Entity in pairs(kek_entity.remove_player_entities(kek_entity.get_table_of_close_entity_type(i))) do
+							for Entity in entities_ite(i) do
 								if not entity.is_entity_attached(Entity) and entity.is_entity_dead(Entity) and (i ~= 2 or not ped.is_ped_a_player(Entity)) and kek_menu.get_control_of_entity(Entity, 1) then
 									if entity.is_entity_a_vehicle(Entity) then
 										kek_entity.repair_car(Entity)
@@ -6487,6 +6484,20 @@ end
 				end
 				teleport_all_in_front_of_player[i]:set_str_data(player_names)
 			end)
+
+			menu.add_feature(lang["Filter §"].." < >", "action", entity_manager_parents[i].id, function(f)
+				local input <const>, status <const> = essentials.get_input(lang["Type in name of entity. §"], "", 128, 0)
+				if status == 2 then
+					return
+				end
+				filters[i] = input:lower()
+				if input == "" then
+					f.name = lang["Filter §"].." < >"
+				else
+					f.name = lang["Filter §"].." < "..input.." >"
+				end
+			end)
+
 			for i2 = 1, number_of_features[i] do
 				free_parents[i][#free_parents[i] + 1] = menu.add_feature("", "parent", entity_manager_parents[i].id, function(f)
 					if f.child_count == 0 then
@@ -6661,18 +6672,19 @@ end
 							entities[i][Entity] = free_parents[i][1]
 							table.remove(free_parents[i], 1)
 							entities[i][Entity].data = Entity
-							entities[i][Entity].on = true
 							if entity.is_entity_a_vehicle(Entity) then
 								entities[i][Entity].name = vehicle_mapper.get_translated_vehicle_name(entity.get_entity_model_hash(Entity)).." ["
 							else
 								entities[i][Entity].name = get_names[i](entity.get_entity_model_hash(Entity)).." ["
 							end
+							entities[i][Entity].on = entities[i][Entity].name:lower():find(filters[i], 1, true) ~= nil
 							break
 						end
 					end
 					for i2, parent in pairs(entities[i]) do
 						if parent.data ~= 0 and entity.is_an_entity(parent.data) then
 							parent.name = parent.name:match("(.*) %[").." ["..math.ceil(essentials.get_distance_between(my_ped, parent.data)).."]"
+							parent.on = parent.name:lower():find(filters[i], 1, true) ~= nil
 						else
 							parent.on = false
 							parent.data = 0
@@ -7055,20 +7067,21 @@ end
 	o.search_features = menu.add_feature(lang["Search §"], "parent", u.kekMenu, function(f)
 		if f.child_count > 1 then
 			for _, fake_feat in pairs(f.children) do
-				if type(fake_feat.data) == "userdata" then
+				if type(fake_feat.data) == "table" and type(fake_feat.data.real_feat) == "userdata" then
 					if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
-						fake_feat.on = fake_feat.data.on
+						fake_feat.on = fake_feat.data.real_feat.on
 					end
 					if fake_feat.value then
-						fake_feat.value = fake_feat.data.value
+						fake_feat.value = fake_feat.data.real_feat.value
 					end
-					fake_feat.name = fake_feat.data.name
+					fake_feat.name = fake_feat.data.real_feat.name
 				end
 			end
 		end
 	end)
 	o.search_features.data = {
-		feat_logic = function(real_feat, fake_feat)
+		feat_logic = function(...)
+			local real_feat, fake_feat = ...
 			if essentials.FEATURE_ID_MAP[fake_feat.type] == "action" then
 				real_feat.on = true
 			end
@@ -7107,7 +7120,10 @@ end
 				fake_feat.on = false
 			end
 		end,
-		player_feat_logic = function(real_feat, fake_feat, pid)
+		player_feat_logic = function(...)
+			local real_feat, 
+			fake_feat,
+			pid <const> = ...
 			if essentials.FEATURE_ID_MAP[fake_feat.type] == "action" then
 				menu.get_player_feature(real_feat.id).feats[pid].on = true
 			end
@@ -7146,7 +7162,10 @@ end
 				fake_feat.on = false
 			end
 		end,
-		set_feat_properties = function(real_feat, fake_feat, real_feat_player_if_relevant)
+		set_feat_properties = function(...)
+			local real_feat <const>,
+			fake_feat,
+			real_feat_player_if_relevant <const> = ...
 			if fake_feat.value then
 				if essentials.FEATURE_ID_MAP[fake_feat.type]:find("str", 1, true) then
 					fake_feat:set_str_data(getmetatable(real_feat_player_if_relevant or real_feat).str_data[real_feat.id])
@@ -7184,7 +7203,6 @@ end
 			end
 		end
 		local map <const> = kek_menu.features
-		local ends <const> = {feats = last_created_feature, player_feats = last_created_player_feat}
 		for type_of_feature, features in pairs(map) do
 			for _, FEAT in pairs(features) do
 				local real_feat
@@ -7194,14 +7212,12 @@ end
 				else
 					real_feat = FEAT
 				end
-				if FEAT.id > ends[type_of_feature] then
-					break
-				end
 				if real_feat.type ~= 2048
+				and (type(real_feat.data) ~= "table" or real_feat.data.is_fake_feat ~= 'Y')
 				and (not essentials.FEATURE_ID_MAP[real_feat.type]:find("str", 1, true) or getmetatable(FEAT).str_data[FEAT.id])
 				and real_feat.name:lower():find(input, 1, true) then
 					if type_of_feature == "player_feats" then
-						local fake_feat = menu.add_feature(menu.get_player_feature(real_feat.id).feats[0].name, "parent", o.search_features.id, function(fake_feat)
+						menu.add_feature(menu.get_player_feature(real_feat.id).feats[0].name, "parent", o.search_features.id, function(fake_feat)
 							if fake_feat.child_count == 0 then
 								for pid = 0, 31 do
 									local feat_type = essentials.FEATURE_ID_MAP[menu.get_player_feature(real_feat.id).feats[pid].type]
@@ -7211,6 +7227,7 @@ end
 									local fake_feat = menu.add_feature(player.get_player_name(pid) or "", feat_type, fake_feat.id, function(fake_feat)
 										o.search_features.data.player_feat_logic(menu.get_player_feature(real_feat.id).feats[pid], fake_feat, pid)
 									end)
+									fake_feat.data = {is_fake_feat = 'Y'}
 									fake_feat.hidden = not player.is_player_valid(pid)
 									o.search_features.data.set_feat_properties(menu.get_player_feature(real_feat.id).feats[pid], fake_feat, menu.get_player_feature(real_feat.id))
 								end
@@ -7228,7 +7245,7 @@ end
 									end
 								end
 							end
-						end)
+						end).data = {is_fake_feat = 'Y'}
 					else
 						local feat_type = essentials.FEATURE_ID_MAP[real_feat.type]
 						if feat_type:find("action", 1, true) and not feat_type:find("auto", 1, true) and feat_type ~= "action" then
@@ -7238,7 +7255,7 @@ end
 							o.search_features.data.feat_logic(real_feat, fake_feat)
 						end)
 						o.search_features.data.set_feat_properties(real_feat, fake_feat)
-						fake_feat.data = real_feat
+						fake_feat.data = {real_feat = real_feat, is_fake_feat = 'Y'}
 					end
 				end
 			end
@@ -7302,7 +7319,7 @@ initialize_settings("scripts\\kek_menu_stuff\\keksettings.ini")
 	o.listeners["exit"]["main_exit"] = event.add_event_listener("exit", function()
 		table.update_entity_pools(true)
 		for Entity, _ in pairs(entities_you_have_control_of) do
-			if not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity) then
+			if network.has_control_of_entity(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
 				ui.remove_blip(ui.get_blip_from_entity(Entity))
 				entity.set_entity_as_mission_entity(Entity, false, true)
 				entity.delete_entity(Entity)

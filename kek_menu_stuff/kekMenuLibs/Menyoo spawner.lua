@@ -442,7 +442,7 @@ local lang = kek_menu.lang
 		if type(info["PositionRotationX"]) == "number" and type(info["PositionRotationY"]) == "number" and type(info["PositionRotationZ"]) == "number" then
 			local Entity <const> = kek_menu.spawn_entity(hash, function()
 				return player.get_player_coords(player.player_id()) + v3(0, 0, 50), 0
-			end, false, true, false, 4, true, 0.5, info["Dynamic"] == false, true)
+			end, false, true, false, 4, true, 0.6, info["Dynamic"] == false, true)
 			entities[info["InitialHandle"]] = Entity
 			apply_entity_modifications(Entity, info, entities, pid)
 			if info["isAttached"] then
