@@ -3604,18 +3604,9 @@ end
 		toggle["You can't be targeted"] = menu.add_feature(lang["You can't be targeted §"], "toggle", u.chat_commands.id)
 
 		toggle["Chat commands"] = menu.add_feature(lang["Chat commands §"], "toggle", u.chat_commands.id, function(f)
-			local command_strings <const> = {
-				tp = true,
-				help = true
-			}
-			for _, properties in pairs(general_settings) do
-				if properties[1]:find("#chat command#", 1, true) then
-					command_strings[properties[1]:lower():match("(%w+)%s+#chat command#")] = true
-				end
-			end
 			if f.on then
 				o.listeners["chat"]["commands"] = event.add_event_listener("chat", function(event)
-					if command_strings[(event.body:match("^%p(%w+)") or ""):lower()] and utils.time_ms() > (f.data.tracker[player.get_player_scid(event.player)] or 0) then
+					if f.data.command_strings[(event.body:match("^%p(%w+)") or ""):lower()] and utils.time_ms() > (f.data.tracker[player.get_player_scid(event.player)] or 0) then
 						f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 1000
 						if player.is_player_modder(event.player, -1) then
 							essentials.send_message("[Chat commands]: You can't use chat commands, "..player.get_player_name(event.player)..". You've been marked as a modder.", event.player == player.player_id())
@@ -3708,10 +3699,11 @@ end
 													if pid == player.player_id() then 
 														weapon_mapper.set_ped_weapon_attachments(player.get_player_ped(pid), true, weapon_hash)
 													end
-													break
+													return
 												end
 											end
 										end
+										essentials.send_message("[Chat commands]: Invalid weapon name.", event.player == player.player_id())
 									end
 								elseif kek_menu.settings["removeweapon #chat command#"] and str:find("^%premoveweapon%s+.+") then
 									if str:find("^%premoveweapon%s+all$") then
@@ -3886,6 +3878,10 @@ end
 
 		toggle["Chat commands"].data = {
 			tracker = {},
+			command_strings = {
+				tp = true,
+				help = true
+			},
 			player_chat_command_blacklist = {},
 			hashes_not_allowed_to_spam = {
 				gameplay.get_hash_key("cargoplane"),
@@ -3927,6 +3923,11 @@ end
 				essentials.send_message(str)
 			end
 		}
+		for _, properties in pairs(general_settings) do
+			if properties[1]:find("#chat command#", 1, true) then
+				toggle["Chat commands"].data.command_strings[properties[1]:lower():match("(%w+)%s+#chat command#")] = true
+			end
+		end
 
 		menu.add_feature(lang["Send command list §"], "action", u.chat_commands.id, function()
 			toggle["Chat commands"].data.send_chat_commands()
@@ -6032,33 +6033,20 @@ end
 		player_feat_ids["Vehicle gun"] = menu.add_player_feature(lang["Vehicle gun §"], "toggle", u.pWeapons, function(f, pid)
 			if f.on then
 				if player.player_id() == pid then
-					u.self_vehicle_gun.on = f.on
+					u.self_vehicle_gun.on = true
 				end
 				local entities, distance_from_player = {}
 				menu.create_thread(function()
 					while f.on do
-						system.yield(0)
-						if #entities >= 15 then
-							kek_entity.clear_entities({entities[1][1]})
+						if #entities > 15 then
+							kek_entity.clear_entities({entities[1]})
 							table.remove(entities, 1)
 						end
-						for i, car in pairs(entities) do
-							if utils.time_ms() > car[2] then
-								kek_entity.clear_entities({car[1]})
-								table.remove(entities, i)
-								break
-							end
-						end
+						system.yield(0)
 					end
-					local cars = {}
-					for i, k in pairs(entities) do
-						cars[#cars + 1] = k[1]
-					end
-					kek_entity.clear_entities(cars)
 				end, nil)
 				while f.on do
-					system.yield(0)
-					if kek_menu.what_vehicle_model_in_use == "?" then
+					if kek_menu.what_vehicle_model_in_use == "?" or player.is_player_in_any_vehicle(pid) then
 						distance_from_player = 18
 					else
 						distance_from_player = 9
@@ -6079,12 +6067,14 @@ end
 							entity.set_entity_rotation(car, cam.get_gameplay_cam_rot())
 						end
 						vehicle.set_vehicle_forward_speed(car, 120)
-						entities[#entities + 1] = {car, utils.time_ms() + 10000}
+						entities[#entities + 1] = car
 					end
+					system.yield(0)
 				end
 				if player.player_id() == pid then
-					u.self_vehicle_gun.on = f.on
+					u.self_vehicle_gun.on = false
 				end
+				kek_entity.clear_entities(entities)
 			end
 		end).id
 
