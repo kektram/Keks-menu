@@ -478,7 +478,6 @@ Found no vehicle to save. §找不到载具.
 Existing file found. Please choose another name. §名称已存在,请输入其他名称.
 Illegal characters detected. Please try again. Illegal chars: §检测到非法字符.请再试一次. 非法字符:
 Refresh list §刷新列表
-Found no vehicle to spawn. §未找到任何载具
 Cancelled. §已取消
 Too few reactions to add entry. §添加条目的反应太少
 Glitch §故障
@@ -497,7 +496,6 @@ Attackers can't use planes. Cancelled. §攻击者不能使用飞机.已取消.
 Chance to reply §回复概率
 Missing necessarry file. Please reinstall. Read the README that comes with the script for more information. §缺少必要的文件.请重新安装.请阅读脚本压缩包附带的使用说明文件以获取更多信息.
 New profile §创建配置文件
-Failed to find vehicle. Try again. §无法找到对应载具.请再试一次.
 Type in name of vehicle §输入载具名称
 Vehicle name §载具名称
 Save to Menyoo vehicles §保存为模组载具
@@ -572,7 +570,6 @@ Trains §火车
 Open Wheel §开轮式
 Menyoo maps §Menyoo地图
 Type in name of menyoo map. §请输入Menyoo地图文件名称.
-Found no map to spawn. §找不到要生成的地图.
 Set where you spawn §设置当前位置为地图生成后的位置
 Teleport to map spawn §传送到地图生成后的位置
 Found no spawn. §没有找到生成的地图.
@@ -622,3 +619,4 @@ Kick & add to timeout §踢出并添加到加入超时
 Crash & add to timeout §崩溃并添加到加入超时
 Type in name of a player or regular feature. §输入玩家或通用功能的名称
 Has modded weapons. §拥有作弊者武器.
+Type in name of entity. §请输入实体名称.
