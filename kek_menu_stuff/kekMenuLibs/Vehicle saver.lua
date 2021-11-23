@@ -1,11 +1,13 @@
--- Lib Vehicle saver version: 1.0.6
 -- Copyright © 2020-2021 Kektram
 
-local essentials = require("Essentials")
-local kek_entity = require("Kek's entity functions")
+kek_menu.lib_versions["Vehicle saver"] = "1.0.7"
+
+local essentials = kek_menu.require("Essentials")
+local kek_entity = kek_menu.require("Kek's entity functions")
 local vehicle_saver = {}
 
-local function get_properties(Entity, initial)
+local function get_properties(...)
+	local Entity <const>, initial <const> = ...
 	local info = {
 		["ModelHash"] = entity.get_entity_model_hash(Entity),
 		["InitialHandle"] = Entity,
@@ -54,7 +56,7 @@ local function get_properties(Entity, initial)
 			["CanRagdoll"] = ped.can_ped_ragdoll(Entity),
 			["PedProps"] = {},
 			["PedComps"] = {},
-			["BlendData"] = {},
+			["BlendData"] = ped.get_ped_head_blend_data(Entity) or {},
 			["FacialFeatures"] = {},
 			["HeadOverlay"] = {},
 			["PedVehicleSeat"] = kek_entity.get_seat_ped_is_in(ped.get_vehicle_ped_is_using(Entity), Entity),
@@ -74,9 +76,6 @@ local function get_properties(Entity, initial)
 		end
 		for i = 0, 19 do
 			info["PedProperties"]["FacialFeatures"]["_"..i] = ped.get_ped_face_feature(Entity, i)
-		end
-		for name, data in pairs(ped.get_ped_head_blend_data(Entity) or {}) do
-			info["PedProperties"]["BlendData"][name] = data
 		end
 		for i = 0, 9 do
 			info["PedProperties"]["PedProps"]["_"..i] = ped.get_ped_prop_index(Entity, i)..","..ped.get_ped_prop_texture_index(Entity, i)
@@ -155,9 +154,10 @@ local function get_properties(Entity, initial)
 	return info
 end
 
-function vehicle_saver.save_vehicle(Entity, file_path)
+function vehicle_saver.save_vehicle(...)
+	local Entity, file_path <const> = ...
 	Entity = kek_entity.get_parent_of_attachment(Entity)
-	local attachments = kek_entity.get_all_attached_entities(Entity)
+	local attachments <const> = kek_entity.get_all_attached_entities(Entity)
 	local clear_tasks
 	if #attachments > 0 then
 		clear_tasks = player.is_player_in_any_vehicle(player.player_id())
@@ -169,7 +169,7 @@ function vehicle_saver.save_vehicle(Entity, file_path)
 		entity.set_entity_rotation(Entity, v3())
 		system.yield(0)
 	end
-	local file = io.open(file_path, "w+")
+	local file <close> = io.open(file_path, "w+")
 	essentials.file(file, "write", "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n")
 	essentials.file(file, "write", "<Vehicle menyoo_ver=\"0.9998b\">\n")
 	essentials.write_xml(file, get_properties(Entity, true), "	")
@@ -182,7 +182,6 @@ function vehicle_saver.save_vehicle(Entity, file_path)
 	end
 	essentials.file(file, "write", "</Vehicle>\n")
 	essentials.file(file, "flush")
-	essentials.file(file, "close")
 	entity.freeze_entity(Entity, false)
 	if clear_tasks and #attachments > 0 then
 		ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), Entity, -1)

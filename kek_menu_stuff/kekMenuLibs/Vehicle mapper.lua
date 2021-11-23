@@ -1,8 +1,11 @@
--- Lib Vehicle mapper version: 1.3.1
 -- Copyright © 2020-2021 Kektram
-local vehicle_mapper = {}
 
-local hash_to_model_or_name = {
+kek_menu.lib_versions["Vehicle mapper"] = "1.3.2"
+
+local vehicle_mapper = {}
+local essentials = kek_menu.require("Essentials")
+
+local hash_to_model_or_name <const> = {
 	[736672010] = {"dominator8", "Vapid Dominator GTT"},
 	[3186376089] = {"freightcar2", "Freight train 2"},
 	[2568944644] = {"comet6", "Pfister Comet S2"},
@@ -746,10 +749,9 @@ local hash_to_model_or_name = {
 	[1336872304] = {"kosatka", "Rune Kosatka (Submarine HQ)"}
 }
 
-local essentials = require("Essentials")
 local translated_vehicle_names
-if utils.file_exists(utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\Vehicle names\\"..kek_menu.what_language:gsub("%.txt$", ".lua")) then
-	translated_vehicle_names = require("\\Languages\\Vehicle names\\"..kek_menu.what_language:gsub("%.txt", ""))
+if utils.file_exists(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\Vehicle names\\"..kek_menu.what_language:gsub("%.txt$", ".lua")) then
+	translated_vehicle_names = kek_menu.require("\\Languages\\Vehicle names\\"..kek_menu.what_language:gsub("%.txt", ""))
 end
 
 local model_to_hash = {}
@@ -777,8 +779,10 @@ vehicle_mapper.HELICOPTERS = {
 	gameplay.get_hash_key("skylift"),
 	gameplay.get_hash_key("maverick")
 }
+setmetatable(vehicle_mapper.HELICOPTERS, essentials.get_read_only_meta())
 
-function vehicle_mapper.GetModelFromHash(hash)
+function vehicle_mapper.GetModelFromHash(...)
+	local hash <const> = ...
 	if hash_to_model_or_name[hash] then 
 		return hash_to_model_or_name[hash][1]
 	else
@@ -786,7 +790,8 @@ function vehicle_mapper.GetModelFromHash(hash)
 	end
 end
 
-function vehicle_mapper.get_translated_vehicle_name(hash)
+function vehicle_mapper.get_translated_vehicle_name(...)
+	local hash <const> = ...
 	if translated_vehicle_names then
 		return translated_vehicle_names[hash] or "Failed to find name"
 	else
@@ -794,31 +799,34 @@ function vehicle_mapper.get_translated_vehicle_name(hash)
 	end
 end
 
-function vehicle_mapper.GetNameFromHash(hash)
-	if hash_to_model_or_name[hash] then 
+function vehicle_mapper.GetNameFromHash(...)
+	local hash <const> = ...
+	if hash_to_model_or_name[hash] then
 		return hash_to_model_or_name[hash][2]
 	else
 		return tostring(hash)
 	end
 end
 
-function vehicle_mapper.get_hash_from_name(name2)
-	if type(name2) ~= "string" then
-		return ""
+function vehicle_mapper.get_hash_from_name(...)
+	local model = ...
+	if type(model) ~= "string" then
+		return 0
 	end
-	if name_to_hash[name2] then
-		return name_to_hash[name2]
+	if name_to_hash[model] then
+		return name_to_hash[model]
 	end
-	local name2 = (name2:gsub("%s", ""):lower()):gsub("ii", "2")
+	model = (model:gsub("%s", ""):lower()):gsub("ii", "2")
 	for hash, name in pairs(hash_to_model_or_name) do
-		if (name[2]:gsub("%s", ""):lower()):find(name2, 1, true) then
+		if (name[2]:gsub("%s", ""):lower()):find(model, 1, true) then
 			return hash
 		end
 	end
 	return 0
 end
 
-function vehicle_mapper.GetHashFromModel(model)
+function vehicle_mapper.GetHashFromModel(...)
+	local model = ...
 	if type(model) ~= "string" then
 		return 0
 	end
@@ -838,7 +846,8 @@ function vehicle_mapper.GetHashFromModel(model)
 	return 0
 end
 
-function vehicle_mapper.get_hash_from_name_or_model(str)
+function vehicle_mapper.get_hash_from_name_or_model(...)
+	local str <const> = ...
 	local result = vehicle_mapper.GetHashFromModel(str)
 	if result ~= 0 then
 		return result

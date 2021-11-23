@@ -1,9 +1,11 @@
--- Lib Object mapper version: 1.2.1
 -- Copyright © 2020-2021 Kektram
-local object_mapper = {}
-local essentials = require("Essentials")
 
-local model_names = {
+kek_menu.lib_versions["Object mapper"] = "1.2.2"
+
+local object_mapper = {}
+local essentials = kek_menu.require("Essentials")
+
+local model_names <const> = {
 	[446398] = "ba_prop_glass_garage_opaque",
 	[641508] = "v_res_cctv",
 	[701992] = "ch3_lod_emissive1_slod3",
@@ -17137,8 +17139,10 @@ object_mapper.OBJECT_HASHES = {}
 for hash, model in pairs(model_names) do
 	object_mapper.OBJECT_HASHES[#object_mapper.OBJECT_HASHES + 1] = hash
 end
+setmetatable(object_mapper.OBJECT_HASHES, essentials.get_read_only_meta())
 
-function object_mapper.GetModelFromHash(hash)
+function object_mapper.GetModelFromHash(...)
+	local hash <const> = ...
 	if model_names[hash] then 
 		return model_names[hash]
 	else
@@ -17146,7 +17150,8 @@ function object_mapper.GetModelFromHash(hash)
 	end
 end
 
-function object_mapper.GetHashFromModel(model)
+function object_mapper.GetHashFromModel(...)
+	local model = ...
 	if model == "?" then
 		return object_mapper.OBJECT_HASHES[math.random(1, #object_mapper.OBJECT_HASHES)]
 	end

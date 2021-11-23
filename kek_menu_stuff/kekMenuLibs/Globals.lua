@@ -1,17 +1,18 @@
--- Lib Globals version: 1.2.5
 -- Copyright © 2020-2021 Kektram, Sainan
+
+kek_menu.lib_versions["Globals"] = "1.2.6"
 
 local globals = {}
 
-local essentials = require("Essentials")
+local essentials = kek_menu.require("Essentials")
 
-local offsets = {
+local offsets <const> = {
 	["_PLAYER_INFO_MAIN"] = 1590908,
 	["_PLAYER_INFO_OFFSET_PER_PLAYER"] = 874,
 	["_PLAYER_INFO_OFFSET_TO_INFO"] = 205
 }
 
-local stats = { -- Thanks to Sainan for some of these stats
+local stats <const> = { -- Thanks to Sainan for some of these stats
 	["_PLAYER_INFO_WALLET"] = 3,
 	["_PLAYER_INFO_RANK"] = 6,
 	["_PLAYER_INFO_KD"] = 26,
@@ -62,7 +63,8 @@ local stats = { -- Thanks to Sainan for some of these stats
 	end
 
 -- Stats
-	function globals.get_all_stats(pid)
+	function globals.get_all_stats(...)
+		local pid <const> = ...
 		local STATS = {}
 		for i = 1, offsets._PLAYER_INFO_OFFSET_PER_PLAYER do
 			STATS[i] =  globals.get_player_info_i(pid, i)
@@ -264,7 +266,7 @@ local stats = { -- Thanks to Sainan for some of these stats
 	end
 
 -- Script events
-	local script_event_hashes = {
+	local script_event_hashes <const> = {
 		["Netbail kick"] = 2092565704,
 		["Kick 1"] = 1964309656,
 		["Kick 2"] = 696123127,
@@ -311,7 +313,8 @@ local stats = { -- Thanks to Sainan for some of these stats
 		["Bribe authorities"] = -151720011
 	}	
 
-	function globals.get_full_arg_table(pid)
+	function globals.get_full_arg_table(...)
+		local pid <const> = ...
 		local args = {pid}
 		for i = 2, 39 do
 			args[i] = math.random(-2147483647, 2147483647)
@@ -319,8 +322,9 @@ local stats = { -- Thanks to Sainan for some of these stats
 		return args
 	end
 
-	function globals.get_script_event_hash(name)
-		local hash = script_event_hashes[name]
+	function globals.get_script_event_hash(...)
+		local name <const> = ...
+		local hash <const> = script_event_hashes[name]
 		if math.type(hash) == "integer" then
 			return hash
 		else
@@ -354,7 +358,11 @@ local stats = { -- Thanks to Sainan for some of these stats
 	end
 
 	local SE_send_limiter = {}
-	function globals.send_script_event(name, pid, args, friend_condition)
+	function globals.send_script_event(...)
+		local name <const>,
+		pid <const>,
+		args <const>,
+		friend_condition <const> = ...
 		if player.is_player_valid(pid) and pid ~= player.player_id()
 		and (not friend_condition or essentials.is_not_friend(pid)) then
 			if math.type(pid) == "integer" then 
@@ -389,34 +397,33 @@ local stats = { -- Thanks to Sainan for some of these stats
 		end
 	end
 
-	function globals.set_bounty(script_target, friend_relevant, anonymous)
+	function globals.set_bounty(...)
+		local script_target <const>,
+		friend_relevant <const>,
+		anonymous = ...
 		if player.is_player_valid(script_target) and player.player_id() ~= script.get_host_of_this_script() and (not friend_relevant or essentials.is_not_friend(script_target)) then
-			local amount = 10000
-			if tonumber(kek_menu.settings["Bounty amount"]) then
-				amount = tonumber(kek_menu.settings["Bounty amount"])
-			end
-			if math.type(amount) ~= "integer" or 0 > amount or amount > 10000 then
-				amount = 10000
-			end
+			local amount <const> = math.tointeger(kek_menu.settings["Bounty amount"]) or 10000
 			if anonymous then
 				anonymous = 1
 			else
 				anonymous = 0
 			end
-			for pid = 0, 31 do
+			for pid in essentials.players() do
 				globals.send_script_event("Bounty", pid, {pid, script_target, 3, amount, 1, anonymous, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_9__10_globals_pair()})
 			end
 		end
 	end
 
-	function globals.disable_vehicle(pid, friend_condition)
+	function globals.disable_vehicle(...)
+		local pid <const>, friend_condition <const> = ...
 		if player.get_player_coords(pid).z == -50 or player.is_player_in_any_vehicle(pid) then
 			globals.send_script_event("Destroy personal vehicle", pid, {pid, pid}, friend_condition)
 			globals.send_script_event("Kick out of vehicle", pid, {pid, 0, 0, 0, 0, 1, pid, gameplay.get_frame_count()}, friend_condition)
 		end
 	end
 
-	function globals.kick(pid)
+	function globals.kick(...)
+		local pid <const> = ...
 		system.yield(0)
 		if player.is_player_valid(pid) and pid ~= player.player_id() then
 			if network.network_is_host() then
@@ -460,7 +467,8 @@ local stats = { -- Thanks to Sainan for some of these stats
 		end
 	end
 
-	function globals.script_event_crash(pid)
+	function globals.script_event_crash(...)
+		local pid <const> = ...
 		system.yield(0)
 		if player.is_player_valid(pid) then
 			for i = 1, 19 do
