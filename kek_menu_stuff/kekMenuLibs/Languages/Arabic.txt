@@ -35,7 +35,6 @@ Modded name detection §ﺩﺩﻮﻤﻟﺍ ﻢﺳﻻﺍ ﻒﺸﻛ
 Entity crash protection §ﺕﺎﻨﺋﺎﻜﻟﺍ ﻦﻣ ﺵﺍﺮﻜﻟﺍ ﺔﻳﺎﻤﺣ
 Blacklist §ﺖﺴﻟ ﻙﻼﺒﻟﺍ
 Check people's stats automatically §ﺎﻴﺋﺎﻘﻠﺗ ﻦﻴﺒﻋﻼﻟﺍ ﺲﺗﺎﺘﺳ ﻦﻣ ﻖﻘﺤﺗ
-Detect any modded spectate §spectate ﺩﺩﻮﻤﻟﺍ ﻦﻋ ﻒﺸﻜﻟﺍ
 Kick any vote kickers §ﺩﺮﻄﻟﺍ ﻰﻠﻋ ﻦﻴﺗﻮﺼﻤﻟﺍ ﻱﺍ ﺩﺮﻃ
 Add session §ﻦﺸﻴﺴﻟﺍ ﺔﻓﺎﺿﺍ
 Remove session§ﻦﺸﻴﺴﻟﺍ ﺔﻟﺍﺯﺍ
@@ -121,10 +120,8 @@ Couldn't find file §ﻒﻠﻤﻟﺍ ﺪﺟﻮﻳ ﻢﻟ
 Removed §ﺔﻟﺍﺯﻻﺍ ﺖﻤﺗ
 from script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻦﻣ
 autoexec doesn't exist §autoexec ﺪﺟﻮﻳ ﻢﻟ
-Chat judge:\nBounty set on §ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ:\nﻰﻠﻋ ﻲﺘﻧﻭﺎﺒﻟﺍ ﺖﻌﺿﻭ
 Chat judge:\nRamming §:ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\nﻡﺪﺻ ﻱﺭﺎﺟ
 with explosive tankers §ﺓﺮﺠﻔﺘﻣ ﺕﺎﻧﺍﺰﺧ ﻊﻣ
-out of their vehicle. §ﻢﻬﺘﺒﻛﺮﻣ ﺝﺭﺎﺧ
 Chat judge:\nKicking §ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\n:ﺩﺮﻃ ﻱﺭﺎﺟ
 Chat judge\nCrashing §ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\nﻰﻠﻋ ﺵﺍﺮﻜﻟﺍ ﻱﺭﺎﺟ
 sent vote kick. Kicking them... §...ﻩﺩﺮﻃ ﻱﺭﺎﺟ .ﺩﺮﻄﻠﻟ ﺖﻳﻮﺼﺗ ﻞﺳﺭﺍ
@@ -135,7 +132,6 @@ Recognized §ﻰﻠﻋ ﻑﺮﻌﺗ ﻢﺗ
 \nDetected: §\nﻑﺎﺸﺘﻛﺍ ﻢﺗ:
 \nTags:\n §\n:ﺕﺎﻗﺎﺗ\n
 Checked blacklist. §.ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﺺﺤﻓ ﻢﺗ
-is spectating §spectate ﻱﻮﺴﻳ
 Changed the reason this person was added to the blacklist. §.ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻰﻟﺍ ﺺﺨﺸﻟﺍ ﺍﺬﻫ ﺔﻓﺎﺿﺍ ﺐﺒﺳ ﺮﻴﻴﻐﺗ ﻢﺗ
 Added to blacklist. §.ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻰﻟﺍ ﺔﻓﺎﺿﻻﺍ ﺖﻤﺗ
 Removed rid. §.RIDﻝﺍ ﺔﻟﺍﺯﺍ ﺖﻤﺗ
@@ -335,7 +331,6 @@ Kick from session §ﻦﺸﻴﺴﻟﺍ ﻦﻣ ﺩﺮﻃﺍ
 Crash §ﺵﺍﺮﻛ
 Blame for killing session §ﻦﺸﻴﺴﻟﺍ ﻞﺘﻗ ﻡﻮﻟ
 Random §ﻲﺋﺍﻮﺸﻋ
-Bounty §ﻲﺘﻧﻭﺎﺑ
 Ram §ﻡﺪﺻ
 Kick from vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﻦﻣ ﺩﺮﻃ
 EMP §EMP
@@ -388,7 +383,7 @@ Change name §ﻢﺳﻻﺍ ﺮﻴﻴﻐﺗ
 keyboard §ﺩﺭﻮﺒﻴﻛ
 controller §ﺮﻟﻭﺮﺘﻨﻛ
 Hotkeys §ﺕﺍﺭﺎﺼﺘﺧﺍ
-Type in bounty amount §aktb 8ymh al bounty
+Type in bounty amount §bountyﻟﺍ ﺔﻤﻴﻗ ﺐﺘﻛﺍ
 Turn all on or off §ﻊﻴﻤﺠﻟﺍ ﺀﺎﻔﻃﺍ ﻭﺍ ﻞﻴﻐﺸﺗ
 Cage session §ﻦﺸﻴﺴﻟﺍ ﻰﻠﻋ ﺺﻔﻗ ﻊﺿﻭ
 Drive force multiplier §ﺓﺩﺎﻴﻘﻟﺍ ﺔﻋﺮﺳ ﻒﻋﺎﻀﻣ
@@ -525,8 +520,6 @@ When adding entries, it's important to know about patterns. A pattern could look
 Note that these characters: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" have special meanings. Google "Lua magic characters" to find out what they mean. §.ﻢﻫﺎﻨﻌﻣ ﺵﻭ ﻑﺮﻌﺗ ﻥﺎﺸﻋ ﻞﻗﻮﻗ ﻲﻓ "Lua magic characters" ﻦﻋ ﺚﺤﺑﺍ .ﺹﺎﺧ ﺎﻨﻌﻣ ﺎﻬﻟ "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" :ﻑﺮﺣﻻﺍ ﻲﻟﻭﺬﻫ ﻥﺍ ﻚﻟﺎﺑ ﻲﻓ ﻂﺣ
 For further assistance, join the Kek's menu discord. An invite comes with the script. It is in a file called "Discord invite.txt". §."Discord invite.txt" ﺔﻤﺳﺍ ﻒﻠﻣ ﻲﻓ .ﺖﺑﺮﻜﺴﻟﺍ ﻊﻣ ﻲﺠﺗ ﺔﻓﺎﺿﺍ ﻪﻴﻓ .ﺩﺭﻮﻜﺴﻳﺩ ﻲﻓ Kek's menu ﺮﻓﺮﻴﺳ ﻞﺧﺩﺍ ,ﺓﺩﺎﻳﺯ ﺓﺪﻋﺎﺴﻣ ﻲﺒﺗ ﺍﺫﺍ
 Get parachute §ﺕﻮﺷﺍﺭﺎﺑ ﺐﺟ
-Get invite to Kek's menu Discord server §ﺩﺭﻮﻜﺳﺩ ﻲﻓ Kek's menu ﺮﻓﺮﻴﺳ ﻰﻟﺍ ﺔﻓﺎﺿﺍ ﺐﺟ
-Invite to the Kek's menu Discord copied to the clipboard. §Kek's menu ﺮﻓﺮﻴﺳ ﻰﻟﺍ ﺔﻓﺎﺿﺍ ﺖﺨﺴﻨﻧﺍ\n.ﺩﺭﻮﻜﺳﺩ ﻲﻓ
 Anti stuck §ﺔﺒﺸﻨﻟﺍ ﺪﺿ
 Entry already exists in this profile. §.ﻞﻳﺎﻓﻭﺮﺒﻟﺍ ﺍﺬﻫ ﻲﻓ ﺎﻘﺒﺴﻣ ﺩﻮﺟﻮﻣ ﻞﺧﺪﻤﻟﺍ
 Clear tasks §ﻡﺎﻬﻤﻟﺍ ﺀﻼﺧﺍ
@@ -550,15 +543,6 @@ Hotkey:\nTeleported forward. §:ﺭﺎﺼﺘﺧﺍ\n.ﻡﺍﺪﻗ ﺕﺭﻮﺒ�
 Teleport forward §ﻡﺍﺪﻗ ﺕﺭﻮﺒﻴﻠﻴﺗ
 Vehicle blacklist:\nstealing §:ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ\nﺔﻗﺮﺳ
 Mount Chiliad & kill §ﻞﺘﻗ ﻭ Chiliad ﻞﺒﺟ
-Order personal vehicle §ﺔﺻﺎﺨﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﺐﻠﻃ
-Hotkey:\nOrdered personal vehicle. §:ﺭﺎﺼﺘﺧﺍ\n.ﺔﺻﺎﺨﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﺐﻠﻃ ﻢﺗ
-Close to you §ﻚﻳﻻﺍ ﺐﻳﺮﻗ
-In front of you §ﻚﻣﺍﺪﻗ
-Failed to find spawn location for personal vehicle. §.ﺔﺻﺎﺨﻟﺍ ﺔﺒﻛﺮﻤﻠﻟ ﻥﻭﺎﺒﺴﻟﺍ ﻥﺎﻜﻣ ﺩﺎﺠﻳﺍ ﻲﻓ ﻞﺸﻓ
-You are already in your personal vehicle. §.ﺔﺻﺎﺨﻟﺍ ﻚﺘﺒﻛﺮﻣ ﻲﻓ ﺩﻮﺟﻮﻣ ﺖﻧﺍ
-This vehicle is already your personal vehicle. §.ﺔﺻﺎﺨﻟﺍ ﻚﺘﺒﻛﺮﻣ ﺎﻴﻟﺎﺣ ﻲﻫ ﺔﺒﻛﺮﻤﻟﺍ ﻱﺫﺎﻫ
-Set personal vehicle §ﺔﺻﺎﺨﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﻊﺿﻭ
-Spawn inside §ﻞﺧﺍﺪﻟﺍ ﻲﻓ ﻥﻭﺎﺒﺳ
 Log chat & use as chatbot §ﺕﻮﺑ ﺕﺎﺸﻠﻟ ﻢﻣﺪﺨﺘﺳﺍﻭ ﺕﺎﺸﻟﺍ ﻆﻔﺣﺍ
 Compacts §Compacts
 Sedans §Sedans
@@ -628,3 +612,10 @@ Miscellaneous §Miscellaneous
 Toggle engine §ﻙﺮﺤﻤﻟﺍ ﻞﻴﻐﺸﺗ\ﺀﺎﻔﻃﺍ
 Show sphere §ﺓﺭﻮﻜﻟﺍ ﺭﺎﻬﺿﺍ
 Lock player inside §ﺎﻬﻠﺧﺍﺩ ﺐﻋﻼﻟﺍ ﺲﺒﺣ
+Anti chat spam §ﻡﺎﺒﺳ ﺕﺎﺸﻟﺍ ﻦﻣ ﺔﻳﺎﻤﺣ
+kicked for spamming chat. §.ﻡﺎﺒﺳ ﺕﺎﺸﻠﻟ ﺩﺮﻃ
+kicked for sending the same message 3 times in a row. §.ﺕﺍﺮﻣ 3 ﺔﻟﺎﺳﺮﻟﺍ ﺲﻔﻧ ﻞﺳﺭﺍ ﻪﻧﻻ ﺩﺮﻃ
+Kick & add to timeout §timeout ﻰﻟﺍ ﺔﻓﺎﺿﺍ & ﺩﺮﻃ
+Crash & add to timeout §timeout ﻰﻟﺍ ﺔﻓﺎﺿﺍ & ﺵﺍﺮﻛ
+Type in name of a player or regular feature. §.ﺔﻳﺩﺎﻋ ﺔﻴﺻﺎﺧ ﻭﺍ ﺐﻋﻻ ﻢﺳﺍ ﺐﺘﻛﺍ
+Has modded weapons. §.ﺪﻳﺩﺩﻮﻣ ﻪﺤﻠﺳﺍ ﺔﻳﺪﻟ
