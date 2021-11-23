@@ -20,13 +20,7 @@
 > Get the latest version of Moist's script<br/>
 > Share your creations related to Kek's menu
 
-[Join the kek's menu discord](https://discord.gg/CPSgPz4D7X, "Kek's menu Discord")
-
-## Table of contents
-
-### [Feature list](#Feature-list-1)
-
-### [How to install](#How-to-install-1)
+[Join the kek's menu discord](https://discord.gg/CPSgPz4D7X "Kek's menu Discord")
 
 ## How to install
 	1. Open keks_menu.zip
@@ -41,12 +35,6 @@
 	6. Drag kekMenuLibs to scripts\kek_menu_stuff
 
 ## Feature list
-
-### Table of contents
-
-#### [General settings](#General-settings-1)
-
-#### [Modder detection](#Modder-detection-1)
 
 ### General settings
 
