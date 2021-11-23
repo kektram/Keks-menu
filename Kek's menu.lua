@@ -6347,7 +6347,7 @@ end
 				menu.add_feature(lang["Objects §"], "parent", u.entity_manager.id)
 			}
 
-			local entities = 
+			local entities <const> = 
 				{
 					{},
 					{},
@@ -6358,7 +6358,7 @@ end
 				"",
 				""
 			}
-			local free_parents = 
+			local free_parents <const> = 
 				{
 					{},
 					{},
@@ -6387,13 +6387,18 @@ end
 			lang["Right backseat §"]
 		}
 		local function entities_ite(i)
-			local ents = kek_entity.remove_player_entities(kek_entity.get_table_of_close_entity_type(i))
+			local ents = kek_entity.get_table_of_close_entity_type(i)
 			local i2 = 0
+			local count = 0
 			return function()
 				repeat
 					i2 = i2 + 1
-				until not ents[i2] or (get_names[i](entity.get_entity_model_hash(ents[i2])):lower()):find(filters[i], 1, true)
-				return ents[i2]
+				until not ents[i2] or
+				(ents[i2] ~= player.get_player_vehicle(player.player_id())
+				and (not entity.is_entity_a_ped(ents[i2]) or not ped.is_ped_a_player(ents[i2]))
+				and (get_names[i](entity.get_entity_model_hash(ents[i2])):lower()):find(filters[i], 1, true))
+				count = count + 1
+				return ents[i2], count
 			end
 		end
 		for i = 1, 20 do
@@ -6410,9 +6415,7 @@ end
 					end)
 					local exp_type = menu.add_feature(lang["Explode §"], "action_value_i", f.id, function(f)
 						for Entity in entities_ite(i) do
-							if not entity.is_entity_attached(Entity) then
-								essentials.use_ptfx_function(fire.add_explosion, entity.get_entity_coords(Entity), f.value, true, false, 0, player.get_player_ped(player.player_id()))
-							end
+							essentials.use_ptfx_function(fire.add_explosion, entity.get_entity_coords(Entity), f.value, true, false, 0, player.get_player_ped(player.player_id()))
 						end								
 					end)
 					exp_type.max, exp_type.min, exp_type.mod = 74, 0, 1
@@ -6420,8 +6423,7 @@ end
 					if i == 1 then
 						local speed_set = menu.add_feature(lang["Set speed §"], "action_value_i", f.id, function(f)
 							for Entity in entities_ite(i) do
-								if not entity.is_entity_attached(Entity) and kek_menu.get_control_of_entity(Entity, 1) and player.get_player_vehicle(player.player_id()) ~= Entity then
-									entity.set_entity_max_speed(Entity, 45000)
+								if kek_menu.get_control_of_entity(Entity, 1) then
 									vehicle.set_vehicle_forward_speed(Entity, f.value)
 								end
 							end
@@ -6433,15 +6435,11 @@ end
 						menu.add_feature(lang["Set on fire §"], "toggle", f.id, function(f)
 							if f.on then
 								for Entity in entities_ite(i) do
-									if not entity.is_entity_attached(Entity) then
-										fire.start_entity_fire(Entity)
-									end
+									fire.start_entity_fire(Entity)
 								end
 							else
 								for Entity in entities_ite(i) do
-									if not entity.is_entity_attached(Entity) then
-										fire.stop_entity_fire(Entity)
-									end
+									fire.stop_entity_fire(Entity)
 								end
 							end								
 						end)
@@ -6453,18 +6451,32 @@ end
 					end
 					teleport_all_in_front_of_player[i] = menu.add_feature(lang["Teleport in front of player §"], "action_value_str", f.id, function(f)
 						if player.is_player_valid(f.data[f.value + 1]) then
-							for Entity in entities_ite(i) do
-								if not entity.is_entity_attached(Entity) then
-									kek_entity.teleport(Entity, location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(f.data[f.value + 1]), 10)), 1)
-									entity.set_entity_as_no_longer_needed(Entity)
+							for Entity, count in entities_ite(i) do
+								kek_entity.teleport(Entity, location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(f.data[f.value + 1]), 10)), 1)
+								entity.set_entity_as_no_longer_needed(Entity)
+								if count == 40 then
+									break
 								end
 							end
 						end
 					end)
 					if i == 1 or i == 2 then
+						menu.add_feature(lang["Godmode §"], "value_str", f.id, function(f2)
+							while f2.on do
+								for Entity in entities_ite(i) do
+									if entity.get_entity_god_mode(Entity) ~= (f2.value == 0) then
+										kek_entity.modify_entity_godmode(Entity, f2.value == 0)
+									end
+								end
+								system.yield(0)
+							end
+						end):set_str_data({
+							lang["Give §"],
+							lang["Remove §"]
+						})
 						menu.add_feature(lang["Resurrect §"], "action", f.id, function()
 							for Entity in entities_ite(i) do
-								if not entity.is_entity_attached(Entity) and entity.is_entity_dead(Entity) and (i ~= 2 or not ped.is_ped_a_player(Entity)) and kek_menu.get_control_of_entity(Entity, 1) then
+								if entity.is_entity_dead(Entity) and kek_menu.get_control_of_entity(Entity, 1) then
 									if entity.is_entity_a_vehicle(Entity) then
 										kek_entity.repair_car(Entity)
 									elseif entity.is_entity_a_ped(Entity) then
@@ -7213,6 +7225,7 @@ end
 					real_feat = FEAT
 				end
 				if real_feat.type ~= 2048
+				and not real_feat.hidden
 				and (type(real_feat.data) ~= "table" or real_feat.data.is_fake_feat ~= 'Y')
 				and (not essentials.FEATURE_ID_MAP[real_feat.type]:find("str", 1, true) or getmetatable(FEAT).str_data[FEAT.id])
 				and real_feat.name:lower():find(input, 1, true) then
@@ -7319,8 +7332,8 @@ initialize_settings("scripts\\kek_menu_stuff\\keksettings.ini")
 	o.listeners["exit"]["main_exit"] = event.add_event_listener("exit", function()
 		table.update_entity_pools(true)
 		for Entity, _ in pairs(entities_you_have_control_of) do
+			ui.remove_blip(ui.get_blip_from_entity(Entity))
 			if network.has_control_of_entity(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
-				ui.remove_blip(ui.get_blip_from_entity(Entity))
 				entity.set_entity_as_mission_entity(Entity, false, true)
 				entity.delete_entity(Entity)
 			end
