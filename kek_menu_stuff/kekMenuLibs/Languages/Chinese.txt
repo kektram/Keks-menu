@@ -620,3 +620,5 @@ Crash & add to timeout §崩溃并添加到加入超时
 Type in name of a player or regular feature. §输入玩家或通用功能的名称
 Has modded weapons. §拥有作弊者武器.
 Type in name of entity. §请输入实体名称.
+Kill engine §破坏引擎
+Heal engine §修复引擎
