@@ -1,79 +1,41 @@
-**# Kek's menu 0.4.4.1**
+**# Kek's menu 0.4.5.0**
 
-**## Removed features**```md
-### Chaos mode
-### Teleport nearby personal vehicles
-### Backwards traffic
-### Vehicle storm
-### Atomize
-### Remove wanted level chat command
-### locationlist chat command
-### Vehicle gun hotkey
-### Decrease & increase vehicle fly speed hotkey
-### Disable notifications
-### Show who was last host
-```
 **## Improvements**```md
-### Tons of obscure & rare bugs fixed
-### Fixed modded stat detection
-### Vehicle fly auto repairs if vehicle is damaged
-### Modify top speed rework & renamed to "Drive force multiplier"
-### Adding to join timeout adds them hidden
-### Added "Fill, steal & run away" to vehicle blacklist reactions
-### Translated vehicle names to Chinese, German, Spanish, French & Korean
-### Fixed bug where menyoo / regular vehicles would spawn mid-air
-### Added support for more xml formats in the Menyoo spawner
+### Ability to change how often chat commands help are sent
+### Force field & clear entities now draws sphere to display their radius
+### Fixed modded name detection
+
+### Removed
+#### "Bounty" & "Kick out of vehicle" reactions from chat judger
+#### Dump world
+#### Personal vehicle
+#### Modded spectate detection
+#### Unknown drivestyle properties
+
+### Kek's menu now tracks entities created by other luas & applies the same spawn & request control limits to them that Kek's menu have
+### Modded stat detection now looks for illegal weapons like stun gun
+### Reworked search in Menyoo maps & vehicles
+### Reworked search in vehicle blacklist
 ```
-**## New features**
 
-**### Time text outline**
+**## New features**```md
+### Filter entities by name in entity manager
+#### Filter applies to "All entities of this type" too
+#### Added delete entities to "All entities of this type"
+#### Added give / remove godmode to "All entities of this type"
 
-**### Teleport forward hotkey**
+### Teleport session to mount chiliad & kill
+### Teleport session out of bounds
+### Weapon blacklist
+### Toggle vehicle engine
+### Lock player inside vehicle
 
-**### Auto tp to players you spectate**
+### Search for features
+#### Searches for features in every lua loaded
+#### In order to search other luas loaded, you must load Kek's menu first.
 
-**### Give flamethrower to other player's vehicles**
-
-**### Teleport to mount chiliad then kill**
-
-**### Print 2take1 notifications in console**
-
-**### Log chat & use as chatbot**
-
-**### Personal vehicle**```md
-#### Saves your vehicle as an xml
-#### Order personal vehicle
-#### Hotkey
-#### Spawn close / in front / spawn inside
+### anti chat spam
+#### Kick / kick & add time join timeout / crash / crash & add to join timeout
+#### Looks for people sending the same message multiple times in a row
+#### Looks for people sending many messages in short amount of time
 ```
-**### Display log of 2take1 notifications in-game**```md
-#### Customize colours, font, opacity, outline, size, position
-#### Set number of notifications to show [1 - 100]
-#### Togglable filter to remove most useless information
-```
-**### Race ghosts**```md
-#### Won't be seen by others
-#### Record a race
-#### Teleport to where the ghost starts
-#### Loops until unloaded
-```
-**### Menyoo map loader**```md
-#### Won't be seen by others
-#### Save map function
-#### Set where to teleport you after the map loaded
-#### Teleport to spawn
-```
-**##Hotfix 0.4.4.1**
-
-**### Display log of 2take1 notifications**```md
-#### Added stretch adjuster
-#### Fixed change y position
-#### Improved default settings
-```
-**### Added back Atomize & reworked it**
-
-**### Reduced constraints on ptfx features**
-
-**### Disable weapons now blocks melee, throwables & more**
-
-**### Vehicle fly no longer auto repairs car**

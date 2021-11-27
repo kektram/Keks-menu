@@ -1,5 +1,6 @@
--- Lib Custom vehicle spawner version: 2.0.0
 -- Copyright © 2020-2021 Kektram
+
+kek_menu.lib_versions["Menyoo spawner"] = "2.0.1"
 
 local xml_end = {
 	"^%s*</Attachment>$",
@@ -11,20 +12,23 @@ local xml_start = {
 	"^%s*<Placement>$"
 }
 
-local custom_vehicles = {}
-local home = utils.get_appdata_path("PopstarDevs", "").."\\2Take1Menu\\"
+local menyoo = {}
+local home <const> = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 
-local essentials = require("Essentials")
-local kek_entity = require("Kek's entity functions")
-local custom_upgrades = require("Custom upgrades")
-local location_mapper = require("Location mapper")
-local weapon_mapper = require("Weapon mapper")
-local vehicle_saver = require("Vehicle saver")
+local essentials = kek_menu.require("Essentials")
+local kek_entity = kek_menu.require("Kek's entity functions")
+local custom_upgrades = kek_menu.require("Custom upgrades")
+local location_mapper = kek_menu.require("Location mapper")
+local weapon_mapper = kek_menu.require("Weapon mapper")
+local vehicle_saver = kek_menu.require("Vehicle saver")
 
 local lang = kek_menu.lang
 
 -- Utilities
-	local function new_attachment_check(str, End, initial)
+	local function new_attachment_check(...)
+		local str,
+		End <const>,
+		initial <const> = ...
 		str = str or ""
 		if initial then
 			return str:find(initial, 1, true)
@@ -35,7 +39,8 @@ local lang = kek_menu.lang
 		end
 	end
 
-	local function extract_info(file, initial)
+	local function extract_info(...)
+		local file <const>, initial <const> = ...
 		local str = ""
 		local info = {}
 		local tree_parent = ""
@@ -43,19 +48,19 @@ local lang = kek_menu.lang
 			if str:find("<Attachment%s*isAttached=[%w%p]+/*>") then
 				info[str:match("%s*([%w%p]+)=")] = str:match("<Attachment%s*isAttached=(.+)/*>") == "\"true\""
 			else
-				local property = str:match("<.+>(.*)<.+>")
+				local property <const> = str:match("<.+>(.*)<.+>")
 				if property and not new_attachment_check(str, true, initial) then
-					local str2 = property
-					if str2 == "false" then
-						str2 = false
-					elseif str2 == "true" then
-						str2 = true
-					elseif tonumber(str2) then
-						str2 = tonumber(str2)
-					elseif str2:find("[%d%-]+,%s*[%d%-]+") then
-						str2 = {tonumber(str2:match("([%d%-]+),%s*[%d%-]+")), tonumber(str2:match("[%d%-]+,%s*([%d%-]+)"))}
+					local str_casted_to_right_type = property
+					if str_casted_to_right_type == "false" then
+						str_casted_to_right_type = false
+					elseif str_casted_to_right_type == "true" then
+						str_casted_to_right_type = true
+					elseif tonumber(str_casted_to_right_type) then
+						str_casted_to_right_type = tonumber(str_casted_to_right_type)
+					elseif str_casted_to_right_type:find("[%d%-]+,%s*[%d%-]+") then
+						str_casted_to_right_type = {tonumber(str_casted_to_right_type:match("([%d%-]+),%s*[%d%-]+")), tonumber(str_casted_to_right_type:match("[%d%-]+,%s*([%d%-]+)"))}
 					end
-					info[tree_parent..str:match("^%s*<(.+)>.*<.+>%s*$")] = str2
+					info[tree_parent..str:match("^%s*<(.+)>.*<.+>%s*$")] = str_casted_to_right_type
 				end
 				if not str:find("=", 1, true)
 				and not str:match("^%s*<(.+)>.*<.+>%s*$") 
@@ -73,7 +78,11 @@ local lang = kek_menu.lang
 		return info
 	end
 
-	local function apply_entity_modifications(Entity, info, entities, pid)
+	local function apply_entity_modifications(...)
+		local Entity <const>,
+		info <const>, 
+		entities <const>,
+		pid <const> = ...
 		if entity.is_an_entity(Entity or 0) then
 			if streaming.is_model_a_vehicle(entity.get_entity_model_hash(Entity)) then
 				vehicle.set_vehicle_mod_kit_type(Entity, 0)
@@ -367,7 +376,10 @@ local lang = kek_menu.lang
 		end
 	end
 
-	local function attach(Entity, info, entities)
+	local function attach(...)
+		local Entity <const>,
+		info <const>,
+		entities <const> = ...
 		if info["isAttached"] and (math.type(info["PedVehicleSeat"]) ~= "integer" or info["PedVehicleSeat"] == -2) and entity.is_an_entity(Entity or 0) and entity.is_an_entity(entities[info["AttachedTo"]] or 0) then
 			local rot = v3()
 			local offset = v3()
@@ -396,10 +408,14 @@ local lang = kek_menu.lang
 		end
 	end
 
-	local function spawn_vehicle(file, entities, pid, parent_entity)
-		local info = extract_info(file)
-		local hash = info["ModelHash"]
-		local Entity = kek_menu.spawn_entity(hash, function()
+	local function spawn_vehicle(...)
+		local file <const>,
+		entities <const>,
+		pid <const>,
+		parent_entity <const> = ...
+		local info <const> = extract_info(file)
+		local hash <const> = info["ModelHash"]
+		local Entity <const> = kek_menu.spawn_entity(hash, function()
 			return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), 0
 		end, false, false, false, 4, true, nil, info["Dynamic"] == false)
 		if not entity.is_an_entity(Entity) then
@@ -417,13 +433,16 @@ local lang = kek_menu.lang
 		return entities, hash
 	end
 	
-	local function spawn_map_object(file, entities, pid)
-		local info = extract_info(file)
-		local hash = info["ModelHash"]
+	local function spawn_map_object(...)
+		local file <const>,
+		entities <const>,
+		pid <const> = ...
+		local info <const> = extract_info(file)
+		local hash <const> = info["ModelHash"]
 		if type(info["PositionRotationX"]) == "number" and type(info["PositionRotationY"]) == "number" and type(info["PositionRotationZ"]) == "number" then
-			local Entity = kek_menu.spawn_entity(hash, function()
+			local Entity <const> = kek_menu.spawn_entity(hash, function()
 				return player.get_player_coords(player.player_id()) + v3(0, 0, 50), 0
-			end, false, true, false, 4, true, 0.5, info["Dynamic"] == false, true)
+			end, false, true, false, 4, true, 0.6, info["Dynamic"] == false, true)
 			entities[info["InitialHandle"]] = Entity
 			apply_entity_modifications(Entity, info, entities, pid)
 			if info["isAttached"] then
@@ -436,7 +455,10 @@ local lang = kek_menu.lang
 		return entities, hash
 	end
 
-function custom_vehicles.spawn_custom_vehicle(file_path, pid, teleport)
+function menyoo.spawn_custom_vehicle(...)
+	local file_path <const>,
+	pid <const>,
+	teleport <const> = ...
 	if not player.is_player_valid(pid) then
 		return 0, {}
 	end
@@ -449,7 +471,7 @@ function custom_vehicles.spawn_custom_vehicle(file_path, pid, teleport)
 	local info = {}
 	if utils.file_exists(file_path) then
 		file = io.open(file_path)
-		local str2 = essentials.file(file, "read", "*l")
+		local str2 <const> = essentials.file(file, "read", "*l")
 		local str = essentials.file(file, "read", "*l")
 		if not str or str == "" then
 			essentials.file(file, "close")
@@ -474,11 +496,11 @@ function custom_vehicles.spawn_custom_vehicle(file_path, pid, teleport)
 		else
 			return 0, {}
 		end
-		local str = ""
+		str = ""
 		while str do
 			essentials.random_wait(2500)
 			if new_attachment_check(str) then
-				local tabs = str:match("^(%s*)[%w%p]+")
+				local tabs <const> = str:match("^(%s*)[%w%p]+")
 				xml_end = {
 					"^"..tabs.."</Attachment>$",
 					"^"..tabs.."</Placement>$"
@@ -505,7 +527,10 @@ function custom_vehicles.spawn_custom_vehicle(file_path, pid, teleport)
 	return parent_entity, entities
 end
 
-function custom_vehicles.spawn_map(file_path, pid, teleport_to_map)
+function menyoo.spawn_map(...)
+	local file_path <const>,
+	pid <const>,
+	teleport_to_map <const> = ...
 	if not player.is_player_valid(pid) then
 		return 0, {}
 	end
@@ -516,24 +541,22 @@ function custom_vehicles.spawn_map(file_path, pid, teleport_to_map)
 	local entities = {}
 	if utils.file_exists(file_path) then
 		local hashes = {}
-		local file = io.open(file_path)
+		local file <close> = io.open(file_path)
 		local str = essentials.file(file, "read", "*l")
 		if not str or str == "" then
-			essentials.file(file, "close")
 			essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%.xml$")).."]: "..lang["Xml file is empty. §"], 6, true, 8)
 			return 0, {}
 		end
 		if not str:lower():find("?xml version=\"1.0\"", 1, true) then
 			essentials.msg(lang["Unsupported file format. §"], 6, true)
-			essentials.file(file, "close")
 			return 0, {}
 		end
 		local reference_pos
 		repeat
 			if str:find("<ReferenceCoords>", 1, true) then
-				local x = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-				local y = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-				local z = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
+				local x <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
+				local y <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
+				local z <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
 				essentials.file(file, "read", "*l")
 				str = essentials.file(file, "read", "*l")
 				if type(x) == "number" and type(y) == "number" and type(z) == "number" then
@@ -545,7 +568,7 @@ function custom_vehicles.spawn_map(file_path, pid, teleport_to_map)
 		while str do
 			essentials.random_wait(2500)
 			if new_attachment_check(str) then
-				local tabs = str:match("^(%s*)[%w%p]+")
+				local tabs <const> = str:match("^(%s*)[%w%p]+")
 				xml_end = {
 					"^"..tabs.."</Attachment>$",
 					"^"..tabs.."</Placement>$"
@@ -561,7 +584,6 @@ function custom_vehicles.spawn_map(file_path, pid, teleport_to_map)
 		for i, hash in pairs(hashes) do
 			streaming.set_model_as_no_longer_needed(hash)
 		end
-		essentials.file(file, "close")
 		if teleport_to_map then
 			if reference_pos then
 				kek_entity.teleport(essentials.get_most_relevant_entity(pid), reference_pos)
@@ -580,16 +602,17 @@ function custom_vehicles.spawn_map(file_path, pid, teleport_to_map)
 	return entities
 end
 
-function custom_vehicles.clone_vehicle(Vehicle, pos)
+function menyoo.clone_vehicle(...)
+	local Vehicle = ...
 	if entity.is_an_entity(Vehicle) then
 		Vehicle = kek_entity.get_parent_of_attachment(Vehicle)
-		local num = math.random(-10^10, 10^10)
+		local num <const> = math.random(-10^10, 10^10)
 		vehicle_saver.save_vehicle(Vehicle, home.."scripts\\kek_menu_stuff\\kekMenuData\\temp_vehicle"..num..".xml")
-		local car = custom_vehicles.spawn_custom_vehicle(home.."scripts\\kek_menu_stuff\\kekMenuData\\temp_vehicle"..num..".xml", player.player_id(), true)
+		local car <const> = menyoo.spawn_custom_vehicle(home.."scripts\\kek_menu_stuff\\kekMenuData\\temp_vehicle"..num..".xml", player.player_id(), true)
 		io.remove(home.."scripts\\kek_menu_stuff\\kekMenuData\\temp_vehicle"..num..".xml")
 		return car
 	end
 	return 0
 end
 
-return custom_vehicles
+return menyoo

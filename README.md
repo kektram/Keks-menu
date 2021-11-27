@@ -132,10 +132,8 @@
 > Suspicious rank = 1<br/>
 > Suspicious kd = 1<br/>
 > Negative stats = 3<br/>
-> Modded armor = 3
-
-##### Detect any modded spectate
-	Detects if someone is spectating people while not being inside of an interior and is alive
+> Modded armor = 3<br/>
+> Illegal weapons = 2
 
 #### Blacklist
 	Add to blacklist
