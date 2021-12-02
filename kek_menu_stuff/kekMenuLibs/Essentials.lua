@@ -1,24 +1,31 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Essentials"] = "1.3.2"
+kek_menu.lib_versions["Essentials"] = "1.3.3"
 
-local essentials = {}
-local key_mapper = kek_menu.require("Key mapper")
+local essentials <const> = {}
+local key_mapper <const> = kek_menu.require("Key mapper")
+local enums <const> = kek_menu.require("Enums")
 
 local home <const> = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 local kek_menu_stuff_path <const> = home.."scripts\\kek_menu_stuff\\"
 
-function essentials.get_read_only_meta()
-	return {
-		__newindex = function()
-			essentials.msg("Tried to modify read-only table. bro", 6, true)
-			error(debug.traceback("Tried to modify read-only table.", 2))
-		end,
-		__pairs = function(t)
-			return next, t
-		end,
-		__metatable = "Modifying this metatable will cause incompatibility issues. Unload Kek's menu."
-	}
+function essentials.assert(bool, msg)
+	if not bool then
+		essentials.msg(debug.traceback(msg, 2), 112, true, 6)
+		essentials.log_error(msg)
+		error(msg)
+	end
+end
+
+function essentials.deep_copy(Table, keep_meta)
+	local new_copy <const> = {}
+	for key, value in pairs(Table) do
+		new_copy[key] = value
+	end
+	if keep_meta then
+		setmetatable(new_copy, getmetatable(Table))
+	end
+	return new_copy
 end
 
 function essentials.players(...)
@@ -42,7 +49,7 @@ function essentials.players(...)
 end
 
 -- Feature type ids
-	essentials.FEATURE_ID_MAP = {
+	essentials.FEATURE_ID_MAP = table.const({
 		[512]   = "action",
 		[1]     = "toggle",
 		[2048]  = "parent",
@@ -60,7 +67,6 @@ end
 		[1058]  = "autoaction_value_str",
 		[33280] = "action",
 		[32769] = "toggle",
-		[2048]  = "parent",
 		[32779] = "value_i",
 		[32899] = "value_f",
 		[32775] = "slider",
@@ -73,13 +79,12 @@ end
 		[33922] = "autoaction_value_f",
 		[33798] = "autoaction_slider",
 		[33826] = "autoaction_value_str"
-	}
-	setmetatable(essentials.FEATURE_ID_MAP, essentials.get_read_only_meta())
+	})
 
 -- Is feature name valid
 	function essentials.get_safe_feat_name(...)
 		local name = ...
-		local pattern <const> = name:gsub("[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz%d%s%p]", "")
+		local pattern <const> = name:gsub("[A-Za-z0-9%s%p]", "")
 		if #pattern > 0 then
 			name = name:gsub("["..pattern.."]", "")
 		end
@@ -122,13 +127,13 @@ end
 	end
 
 	function essentials.wait_conditional(duration, func, ...)
-		system.yield(0)
 		local duration <const> = duration
 		local func <const> = func
+		essentials.assert(duration > 0, "Duration must be longer than 0.")
 		local time <const> = utils.time_ms() + duration
-		while func(...) and time > utils.time_ms() do
+		repeat
 			system.yield(0)
-		end
+		until not func(...) or utils.time_ms() > time
 	end
 
 -- Write xml
@@ -204,7 +209,7 @@ end
 		local rand_min <const>,
 		rand_max <const>,
 		max <const> = ...
-		local vecu64_table = {}
+		local vecu64_table <const> = {}
 		for i = 1, math.random(rand_min or 1, rand_max or 12) do
 			vecu64_table[#vecu64_table + 1] = math.random(1, max or math.maxinteger)
 		end
@@ -217,17 +222,15 @@ end
 		color <const>,
 		notifyOn <const>,
 		duration <const> = ...
-		if type(text) == "string" and math.type(color) == "integer" then
-			if notifyOn then
-				menu.notify(text, "Kek's "..kek_menu.version, duration or 3, color)
-			end
-		else
-			essentials.log_error("Failed to send notification.")
+		essentials.assert(type(text) == "string" and math.type(color) == "integer", "Failed to send a notification.")
+		if notifyOn then
+			menu.notify(text, "Kek's "..kek_menu.version, duration or 3, color)
 		end
 	end
 
 -- Is player in vehicle
 	function essentials.is_in_vehicle(pid)
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return player.is_player_in_any_vehicle(pid) or player.get_player_coords(pid).z == -50
 	end
 
@@ -263,10 +266,10 @@ end
 		end
 	end
 
-	local ptfx_cost_exceptions <const> = {
+	local ptfx_cost_exceptions <const> = table.const({
 		[gameplay.shoot_single_bullet_between_coords] = 1000,
 		[graphics.start_networked_ptfx_looped_on_entity] = 6000
-	}
+	})
 
 	function essentials.use_ptfx_function(func, ...)
 		local func <const> = func
@@ -278,12 +281,14 @@ end
 
 -- Is friend
 	function essentials.is_not_friend(pid)
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return not kek_menu.toggle["Exclude friends from attacks #malicious#"].on or not network.is_scid_friend(player.get_player_scid(pid))
 	end
 
 -- Get most relevant player entity
 	function essentials.get_most_relevant_entity(...)
 		local pid <const> = ...
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		if player.is_player_in_any_vehicle(pid) then
 			return player.get_player_vehicle(pid)
 		else
@@ -300,23 +305,22 @@ do
 		if number_of_active_messages > 30 then
 			return
 		end
-		if type(text) == "string" then
-			number_of_active_messages = number_of_active_messages + 1
-			local time <const> = utils.time_ms() + 2000
+		essentials.assert(type(text) == "string", "Tried to send a chat message with a non string value")
+		number_of_active_messages = number_of_active_messages + 1
+		local time <const> = utils.time_ms() + 2000
+		repeat
+			system.yield(0)
+		until utils.time_ms() > last_message_sent or utils.time_ms() > time
+		if time > utils.time_ms() then
+			local time <const> = utils.time_ms() + 5000
 			repeat
-				system.yield(0)
-			until utils.time_ms() > last_message_sent or utils.time_ms() > time
-			if time > utils.time_ms() then
-				local time <const> = utils.time_ms() + 5000
-				repeat
-					network.send_chat_message(text:sub(1, 255), team == true)
-					text = text:sub(256, -1)
-					system.yield(150)
-				until #text == 0 or utils.time_ms() > time
-				last_message_sent = utils.time_ms() + 150
-			end
-			number_of_active_messages = number_of_active_messages - 1
+				network.send_chat_message(text:sub(1, 255), team == true)
+				text = text:sub(256, -1)
+				system.yield(150)
+			until #text == 0 or utils.time_ms() > time
+			last_message_sent = utils.time_ms() + 150
 		end
+		number_of_active_messages = number_of_active_messages - 1
 	end
 end
 
@@ -333,7 +337,7 @@ end
 -- Get random player except
 	function essentials.get_random_player_except(...)
 		local exclusions <const> = ...
-		local pids = {}
+		local pids <const> = {}
 		for pid in essentials.players(true) do
 			if not essentials.get_index_of_value(exclusions, pid) then
 				pids[#pids + 1] = pid
@@ -347,43 +351,41 @@ end
 	end
 
 -- Remove special characters
-	function essentials.remove_special(...)
-		local text = ...
-		if type(text) == "string" then
-			text = text:gsub("%%", "%%%%")
-			text = text:gsub("%[", "%%[")
-			text = text:gsub("%]", "%%]")
-			text = text:gsub("%(", "%%(")
-			text = text:gsub("%)", "%%)")
-			text = text:gsub("%-", "%%-")
-			text = text:gsub("%+", "%%+")
-			text = text:gsub("%?", "%%?")
-			text = text:gsub("%*", "%%*")
-			text = text:gsub("%^", "%%^")
-			text = text:gsub("%$", "%%$")
-			text = text:gsub("%.", "%%.")
-			return text
-		else
-			return ""
-		end
+do
+	local special_char_map <const> = table.const({
+		["%"] = "%%",
+		["["] = "%[",
+		["]"] = "%]",
+		["("] = "%(",
+		[")"] = "%)",
+		["-"] = "%-",
+		["+"] = "%+",
+		["?"] = "%?",
+		["*"] = "%*",
+		["^"] = "%^",
+		["$"] = "%$",
+		["."] = "%."
+	})
+
+	function essentials.remove_special(text)
+		local str <const> = text:gsub("[%%%[%]%(%)%-%+%?%*%^%$%.]", special_char_map)
+		return str
 	end
+end
 
 -- File open-read-close
 	function essentials.get_file_string(...)
 		local path <const>,
 		type <const>,
 		not_wait <const> = ...
-		if utils.file_exists(home..path) then
-			local file <close> = io.open(home..path)
-			if io.type(file) == "file" then
-				local str <const> = essentials.file(file, "read", type) or ""
-				return str
-			else
-				essentials.log_error("FAILED TO OPEN "..path)
-				return ""
-			end
+		essentials.assert(utils.file_exists(home..path), "Tried to read from a file that doesn't exist.")
+		local file <close> = io.open(home..path)
+		if io.type(file) == "file" then
+			local str <const> = essentials.file(file, "read", type) or ""
+			return str
+		else
+			essentials.log_error("FAILED TO OPEN "..path)
 		end
-		return ""
 	end
 
 -- Search for file
@@ -391,7 +393,7 @@ end
 		local path <const>,
 		file_extension <const>,
 		str <const> = ...
-		for i, file_name in pairs(utils.get_all_files_in_directory(home..path, file_extension)) do
+		for _, file_name in pairs(utils.get_all_files_in_directory(home..path, file_extension)) do
 			if file_name ~= "autoexec.lua" and file_name:lower():find(str:lower(), 1, true) then
 				return home..path..file_name, file_name
 			end
@@ -404,7 +406,7 @@ end
 		local parent <const>,
 		Table,
 		add_parent_of_descendants <const> = ...
-		for i, feat in pairs(parent.children) do
+		for _, feat in pairs(parent.children) do
 			if feat.type == 2048 and feat.child_count > 0 then
 				essentials.get_descendants(feat, Table, true)
 			end
@@ -421,7 +423,7 @@ end
 		local parent <const>,
 		Table,
 		add_parent_of_descendants <const> = ...
-		for i, feat in pairs(parent.feats[0].children) do
+		for _, feat in pairs(parent.feats[0].children) do
 			feat = menu.get_player_feature(feat.id)
 			if feat.feats[0].type == 2048 and feat.feats[0].child_count > 0 then
 				essentials.get_player_descendants(menu.get_player_feature(feat.id), Table, true)
@@ -462,31 +464,18 @@ end
 	function essentials.get_distance_between(...)
 		local entity_or_position_1, 
 		entity_or_position_2 = ...
-		if type(entity_or_position_1) == "userdata" and type(entity_or_position_2) == "userdata" then
-			return entity_or_position_1:magnitude(entity_or_position_2)
-		else
-			if math.type(entity_or_position_1) == "integer" then
-				if not entity.is_an_entity(entity_or_position_1) then
-					return 500000
-				end
-				entity_or_position_1 = entity.get_entity_coords(entity_or_position_1)
-			end
-			if math.type(entity_or_position_2) == "integer" then 
-				if not entity.is_an_entity(entity_or_position_2) then
-					return 500000
-				end
-				entity_or_position_2 = entity.get_entity_coords(entity_or_position_2)
-			end
-			if type(entity_or_position_1) == "userdata" and type(entity_or_position_2) == "userdata" then
-				return entity_or_position_1:magnitude(entity_or_position_2)
-			else
-				return 0
-			end
+		if math.type(entity_or_position_1) == "integer" then
+			entity_or_position_1 = entity.get_entity_coords(entity_or_position_1)
 		end
+		if math.type(entity_or_position_2) == "integer" then 
+			entity_or_position_2 = entity.get_entity_coords(entity_or_position_2)
+		end
+		return entity_or_position_1:magnitude(entity_or_position_2)
 	end
 
 -- Check if player is valid
 	function essentials.is_player_completely_valid(pid)
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return player.is_player_valid(pid)
 		and not player.is_player_modder(pid, -1) 
 		and player.is_player_playing(pid)
@@ -526,15 +515,11 @@ end
 -- Round a number
 	function essentials.round(...)
 		local num <const> = ...
-		if type(num) == "number" then
-			local floor <const> = math.floor(num)
-			if floor >= num - 0.4999999999 then
-				return floor
-			else
-				return math.ceil(num)
-			end
+		local floor <const> = math.floor(num)
+		if floor >= num - 0.4999999999 then
+			return floor
 		else
-			return 0
+			return math.ceil(num)
 		end
 	end
 
@@ -546,11 +531,11 @@ end
 		min <const>,
 		max <const> = ...
 		local offset
-		for i = 1, 50 do
+		for i = 1, 150 do
 			offset = v3(essentials.random_real(a, b), essentials.random_real(a, b), 0)
-			local dist <const> = essentials.get_distance_between(pos, pos + offset)
+			local dist <const> = offset:magnitude()
 			if dist >= min and dist <= max then
-				break
+				return offset
 			end
 		end
 		return offset
@@ -567,10 +552,7 @@ end
 -- Random wait for intense loops
 	function essentials.random_wait(...)
 		local range <const> = ...
-		if range < 1 then
-			essentials.log_error("Random wait range must be bigger than 0.")
-			error("Random wait range must be bigger than 1."..debug.traceback(2))
-		end
+		essentials.assert(math.type(range) == "integer" and range > 0, "Random wait range must be bigger than 0.")
 		if math.random(1, range) == 1 then
 			system.yield(0)
 		end
@@ -582,24 +564,23 @@ end
 		default <const>,
 		len <const>,
 		Type <const> = ...
-		if math.type(len) == "integer" and math.type(Type) == "integer" then
-			local Keys <const> = key_mapper.get_virtual_key_of_2take1_bind("MenuSelect")
-			key_mapper.do_vk(10000, Keys)
-			local input_status, text = nil, ""
-			repeat
-				input_status, text = input.get(title or "", default or "", len, Type)
-				system.yield(0)
-			until input_status ~= 1
-			key_mapper.do_vk(10000, Keys)
-			if not text or input_status == 2 then
-				essentials.msg(kek_menu.lang["Cancelled. §"], 6, true)
-				return "", 2
-			else
-				return text, 0
-			end
-		else
-			essentials.log_error("Failed to get input.", true)
+		essentials.assert(math.type(len) == "integer"
+		and math.type(Type) == "integer"
+		and type(title) == "string",
+			"Invalid arguments to get_input.")
+		local Keys <const> = table.const(key_mapper.get_virtual_key_of_2take1_bind("MenuSelect"))
+		key_mapper.do_vk(10000, Keys)
+		local input_status, text = nil, ""
+		repeat
+			input_status, text = input.get(title, default or "", len, Type)
+			system.yield(0)
+		until input_status ~= 1
+		key_mapper.do_vk(10000, Keys)
+		if not text or input_status == 2 then
+			essentials.msg(kek_menu.lang["Cancelled. §"], 6, true)
 			return "", 2
+		else
+			return text, 0
 		end
 	end
 
@@ -612,15 +593,14 @@ end
 		if status == 2 then
 			return
 		end
-		local value_i_int <const> = math.tointeger(input)
-		if math.type(value_i_int) == "integer" then 
-			if value_i_int < feature.min then
-				feature.value = feature.min
-			elseif feature.max >= value_i_int then
-				feature.value = value_i_int
-			else
-				feature.value = feature.max
-			end
+		local value <const> = tonumber(input)
+		essentials.assert(type(value) == "number", "Attempt to change value property to a non number value.")
+		if value <= feature.min then
+			feature.value = feature.min
+		elseif feature.max >= value then
+			feature.value = value
+		else
+			feature.value = feature.max
 		end
 	end
 
@@ -628,20 +608,17 @@ end
 		local player_feat_id <const>,
 		bool <const>,
 		exclusions <const> = ...
-		if math.type(player_feat_id) == "integer" then
-			for pid = 0, 31 do
-				if not essentials.get_index_of_value(exclusions, pid) then
-					menu.get_player_feature(player_feat_id).feats[pid].on = bool == true
-				end
+		for pid = 0, 31 do
+			if not essentials.get_index_of_value(exclusions, pid) then
+				menu.get_player_feature(player_feat_id).feats[pid].on = bool == true
 			end
-		else
-			essentials.log_error("Failed to toggle player feat.")
 		end
 	end
 
 -- Get IP: Creds to Proddy
 	function essentials.get_ip_in_ipv4(...)
 		local pid <const> = ...
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		local ip <const> = player.get_player_ip(pid)
 		return string.format("%i.%i.%i.%i", ip >> 24 & 255, ip >> 16 & 255, ip >> 8 & 255, ip & 255)
 	end
@@ -649,18 +626,12 @@ end
 -- Ipv4 to dec
 	function essentials.ipv4_to_dec(...)
 		local ip <const> = ...
-		if ip:find("%.") then
-			return ip
-		end
+		essentials.assert(ip:find(".", 1, true), "Tried to convert decimal ip to decimal ip.")
 		local dec = 0
-		for octet in string.gmatch(ip, "%d+") do 
+		for octet in ip:gmatch("%d+") do 
 			dec = octet + dec << 8 
 		end
-		if not math.ceil(dec) then 
-			return ""
-		else
-			return math.ceil(dec) 
-		end
+		return math.ceil(dec)
 	end
 
 -- Search for match in file
@@ -691,7 +662,7 @@ end
 	end
 
 -- Check if string contains advert
-	local ad_strings <const> = {
+	local ad_strings <const> = table.const({
 		".com",
 		".net",
 		".org",
@@ -705,7 +676,7 @@ end
 		".biz",
 		".xyz",
 		"qq"
-	}
+	})
 	function essentials.contains_advert(...)
 		local str <const> = ...
 		for i = 1, #ad_strings do
@@ -735,12 +706,13 @@ end
 -- Add to join timeout
 	function essentials.add_to_timeout(...)
 		local pid <const> = ...
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		essentials.log("cfg\\scid.cfg", player.get_player_name(pid)..":"..select(1, string.format("%x", player.get_player_scid(pid)))..":c", {select(1, string.format("%x", player.get_player_scid(pid))), player.get_player_name(pid)}, false, true)
 	end
 
 	function essentials.send_pattern_guide_msg(...)
 		local part <const>, Type <const> = ...
-		local parts = {
+		local parts <const> = {
 			["Chat judger"] = {
 				"There are 2 special texts for the chat judger: [BLACKLIST] = Add people to the blacklist\\n[JOIN TIMEOUT] = Add people to 2take1's join timeout. §",
 				"Examples of how to use:\\nmoney[BLACKLIST] -- This will add anyone saying the word money in a sentence to the blacklist §",
@@ -786,8 +758,8 @@ end
 
 -- Merge tables 
 	function essentials.merge_tables(...)
-		local parent_table, children_tables = ...
-		for table_index, children_table in pairs(children_tables) do
+		local parent_table, children_tables <const> = ...
+		for _, children_table in pairs(children_tables) do
 			table.move(children_table, 1, #children_table, #parent_table + 1, parent_table)
 		end
 		return parent_table

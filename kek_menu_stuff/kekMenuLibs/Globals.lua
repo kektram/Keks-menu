@@ -1,18 +1,19 @@
 -- Copyright © 2020-2021 Kektram, Sainan
 
-kek_menu.lib_versions["Globals"] = "1.2.6"
+kek_menu.lib_versions["Globals"] = "1.2.7"
 
-local globals = {}
+local globals <const> = {}
 
-local essentials = kek_menu.require("Essentials")
+local essentials <const> = kek_menu.require("Essentials")
+local enums <const> = kek_menu.require("Enums")
 
-local offsets <const> = {
+local offsets <const> = table.const({
 	["_PLAYER_INFO_MAIN"] = 1590908,
 	["_PLAYER_INFO_OFFSET_PER_PLAYER"] = 874,
 	["_PLAYER_INFO_OFFSET_TO_INFO"] = 205
-}
+})
 
-local stats <const> = { -- Thanks to Sainan for some of these stats
+local stats <const> = table.const({ -- Thanks to Sainan for some of these stats
 	["_PLAYER_INFO_WALLET"] = 3,
 	["_PLAYER_INFO_RANK"] = 6,
 	["_PLAYER_INFO_KD"] = 26,
@@ -50,30 +51,30 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 	["_PLAYER_INFO_MISSIONS_CREATED"] = 50,                             
 	["_PLAYER_INFO_DROPOUTRATE"] = 27,                                  
 	["_PLAYER_INFO_MOST_FAVORITE_STATION"] = 53
-}
+})
+
 -- By Sainan
 	function globals.get_player_info_offset(pid, info_offset)
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return offsets._PLAYER_INFO_MAIN + (1 + (pid * offsets._PLAYER_INFO_OFFSET_PER_PLAYER)) + offsets._PLAYER_INFO_OFFSET_TO_INFO + info_offset
 	end
 	function globals.get_player_info_i(pid, info_offset)
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return script.get_global_i(globals.get_player_info_offset(pid, info_offset))
 	end
 	function globals.get_player_info_f(pid, info_offset)
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return script.get_global_f(globals.get_player_info_offset(pid, info_offset))
 	end
 
 -- Stats
 	function globals.get_all_stats(...)
 		local pid <const> = ...
-		local STATS = {}
+		local STATS <const> = {}
 		for i = 1, offsets._PLAYER_INFO_OFFSET_PER_PLAYER do
 			STATS[i] =  globals.get_player_info_i(pid, i)
 		end
 		return STATS
-	end
-
-	function globals.get_player_deaths(pid)
-		return globals.get_player_info_i(pid, stats._PLAYER_INFO_DEATHS)
 	end
 
 	function globals.get_player_dart_wins(pid)
@@ -240,15 +241,13 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 		return globals.get_player_info_i(pid, stats._PLAYER_INFO_DEATHS)
 	end
 
-	function globals.get_player_all_stats(pid)
-		return stats
-	end
-
 	function globals.is_player_otr(pid)
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return script.get_global_i(2426865 + (1 + (pid * 449)) + 209) == 1
 	end
 
 	function globals.get_player_personal_vehicle(pid)
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return script.get_global_i(2441237 + (614 + pid + 1))
 	end
 
@@ -262,11 +261,12 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 	end
 
 	function globals.generic_player_global(pid)
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return script.get_global_i(1630816 + (1 + (pid * 597) + 508))
 	end
 
 -- Script events
-	local script_event_hashes <const> = {
+	local script_event_hashes <const> = table.const({
 		["Netbail kick"] = 2092565704,
 		["Kick 1"] = 1964309656,
 		["Kick 2"] = 696123127,
@@ -311,31 +311,27 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 		["Sound 1"] = 1537221257,
 		["Sound 2"] = -1162153263,
 		["Bribe authorities"] = -151720011
-	}	
+	})
 
 	function globals.get_full_arg_table(...)
 		local pid <const> = ...
-		local args = {pid}
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
+		local args <const> = {pid}
 		for i = 2, 39 do
 			args[i] = math.random(-2147483647, 2147483647)
 		end
 		return args
 	end
 
-	function globals.get_script_event_hash(...)
-		local name <const> = ...
+	function globals.get_script_event_hash(name)
 		local hash <const> = script_event_hashes[name]
-		if math.type(hash) == "integer" then
-			return hash
-		else
-			essentials.log_error("Failed to hash from script name: "..name or "")
-			return 0
-		end
+		essentials.assert(math.type(hash) == "integer", "Failed to get hash from script name: "..(name or ""))
+		return hash
 	end
 
 	function globals.get_kick_hashes()
-		local names = {}
-		local hashes = {}
+		local names <const> = {}
+		local hashes <const> = {}
 		for name, hash in pairs(script_event_hashes) do
 			if name:find("^Kick %d+$") then
 				names[#names + 1] = name
@@ -346,8 +342,8 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 	end
 
 	function globals.get_crash_hashes()
-		local names = {}
-		local hashes = {}
+		local names <const> = {}
+		local hashes <const> = {}
 		for name, hash in pairs(script_event_hashes) do
 			if name:find("^Crash %d+$") then
 				names[#names + 1] = name
@@ -363,21 +359,16 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 		pid <const>,
 		args <const>,
 		friend_condition <const> = ...
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		if player.is_player_valid(pid) and pid ~= player.player_id()
 		and (not friend_condition or essentials.is_not_friend(pid)) then
-			if math.type(pid) == "integer" then 
-				for i = 1, #args do
-					if math.type(args[i]) ~= "integer" then
-						essentials.log_error("Invalid parameter to script event", true)
-						return
-					end
-				end
-			else
-				essentials.log_error("Invalid parameter to script event", true)
-				return
+			essentials.assert(args[1] == pid, "First argument of script event wasn't the same as the pid value.")
+			for i = 1, #args do
+				essentials.assert(math.type(args[i]) == "integer", "Tried to use a non integer value for a script event. Arg "..i)
+				essentials.assert(math.abs(args[i]) <= 2147483647, "Tried to use an integer bigger than signed 32 bit max as argument for script event. Arg "..i)
 			end
 			repeat
-				local temp = {}
+				local temp <const> = {}
 				for i = 1, #SE_send_limiter do
 					if SE_send_limiter[i] > utils.time_ms() then
 						temp[#temp + 1] = SE_send_limiter[i]
@@ -418,14 +409,13 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 		local pid <const>, friend_condition <const> = ...
 		if player.get_player_coords(pid).z == -50 or player.is_player_in_any_vehicle(pid) then
 			globals.send_script_event("Destroy personal vehicle", pid, {pid, pid}, friend_condition)
-			globals.send_script_event("Kick out of vehicle", pid, {pid, 0, 0, 0, 0, 1, pid, gameplay.get_frame_count()}, friend_condition)
+			globals.send_script_event("Kick out of vehicle", pid, {pid, 0, 0, 0, 0, 1, pid, math.min(2147483647, gameplay.get_frame_count())}, friend_condition)
 		end
 	end
 
 	function globals.kick(...)
 		local pid <const> = ...
-		system.yield(0)
-		if player.is_player_valid(pid) and pid ~= player.player_id() then
+		if player.is_player_valid(pid) and player.player_id() ~= pid then
 			if network.network_is_host() then
 				network.network_session_kick_player(pid)
 				return
@@ -437,18 +427,18 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 			globals.send_script_event("Kick 2", pid, {pid, math.random(-2147483647, 2147483647), pid})
 			globals.send_script_event("Kick 3", pid, {pid, math.random(-2147483647, 2147483647)})
 			globals.send_script_event("Kick 4", pid, {pid, -1, -1, -1, -1})
-			local parameters = {
+			local parameters <const> = {
 				pid
 			}
 			for i = 2, 23 do
 				parameters[i] = math.random(-2147483647, -10)
 			end
 			globals.send_script_event("Kick 5", pid, parameters)
-			for i, k in pairs({-1726396442, 154008137, 428882541, -1714354434}) do
+			for arg, hash in pairs({-1726396442, 154008137, 428882541, -1714354434}) do
 				globals.send_script_event("Kick 6", pid, {
 					pid, 
-					k, 
-					i, 
+					hash, 
+					arg, 
 					1,
 					math.random(-2147483647, -10),
 					math.random(-2147483647, -10),
@@ -461,7 +451,7 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 					math.random(-2147483647, -10)
 				})
 			end
-			for i, script_name in pairs(globals.get_kick_hashes()) do
+			for _, script_name in pairs(globals.get_kick_hashes()) do
 				globals.send_script_event(script_name, pid, globals.get_full_arg_table(pid))
 			end
 		end
@@ -469,10 +459,9 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 
 	function globals.script_event_crash(...)
 		local pid <const> = ...
-		system.yield(0)
-		if player.is_player_valid(pid) then
+		if player.is_player_valid(pid) and player.player_id() ~= pid then
 			for i = 1, 19 do
-				local parameters = {
+				local parameters <const> = {
 					pid, 
 					-1139568479, 
 					math.random(0, 4), 
@@ -488,7 +477,7 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 				for i = 0, 14 do
 					globals.send_script_event("Script host crash 1", pid, {pid, i})
 				end
-				local parameters = {
+				local parameters <const> = {
 					pid
 				}
 				for i = 2, 26 do
@@ -496,8 +485,8 @@ local stats <const> = { -- Thanks to Sainan for some of these stats
 				end
 				globals.send_script_event("Script host crash 2", pid, parameters)
 			end
-			for i, script_name in pairs(globals.get_crash_hashes()) do
-				local parameters = {
+			for _, script_name in pairs(globals.get_crash_hashes()) do
+				local parameters <const> = {
 					pid
 				}
 				for i = 2, 10 do

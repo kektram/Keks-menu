@@ -1,21 +1,22 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Location mapper"] = "1.0.0"
+kek_menu.lib_versions["Location mapper"] = "1.0.1"
 
-local essentials = kek_menu.require("Essentials")
+local essentials <const> = kek_menu.require("Essentials")
+local enums <const> = kek_menu.require("Enums")
 
-local location_mapper = {}
+local location_mapper <const> = {}
 
-local los_santos_customs <const> = {
+local los_santos_customs <const> = table.const_all({
 	{"Beeker's garage", v3(112, 6619, 31)},
 	{"Blaine county", v3(1178, 2647, 37)},
 	{"Near airport", v3(-1146, -1991, 13)},
 	{"East side", v3(722, -1090, 22)},
 	{"City center", v3(-357, -135, 38)},
 	{"Benny's workshop", v3(-208, -1310, 31)}
-}
+})
 
-local ammu_nations <const> = {
+local ammu_nations <const> = table.const_all({
 	{"Blaine county center", v3(1699, 3752, 34)},
 	{"Blaine county west", v3(-1113, 2690, 18)},
 	{"Blaine county east", v3(2569, 303, 108)},
@@ -27,9 +28,9 @@ local ammu_nations <const> = {
 	{"City center", v3(-664, -945, 21)},
 	{"With range city center", v3(17, -1117, 29)},
 	{"With range city south", v3(811, -2148, 29)}
-}
+})
 
-local zones <const> = {
+local zones <const> = table.const_all({
 	{"AIRP", "Los Santos International Airport"},
 	{"ALAMO", "Alamo Sea"},
 	{"ALTA", "Alta"},
@@ -119,15 +120,15 @@ local zones <const> = {
 	{"ZP_ORT", "Port of South Los Santos"},
 	{"ZQ_UAR", "Davis Quartz"},
 	{"SANAND", "San Andreas"}
-}
+})
 
-local casino_locations <const> = {
+local casino_locations <const> = table.const_all({
 	{"Casino main entrance", v3(921, 42, 80)},
 	{"Casino garage", v3(936, 0, 79)},
 	{"Casino music locker", v3(988, 80, 81)}
-}
+})
 
-location_mapper.GENERAL_POSITIONS = {
+location_mapper.GENERAL_POSITIONS = table.const({
 	["Beach"] = v3(-1480.0867919922, -1249.8076171875, 1.7118327617645),
 	["Beeker's garage"] = v3(113.18008422852, 6608.1157226562, 31.126474380493),
 	["lsc near Blaine county"] = v3(1179.6661376953, 2663.5729980469, 37.182151794434),
@@ -192,17 +193,17 @@ location_mapper.GENERAL_POSITIONS = {
 	["Grapeseed"] = v3(2551.98046875, 4672.8598632812, 33.974056243896),
 	["Grapeseed 2"] = v3(1669.8518066406, 4769.6420898438, 41.85277557373),
 	["West Vinewood"] = v3(1.1384910345078, 31.003908157349, 71.069595336914),
-	["West Vinewood 2"] = v3(11.519178390503, 87.537254333496, 78.398086547852),
+	["West Vinewood 9"] = v3(11.519178390503, 87.537254333496, 78.398086547852),
 	["West Vinewood 3"] = v3(-512.44268798828, 115.72742462158, 63.315162658691),
 	["West Vinewood 4"] = v3(-199.31295776367, 95.202644348145, 69.530326843262),
 	["West Vinewood 5"] = v3(-633.30316162109, 169.21343994141, 61.21223449707),
 	["West Vinewood 6"] = v3(-206.57997131348, 184.62852478027, 80.322662353516),
 	["Vespucci Canals"] = v3(-814.94494628906, -985.64196777344, 13.944014549255),
-	["West Vinewood"] = v3(-618.50714111328, 31.774396896362, 43.530242919922),
+	["West Vinewood 7"] = v3(-618.50714111328, 31.774396896362, 43.530242919922),
 	["Ron Alternates Wind Farm"] = v3(2467.8786621094, 1589.9990234375, 32.720291137695),
 	["Zancudo River"] = v3(-1132.0476074219, 2696.0075683594, 18.800401687622),
 	["Strawberry"] = v3(-8.4986581802368, -1642.8865966797, 29.168998718262),
-	["West Vinewood"] = v3(-618.51159667969, 31.772859573364, 43.530242919922),
+	["West Vinewood 8"] = v3(-618.51159667969, 31.772859573364, 43.530242919922),
 	["Sandy Shores"] = v3(1904.5463867188, 3783.9182128906, 32.809673309326),
 	["Hawick"] = v3(278.39898681641, -158.70204162598, 63.622375488281),
 	["La Puerta"] = v3(-976.40704345703, -1433.9505615234, 7.6791663169861),
@@ -226,22 +227,21 @@ location_mapper.GENERAL_POSITIONS = {
 	["North Chumash"] = v3(-2206.3103027344, 4248.8217773438, 47.538906097412),
 	["Harmony"] = v3(216.47438049316, 2607.8110351562, 46.273460388184),
 	["Grand Senora Desert"] = v3(193.08575439453, 2787.7536621094, 45.655193328857),
-	["Harmony"] = v3(641.1142578125, 2777.2834472656, 41.95166015625),
+	["Harmony 2"] = v3(641.1142578125, 2777.2834472656, 41.95166015625),
 	["Cypress Flats"] = v3(1029.1507568359, -2399.4174804688, 29.751884460449),
 	["Cypress Flats 2"] = v3(868.85723876953, -2236.5600585938, 30.542938232422),
 	["Los Santos International Airport"] = v3(-668.75109863281, -2377.9194335938, 13.838815689087),
-	["Los Santos International Airport"] = v3(-1085.3282470703, -2230.7758789062, 13.240743637085),
-	["La Puerta"] = v3(-337.60162353516, -1464.9465332031, 30.563171386719),
+	["Los Santos International Airport 2"] = v3(-1085.3282470703, -2230.7758789062, 13.240743637085),
+	["La Puerta 2"] = v3(-337.60162353516, -1464.9465332031, 30.563171386719),
 	["East Vinewood"] = v3(902.02032470703, -142.54748535156, 76.650444030762),
 	["Pillbox Hill 2"] = v3(-52.446479797363, -583.78283691406, 36.853244781494),
 	["El Burro Heights"] = v3(1340.2352294922, -1583.8933105469, 54.067855834961),
-	["Paleto Bay"] = v3(-106.56526184082, 6535.458984375, 29.809148788452),
+	["Paleto Bay 5"] = v3(-106.56526184082, 6535.458984375, 29.809148788452),
 	["Paleto Bay 3"] = v3(-306.98236083984, 6333.0219726562, 32.180763244629),
 	["Paleto Bay 4"] = v3(-8.2490711212158, 6559.8842773438, 31.970911026001)
-}
-setmetatable(location_mapper.GENERAL_POSITIONS, essentials.get_read_only_meta())
+})
 
-local gta5_map <const> = {
+local gta5_map <const> = table.const({
 	v3(-178.0245513916, -407.62139892578, 32.9674949646),
 	v3(-123.78118133545, -407.53591918945, 34.061668395996),
 	v3(-112.1798324585, -401.09378051758, 35.142150878906),
@@ -7621,32 +7621,15 @@ local gta5_map <const> = {
 	v3(14.891045570374, 7630.0112304688, 12.069850921631),
 	v3(21.540128707886, 7640.26171875, 16.660110473633),
 	v3(22.129667282104, 7640.9047851562, 17.001989364624)
-}
+})
 
 local function get_vectors(...)
 	local location_info_table <const> = ...
-	local vectors = {}
-	for i, location in pairs(location_info_table) do
+	local vectors <const> = {}
+	for _, location in pairs(location_info_table) do
 		vectors[#vectors + 1] = location[2]
 	end
 	return vectors
-end
-
-local function remove_occupied_vectors(...)
-	local Table <const> = ...
-	local vehicles <const> = vehicle.get_all_vehicles()
-	local temp = {}
-	for i = 1, #Table do
-		for i2 = 1, #vehicles do
-			if essentials.get_distance_between(entity.get_entity_coords(vehicles[i2]), Table[i]) < 10 then
-				break
-			end
-			if i2 == #vehicles then
-				temp[#temp + 1] = Table[i]
-			end
-		end
-	end
-	return temp
 end
 
 local function attempt_ground_z(...)
@@ -7685,7 +7668,7 @@ function location_mapper.get_set_of_vectors(...)
 	min_distance <const>,
 	max_distance <const>,
 	max_height <const> = ...
-	local coords = {}
+	local coords <const> = {}
 	for i = 1, 40 do
 		local pos2 <const>, status <const> = attempt_ground_z(pos + essentials.get_offset(pos, -max_distance, max_distance, min_distance, max_distance))
 		if status and pos2.z < max_height and pos2.z > max_height - 13 and essentials.get_distance_between(pos, pos2) >= min_distance then
@@ -7717,13 +7700,13 @@ function location_mapper.get_closest_vector_to_pos(...)
 	return pos2
 end
 
-location_mapper.CASINO_POSITIONS = get_vectors(casino_locations)
-location_mapper.LSC_POSITIONS = get_vectors(los_santos_customs)
-location_mapper.AMMU_NATION_POSITIONS = get_vectors(ammu_nations)
+location_mapper.CASINO_POSITIONS = table.const(get_vectors(casino_locations))
+location_mapper.LSC_POSITIONS = table.const(get_vectors(los_santos_customs))
+location_mapper.AMMU_NATION_POSITIONS = table.const(get_vectors(ammu_nations))
 
 function location_mapper.get_zone_entity_is_in(...)
 	local Entity <const> = ...
-	for i, zone in pairs(zones) do
+	for _, zone in pairs(zones) do
 		if entity.is_entity_in_zone(Entity, zone[1]) then
 			return zone[2]
 		end
@@ -7733,38 +7716,30 @@ end
 
 function location_mapper.get_most_accurate_position(...)
 	local pos, always <const> = ...
-	if type(pos) == "userdata" then
-		if not always and pos.z > -10 then
-			return pos
-		end
-		local pos2 <const>, status <const> = attempt_ground_z(pos)
-		if status then
-			return pos2
-		else
-			local pos2 <const> = location_mapper.get_closest_vector_to_pos(pos)
-			if math.abs((pos.z) - (pos2.z)) < 5 then
-				pos.z = pos2.z
-				return pos
-			else
-				return pos2
-			end
-		end
+	if not always and pos.z > -10 then
+		return pos
+	end
+	local pos2 <const>, status <const> = attempt_ground_z(pos)
+	if status then
+		return pos2
 	else
-		return v3()
+		local pos2 <const> = location_mapper.get_closest_vector_to_pos(pos)
+		if math.abs((pos.z) - (pos2.z)) < 5 then
+			pos.z = pos2.z
+			return pos
+		else
+			return pos2
+		end
 	end
 end
 
 function location_mapper.get_ground_z(...)
 	local pos <const> = ...
-	if type(pos) == "userdata" then
-		local pos2 <const>, status <const> = attempt_ground_z(pos)
-		if not status then
-			return v3(pos.x, pos.y, location_mapper.get_closest_vector_to_pos(pos).z)
-		else
-			return pos2
-		end
+	local pos2 <const>, status <const> = attempt_ground_z(pos)
+	if not status then
+		return v3(pos.x, pos.y, location_mapper.get_closest_vector_to_pos(pos).z)
 	else
-		return v3()
+		return pos2
 	end
 end
 

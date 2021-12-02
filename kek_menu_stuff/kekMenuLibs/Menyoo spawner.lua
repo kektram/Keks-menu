@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Menyoo spawner"] = "2.0.1"
+kek_menu.lib_versions["Menyoo spawner"] = "2.0.2"
 
 local xml_end = {
 	"^%s*</Attachment>$",
@@ -12,17 +12,18 @@ local xml_start = {
 	"^%s*<Placement>$"
 }
 
-local menyoo = {}
+local menyoo <const> = {}
 local home <const> = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 
-local essentials = kek_menu.require("Essentials")
-local kek_entity = kek_menu.require("Kek's entity functions")
-local custom_upgrades = kek_menu.require("Custom upgrades")
-local location_mapper = kek_menu.require("Location mapper")
-local weapon_mapper = kek_menu.require("Weapon mapper")
-local vehicle_saver = kek_menu.require("Vehicle saver")
+local essentials <const> = kek_menu.require("Essentials")
+local kek_entity <const> = kek_menu.require("Kek's entity functions")
+local custom_upgrades <const> = kek_menu.require("Custom upgrades")
+local location_mapper <const> = kek_menu.require("Location mapper")
+local weapon_mapper <const> = kek_menu.require("Weapon mapper")
+local vehicle_saver <const> = kek_menu.require("Vehicle saver")
+local enums <const> = kek_menu.require("Enums")
 
-local lang = kek_menu.lang
+local lang <const> = kek_menu.lang
 
 -- Utilities
 	local function new_attachment_check(...)
@@ -42,7 +43,7 @@ local lang = kek_menu.lang
 	local function extract_info(...)
 		local file <const>, initial <const> = ...
 		local str = ""
-		local info = {}
+		local info <const> = {}
 		local tree_parent = ""
 		while str and not new_attachment_check(str, true, initial) do
 			if str:find("<Attachment%s*isAttached=[%w%p]+/*>") then
@@ -268,7 +269,7 @@ local lang = kek_menu.lang
 				if math.type(info["CurrentWeapon"]) == "integer" and info["CurrentWeapon"] ~= 2725352035 then
 					weapon.give_delayed_weapon_to_ped(Entity, info["CurrentWeapon"], 0, 1)
 					weapon_mapper.set_ped_weapon_attachments(Entity, true, info["CurrentWeapon"])
-					kek_entity.set_combat_attributes(Entity, false, true)
+					kek_entity.set_combat_attributes(Entity, true, {})
 				end
 				for i = 0, 9 do
 					if type(info["PedProps_"..i]) == "table" then
@@ -417,7 +418,7 @@ local lang = kek_menu.lang
 		local hash <const> = info["ModelHash"]
 		local Entity <const> = kek_menu.spawn_entity(hash, function()
 			return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), 0
-		end, false, false, false, 4, true, nil, info["Dynamic"] == false)
+		end, false, false, false, enums.ped_types.civmale, true, nil, info["Dynamic"] == false)
 		if not entity.is_an_entity(Entity) then
 			return entities, hash
 		end
@@ -442,7 +443,7 @@ local lang = kek_menu.lang
 		if type(info["PositionRotationX"]) == "number" and type(info["PositionRotationY"]) == "number" and type(info["PositionRotationZ"]) == "number" then
 			local Entity <const> = kek_menu.spawn_entity(hash, function()
 				return player.get_player_coords(player.player_id()) + v3(0, 0, 50), 0
-			end, false, true, false, 4, true, 0.6, info["Dynamic"] == false, true)
+			end, false, true, false, enums.ped_types.civmale, true, 0.6, info["Dynamic"] == false, true)
 			entities[info["InitialHandle"]] = Entity
 			apply_entity_modifications(Entity, info, entities, pid)
 			if info["isAttached"] then
@@ -459,70 +460,61 @@ function menyoo.spawn_custom_vehicle(...)
 	local file_path <const>,
 	pid <const>,
 	teleport <const> = ...
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
+	essentials.assert(file_path:find("%.xml$"), "Tried to spawn a menyoo map with a non xml file.")
+	essentials.assert(utils.file_exists(file_path), "Tried to read from a file that doesn't exist.")
 	if not player.is_player_valid(pid) then
 		return 0, {}
 	end
-	if not file_path:find("%.xml$") then
-		essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%..+$")).."]: "..lang["Wrong file extension. §"], 6, true, 8)
+	local parent_entity, entities = 0, {}
+	local hashes <const> = {}
+	local file <close> = io.open(file_path)
+	local str2 <const> = essentials.file(file, "read", "*l")
+	local str = essentials.file(file, "read", "*l")
+	if not str or str == "" then
+		essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%.xml$")).."]: "..lang["Xml file is empty. §"], 6, true, 8)
 		return 0, {}
 	end
-	local parent_entity, entities, file = 0, {}
-	local hashes = {}
-	local info = {}
-	if utils.file_exists(file_path) then
-		file = io.open(file_path)
-		local str2 <const> = essentials.file(file, "read", "*l")
-		local str = essentials.file(file, "read", "*l")
-		if not str or str == "" then
-			essentials.file(file, "close")
-			essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%.xml$")).."]: "..lang["Xml file is empty. §"], 6, true, 8)
-			return 0, {}
-		end
-		if not str2:lower():find("?xml version=\"1.0\"", 1, true) or str:lower():find("map", 1, true) then
-			essentials.msg(lang["Unsupported file format. §"], 6, true)
-			essentials.file(file, "close")
-			return 0, {}
-		end
-		info = extract_info(file, "SpoonerAttachments")
-		parent_entity = kek_menu.spawn_entity(info["ModelHash"] or 0, function()
-			return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), player.get_player_heading(pid)
-		end, false, false, false, 4, true, nil, info["Dynamic"] == false)
-		kek_entity.max_car(parent_entity, true)
-		if entity.is_an_entity(parent_entity) then
-			hashes[#hashes + 1] = info["ModelHash"]
-			entities[info["InitialHandle"] or 0] = parent_entity
-			apply_entity_modifications(parent_entity, info, entities, pid)
-			entity.freeze_entity(parent_entity, true)
-		else
-			return 0, {}
-		end
-		str = ""
-		while str do
-			essentials.random_wait(2500)
-			if new_attachment_check(str) then
-				local tabs <const> = str:match("^(%s*)[%w%p]+")
-				xml_end = {
-					"^"..tabs.."</Attachment>$",
-					"^"..tabs.."</Placement>$"
-				}
-				xml_start = {
-					"^"..tabs.."<Attachment>$",
-					"^"..tabs.."<Placement>$"
-				}
-				entities, hashes[#hashes + 1] = spawn_vehicle(file, entities, pid, parent_entity)
-			end
-			str = essentials.file(file, "read", "*l")
-		end
-		entity.freeze_entity(parent_entity, info["FrozenPos"] == true)
-		for i, hash in pairs(hashes) do
-			streaming.set_model_as_no_longer_needed(hash)
-		end
-		essentials.file(file, "close")
-		if teleport then
-			kek_entity.teleport(parent_entity, location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 8)))
-		end
+	if not str2:lower():find("?xml version=\"1.0\"", 1, true) or str:lower():find("map", 1, true) then
+		essentials.msg(lang["Unsupported file format. §"], 6, true)
+		return 0, {}
+	end
+	local info <const> = extract_info(file, "SpoonerAttachments")
+	parent_entity = kek_menu.spawn_entity(info["ModelHash"] or 0, function()
+		return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), player.get_player_heading(pid)
+	end, false, false, false, enums.ped_types.civmale, true, nil, info["Dynamic"] == false)
+	kek_entity.max_car(parent_entity, true)
+	if entity.is_an_entity(parent_entity) then
+		hashes[#hashes + 1] = info["ModelHash"]
+		entities[info["InitialHandle"] or 0] = parent_entity
+		apply_entity_modifications(parent_entity, info, entities, pid)
+		entity.freeze_entity(parent_entity, true)
 	else
-		essentials.msg(lang["Couldn't find file §"], 6, true)
+		return 0, {}
+	end
+	str = ""
+	while str do
+		essentials.random_wait(2500)
+		if new_attachment_check(str) then
+			local tabs <const> = str:match("^(%s*)[%w%p]+")
+			xml_end = {
+				"^"..tabs.."</Attachment>$",
+				"^"..tabs.."</Placement>$"
+			}
+			xml_start = {
+				"^"..tabs.."<Attachment>$",
+				"^"..tabs.."<Placement>$"
+			}
+			entities, hashes[#hashes + 1] = spawn_vehicle(file, entities, pid, parent_entity)
+		end
+		str = essentials.file(file, "read", "*l")
+	end
+	entity.freeze_entity(parent_entity, info["FrozenPos"] == true)
+	for _, hash in pairs(hashes) do
+		streaming.set_model_as_no_longer_needed(hash)
+	end
+	if teleport then
+		kek_entity.teleport(parent_entity, location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 8)))
 	end
 	return parent_entity, entities
 end
@@ -531,73 +523,68 @@ function menyoo.spawn_map(...)
 	local file_path <const>,
 	pid <const>,
 	teleport_to_map <const> = ...
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
+	essentials.assert(file_path:find("%.xml$"), "Tried to spawn a menyoo map with a non xml file.")
+	essentials.assert(utils.file_exists(file_path), "Tried to read from a file that doesn't exist.")
 	if not player.is_player_valid(pid) then
 		return 0, {}
 	end
-	if not file_path:find("%.xml$") then
-		essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%..+$")).."]: "..lang["Wrong file extension. §"], 6, true, 8)
+	local entities = {}
+	local hashes <const> = {}
+	local file <close> = io.open(file_path)
+	local str = essentials.file(file, "read", "*l")
+	if not str or str == "" then
+		essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%.xml$")).."]: "..lang["Xml file is empty. §"], 6, true, 8)
 		return 0, {}
 	end
-	local entities = {}
-	if utils.file_exists(file_path) then
-		local hashes = {}
-		local file <close> = io.open(file_path)
-		local str = essentials.file(file, "read", "*l")
-		if not str or str == "" then
-			essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%.xml$")).."]: "..lang["Xml file is empty. §"], 6, true, 8)
-			return 0, {}
-		end
-		if not str:lower():find("?xml version=\"1.0\"", 1, true) then
-			essentials.msg(lang["Unsupported file format. §"], 6, true)
-			return 0, {}
-		end
-		local reference_pos
-		repeat
-			if str:find("<ReferenceCoords>", 1, true) then
-				local x <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-				local y <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-				local z <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-				essentials.file(file, "read", "*l")
-				str = essentials.file(file, "read", "*l")
-				if type(x) == "number" and type(y) == "number" and type(z) == "number" then
-					reference_pos = v3(x, y, z)
-				end
-			end
+	if not str:lower():find("?xml version=\"1.0\"", 1, true) then
+		essentials.msg(lang["Unsupported file format. §"], 6, true)
+		return 0, {}
+	end
+	local reference_pos
+	repeat
+		if str:find("<ReferenceCoords>", 1, true) then
+			local x <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
+			local y <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
+			local z <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
+			essentials.file(file, "read", "*l")
 			str = essentials.file(file, "read", "*l")
-		until new_attachment_check(str)
-		while str do
-			essentials.random_wait(2500)
-			if new_attachment_check(str) then
-				local tabs <const> = str:match("^(%s*)[%w%p]+")
-				xml_end = {
-					"^"..tabs.."</Attachment>$",
-					"^"..tabs.."</Placement>$"
-				}
-				xml_start = {
-					"^"..tabs.."<Attachment>$",
-					"^"..tabs.."<Placement>$"
-				}
-				entities, hashes[#hashes + 1] = spawn_map_object(file, entities, pid)
+			if type(x) == "number" and type(y) == "number" and type(z) == "number" then
+				reference_pos = v3(x, y, z)
 			end
-			str = essentials.file(file, "read", "*l")
 		end
-		for i, hash in pairs(hashes) do
-			streaming.set_model_as_no_longer_needed(hash)
+		str = essentials.file(file, "read", "*l")
+	until new_attachment_check(str)
+	while str do
+		essentials.random_wait(2500)
+		if new_attachment_check(str) then
+			local tabs <const> = str:match("^(%s*)[%w%p]+")
+			xml_end = {
+				"^"..tabs.."</Attachment>$",
+				"^"..tabs.."</Placement>$"
+			}
+			xml_start = {
+				"^"..tabs.."<Attachment>$",
+				"^"..tabs.."<Placement>$"
+			}
+			entities, hashes[#hashes + 1] = spawn_map_object(file, entities, pid)
 		end
-		if teleport_to_map then
-			if reference_pos then
-				kek_entity.teleport(essentials.get_most_relevant_entity(pid), reference_pos)
-			else
-				for handle, Entity in pairs(entities) do
-					if entity.is_an_entity(Entity) then
-						kek_entity.teleport(essentials.get_most_relevant_entity(pid), entity.get_entity_coords(Entity))
-						break
-					end
+		str = essentials.file(file, "read", "*l")
+	end
+	for _, hash in pairs(hashes) do
+		streaming.set_model_as_no_longer_needed(hash)
+	end
+	if teleport_to_map then
+		if reference_pos then
+			kek_entity.teleport(essentials.get_most_relevant_entity(pid), reference_pos)
+		else
+			for _, Entity in pairs(entities) do
+				if entity.is_an_entity(Entity) then
+					kek_entity.teleport(essentials.get_most_relevant_entity(pid), entity.get_entity_coords(Entity))
+					break
 				end
 			end
 		end
-	else
-		essentials.msg(lang["Couldn't find file §"], 6, true)
 	end
 	return entities
 end

@@ -1,136 +1,121 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Key mapper"] = "1.0.6"
+kek_menu.lib_versions["Key mapper"] = "1.0.7"
+local enums <const> = kek_menu.require("Enums")
 
-local key_mapper = {}
+local key_mapper <const> = {}
 
-local function get_read_only_meta()
-	return {
-		__newindex = function()
-			menu.notify("Tried to modify read-only table. bro", "Error", 6, 112)
-			error(debug.traceback("Tried to modify read-only table.", 2))
-		end,
-		__pairs = function(t)
-			return next, t
-		end,
-		__metatable = "Modifying this metatable will cause incompatibility issues. Unload Kek's menu."
-	}
-end
+key_mapper.CONTROLLER_KEYS = table.const_all({
+	{name = "A", key_id = 18, group_id = 2},
+	{name = "B", key_id = 45, group_id = 2}, 
+	{name = "X", key_id = 22, group_id = 2}, 
+	{name = "Y", key_id = 23, group_id = 2}, 
+	{name = "LB", key_id = 37, group_id = 2}, 
+	{name = "RB", key_id = 44, group_id = 2}, 
+	{name = "L2", key_id = 10, group_id = 2}, 
+	{name = "R2", key_id = 11, group_id = 2}, 
+	{name = "L3", key_id = 28, group_id = 2}, 
+	{name = "R3", key_id = 29, group_id = 2}, 
+	{name = "select", key_id = 0, group_id = 2}, 
+	{name = "D-Pad left", key_id = 15, group_id = 2}, 
+	{name = "D-Pad right", key_id = 74, group_id = 2}, 
+	{name = "D-Pad up", key_id = 42, group_id = 2}, 
+	{name = "D-Pad down", key_id = 19, group_id = 2}, 
+	{name = "Right-stick left", key_id = 5, group_id = 2}, 
+	{name = "Right-stick right", key_id = 1, group_id = 2}, 
+	{name = "Right-stick up", key_id = 3, group_id = 2}, 
+	{name = "Right-stick down", key_id = 2, group_id = 2}, 
+	{name = "Left-stick left", key_id = 34, group_id = 2}, 
+	{name = "Left-stick right", key_id = 9, group_id = 2}, 
+	{name = "Left-stick up", key_id = 32, group_id = 2}, 
+	{name = "Left-stick down", key_id = 8, group_id = 2}
+})
 
-key_mapper.CONTROLLER_KEYS = {
-	{"A", 18, 2},
-	{"B", 45, 2}, 
-	{"X", 22, 2}, 
-	{"Y", 23, 2}, 
-	{"LB", 37, 2}, 
-	{"RB", 44, 2}, 
-	{"L2", 10, 2}, 
-	{"R2", 11, 2}, 
-	{"L3", 28, 2}, 
-	{"R3", 29, 2}, 
-	{"select", 0, 2}, 
-	{"D-Pad left", 15, 2}, 
-	{"D-Pad right", 74, 2}, 
-	{"D-Pad up", 27, 2}, 
-	{"D-Pad down", 19, 2}, 
-	{"Right-stick left", 5, 2}, 
-	{"Right-stick right", 1, 2}, 
-	{"Right-stick up", 3, 2}, 
-	{"Right-stick down", 2, 2}, 
-	{"Left-stick left", 34, 2}, 
-	{"Left-stick right", 9, 2}, 
-	{"Left-stick up", 32, 2}, 
-	{"Left-stick down", 8, 2}
-}
-setmetatable(key_mapper.CONTROLLER_KEYS, get_read_only_meta())
+key_mapper.KEYBOARD_KEYS = table.const_all({
+	{name = "A", key_id = 34, group_id = 0},
+	{name = "B", key_id = 29, group_id = 0},
+	{name = "C", key_id = 26, group_id = 0},
+	{name = "D", key_id = 35, group_id = 0},
+	{name = "E", key_id = 46, group_id = 0},
+	{name = "F", key_id = 49, group_id = 0},
+	{name = "G", key_id = 183, group_id = 0},
+	{name = "H", key_id = 74, group_id = 0},
+	{name = "K", key_id = 311, group_id = 0},
+	{name = "L", key_id = 7, group_id = 0},
+	{name = "M", key_id = 301, group_id = 0},
+	{name = "N", key_id = 249, group_id = 0},
+	{name = "P", key_id = 199, group_id = 0},
+	{name = "Q", key_id = 44, group_id = 0},
+	{name = "R", key_id = 45, group_id = 0},
+	{name = "S", key_id = 33, group_id = 0},
+	{name = "T", key_id = 245, group_id = 0},
+	{name = "U", key_id = 303, group_id = 0},
+	{name = "V", key_id = 0, group_id = 0},
+	{name = "W", key_id = 32, group_id = 0},
+	{name = "X", key_id = 252, group_id = 0},
+	{name = "Y", key_id = 246, group_id = 0},
+	{name = "Up", key_id = 172, group_id = 0},
+	{name = "Down", key_id = 173, group_id = 0},
+	{name = "Left", key_id = 174, group_id = 0},
+	{name = "Right", key_id = 175, group_id = 0},
+	{name = "Alt", key_id = 19, group_id = 0},
+	{name = "f1", key_id = 288, group_id = 0},
+	{name = "f2", key_id = 289, group_id = 0},
+	{name = "f3", key_id = 170, group_id = 0},
+	{name = "f5", key_id = 166, group_id = 0},
+	{name = "f6", key_id = 167, group_id = 0},
+	{name = "f7", key_id = 168, group_id = 0},
+	{name = "f8", key_id = 169, group_id = 0},
+	{name = "f9", key_id = 56, group_id = 0},
+	{name = "f10", key_id = 57, group_id = 0},
+	{name = "f11", key_id = 344, group_id = 0},
+	{name = "1", key_id = 157, group_id = 0},
+	{name = "2", key_id = 158, group_id = 0},
+	{name = "3", key_id = 160, group_id = 0},
+	{name = "4", key_id = 164, group_id = 0},
+	{name = "5", key_id = 165, group_id = 0},
+	{name = "6", key_id = 159, group_id = 0},
+	{name = "7", key_id = 161, group_id = 0},
+	{name = "8", key_id = 162, group_id = 0},
+	{name = "9", key_id = 163, group_id = 0},
+	{name = "Shift", key_id = 21, group_id = 0},
+	{name = "Break", key_id = 3, group_id = 0},
+	{name = "Scroll down", key_id = 14, group_id = 0},
+	{name = "Scroll up", key_id = 15, group_id = 0},
+	{name = "Lmouse", key_id = 142, group_id = 0},
+	{name = "Rmouse", key_id = 114, group_id = 0},
+	{name = "Ctrl", key_id = 132, group_id = 0},
+	{name = "Num 4", key_id = 124, group_id = 0},
+	{name = "Num 5", key_id = 128, group_id = 0},
+	{name = "Num 6", key_id = 125, group_id = 0},
+	{name = "Num 7", key_id = 117, group_id = 0},
+	{name = "Num 8", key_id = 127, group_id = 0},
+	{name = "Num 9", key_id = 118, group_id = 0},
+	{name = "Space", key_id = 143, group_id = 0},
+	{name = "Insert", key_id = 121, group_id = 0},
+	{name = "Caps lock", key_id = 137, group_id = 0},
+	{name = "Delete", key_id = 178, group_id = 0},
+	{name = "Tab", key_id = 192, group_id = 0},
+	{name = "Backspace", key_id = 194, group_id = 0},
+	{name = "Esc", key_id = 200, group_id = 0},
+	{name = "Page down", key_id = 207, group_id = 0},
+	{name = "Page up", key_id = 208, group_id = 0},
+	{name = "Home", key_id = 212, group_id = 0},
+	{name = "Enter", key_id = 215, group_id = 0},
+	{name = "Num plus", key_id = 314, group_id = 0},
+	{name = "Num minus", key_id = 315, group_id = 0}
+})
 
-key_mapper.KEYBOARD_KEYS = {
-	{"A", 34, 0},
-	{"B", 29, 0},
-	{"C", 26, 0},
-	{"D", 35, 0},
-	{"E", 46, 0},
-	{"F", 49, 0},
-	{"G", 183, 0},
-	{"H", 74, 0},
-	{"K", 311, 0},
-	{"L", 7, 0},
-	{"M", 301, 0},
-	{"N", 249, 0},
-	{"P", 199, 0},
-	{"Q", 44, 0},
-	{"R", 45, 0},
-	{"S", 33, 0},
-	{"T", 245, 0},
-	{"U", 303, 0},
-	{"V", 0, 0},
-	{"W", 32, 0},
-	{"X", 252, 0},
-	{"Y", 246, 0},
-	{"Up", 172, 0},
-	{"Down", 173, 0},
-	{"Left", 174, 0},
-	{"Right", 175, 0},
-	{"Alt", 19, 0},
-	{"f1", 288, 0},
-	{"f2", 289, 0},
-	{"f3", 170, 0},
-	{"f5", 166, 0},
-	{"f6", 167, 0},
-	{"f7", 168, 0},
-	{"f8", 169, 0},
-	{"f9", 56, 0},
-	{"f10", 57, 0},
-	{"f11", 344, 0},
-	{"1", 157, 0},
-	{"2", 158, 0},
-	{"3", 160, 0},
-	{"4", 164, 0},
-	{"5", 165, 0},
-	{"6", 159, 0},
-	{"7", 161, 0},
-	{"8", 162, 0},
-	{"9", 163, 0},
-	{"Shift", 21, 0},
-	{"Break", 3, 0},
-	{"Scroll down", 14, 0},
-	{"Scroll up", 15, 0},
-	{"Lmouse", 142, 0},
-	{"Rmouse", 114, 0},
-	{"Ctrl", 132, 0},
-	{"Num 4", 124, 0},
-	{"Num 5", 128, 0},
-	{"Num 6", 125, 0},
-	{"Num 7", 117, 0},
-	{"Num 8", 127, 0},
-	{"Num 9", 118, 0},
-	{"Space", 143, 0},
-	{"Insert", 121, 0},
-	{"Caps lock", 137, 0},
-	{"Delete", 178, 0},
-	{"Tab", 192, 0},
-	{"Backspace", 194, 0},
-	{"Esc", 200, 0},
-	{"Page down", 207, 0},
-	{"Page up", 208, 0},
-	{"Home", 212, 0},
-	{"Enter", 215, 0},
-	{"Num plus", 314, 0},
-	{"Num minus", 315, 0}
-}
-setmetatable(key_mapper.KEYBOARD_KEYS, get_read_only_meta())
+local mouse_inputs <const> = table.const_all({
+	{name = "Scroll down", key_id = 14, group_id = 0},
+	{name = "Scroll up", key_id = 15, group_id = 0},
+	{name = "Mouse down", key_id = 332, group_id = 0},
+	{name = "Mouse right", key_id = 333, group_id = 0},
+	{name = "Lmouse", key_id = 142, group_id = 0},
+	{name = "Rmouse", key_id = 114, group_id = 0}
+})
 
-local mouse_inputs <const> =
-	{
-		{"Scroll down", 14, 0},
-		{"Scroll up", 15, 0},
-		{"Mouse down", 332, 0},
-		{"Mouse right", 333, 0},
-		{"Lmouse", 142, 0},
-		{"Rmouse", 114, 0}
-	}
-
-local menu_keys_to_vk <const> = {
+local menu_keys_to_vk <const> = table.const({
 	["NUM5"] = 0x65,
 	["RETURN"] = 0x0D,
 	["CLEAR"] = 0xC,
@@ -218,11 +203,11 @@ local menu_keys_to_vk <const> = {
 	["Æ"] = 0x28,
 	["Ø"] = 0x27,
 	["Å"] = 0x1A
-
-}
+})
 
 function key_mapper.is_table_of_virtual_keys_all_pressed(...)
 	local keys <const> = ...
+	assert(#keys > 0, "Tried to check if a table of zero virtual keys are pressed.")
 	for i = 1, #keys do
 		local Key <const> = MenuKey()
 		Key:push_vk(keys[i])
@@ -235,6 +220,8 @@ end
 
 function key_mapper.is_table_of_gta_keys_all_pressed(...)
 	local keys <const>, controller_type <const> = ...
+	assert(#keys > 0, "Tried to check if a table of zero keys are pressed.")
+	assert(controller_type == 0 or controller_type == 2, debug.traceback("Invalid controller type.", 2))
 	for i = 1, #keys do
 		if not controls.is_disabled_control_pressed(controller_type, keys[i]) then
 			return false
@@ -247,6 +234,8 @@ function key_mapper.do_table_of_gta_keys(...)
 	local keys <const>,
 	controller_type <const>,
 	time <const> = ...
+	assert(#keys > 0, "Tried to check if a table of zero keys are pressed.")
+	assert(controller_type == 0 or controller_type == 2, debug.traceback("Invalid controller type.", 2))
 	local time <const> = utils.time_ms() + time
 	while key_mapper.is_table_of_gta_keys_all_pressed(keys, controller_type) and time > utils.time_ms() do
 		system.yield(0)
@@ -256,45 +245,42 @@ end
 function key_mapper.get_virtual_key_of_2take1_bind(...)
 	local bind_name <const> = ...
 	local file <close> = io.open(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\2Take1Menu.ini")
-	if io.type(file) == "file" then
-		local Key = file:read("*a")
-		if Key then
-			Key = Key:match(bind_name.."=([%w_%+]+)\n")
-		end
-		if Key then
-			local keys = {}
-			for key in Key:gmatch("([_%w]+)%+?") do
-				for name, vk in pairs(menu_keys_to_vk) do
-					if name:upper() == key:upper() then
-						keys[#keys + 1] = menu_keys_to_vk[key:upper()]
-						break
-					end
-				end
+	assert(io.type(file) == "file", debug.traceback("Failed to open 2Take1Menu.ini", 2))
+	local Key = file:read("*a")
+	assert(Key, debug.traceback("Failed to obtain virtual key from 2Take1Menu.ini.", 2))
+	Key = Key:match(bind_name.."=([%w_%+]+)\n")
+	local keys <const> = {}
+	for key in Key:gmatch("([_%w]+)%+?") do
+		for name, _ in pairs(menu_keys_to_vk) do
+			if name:upper() == key:upper() then
+				keys[#keys + 1] = menu_keys_to_vk[key:upper()]
+				break
 			end
-			return keys
 		end
 	end
-	return {}
+	return keys
 end
 
 function key_mapper.is_2take1_menu_hotkey_pressed(bind_name)
-	return key_mapper.is_table_of_virtual_keys_all_pressed(key_mapper.get_virtual_key_of_2take1_bind(bind_name))
+	local keys <const> = key_mapper.get_virtual_key_of_2take1_bind(bind_name)
+	assert(#keys > 0, "Tried to check if a table of zero keys are pressed.")
+	return key_mapper.is_table_of_virtual_keys_all_pressed(keys)
 end
 
 function key_mapper.do_key(...)
-	local group <const>,
+	local controller_type <const>,
 	key <const>,
 	t <const> = ...
-	system.yield(0)
+	assert(controller_type == 0 or controller_type == 2, debug.traceback("Invalid controller type.", 2))
 	local time <const> = utils.time_ms() + t
-	while controls.is_disabled_control_pressed(group, key) and time > utils.time_ms() do
+	while controls.is_disabled_control_pressed(controller_type, key) and time > utils.time_ms() do
 		system.yield(0)
 	end
 end
 
 function key_mapper.do_vk(...)
-	local time,
-	virtual_keys <const> = ...
+	local time, virtual_keys <const> = ...
+	assert(#virtual_keys > 0, debug.traceback("Table of keys is empty.", 2))
 	time = utils.time_ms() + time
 	while key_mapper.is_table_of_virtual_keys_all_pressed(virtual_keys) and time > utils.time_ms() do
 		system.yield(0)
@@ -303,62 +289,56 @@ end
 
 function key_mapper.get_keyboard_key_from_name(...)
 	local key <const> = ...
-	for i, key_name in pairs(key_mapper.KEYBOARD_KEYS) do
-		if key_name[1] == key then
-			return key_name[2], key_name[3]
+	for _, key_name in pairs(key_mapper.KEYBOARD_KEYS) do
+		if key_name.name == key then
+			return key_name.key_id, key_name.group_id
 		end
 	end
-	return -1
 end
 
 function key_mapper.get_controller_key_from_name(...)
 	local key <const> = ...
-	for i, key_name in pairs(key_mapper.CONTROLLER_KEYS) do
-		if key_name[1] == key then
-			return key_name[2], key_name[3]
+	for _, key_name in pairs(key_mapper.CONTROLLER_KEYS) do
+		if key_name.name == key then
+			return key_name.key_id, key_name.group_id
 		end
 	end
-	return -1
 end
 
 function key_mapper.get_keyboard_key_name_from_control_int(...)
 	local key <const> = ...
-	for i, key_name in pairs(key_mapper.KEYBOARD_KEYS) do
-		if key_name[2] == key then
-			return key_name[1]
+	for _, key_name in pairs(key_mapper.KEYBOARD_KEYS) do
+		if key_name.key_id == key then
+			return key_name.key_id
 		end
 	end
-	return "off"
 end
 
 function key_mapper.get_controller_key_name_from_control_int(...)
 	local key <const> = ...
-	for i, key_name in pairs(key_mapper.CONTROLLER_KEYS) do
-		if key_name[2] == key then
-			return key_name[1]
+	for _, key_name in pairs(key_mapper.CONTROLLER_KEYS) do
+		if key_name.key_id == key then
+			return key_name.name
 		end
 	end
-	return "off"
 end
 
 function key_mapper.get_keyboard_key_control_int_from_name(...)
-	local key <const> = ...
-	for i, key_name in pairs(key_mapper.KEYBOARD_KEYS) do
-		if key_name[1] == key then
-			return key_name[2]
+	local key_name <const> = ...
+	for _, key in pairs(key_mapper.KEYBOARD_KEYS) do
+		if key.name == key_name then
+			return key.key_id
 		end
 	end
-	return -1
 end
 
 function key_mapper.get_controller_key_control_int_from_name(...)
-	local key <const> = ...
-	for i, key_name in pairs(key_mapper.CONTROLLER_KEYS) do
-		if key_name[1] == key then
-			return key_name[2]
+	local key_name <const> = ...
+	for _, key in pairs(key_mapper.CONTROLLER_KEYS) do
+		if key.name == key_name then
+			return key.key_id
 		end
 	end
-	return -1
 end
 
 return key_mapper

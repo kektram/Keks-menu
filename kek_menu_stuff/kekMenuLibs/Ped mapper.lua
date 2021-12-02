@@ -1,11 +1,12 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Ped mapper"] = "1.2.2"
+kek_menu.lib_versions["Ped mapper"] = "1.2.3"
 
-local ped_mapper = {}
-local essentials = kek_menu.require("Essentials")
+local ped_mapper <const> = {}
+local essentials <const> = kek_menu.require("Essentials")
+local enums <const> = kek_menu.require("Enums")
 
-local ped_models <const> = {
+local ped_models <const> = table.const({
 	[808859815] = "a_f_m_beach_01",
 	[3188223741] = "a_f_m_bevhills_01",
 	[2688103263] = "a_f_m_bevhills_02",
@@ -911,50 +912,23 @@ local ped_models <const> = {
 	[1126154828] = "a_c_shepherd",
 	[2705875277] = "a_c_stingray",
 	[2910340283] = "a_c_westy"
-}
+})
 
 ped_mapper.PED_HASHES = {}
-for hash, model in pairs(ped_models) do
+for hash, _ in pairs(ped_models) do
 	ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = hash
 end
-setmetatable(ped_mapper.PED_HASHES, essentials.get_read_only_meta())
+ped_mapper.PED_HASHES = table.const(ped_mapper.PED_HASHES)
 
 local model_to_hash = {}
 
 for hash, model in pairs(ped_models) do
 	model_to_hash[model] = hash
 end
-setmetatable(model_to_hash, essentials.get_read_only_meta())
 
-function ped_mapper.get_model_from_hash(...)
-	local hash <const> = ...
-	if ped_models[hash] then
-		return ped_models[hash]
-	end
-	return ""
-end
+model_to_hash = table.const(model_to_hash)
 
-function ped_mapper.get_hash_from_model(...)
-	local model <const>, no_animals <const> = ...
-	if model == "?" then
-		if no_animals then
-			return ped_mapper.PED_HASHES[math.random(1, #ped_mapper.PED_HASHES - 33)]
-		else
-			return ped_mapper.PED_HASHES[math.random(1, #ped_mapper.PED_HASHES)]
-		end
-	end
-	if model_to_hash[model] then
-		return model_to_hash[model]
-	end
-	for Model, hash in pairs(model_to_hash) do
-		if Model:find(model:lower(), 1, true) then
-			return model_to_hash[Model]
-		end
-	end
-	return 0
-end
-
-ped_mapper.LIST_OF_SPECIAL_PEDS = {
+ped_mapper.LIST_OF_SPECIAL_PEDS = table.const({
 	"a_m_m_tranvest_01",
 	"a_f_m_fatcult_01",
 	"a_m_m_acult_01",
@@ -979,7 +953,32 @@ ped_mapper.LIST_OF_SPECIAL_PEDS = {
 	"cs_bradcadaver",
 	"u_m_m_jesus_01",
 	"s_m_y_clown_01"
-}
-setmetatable(ped_mapper.LIST_OF_SPECIAL_PEDS, essentials.get_read_only_meta())
+})
+
+function ped_mapper.get_model_from_hash(hash)
+	essentials.assert(streaming.is_model_valid(hash), "Tried to get model from an invalid ped hash.")
+	essentials.assert(ped_models[hash], "Failed to get information about a valid, ped hash: "..hash)
+	return ped_models[hash]
+end
+
+function ped_mapper.get_hash_from_model(...)
+	local model <const>, no_animals <const> = ...
+	if model == "?" then
+		if no_animals then
+			return ped_mapper.PED_HASHES[math.random(1, #ped_mapper.PED_HASHES - 33)]
+		else
+			return ped_mapper.PED_HASHES[math.random(1, #ped_mapper.PED_HASHES)]
+		end
+	end
+	if model_to_hash[model] then
+		return model_to_hash[model]
+	end
+	for Model, _ in pairs(model_to_hash) do
+		if Model:find(model:lower(), 1, true) then
+			return model_to_hash[Model]
+		end
+	end
+	return 0
+end
 
 return ped_mapper

@@ -1,11 +1,12 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Vehicle mapper"] = "1.3.2"
+kek_menu.lib_versions["Vehicle mapper"] = "1.3.3"
 
-local vehicle_mapper = {}
-local essentials = kek_menu.require("Essentials")
+local vehicle_mapper <const> = {}
+local essentials <const> = kek_menu.require("Essentials")
+local enums <const> = kek_menu.require("Enums")
 
-local hash_to_model_or_name <const> = {
+local hash_to_model_or_name <const> = table.const_all({
 	[736672010] = {"dominator8", "Vapid Dominator GTT"},
 	[3186376089] = {"freightcar2", "Freight train 2"},
 	[2568944644] = {"comet6", "Pfister Comet S2"},
@@ -747,7 +748,7 @@ local hash_to_model_or_name <const> = {
 	[2194326579] = {"tug", "Buckingham Tug"},
 	[3929093893] = {"alkonost", "RO-86 Alkonost"},
 	[1336872304] = {"kosatka", "Rune Kosatka (Submarine HQ)"}
-}
+})
 
 local translated_vehicle_names
 if utils.file_exists(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\Vehicle names\\"..kek_menu.what_language:gsub("%.txt$", ".lua")) then
@@ -760,8 +761,10 @@ for hash, model in pairs(hash_to_model_or_name) do
 	model_to_hash[model[1]] = hash
 	name_to_hash[model[2]] = hash
 end
+model_to_hash = table.const(model_to_hash)
+name_to_hash = table.const(name_to_hash)
 
-vehicle_mapper.HELICOPTERS = {
+vehicle_mapper.HELICOPTERS = table.const({
 	gameplay.get_hash_key("savage"),
 	gameplay.get_hash_key("hunter"),
 	gameplay.get_hash_key("akula"),
@@ -778,29 +781,19 @@ vehicle_mapper.HELICOPTERS = {
 	gameplay.get_hash_key("volatus"),
 	gameplay.get_hash_key("skylift"),
 	gameplay.get_hash_key("maverick")
-}
-setmetatable(vehicle_mapper.HELICOPTERS, essentials.get_read_only_meta())
+})
 
 function vehicle_mapper.GetModelFromHash(...)
 	local hash <const> = ...
-	if hash_to_model_or_name[hash] then 
-		return hash_to_model_or_name[hash][1]
-	else
-		return tostring(hash)
-	end
-end
-
-function vehicle_mapper.get_translated_vehicle_name(...)
-	local hash <const> = ...
-	if translated_vehicle_names then
-		return translated_vehicle_names[hash] or "Failed to find name"
-	else
-		return vehicle_mapper.GetNameFromHash(hash)
-	end
+	essentials.assert(streaming.is_model_valid(hash), "Tried to get a model from an invalid hash.")
+	essentials.assert(hash_to_model_or_name[hash], "Missing information about a valid, requested vehicle hash: "..hash)
+	return hash_to_model_or_name[hash][1]
 end
 
 function vehicle_mapper.GetNameFromHash(...)
 	local hash <const> = ...
+	essentials.assert(streaming.is_model_valid(hash), "Tried to get a name from an invalid hash.")
+	essentials.assert(hash_to_model_or_name[hash], "Missing information about a valid, requested vehicle hash: "..hash)
 	if hash_to_model_or_name[hash] then
 		return hash_to_model_or_name[hash][2]
 	else
@@ -808,11 +801,19 @@ function vehicle_mapper.GetNameFromHash(...)
 	end
 end
 
+function vehicle_mapper.get_translated_vehicle_name(...)
+	local hash <const> = ...
+	essentials.assert(streaming.is_model_valid(hash), "Tried to get translated vehicle name from an invalid hash.")
+	essentials.assert(translated_vehicle_names[hash], "Missing information about a valid, requested vehicle hash: "..hash)
+	if translated_vehicle_names then
+		return translated_vehicle_names[hash]
+	else
+		return vehicle_mapper.GetNameFromHash(hash)
+	end
+end
+
 function vehicle_mapper.get_hash_from_name(...)
 	local model = ...
-	if type(model) ~= "string" then
-		return 0
-	end
 	if name_to_hash[model] then
 		return name_to_hash[model]
 	end
@@ -827,9 +828,6 @@ end
 
 function vehicle_mapper.GetHashFromModel(...)
 	local model = ...
-	if type(model) ~= "string" then
-		return 0
-	end
 	if model == "?" then
 		return vehicle.get_all_vehicle_model_hashes()[math.random(1, #vehicle.get_all_vehicle_model_hashes())]
 	end
@@ -849,14 +847,12 @@ end
 function vehicle_mapper.get_hash_from_name_or_model(...)
 	local str <const> = ...
 	local result = vehicle_mapper.GetHashFromModel(str)
-	if result ~= 0 then
-		return result
-	end
-	result = vehicle_mapper.get_hash_from_name(str)
 	if math.type(result) == "integer" and result ~= 0 then
 		return result
 	end
-	return 0
+	result = vehicle_mapper.get_hash_from_name(str)
+	essentials.assert(math.type(result) == "integer" and result ~= 0, "Failed to get vehicle hash from name or model.")
+	return result
 end
 
 return vehicle_mapper
