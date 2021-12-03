@@ -631,6 +631,7 @@ end
 	-- Request control
 		function kek_menu.get_control_of_entity(...)
 			local Entity <const>, time_to_wait <const>, no_condition <const> = ...
+			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to request control of a player ped.")
 			if not network.has_control_of_entity(Entity) 
 			and entity.is_an_entity(Entity) 
 			and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) 
@@ -658,7 +659,6 @@ end
 			weight <const>, 
 			not_dynamic_object <const>, 
 			not_networked <const> = ...
-
 			local Entity = 0
 			if streaming.is_model_valid(hash) and utils.time_ms() > u.new_session_timer then
 				if not streaming.is_model_an_object(hash) and not streaming.is_model_a_world_object(hash) then
@@ -1188,6 +1188,7 @@ end
 	-- What flags function
 		local function get_all_modder_flags(...)
 			local pid <const>, type <const> = ...
+			essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 			local number_of_flags = 0
 			local all_flags = ""
 			if player.is_player_valid(pid) then
@@ -1441,6 +1442,7 @@ end
 
 	-- Stat detect function
 		local function suspicious_stats(pid)
+			essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 			if player.is_player_valid(pid)
 			and globals.get_player_rank(pid) ~= 0 
 			and not toggle["Automatically check player stats"].data[player.get_player_scid(pid)] 
@@ -1543,7 +1545,7 @@ end
 							if what_was_detected:find("/", 1, true) then
 								what_was_detected = lang["Rid §"]..": "..what_was_detected:gsub("/", "")
 							elseif what_was_detected:find("&", 1, true) then 
-								what_was_detected = lang["IP §"]..": "..essentials.ipv4_to_dec(what_was_detected:gsub("&", ""))
+								what_was_detected = lang["IP §"]..": "..essentials.dec_to_ipv4(math.tointeger(what_was_detected:gsub("&", "")))
 							elseif what_was_detected:find("§", 1, true) then
 								what_was_detected = lang["Name §"]..": "..what_was_detected:gsub("§", "")
 							end
@@ -1918,10 +1920,11 @@ end
 			if remove_players then
 				entities = kek_entity.remove_player_entities(entities)
 			end
-			table.sort(entities, function(a, b) return (essentials.get_distance_between(a, essentials.get_ped_closest_to_your_pov()) < essentials.get_distance_between(b, essentials.get_ped_closest_to_your_pov())) end)
+			local Ped <const> = essentials.get_ped_closest_to_your_pov()
+			table.sort(entities, function(a, b) return (essentials.get_distance_between(a, Ped) < essentials.get_distance_between(b, Ped)) end)
 			for _, Vehicle in pairs(entities) do
 				if not entity.is_entity_attached(Vehicle) and kek_menu.get_control_of_entity(Vehicle, 0) then
-					effect(Vehicle, essentials.get_ped_closest_to_your_pov(), entities)
+					effect(Vehicle, Ped, entities)
 					if wait then 
 						essentials.random_wait(wait)
 					end
@@ -2189,6 +2192,7 @@ end
 
 		local function disable_weapons(...)
 			local f <const>, pid <const> = ...
+			essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 			if kek_entity.is_any_tasks_active(player.get_player_ped(pid), {
 				enums.ctasks.AimGunOnFoot,
 				enums.ctasks.Weapon,
@@ -2514,7 +2518,7 @@ end
 						if not player_history.hour_parents[year..month..day..time] then
 							player_history.hour_parents[year..month..day..time] = menu.add_feature(time, "parent", player_history.day_parents[year..month..day].id)
 						end
-						local name <const>, rid <const>, ip <const> = player.get_player_name(pid), player.get_player_scid(pid), essentials.get_ip_in_ipv4(pid)
+						local name <const>, rid <const>, ip <const> = player.get_player_name(pid), player.get_player_scid(pid), essentials.dec_to_ipv4(player.get_player_ip(pid))
 						local player_info <const> = name.." ["..os.date("%X").."]"
 						local info_to_log <const> = "|"..name.."| &"..rid.."& ^"..ip.."^".." !"..os.date("%X").."!".." <"..date..">"
 						local path <const> = "scripts\\kek_menu_stuff\\Player history\\"..year.."\\"..month.."\\"..day
@@ -3047,6 +3051,7 @@ end
 
 		local function unblock_area(...)
 			local model <const>, positions <const> = ...
+			essentials.assert(streaming.is_model_valid(gameplay.get_hash_key(model)), "Invalid model.")
 			local initial_pos <const> = player.get_player_coords(player.player_id())
 			local had_to_teleport
 			for _, pos in pairs(positions) do
@@ -7102,7 +7107,7 @@ end
 				if f.value == 0 then
 					utils.to_clipboard(tostring(player.get_player_scid(pid)))
 				elseif f.value == 1 then
-					utils.to_clipboard(essentials.get_ip_in_ipv4(pid))
+					utils.to_clipboard(essentials.dec_to_ipv4(player.get_player_ip(pid)))
 				elseif f.value == 2 then
 					utils.to_clipboard(select(1, string.format("%x", player.get_player_host_token(pid))))
 				elseif f.value == 3 then
@@ -7147,24 +7152,29 @@ end
 
 	local function initialize_settings(...)
 		local file_path <const> = ...
-		for line in essentials.get_file_string(file_path, "*a"):gmatch("([^\n]*)\n?") do
+		essentials.assert(utils.file_exists(paths.home..file_path), "Tried to initialize settings from a file that doesn't exist.")
+		local str <const> = essentials.get_file_string(file_path, "*a")
+		essentials.assert(str ~= "", "Failed to open settings file.")
+		for line in str:gmatch("([^\n]*)\n?") do
 			local name <const> = line:match("^(.-)=")
-			if name and kek_menu.default_settings[name] ~= nil then
-				local setting = line:match("=(.+)$")
-				if tonumber(setting) and type(kek_menu.default_settings[name]) == "number" then
-					setting = tonumber(setting)
-				elseif setting == nil then
-					setting = kek_menu.default_settings[name]
-				elseif type(kek_menu.default_settings[name]) == "boolean" then
-					setting = setting == "true"
-				end
-				if type(setting) ~= type(kek_menu.default_settings[name]) then
-					setting = kek_menu.default_settings[name]
-				end
-				kek_menu.settings[name] = setting
+			essentials.assert(name, "Failed to initialize setting name: "..line)
+			local setting = line:match("=(.+)$")
+			essentials.assert(setting, "Failed to initialize setting value: "..line)
+			if tonumber(setting) and type(kek_menu.default_settings[name]) == "number" then
+				setting = tonumber(setting)
+			elseif setting == nil then
+				setting = kek_menu.default_settings[name]
+			elseif type(kek_menu.default_settings[name]) == "boolean" then
+				setting = setting == "true"
 			end
+			essentials.assert(
+				kek_menu.default_settings[name] == nil or type(setting) == type(kek_menu.default_settings[name]), 
+				"Initialized setting value to wrong data type: "..line.."\nExpected type \""..type(kek_menu.default_settings[name]).."\", got \""..type(setting).."\"."
+			)
+			kek_menu.settings[name] = setting
 	    end
 		local file <close> = io.open(paths.home..file_path, "w+")
+		essentials.assert(io.type(file) == "file", "Failed to open settings file.")
 		for setting_name, default in pairs(kek_menu.default_settings) do
 			if kek_menu.settings[setting_name] == nil then
 				kek_menu.settings[setting_name] = default

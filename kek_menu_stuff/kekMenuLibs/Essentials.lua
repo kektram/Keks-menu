@@ -378,14 +378,8 @@ end
 		local path <const>,
 		type <const>,
 		not_wait <const> = ...
-		essentials.assert(utils.file_exists(home..path), "Tried to read from a file that doesn't exist.")
 		local file <close> = io.open(home..path)
-		if io.type(file) == "file" then
-			local str <const> = essentials.file(file, "read", type) or ""
-			return str
-		else
-			essentials.log_error("FAILED TO OPEN "..path)
-		end
+		return essentials.file(file, "read", type) or ""
 	end
 
 -- Search for file
@@ -615,11 +609,10 @@ end
 		end
 	end
 
--- Get IP: Creds to Proddy
-	function essentials.get_ip_in_ipv4(...)
-		local pid <const> = ...
-		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
-		local ip <const> = player.get_player_ip(pid)
+-- Dec to ipv4
+	function essentials.dec_to_ipv4(...)
+		local ip <const> = ...
+		essentials.assert(math.type(ip) == "integer", "Tried to convert non integer value to ipv4 address.")
 		return string.format("%i.%i.%i.%i", ip >> 24 & 255, ip >> 16 & 255, ip >> 8 & 255, ip & 255)
 	end
 

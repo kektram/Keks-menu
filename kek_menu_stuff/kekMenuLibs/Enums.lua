@@ -2,7 +2,7 @@
 
 kek_menu.lib_versions["Enums"] = "1.0.0"
 
-return table.const_all({
+return {
 	ped_types = {
 		any_ped = -1,
 		player_0 = 0,
@@ -839,4 +839,4 @@ return table.const_all({
 		["F9 Y"] = 56,
 		["LEFT MOUSE BUTTON RT"] = 142
 	}
-})
+}
