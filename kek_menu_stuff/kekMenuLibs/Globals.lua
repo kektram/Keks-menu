@@ -313,44 +313,31 @@ local stats <const> = table.const({ -- Thanks to Sainan for some of these stats
 		["Bribe authorities"] = -151720011
 	})
 
+	globals.KICK_NAMES = {}
+	globals.CRASH_NAMES = {}
+
+	for name, _ in pairs(script_event_hashes) do
+		if name:find("^Kick %d+$") then
+			globals.KICK_NAMES[#globals.KICK_NAMES + 1] = name
+		end
+		if name:find("^Crash %d+$") then
+			globals.CRASH_NAMES[#globals.CRASH_NAMES + 1] = name
+		end
+	end
+
 	function globals.get_full_arg_table(...)
 		local pid <const> = ...
 		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		local args <const> = {pid}
 		for i = 2, 39 do
-			args[i] = math.random(-2147483647, 2147483647)
+			args[#args + 1] = math.random(-2147483647, 2147483647)
 		end
 		return args
 	end
 
 	function globals.get_script_event_hash(name)
-		local hash <const> = script_event_hashes[name]
-		essentials.assert(math.type(hash) == "integer", "Failed to get hash from script name: "..(name or ""))
-		return hash
-	end
-
-	function globals.get_kick_hashes()
-		local names <const> = {}
-		local hashes <const> = {}
-		for name, hash in pairs(script_event_hashes) do
-			if name:find("^Kick %d+$") then
-				names[#names + 1] = name
-				hashes[#hashes + 1] = hash
-			end
-		end
-		return names, hashes
-	end
-
-	function globals.get_crash_hashes()
-		local names <const> = {}
-		local hashes <const> = {}
-		for name, hash in pairs(script_event_hashes) do
-			if name:find("^Crash %d+$") then
-				names[#names + 1] = name
-				hashes[#hashes + 1] = hash
-			end
-		end
-		return names, hashes
+		essentials.assert(script_event_hashes[name], "Failed to get hash from script name: "..name)
+		return script_event_hashes[name]
 	end
 
 	local SE_send_limiter = {}
@@ -451,7 +438,7 @@ local stats <const> = table.const({ -- Thanks to Sainan for some of these stats
 					math.random(-2147483647, -10)
 				})
 			end
-			for _, script_name in pairs(globals.get_kick_hashes()) do
+			for _, script_name in pairs(globals.KICK_NAMES) do
 				globals.send_script_event(script_name, pid, globals.get_full_arg_table(pid))
 			end
 		end
@@ -485,7 +472,7 @@ local stats <const> = table.const({ -- Thanks to Sainan for some of these stats
 				end
 				globals.send_script_event("Script host crash 2", pid, parameters)
 			end
-			for _, script_name in pairs(globals.get_crash_hashes()) do
+			for _, script_name in pairs(globals.CRASH_NAMES) do
 				local parameters <const> = {
 					pid
 				}

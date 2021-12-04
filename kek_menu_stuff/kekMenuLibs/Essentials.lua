@@ -11,7 +11,6 @@ local kek_menu_stuff_path <const> = home.."scripts\\kek_menu_stuff\\"
 
 function essentials.assert(bool, msg)
 	if not bool then
-		essentials.msg(debug.traceback(msg, 2), 112, true, 6)
 		essentials.log_error(msg)
 		error(msg)
 	end
@@ -236,11 +235,8 @@ end
 
 -- Request ptfx
 	local function ptfx_count()
-		local count = 0
-		local status
 		repeat
-			status = true
-			count = count + 1
+			local status = true
 			for i = 1, #kek_menu.ptfx do
 				if utils.time_ms() > kek_menu.ptfx[i] then
 					table.remove(kek_menu.ptfx, i)
@@ -248,7 +244,7 @@ end
 					break
 				end
 			end
-		until status or count > 200
+		until status
 		return #kek_menu.ptfx <= kek_menu.PTFX_LIMIT
 	end
 	function essentials.request_ptfx(...)

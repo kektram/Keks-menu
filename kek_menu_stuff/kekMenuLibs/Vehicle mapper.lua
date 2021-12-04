@@ -828,13 +828,13 @@ end
 
 function vehicle_mapper.GetHashFromModel(...)
 	local model = ...
-	if model == "?" then
-		return vehicle.get_all_vehicle_model_hashes()[math.random(1, #vehicle.get_all_vehicle_model_hashes())]
-	end
 	model = (model:gsub("%s", ""):lower()):gsub("ii", "2")
 	if model_to_hash[model] then
 		return model_to_hash[model]
 	else
+		if model == "?" then
+			return vehicle.get_all_vehicle_model_hashes()[math.random(1, #vehicle.get_all_vehicle_model_hashes())]
+		end
 		for Model, hash in pairs(model_to_hash) do
 			if Model:find(model, 1, true) then
 				return hash

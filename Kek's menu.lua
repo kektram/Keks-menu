@@ -251,8 +251,8 @@ end
 		["Essentials"] = "1.3.3",
 		["Enums"] = "1.0.0",
 		["Vehicle mapper"] = "1.3.3", 
-		["Ped mapper"] = "1.2.3", 
-		["Object mapper"] = "1.2.3", 
+		["Ped mapper"] = "1.2.4",
+		["Object mapper"] = "1.2.4", 
 		["Globals"] = "1.2.7",
 		["Weapon mapper"] = "1.0.4",
 		["Location mapper"] = "1.0.1",
@@ -631,7 +631,6 @@ end
 	-- Request control
 		function kek_menu.get_control_of_entity(...)
 			local Entity <const>, time_to_wait <const>, no_condition <const> = ...
-			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to request control of a player ped.")
 			if not network.has_control_of_entity(Entity) 
 			and entity.is_an_entity(Entity) 
 			and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) 
@@ -661,6 +660,8 @@ end
 			not_networked <const> = ...
 			local Entity = 0
 			if streaming.is_model_valid(hash) and utils.time_ms() > u.new_session_timer then
+				essentials.assert(not object_mapper.BLACKLISTED_OBJECTS[hash], "Tried to spawn a blacklisted object.")
+				essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a blacklisted ped.")
 				if not streaming.is_model_an_object(hash) and not streaming.is_model_a_world_object(hash) then
 					repeat
 						system.yield(0)
@@ -2732,7 +2733,6 @@ end
 		search_feat.data = {}
 
 		toggle["Vehicle blacklist"] = menu.add_feature(lang["Vehicle blacklist §"], "toggle", u.vehicle_blacklist.id, function(f)
-			local str <const> = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", "*a")
 			local recently_activated_blacklist <const> = {}
 			while f.on do
 				for pid in essentials.players() do
@@ -2752,7 +2752,6 @@ end
 						if what_reaction == "Random" then
 							what_reaction = vehicle_blacklist_reaction_names[math.random(2, #vehicle_blacklist_reaction_names - 3)]
 						end
-						kek_entity.modify_entity_godmode(player.get_player_vehicle(pid), false)
 						menu.create_thread(function()
 							local veh_name <const> = vehicle_mapper.get_translated_vehicle_name(entity.get_entity_model_hash(player.get_player_vehicle(pid)))
 							if what_reaction == "EMP" then

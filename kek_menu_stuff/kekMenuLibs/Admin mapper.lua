@@ -221,7 +221,7 @@ end
 
 function admin_mapper.is_there_admin_in_session()
 	for pid in essentials.players() do
-		if admin_mapper.is_admin(player.get_player_name(pid), player.get_player_scid(pid), esessentials.dec_to_ipv4(player.get_player_ip(pid))) then
+		if admin_mapper.is_admin(player.get_player_name(pid), player.get_player_scid(pid), essentials.dec_to_ipv4(player.get_player_ip(pid))) then
 			return true
 		end
 	end

@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Ped mapper"] = "1.2.3"
+kek_menu.lib_versions["Ped mapper"] = "1.2.4"
 
 local ped_mapper <const> = {}
 local essentials <const> = kek_menu.require("Essentials")
@@ -914,6 +914,13 @@ local ped_models <const> = table.const({
 	[2910340283] = "a_c_westy"
 })
 
+ped_mapper.BLACKLISTED_PEDS = table.const({ -- These will crash yours or other's game
+	[762327283] = "slod_small_quadped",
+	[1057201338] = "slod_human",
+	[-2056455422] = "slod_large_quadped",
+	[2238511874] = "slod_large_quadped" -- In case unsigned version is tried
+})
+
 ped_mapper.PED_HASHES = {}
 for hash, _ in pairs(ped_models) do
 	ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = hash
@@ -963,15 +970,15 @@ end
 
 function ped_mapper.get_hash_from_model(...)
 	local model <const>, no_animals <const> = ...
+	if model_to_hash[model] then
+		return model_to_hash[model]
+	end
 	if model == "?" then
 		if no_animals then
 			return ped_mapper.PED_HASHES[math.random(1, #ped_mapper.PED_HASHES - 33)]
 		else
 			return ped_mapper.PED_HASHES[math.random(1, #ped_mapper.PED_HASHES)]
 		end
-	end
-	if model_to_hash[model] then
-		return model_to_hash[model]
 	end
 	for Model, _ in pairs(model_to_hash) do
 		if Model:find(model:lower(), 1, true) then

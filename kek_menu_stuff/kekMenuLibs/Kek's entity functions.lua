@@ -351,6 +351,7 @@ local enums <const> = kek_menu.require("Enums")
 		if entity.is_an_entity(Ped) and entity.is_an_entity(Vehicle) then
 			essentials.assert(entity.is_entity_a_ped(Ped), "Expected a ped from argument \"Ped\".")
 			essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
+			essentials.assert(Ped == player.get_player_ped(player.player_id()) or not ped.is_ped_a_player(Ped), "Expected your player ped or a non-player ped.")
 			if ped.is_ped_in_any_vehicle(Ped) then
 				local seat <const> = kek_entity.get_seat_ped_is_in(Vehicle, Ped)
 				ped.clear_ped_tasks_immediately(Ped)
@@ -592,6 +593,7 @@ local enums <const> = kek_menu.require("Enums")
 		set_all_attributes_to_true <const>,
 		attributes <const> = ...
 		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped from argument \"Ped\".")
+		essentials.assert(not ped.is_ped_a_player(Ped), "Expected a non-player ped.")
 		for attribute_id, is_on in pairs({
 			[0] = attributes.cover,
 			[1] = attributes.use_vehicle,
