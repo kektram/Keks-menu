@@ -316,7 +316,7 @@ Disable ped spawning §禁止附近生成NPC
 Disable vehicle spawning §禁止附近生成载具
 Cops clear distance §警察清除距离
 Set on fire §火烧
-Clear ped tasks §清除任务NPC
+Clear ped tasks §清除NPC的任务
 Kek's chopper §kek直升机
 Session trolling §战局恶搞
 Vehicles §载具
@@ -487,7 +487,6 @@ Unblock §取消阻止
 Type in what to spam in chat §请输入文本内容
 Xml file is empty. §Xml文件为空
 File name §文件名称
-Wrong file extension. §文件扩展名错误
 Warning: missing "%" before any of these characters; §警告:在这些字符前面缺少 "%" .
 This is fine, just note that if you don't put the "%" before those characters, they mean something else. §这还好,但请注意,如果你不把 "%" 放在这些字符前,它们就意味着别的东西.
 Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §无效模式.很可能在某处缺少 “[” 、“]” 、“(” 、“)” 或 “%”.也可能是“[]”,有“[]”会导致错误
