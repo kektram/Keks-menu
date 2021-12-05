@@ -564,11 +564,15 @@ local enums <const> = kek_menu.require("Enums")
 			local car = hash_or_entity
 			local spawn_pos
 			if not entity.is_an_entity(hash_or_entity) then
-				car = kek_menu.spawn_entity(hash_or_entity, function()
-					spawn_pos = kek_entity.get_vector_relative_to_entity(essentials.get_most_relevant_entity(pid), distance_from_target, nil, nil, pid)
-					spawn_pos.z = select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f1, v3())).z
-					return spawn_pos, player.get_player_heading(pid)
-				end)
+				if streaming.is_model_a_vehicle(hash_or_entity) then
+					car = kek_menu.spawn_entity(hash_or_entity, function()
+						spawn_pos = kek_entity.get_vector_relative_to_entity(essentials.get_most_relevant_entity(pid), distance_from_target, nil, nil, pid)
+						spawn_pos.z = select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f1, v3())).z
+						return spawn_pos, player.get_player_heading(pid)
+					end)
+				else
+					return 0
+				end
 			else
 				essentials.assert(not entity.is_an_entity(hash_or_entity) or entity.is_entity_a_vehicle(hash_or_entity), "Expected a vehicle from argument \"hash_or_entity\".")
 			end
@@ -709,31 +713,40 @@ local enums <const> = kek_menu.require("Enums")
 	end
 
 	function kek_entity.spawn_car()
-		kek_menu.your_vehicle_entity_ids[#kek_menu.your_vehicle_entity_ids + 1] = player.get_player_vehicle(player.player_id())
-		if kek_menu.toggle["Always ask what #vehicle#"].on then
-			local input <const>, status <const> = essentials.get_input(lang["Type in what car to use §"], "", 128, 0)
-			if status == 2 then
-				return
-			end
-			kek_menu.what_vehicle_model_in_use = input
-		end
-		if kek_menu.toggle["Delete old #vehicle#"].on then
-			for _, Entity in pairs(kek_menu.your_vehicle_entity_ids) do
-				kek_entity.hard_remove_entity_and_its_attachments(Entity)
-			end
-			kek_menu.your_vehicle_entity_ids = {}
-		end
 		local hash <const> = vehicle_mapper.get_hash_from_name_or_model(kek_menu.what_vehicle_model_in_use)
-		local velocity <const> = entity.get_entity_velocity(essentials.get_most_relevant_entity(player.player_id()))
-		local Vehicle <const> = kek_menu.spawn_entity(hash, function()
-			return get_prefered_vehicle_pos(hash), player.get_player_heading(player.player_id())
-		end, kek_menu.toggle["Spawn #vehicle# in godmode"].on, false, kek_menu.toggle["Spawn #vehicle# maxed"].on)
-		if kek_menu.toggle["Always f1 wheels on #vehicle#"].on then
-			vehicle.set_vehicle_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
+		if streaming.is_model_a_vehicle(hash) then
+			if not kek_menu.entity_manager:update().is_vehicle_limit_not_breached then
+				essentials.msg(lang["Failed to spawn vehicle. Vehicle limit was reached §"], 6, true, 6)
+				return -1
+			end
+			kek_menu.your_vehicle_entity_ids[#kek_menu.your_vehicle_entity_ids + 1] = player.get_player_vehicle(player.player_id())
+			if kek_menu.toggle["Always ask what #vehicle#"].on then
+				local input <const>, status <const> = essentials.get_input(lang["Type in what car to use §"], "", 128, 0)
+				if status == 2 then
+					return
+				end
+				kek_menu.what_vehicle_model_in_use = input
+			end
+			if kek_menu.toggle["Delete old #vehicle#"].on then
+				for _, Entity in pairs(kek_menu.your_vehicle_entity_ids) do
+					kek_entity.hard_remove_entity_and_its_attachments(Entity)
+				end
+				kek_menu.your_vehicle_entity_ids = {}
+			end
+			local velocity <const> = entity.get_entity_velocity(essentials.get_most_relevant_entity(player.player_id()))
+			local Vehicle <const> = kek_menu.spawn_entity(hash, function()
+				return get_prefered_vehicle_pos(hash), player.get_player_heading(player.player_id())
+			end, kek_menu.toggle["Spawn #vehicle# in godmode"].on, false, kek_menu.toggle["Spawn #vehicle# maxed"].on)
+			if kek_menu.toggle["Always f1 wheels on #vehicle#"].on then
+				vehicle.set_vehicle_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
+			end
+			kek_entity.vehicle_preferences(Vehicle)
+			vehicle.set_vehicle_engine_on(Vehicle, true, true, false)
+			kek_menu.your_vehicle_entity_ids[#kek_menu.your_vehicle_entity_ids + 1] = Vehicle
+		else
+			essentials.msg(lang["Failed to spawn vehicle. Invalid vehicle hash. §"], 6, true, 6)
+			return -1
 		end
-		kek_entity.vehicle_preferences(Vehicle)
-		vehicle.set_vehicle_engine_on(Vehicle, true, true, false)
-		kek_menu.your_vehicle_entity_ids[#kek_menu.your_vehicle_entity_ids + 1] = Vehicle
 	end
 
 -- Glitch vehicle

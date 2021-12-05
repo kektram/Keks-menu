@@ -260,7 +260,7 @@ end
 		["Drive style mapper"] = "1.0.3",
 		["Menyoo spawner"] = "2.0.2",
 		["Kek's entity functions"] = "1.1.7",
-		["Kek's trolling entities"] = "1.0.6",
+		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.1",
 		["Admin mapper"] = "1.0.3",
 		["Vehicle saver"] = "1.0.8"
@@ -659,9 +659,10 @@ end
 			not_dynamic_object <const>, 
 			not_networked <const> = ...
 			local Entity = 0
-			if streaming.is_model_valid(hash) and utils.time_ms() > u.new_session_timer then
-				essentials.assert(not object_mapper.BLACKLISTED_OBJECTS[hash], "Tried to spawn a blacklisted object.")
-				essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a blacklisted ped.")
+			essentials.assert(streaming.is_model_valid(hash), "Tried to use an invalid model hash.")
+			essentials.assert(not object_mapper.BLACKLISTED_OBJECTS[hash], "Tried to spawn a blacklisted object.")
+			essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a blacklisted ped.")
+			if utils.time_ms() > u.new_session_timer then
 				if not streaming.is_model_an_object(hash) and not streaming.is_model_a_world_object(hash) then
 					repeat
 						system.yield(0)
@@ -1025,12 +1026,6 @@ for _, properties in pairs({
 		setting_name = "otr #chat command#", 
 		setting = true, 
 		feature_name = lang["off the radar §"]
-	},
-	{
-		setting_name = "menyoovehicle #chat command#", 
-		setting = false, 
-		feature_name = lang["Menyoo vehicle §"], 
-		extra_command_display = " <Vehicle>"
 	},
 	{
 		setting_name = "Spawn #chat command#", 
@@ -2592,9 +2587,12 @@ end
 					system.yield(0)
 					for i = 1, 10 do
 						if not entities[i] or not entity.is_an_entity(entities[i]) then
-							entities[i] = kek_menu.spawn_entity(vehicle_mapper.get_hash_from_name_or_model(kek_menu.what_vehicle_model_in_use), function()
-								return player.get_player_coords(player.player_id()) + v3(0, 0, essentials.random_real(30, 50)), 0
-							end, false, true)
+							local hash <const> = vehicle_mapper.get_hash_from_name_or_model(kek_menu.what_vehicle_model_in_use)
+							if streaming.is_model_a_vehicle(hash) then
+								entities[i] = kek_menu.spawn_entity(hash, function()
+									return player.get_player_coords(player.player_id()) + v3(0, 0, essentials.random_real(30, 50)), 0
+								end, false, true)
+							end
 						end
 						if not f.on then
 							break
@@ -2822,11 +2820,21 @@ end
 				return
 			end
 			local hash <const> = vehicle_mapper.get_hash_from_name_or_model(model:lower())
-			if streaming.is_model_valid(hash) then
+			if streaming.is_model_a_vehicle(hash) then
+				local spawn_count = 0
 				for pid in essentials.players() do
 					local car <const> = kek_menu.spawn_entity(hash, function()
 						return location_mapper.get_most_accurate_position(player.get_player_coords(pid)), player.get_player_heading(pid)
 					end, toggle["Spawn #vehicle# in godmode"].on, false, toggle["Spawn #vehicle# maxed"].on)
+					if not entity.is_an_entity(car) then
+						local count = 0
+						for pid in essentials.players(true) do
+							count = count + 1
+						end
+						essentials.msg(lang["Failed to spawn §"].." "..(count - spawn_count).."/"..count.." "..lang["Vehicles §"]:lower()..". "..lang["Vehicle limit was reached. §"], 6, true, 6)
+						break
+					end
+					spawn_count = spawn_count + 1
 					decorator.decor_set_int(car, "MPBitset", 1 << 10)
 				end
 				essentials.msg(lang["Cars spawned. §"], 140, true)
@@ -3960,8 +3968,7 @@ end
 							essentials.send_message("[Chat commands]: Your chat command access have been revoked, "..player.get_player_name(event.player)..".", event.player == player.player_id())
 							return
 						end
-						if player.is_player_valid(event.player) 
-						and (not toggle["Only friends can use chat commands"].on or network.is_scid_friend(player.get_player_scid(event.player)) or player.player_id() == event.player) then
+						if player.is_player_valid(event.player) and (not toggle["Only friends can use chat commands"].on or network.is_scid_friend(player.get_player_scid(event.player)) or player.player_id() == event.player) then
 							local str = event.body:lower()
 							local found_player_pid
 							local num = tonumber(str:match("%((%d+)%)") or 1)
@@ -3977,18 +3984,24 @@ end
 							else
 								pid = event.player
 							end
-							if f.on
-							and player.is_player_valid(pid)
-							and (not toggle["Friends can't be targeted by chat commands"].on or event.player == pid or not network.is_scid_friend(player.get_player_scid(pid)))
-							and (not toggle["You can't be targeted"].on or event.player == player.player_id() or player.player_id() ~= pid) then
+							if toggle["You can't be targeted"].on and player.player_id() == pid and event.player ~= player.player_id() then
+								essentials.send_message("[Chat commands]: You can't use chat commands on this player.")
+								return
+							end
+							if toggle["Friends can't be targeted by chat commands"].on and event.player ~= pid and network.is_scid_friend(player.get_player_scid(pid)) and player.player_id() ~= event.player then
+								essentials.send_message("[Chat commands]: You can't use chat commands on this player.")
+								return
+							end
+							if f.on and player.is_player_valid(pid) then
 								if kek_menu.settings["Spawn #chat command#"] and str:find("^%pspawn%s+.+") then
 									if not kek_menu.entity_manager:update().is_vehicle_limit_not_breached then
 										essentials.send_message("[Chat commands]: Vehicle spawn limit is reached. Spawns are disabled.", event.player == player.player_id())
 										return
 									end
 									local hash <const> = vehicle_mapper.get_hash_from_name_or_model(str:match("^%pspawn%s+(.*)"))
-									if player.player_id() ~= event.player and essentials.get_index_of_value(f.data.hashes_not_allowed_to_spam, hash) then
-										num = 1
+									if player.player_id() ~= event.player and num > 1 and essentials.get_index_of_value(f.data.hashes_not_allowed_to_spam, hash) then
+										essentials.send_message("[Chat commands]: You're not allowed to spawn more than one of this vehicle at once.")
+										return
 									end
 									if not streaming.is_model_a_vehicle(hash) then
 										essentials.send_message("[Chat commands]: Invalid vehicle name.", event.player == player.player_id())
@@ -4001,22 +4014,21 @@ end
 										essentials.send_message("[Chat commands]: This vehicle is blacklisted.", event.player == player.player_id())
 										return
 									end
-									if streaming.is_model_valid(hash) then
-										menu.create_thread(function()
-											if num > 24 and event.player ~= player.player_id() then
-												num = 24
+									menu.create_thread(function()
+										if num > 12 then
+											essentials.send_message("[Chat commands]: You're not allowed to spawn more than 12 vehicles at once.", event.player == player.player_id())
+											return
+										end
+										for i = 1, num do
+											system.yield(100)
+											local Vehicle <const> = kek_menu.spawn_entity(hash, function() 
+												return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 5)) + v3(0, 0, (i - 1) * 3), 0
+											end, toggle["Spawn #vehicle# in godmode"].on, false, toggle["Spawn #vehicle# maxed"].on, enums.ped_types.civmale)
+											if not entity.is_an_entity(Vehicle) then
+												essentials.send_message("[Chat commands]: Vehicle spawn limit is reached. Spawns are disabled.", event.player == player.player_id())
 											end
-											if num > 64 then
-												num = 64
-											end
-											for i = 1, num do
-												system.yield(100)
-												kek_menu.spawn_entity(hash, function() 
-													return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 5)) + v3(0, 0, (i - 1) * 3), 0
-												end, toggle["Spawn #vehicle# in godmode"].on, false, toggle["Spawn #vehicle# maxed"].on, enums.ped_types.civmale)
-											end
-										end, nil)
-									end
+										end
+									end, nil)
 								elseif kek_menu.settings["weapon #chat command#"] and str:find("^%pweapon%s+.+") then
 									if str:find("^%pweapon%s+all$") then
 										for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
@@ -4063,25 +4075,6 @@ end
 											end
 										end
 									end
-								elseif kek_menu.settings["menyoovehicle #chat command#"] and str:find("^%pmenyoovehicle%s*[%w%p]*$") then
-									menu.create_thread(function()
-										if str:match("^%pmenyoovehicle%s+([%w%p]+)$") then
-											for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
-												if file_name:lower():find(str:match("^%pmenyoovehicle%s+([%w%p]+)$"):lower()) then
-													menyoo.spawn_custom_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..file_name, pid, true)
-													break
-												end
-											end
-										else
-											local files <const> = {}
-											for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
-												files[#files + 1] = file_name
-											end
-											if #files > 0 then
-												menyoo.spawn_custom_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..files[math.random(1, #files)], pid, true)
-											end
-										end
-									end, nil)
 								elseif kek_menu.settings["Kill #chat command#"] and str:find("^%p+kill") and (pid ~= event.player or found_player_pid) then
 									if player.is_player_god(pid) then
 										essentials.send_message("[Chat commands] Failed to kill "..player.get_player_name(pid).."; He is in a property or in godmode.", event.player == player.player_id())
@@ -4109,9 +4102,17 @@ end
 								elseif kek_menu.settings["neverwanted #chat command#"] and str:find("^%pneverwanted%s*$") then
 									menu.get_player_feature(player_feat_ids["Never wanted"]).feats[pid]:toggle()
 								elseif kek_menu.settings["Cage #chat command#"] and str:find("^%pcage%s*$") and (pid ~= event.player or found_player_pid) then
-									menu.create_thread(function()
-										kek_entity.create_cage(pid)
-									end, nil)
+									local update <const> = kek_menu.entity_manager:update()
+									if update.is_object_limit_not_breached and update.is_ped_limit_not_breached then
+										menu.create_thread(function()
+											local Ped <const> = kek_entity.create_cage(pid)
+											if not entity.is_entity_a_ped(Ped) then
+												essentials.send_message("[Chat commands]: Failed to spawn cage. Entity limits are reached.", event.player == player.player_id())
+											end
+										end, nil)
+									else
+										essentials.send_message("[Chat commands]: Failed to spawn cage. Entity limits are reached.", event.player == player.player_id())
+									end
 								elseif kek_menu.settings["Kick #chat command#"] and str:find("^%pkick%s*$") then
 									if pid ~= player.player_id() and (pid ~= event.player or found_player_pid) and not network.is_scid_friend(player.get_player_scid(pid)) then
 										menu.create_thread(function()
@@ -4126,26 +4127,38 @@ end
 									end
 								elseif kek_menu.settings["clowns #chat command#"] and str:find("^%pclowns%s*$") then
 									if num > 5 and event.player ~= player.player_id() then
-										num = 5
+										essentials.send_message("[Chat commands]: You can't spawn more than 5 clowns at once.")
+										return
 									end
 									if num > 15 then
-										num = 15
+										essentials.send_message("[Chat commands]: You can't spawn more than 15 clowns at once.", true)
+										return
 									end
 									menu.create_thread(function()
 										for i = 1, num do
-											troll_entity.send_clown_van(pid)
+											local clown <const> = troll_entity.send_clown_van(pid)
+											if not entity.is_an_entity(clown) then
+												essentials.send_message("[Chat commands]: Failed to spawn "..((num - i) + 1).."/"..num.." clowns. Entity limits were reached.", event.player == player.player_id())
+												return
+											end
 										end
 									end, nil)
 								elseif kek_menu.settings["chopper #chat command#"] and str:find("^%pchopper%s*$") then
 									if num > 5 and event.player ~= player.player_id() then
-										num = 5
+										essentials.send_message("[Chat commands]: You can't spawn more than 5 choppers at once.")
+										return
 									end
 									if num > 15 then
-										num = 15
+										essentials.send_message("[Chat commands]: You can't spawn more than 15 choppers at once.", true)
+										return
 									end
 									menu.create_thread(function()
 										for i = 1, num do
-											troll_entity.send_attack_chopper(pid)
+											local chopper <const> = troll_entity.send_attack_chopper(pid)
+											if not entity.is_an_entity(chopper) then
+												essentials.send_message("[Chat commands]: Failed to spawn "..((num - i) + 1).."/"..num.." choppers. Entity limits were reached.", event.player == player.player_id())
+												return
+											end
 										end
 									end, nil)
 								elseif kek_menu.settings["teleport #chat command#"] and (str:match("^%pteleport%s+([%w%p]+)") or str:match("^%ptp%s+([%w%p]+)")) then
@@ -4196,6 +4209,8 @@ end
 													kek_entity.teleport_player_and_vehicle_to_position(pid, pos, true)
 												end, nil)
 											end
+										else
+											essentials.send_message("[Chat commands]: Failed to find out where you wanted to teleport to.", event.player == player.player_id())
 										end
 									end, nil)
 								elseif kek_menu.settings["apartmentinvite #chat command#"] and str:match("^%papartmentinvite%s+%d+$") then
@@ -5199,7 +5214,7 @@ do
 						essentials.msg(lang["Failed to load file. §"], 6, true)
 						return
 					end
-					local Vehicle <const> = kek_menu.spawn_entity(math.tointeger(hash) or 0, function()
+					local Vehicle <const> = kek_menu.spawn_entity(math.tointeger(hash), function()
 						return properties[1].pos, 0 
 					end, true, true, true, nil, false, 1, nil, true)
 					f.data.vehicle = Vehicle
@@ -5647,9 +5662,12 @@ end
 	-- Spawn a ped
 		player_feat_ids["Spawn a ped"] = menu.add_player_feature(lang["Spawn a ped §"], "action_value_str", u.player_misc_features, function(f, pid)
 			if f.value == 0 then
-				kek_menu.spawn_entity(ped_mapper.get_hash_from_model(kek_menu.ped_text), function() 
-					return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 7)), 0
-				end, false, false, false, enums.ped_types.civmale)
+				local hash <const> = ped_mapper.get_hash_from_model(kek_menu.ped_text)
+				if streaming.is_model_a_ped(hash) then
+					kek_menu.spawn_entity(hash, function() 
+						return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 7)), 0
+					end, false, false, false, enums.ped_types.civmale)
+				end
 			elseif f.value == 1 then
 				local input <const>, status <const> = essentials.get_input(lang["Type in the name of the ped you want to spawn. §"], "", 128, 0)
 				if status == 2 then
@@ -6002,9 +6020,16 @@ do
 end
 
 	menu.add_player_feature(lang["Spawn vehicle §"], "action", u.player_vehicle_features, function(f, pid)
-		kek_menu.spawn_entity(vehicle_mapper.get_hash_from_name_or_model(kek_menu.what_vehicle_model_in_use), function()
-			return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 8)), player.get_player_heading(pid)
-		end, toggle["Spawn #vehicle# in godmode"].on, false, toggle["Spawn #vehicle# maxed"].on)
+		local hash <const> = vehicle_mapper.get_hash_from_name_or_model(kek_menu.what_vehicle_model_in_use)
+		if streaming.is_model_a_vehicle(hash) then
+			if not kek_menu.entity_manager:update().is_vehicle_limit_not_breached then
+				essentials.msg(lang["Failed to spawn vehicle. Vehicle limit was reached §"], 6, true, 6)
+				return
+			end
+			kek_menu.spawn_entity(hash, function()
+				return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 8)), player.get_player_heading(pid)
+			end, toggle["Spawn #vehicle# in godmode"].on, false, toggle["Spawn #vehicle# maxed"].on)
+		end
 	end)
 
 	menu.add_player_feature(lang["What vehicle to spawn §"], "action", u.player_vehicle_features, function()
@@ -6022,6 +6047,10 @@ end
 		u.spawn_vehicle_parent,
 		function(f, pid)
 			kek_menu.what_vehicle_model_in_use = vehicle_mapper.GetModelFromHash(f.data)
+			if not kek_menu.entity_manager:update().is_vehicle_limit_not_breached then
+				essentials.msg(lang["Failed to spawn vehicle. Vehicle limit was reached §"], 6, true, 6)
+				return
+			end
 			kek_menu.spawn_entity(f.data, function()
 				return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 8)), player.get_player_heading(pid)
 			end, toggle["Spawn #vehicle# in godmode"].on, false, toggle["Spawn #vehicle# maxed"].on)
@@ -6358,10 +6387,10 @@ end
 			elseif f.value == 1 then
 				for seat = -1, vehicle.get_vehicle_model_number_of_seats(entity.get_entity_model_hash(player.get_player_vehicle(pid))) - 2 do
 					local Ped <const> = vehicle.get_ped_in_vehicle_seat(player.get_player_vehicle(pid), seat)
-					if entity.is_an_entity(Ped) then
+					if entity.is_an_entity(Ped) and not ped.is_ped_a_player(Ped) then
 						kek_entity.clear_entities(kek_entity.get_all_attached_entities(Ped))
+						kek_entity.clear_entities({Ped})
 					end
-					kek_entity.clear_entities({Ped})
 				end
 			end
 		end):set_str_data({
@@ -6434,22 +6463,25 @@ end
 						distance_from_player = 9
 					end
 					if f.on and ped.is_ped_shooting(player.get_player_ped(pid)) then
-						local car <const> = kek_menu.spawn_entity(vehicle_mapper.get_hash_from_name_or_model(kek_menu.what_vehicle_model_in_use), function()
-							local pos
-							if player.player_id() == pid then
-								pos = kek_entity.get_vector_in_front_of_me(player.get_player_ped(pid), distance_from_player)
+						local hash <const> = vehicle_mapper.get_hash_from_name_or_model(kek_menu.what_vehicle_model_in_use)
+						if streaming.is_model_a_vehicle(hash) then
+							local car <const> = kek_menu.spawn_entity(hash, function()
+								local pos
+								if player.player_id() == pid then
+									pos = kek_entity.get_vector_in_front_of_me(player.get_player_ped(pid), distance_from_player)
+								else
+									pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), distance_from_player)
+								end
+								return pos, player.get_player_heading(pid)
+							end)
+							if player.player_id() ~= pid then
+								entity.set_entity_rotation(car, entity.get_entity_rotation(player.get_player_ped(pid)))
 							else
-								pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), distance_from_player)
+								entity.set_entity_rotation(car, cam.get_gameplay_cam_rot())
 							end
-							return pos, player.get_player_heading(pid)
-						end)
-						if player.player_id() ~= pid then
-							entity.set_entity_rotation(car, entity.get_entity_rotation(player.get_player_ped(pid)))
-						else
-							entity.set_entity_rotation(car, cam.get_gameplay_cam_rot())
+							vehicle.set_vehicle_forward_speed(car, 120)
+							entities[#entities + 1] = car
 						end
-						vehicle.set_vehicle_forward_speed(car, 120)
-						entities[#entities + 1] = car
 					end
 					system.yield(0)
 				end
@@ -6515,17 +6547,20 @@ end
 			local entities <const> = {}
 			while f.on do
 				if ped.is_ped_shooting(player.get_player_ped(player.player_id())) then
-					entities[#entities + 1] = kek_menu.spawn_entity(object_mapper.GetHashFromModel(kek_menu.what_object), function() 
-						return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 15), 0
-					end)
-					local pos <const> = kek_entity.get_collision_vector(player.player_id())
-					entity.set_entity_rotation(entities[#entities], cam.get_gameplay_cam_rot())
-					for i = 1, 10 do
-						entity.apply_force_to_entity(entities[#entities], 3, pos.x, pos.y, pos.z, 0, 0, 0, true, true)
-					end
-					if #entities > 10 then
-						kek_entity.clear_entities({entities[1]})
-						table.remove(entities, 1)
+					local hash <const> = object_mapper.GetHashFromModel(kek_menu.what_object)
+					if streaming.is_model_an_object(hash) then
+						entities[#entities + 1] = kek_menu.spawn_entity(hash, function() 
+							return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 15), 0
+						end)
+						local pos <const> = kek_entity.get_collision_vector(player.player_id())
+						entity.set_entity_rotation(entities[#entities], cam.get_gameplay_cam_rot())
+						for i = 1, 10 do
+							entity.apply_force_to_entity(entities[#entities], 3, pos.x, pos.y, pos.z, 0, 0, 0, true, true)
+						end
+						if #entities > 10 then
+							kek_entity.clear_entities({entities[1]})
+							table.remove(entities, 1)
+						end
 					end
 				end
 				system.yield(0)
@@ -7317,8 +7352,9 @@ end
 		setting_name = "Spawn vehicle #keybinding#", 
 		setting = "off",
 		func = function() 
-			kek_entity.spawn_car()
-			essentials.msg(lang["Hotkey:\\nSpawned vehicle. §"], 140, kek_menu.settings["Hotkeys #notifications#"])
+			if kek_entity.spawn_car() ~= -1 then
+				essentials.msg(lang["Hotkey:\\nSpawned vehicle. §"], 140, kek_menu.settings["Hotkeys #notifications#"])
+			end
 		end,
 		feature_name = lang["Spawn vehicle §"]
 	})

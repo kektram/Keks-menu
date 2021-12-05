@@ -416,20 +416,22 @@ local lang <const> = kek_menu.lang
 		parent_entity <const> = ...
 		local info <const> = extract_info(file)
 		local hash <const> = info["ModelHash"]
-		local Entity <const> = kek_menu.spawn_entity(hash, function()
-			return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), 0
-		end, false, false, false, enums.ped_types.civmale, true, nil, info["Dynamic"] == false)
-		if not entity.is_an_entity(Entity) then
-			return entities, hash
-		end
-		if math.type(info["AttachedTo"]) ~= "integer" then
-			info["AttachedTo"] = parent_entity
-			entities[info["AttachedTo"]] = parent_entity
-		end
-		entities[info["InitialHandle"]] = Entity
-		apply_entity_modifications(Entity, info, entities, pid)
-		if info["isAttached"] then
-			attach(Entity, info, entities)
+		if streaming.is_model_valid(hash) then
+			local Entity <const> = kek_menu.spawn_entity(hash, function()
+				return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), 0
+			end, false, false, false, enums.ped_types.civmale, true, nil, info["Dynamic"] == false)
+			if not entity.is_an_entity(Entity) then
+				return entities, hash
+			end
+			if math.type(info["AttachedTo"]) ~= "integer" then
+				info["AttachedTo"] = parent_entity
+				entities[info["AttachedTo"]] = parent_entity
+			end
+			entities[info["InitialHandle"]] = Entity
+			apply_entity_modifications(Entity, info, entities, pid)
+			if info["isAttached"] then
+				attach(Entity, info, entities)
+			end
 		end
 		return entities, hash
 	end
@@ -440,7 +442,10 @@ local lang <const> = kek_menu.lang
 		pid <const> = ...
 		local info <const> = extract_info(file)
 		local hash <const> = info["ModelHash"]
-		if type(info["PositionRotationX"]) == "number" and type(info["PositionRotationY"]) == "number" and type(info["PositionRotationZ"]) == "number" then
+		if type(info["PositionRotationX"]) == "number" 
+		and type(info["PositionRotationY"]) == "number" 
+		and type(info["PositionRotationZ"]) == "number"
+		and streaming.is_model_valid(hash) then
 			local Entity <const> = kek_menu.spawn_entity(hash, function()
 				return player.get_player_coords(player.player_id()) + v3(0, 0, 50), 0
 			end, false, true, false, enums.ped_types.civmale, true, 0.6, info["Dynamic"] == false, true)
@@ -480,16 +485,21 @@ function menyoo.spawn_custom_vehicle(...)
 		return 0, {}
 	end
 	local info <const> = extract_info(file, "SpoonerAttachments")
-	parent_entity = kek_menu.spawn_entity(info["ModelHash"] or 0, function()
-		return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), player.get_player_heading(pid)
-	end, false, false, false, enums.ped_types.civmale, true, nil, info["Dynamic"] == false)
-	kek_entity.max_car(parent_entity, true)
-	if entity.is_an_entity(parent_entity) then
-		hashes[#hashes + 1] = info["ModelHash"]
-		entities[info["InitialHandle"] or 0] = parent_entity
-		apply_entity_modifications(parent_entity, info, entities, pid)
-		entity.freeze_entity(parent_entity, true)
+	if streaming.is_model_valid(info["ModelHash"]) then
+		parent_entity = kek_menu.spawn_entity(info["ModelHash"], function()
+			return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), player.get_player_heading(pid)
+		end, false, false, false, enums.ped_types.civmale, true, nil, info["Dynamic"] == false)
+		kek_entity.max_car(parent_entity, true)
+		if entity.is_an_entity(parent_entity) then
+			hashes[#hashes + 1] = info["ModelHash"]
+			entities[info["InitialHandle"] or 0] = parent_entity
+			apply_entity_modifications(parent_entity, info, entities, pid)
+			entity.freeze_entity(parent_entity, true)
+		else
+			return 0, {}
+		end
 	else
+		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash. §"])
 		return 0, {}
 	end
 	str = ""

@@ -851,7 +851,6 @@ function vehicle_mapper.get_hash_from_name_or_model(...)
 		return result
 	end
 	result = vehicle_mapper.get_hash_from_name(str)
-	essentials.assert(math.type(result) == "integer" and result ~= 0, "Failed to get vehicle hash from name or model.")
 	return result
 end
 

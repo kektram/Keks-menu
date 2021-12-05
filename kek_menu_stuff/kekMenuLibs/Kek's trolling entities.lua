@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Kek's trolling entities"] = "1.0.6"
+kek_menu.lib_versions["Kek's trolling entities"] = "1.0.7"
 
 local troll_entity <const> = {}
 
@@ -137,7 +137,9 @@ local kek_menu_stuff_path <const> = home.."scripts\\kek_menu_stuff\\"
 		local pid <const> = ...
 		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		local update <const> = kek_menu.entity_manager:update()
-		if update.is_vehicle_limit_not_breached and update.ped_count > kek_menu.entity_manager.limits.ped - 9 then
+		if not update.is_vehicle_limit_not_breached 
+		or not update.is_ped_limit_not_breached 
+		or update.ped_count > kek_menu.entity_manager.limits.ped - 9 then
 			return -2
 		end
 		local valkyrie <const> = kek_menu.spawn_entity(1543134283, function()
@@ -187,7 +189,9 @@ local kek_menu_stuff_path <const> = home.."scripts\\kek_menu_stuff\\"
 		local pid <const> = ...
 		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		local update <const> = kek_menu.entity_manager:update()
-		if update.is_vehicle_limit_not_breached and update.ped_count > kek_menu.entity_manager.limits.ped - 1.5 then
+		if not update.is_vehicle_limit_not_breached 
+		or not update.is_ped_limit_not_breached 
+		or update.ped_count > kek_menu.entity_manager.limits.ped - 1.5 then
 			return -2
 		end
 		local hash <const> = vehicle_mapper.HELICOPTERS[math.random(1, 8)]
@@ -253,7 +257,9 @@ local kek_menu_stuff_path <const> = home.."scripts\\kek_menu_stuff\\"
 		local pid <const> = ...
 		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		local update <const> = kek_menu.entity_manager:update()
-		if update.is_vehicle_limit_not_breached and update.ped_count > kek_menu.entity_manager.limits.ped - 4.5 then
+		if not update.is_vehicle_limit_not_breached 
+		or not update.is_ped_limit_not_breached
+		or update.ped_count > kek_menu.entity_manager.limits.ped - 4.5 then
 			return -2
 		end
 		local chopper <const> = kek_menu.spawn_entity(2310691317, function() 
@@ -342,7 +348,9 @@ local kek_menu_stuff_path <const> = home.."scripts\\kek_menu_stuff\\"
 		local pid <const> = ...
 		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		local update <const> = kek_menu.entity_manager:update()
-		if update.is_vehicle_limit_not_breached and update.ped_count > kek_menu.entity_manager.limits.ped - 6 then
+		if not update.is_vehicle_limit_not_breached 
+		or not update.is_ped_limit_not_breached
+		or update.ped_count > kek_menu.entity_manager.limits.ped - 6 then
 			return -2
 		end
 		local clown_van <const> = kek_menu.spawn_entity(gameplay.get_hash_key("speedo2"), function() 
