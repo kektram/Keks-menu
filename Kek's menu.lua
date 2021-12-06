@@ -334,8 +334,6 @@ do -- Extra functionality to api functions
 	local originals <const> = table.const_all({
 		add_feature = menu.add_feature,
 		add_player_feature = menu.add_player_feature,
-		delete_feature = menu.delete_feature,
-		delete_player_feature = menu.delete_player_feature,
 		create_thread = menu.create_thread,
 		create_vehicle = vehicle.create_vehicle,
 		create_ped = ped.create_ped,
@@ -465,16 +463,16 @@ do -- Extra functionality to api functions
 		kek_menu.features.player_feats[feat.id] = feat.id
 		return feat
 	end
-	menu.delete_feature = function(id)
+	kek_menu.delete_feature = function(id)
 		essentials.assert(kek_menu.features.feats[id], "Tried to delete a feature that was already deleted.")
-		essentials.assert(originals.delete_feature(id), "Failed to delete feature.")
+		essentials.assert(menu.delete_feature(id), "Failed to delete feature.")
 		kek_menu.features.feats[id] = nil
 		return true
 	end
 
-	menu.delete_player_feature = function(id)
+	kek_menu.delete_player_feature = function(id)
 		essentials.assert(kek_menu.features.player_feats[id], "Attempted to delete player feature that was already deleted.")
-		essentials.assert(originals.delete_player_feature(id), "Failed to delete player feature.")
+		essentials.assert(menu.delete_player_feature(id), "Failed to delete player feature.")
 		kek_menu.features.player_feats[id] = nil
 	end
 
@@ -2437,9 +2435,9 @@ end
 			elseif f.value == 1 then
 				for _, parent in pairs(player_history.searched_players) do
 					for _, child in pairs(parent.children) do
-						menu.delete_feature(child.id)
+						kek_menu.delete_feature(child.id)
 					end
-					menu.delete_feature(parent.id)
+					kek_menu.delete_feature(parent.id)
 				end
 				player_history.searched_players = {}
 			end
@@ -2717,7 +2715,7 @@ end
 				return
 			end
 			for _, feat in pairs(f.data) do
-				menu.delete_feature(feat.id)
+				kek_menu.delete_feature(feat.id)
 			end
 			f.data = {}
 			input = input:lower()
@@ -5171,7 +5169,7 @@ do
 				and feat.data ~= "MENYOO" 
 				and feat.data ~= "MAIN_FEAT" 
 				and not utils.file_exists(paths.home.."scripts\\Menyoo Vehicles\\"..feat.name..".xml") then
-					menu.delete_feature(feat.id)
+					kek_menu.delete_feature(feat.id)
 				elseif feat.data == "MENYOO" then
 					feats[#feats + 1] = feat
 				end
@@ -5639,7 +5637,7 @@ do
 				and feat.data ~= "MENYOO"
 				and feat.data ~= "MAIN_FEAT"
 				and not utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..feat.name..".xml") then
-					menu.delete_feature(feat.id)
+					kek_menu.delete_feature(feat.id)
 				elseif feat.data == "MENYOO" then
 					feats[#feats + 1] = feat
 				end
@@ -7670,11 +7668,11 @@ end
 					for _, child in pairs(fake_feat.children) do
 						if child.data ~= "dead" then
 							child.data = "dead"
-							menu.delete_feature(child.id)
+							kek_menu.delete_feature(child.id)
 						end
 					end
 				end
-				menu.delete_feature(fake_feat.id)
+				kek_menu.delete_feature(fake_feat.id)
 			end
 		end
 		local map <const> = kek_menu.features
