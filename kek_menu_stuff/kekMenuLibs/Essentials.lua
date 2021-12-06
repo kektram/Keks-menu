@@ -19,7 +19,11 @@ end
 function essentials.deep_copy(Table, keep_meta)
 	local new_copy <const> = {}
 	for key, value in pairs(Table) do
-		new_copy[key] = value
+		if type(value) == "table" then
+			new_copy[key] = essentials.deep_copy(value, keep_meta)
+		else
+			new_copy[key] = value
+		end
 	end
 	if keep_meta then
 		setmetatable(new_copy, getmetatable(Table))

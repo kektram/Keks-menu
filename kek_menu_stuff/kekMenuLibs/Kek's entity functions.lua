@@ -221,10 +221,11 @@ local enums <const> = kek_menu.require("Enums")
 		if entity.is_an_entity(Vehicle) then
 			essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 			for i = -1, vehicle.get_vehicle_max_number_of_passengers(Vehicle) - 2 do
-				if network.is_scid_friend(player.get_player_scid(player.get_player_from_ped(vehicle.get_ped_in_vehicle_seat(Vehicle, i)))) then
+				local Ped <const> = vehicle.get_ped_in_vehicle_seat(Vehicle, i)
+				if ped.is_ped_a_player(Ped) and network.is_scid_friend(player.get_player_scid(player.get_player_from_ped(Ped))) then
 					friend_in_vehicle = true
 				end
-				if ped.is_ped_a_player(vehicle.get_ped_in_vehicle_seat(Vehicle, i)) then
+				if ped.is_ped_a_player(Ped) then
 					player_in_vehicle = true
 				end
 			end
@@ -713,6 +714,13 @@ local enums <const> = kek_menu.require("Enums")
 	end
 
 	function kek_entity.spawn_car()
+		if kek_menu.toggle["Always ask what #vehicle#"].on then
+			local input <const>, status <const> = essentials.get_input(lang["Type in what car to use §"], "", 128, 0)
+			if status == 2 then
+				return
+			end
+			kek_menu.what_vehicle_model_in_use = input
+		end
 		local hash <const> = vehicle_mapper.get_hash_from_name_or_model(kek_menu.what_vehicle_model_in_use)
 		if streaming.is_model_a_vehicle(hash) then
 			if not kek_menu.entity_manager:update().is_vehicle_limit_not_breached then
@@ -720,13 +728,6 @@ local enums <const> = kek_menu.require("Enums")
 				return -1
 			end
 			kek_menu.your_vehicle_entity_ids[#kek_menu.your_vehicle_entity_ids + 1] = player.get_player_vehicle(player.player_id())
-			if kek_menu.toggle["Always ask what #vehicle#"].on then
-				local input <const>, status <const> = essentials.get_input(lang["Type in what car to use §"], "", 128, 0)
-				if status == 2 then
-					return
-				end
-				kek_menu.what_vehicle_model_in_use = input
-			end
 			if kek_menu.toggle["Delete old #vehicle#"].on then
 				for _, Entity in pairs(kek_menu.your_vehicle_entity_ids) do
 					kek_entity.hard_remove_entity_and_its_attachments(Entity)

@@ -5,6 +5,19 @@ if type(kek_menu) == "table" and kek_menu.version then
 	error("Keks menu was already loaded!")
 end
 
+do
+	if utils.file_exists(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Debugger.lua") then
+		local file = io.open(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\keksettings.ini")
+		if file then
+			local str <const> = file:read("*a")
+			file:close()
+			if str:match("Debug mode=(%a%a%a%a)") == "true" then
+				dofile(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Debugger.lua")
+			end
+		end
+	end
+end
+
 if not (package.path or ""):find(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\?.lua;", 1, true) then
 	package.path = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\?.lua"..";"..(package.path or "")
 end
@@ -222,6 +235,28 @@ end
 		__metatable = "Modifying this metatable will cause incompatibility issues. Unload Kek's menu."
 	})
 
+	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\language.ini") then
+		local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\language.ini", "w+")
+		file:write("English.txt")
+		file:flush()
+	end
+	if kek_menu.what_language ~= "English.txt" and utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..kek_menu.what_language) then
+		local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..kek_menu.what_language)
+		local str <const> = file:read("*a")
+		for line in str:gmatch("([^\n]*)\n?") do
+			local temp_entry = line:match("§(.+)")
+			if temp_entry then
+				temp_entry = temp_entry:gsub("%s", "")
+				local str = line:match("§(.+)")
+				if str then
+					str = str:gsub("\\n", "\n")
+					str = str:gsub("\\\\\"", "\\\"")
+					kek_menu.lang[line:match("(.+)§").."§"] = str
+				end
+			end
+		end
+	end
+
 	setmetatable(kek_menu.lang, {
 		__index = function(t, index)
 			local str = (index:match("(.+) §") or index):gsub("\\n", "\n")
@@ -234,12 +269,13 @@ end
 		__metatable = "Modifying this metatable will cause incompatibility issues. Unload Kek's menu."
 	})
 
-	local lang <const> = {}
-	setmetatable(lang, {
+	local lang <const> = setmetatable({}, {
 		__index = function(t, index)
 			local str = kek_menu.lang[index] or (index:match("(.+) §") or index):gsub("\\n", "\n")
-			lang[index] = str
 			return str
+		end,
+		__newindex = function()
+			error("Tried to modify a read-only table.")
 		end,
 		__pairs = function(t)
 			return next, t
@@ -406,10 +442,9 @@ do -- Extra functionality to api functions
 		else
 			feat = originals.add_feature(name, Type, parent)
 		end
-		if feat then
-			kek_menu.features.feats[feat.id] = feat
-			return feat
-		end
+		essentials.assert(feat, "Failed to create feature: "..tostring(name))
+		kek_menu.features.feats[feat.id] = feat
+		return feat
 	end
 	menu.add_player_feature = function(...)
 		local name <const>,
@@ -426,39 +461,21 @@ do -- Extra functionality to api functions
 		else
 			feat = originals.add_player_feature(name, Type, parent)
 		end
-		if feat then
-			kek_menu.features.player_feats[feat.id] = feat.id
-			return feat
-		end
+		essentials.assert(feat, "Failed to create player feature: "..tostring(name))
+		kek_menu.features.player_feats[feat.id] = feat.id
+		return feat
 	end
-	menu.delete_feature = function(...)
-		local id <const> = ...
-		if kek_menu.features.feats[id] then
-			local result <const> = originals.delete_feature(id)
-			if result then
-				kek_menu.features.feats[id] = nil
-				return true
-			else
-				return false
-			end
-		else
-			return false
-		end
+	menu.delete_feature = function(id)
+		essentials.assert(kek_menu.features.feats[id], "Tried to delete a feature that was already deleted.")
+		essentials.assert(originals.delete_feature(id), "Failed to delete feature.")
+		kek_menu.features.feats[id] = nil
+		return true
 	end
 
-	menu.delete_player_feature = function(...)
-		local id <const> = ...
-		if kek_menu.features.player_feats[id] then
-			local result <const> = originals.delete_player_feature(id)
-			if result then
-				kek_menu.features.player_feats[id] = nil
-				return true
-			else
-				return false
-			end
-		else
-			return false
-		end
+	menu.delete_player_feature = function(id)
+		essentials.assert(kek_menu.features.player_feats[id], "Attempted to delete player feature that was already deleted.")
+		essentials.assert(originals.delete_player_feature(id), "Failed to delete player feature.")
+		kek_menu.features.player_feats[id] = nil
 	end
 
 	local threads = {}
@@ -488,25 +505,6 @@ do -- Extra functionality to api functions
 	getmetatable(ped).__newindex = originals.ped_newindex
 	getmetatable(object).__newindex = originals.object_newindex
 	getmetatable(network).__newindex = originals.network_newindex
-end
-
-if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\language.ini") then
-	local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\language.ini", "w+")
-	essentials.file(file, "write", "English.txt")
-end
-if kek_menu.what_language ~= "English.txt" and utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..kek_menu.what_language) then
-	for line in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\"..kek_menu.what_language, "*a"):gmatch("([^\n]*)\n?") do
-		local temp_entry = line:match("§(.+)")
-		if temp_entry then
-			temp_entry = temp_entry:gsub("%s", "")
-			local str = line:match("§(.+)")
-			if str then
-				str = str:gsub("\\n", "\n")
-				str = str:gsub("\\\\\"", "\\\"")
-				kek_menu.lang[line:match("(.+)§").."§"] = str
-			end
-		end
-	end
 end
 
 for _, folder_name in pairs({
@@ -1167,6 +1165,10 @@ for _, properties in pairs({
 	{
 		setting_name = "Anti chat spam reaction", 
 		setting = 0
+	},
+	{
+		setting_name = "Debug mode",
+		setting = false
 	}
 }) do
 	add_gen_set(properties)
@@ -1905,6 +1907,14 @@ end
 
 	-- Load kek's menu parent
 		toggle["Script quick access"] = menu.add_feature(lang["Script quick access §"], "toggle", u.settingsUI.id)
+
+		toggle["Debug mode"] = menu.add_feature(lang["Debug mode §"], "toggle", u.debug.id, function(f)
+			if f.on and key_mapper.is_table_of_virtual_keys_all_pressed(key_mapper.get_virtual_key_of_2take1_bind("MenuSelect")) then
+				essentials.msg(lang["Save settings and reset lua state to load in debug mode. §"], 6, true, 12)
+				essentials.msg(lang["All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §"], 6, true, 12)
+				essentials.msg(lang["Only use this mode if you intend to find bugs. §"], 6, true, 12)
+			end
+		end)
 
 -- Vehicle stuff
 	-- Give nearby vehicles an effect
@@ -2827,11 +2837,7 @@ end
 						return location_mapper.get_most_accurate_position(player.get_player_coords(pid)), player.get_player_heading(pid)
 					end, toggle["Spawn #vehicle# in godmode"].on, false, toggle["Spawn #vehicle# maxed"].on)
 					if not entity.is_an_entity(car) then
-						local count = 0
-						for pid in essentials.players(true) do
-							count = count + 1
-						end
-						essentials.msg(lang["Failed to spawn §"].." "..(count - spawn_count).."/"..count.." "..lang["Vehicles §"]:lower()..". "..lang["Vehicle limit was reached. §"], 6, true, 6)
+						essentials.msg(lang["Failed to spawn §"].." "..(player.player_count() - spawn_count).."/"..player.player_count().." "..lang["Vehicles §"]:lower()..". "..lang["Vehicle limit was reached. §"], 6, true, 6)
 						break
 					end
 					spawn_count = spawn_count + 1
@@ -4020,12 +4026,12 @@ end
 											return
 										end
 										for i = 1, num do
-											system.yield(100)
 											local Vehicle <const> = kek_menu.spawn_entity(hash, function() 
 												return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 5)) + v3(0, 0, (i - 1) * 3), 0
 											end, toggle["Spawn #vehicle# in godmode"].on, false, toggle["Spawn #vehicle# maxed"].on, enums.ped_types.civmale)
 											if not entity.is_an_entity(Vehicle) then
 												essentials.send_message("[Chat commands]: Vehicle spawn limit is reached. Spawns are disabled.", event.player == player.player_id())
+												return
 											end
 										end
 									end, nil)
@@ -4289,7 +4295,7 @@ end
 		})
 		for _, properties in pairs(general_settings) do
 			if properties.setting_name:find("#chat command#", 1, true) then
-				toggle["Chat commands"].data.command_strings[properties.setting_name:lower():match("(%w+)%s+#chat command#")] = true
+				toggle["Chat commands"].data.command_strings[properties.setting_name:lower():match("(%w+)%s+#chat command#")] = false
 			end
 		end
 
@@ -4333,6 +4339,7 @@ end
 			if properties.setting_name:find("#chat command#", 1, true) then
 				toggle[properties.setting_name] = menu.add_feature(properties.feature_name, "toggle", u.chat_commands_parent.id, function(f)
 					kek_menu.settings[properties.setting_name] = f.on
+					toggle["Chat commands"].data.command_strings[properties.setting_name:lower():match("(%w+)%s+#chat command#")] = f.on
 				end)
 			end
 		end
@@ -4963,8 +4970,11 @@ end
 				local entities = {}
 				if u.exclude_from_force_field.value == 0 or u.exclude_from_force_field.value == 1 then
 					for _, Entity in pairs(essentials.merge_tables(vehicles, {peds})) do
-						local is_player_in_vehicle <const>, is_friend_in_vehicle <const> = kek_entity.is_player_in_vehicle(Entity)
-						if (u.exclude_from_force_field.value == 0 and not is_friend_in_vehicle and not network.is_scid_friend(player.get_player_scid(player.get_player_from_ped(Entity))))
+						local is_player_in_vehicle , is_friend_in_vehicle = false, false
+						if entity.is_entity_a_vehicle(Entity) then
+							is_player_in_vehicle , is_friend_in_vehicle = kek_entity.is_player_in_vehicle(Entity)
+						end
+						if (u.exclude_from_force_field.value == 0 and not is_friend_in_vehicle and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity) or not network.is_scid_friend(player.get_player_scid(player.get_player_from_ped(Entity)))))
 						or (u.exclude_from_force_field.value == 1 and not is_player_in_vehicle) then
 							entities[#entities + 1] = Entity
 						end
@@ -6385,11 +6395,13 @@ end
 			if f.value == 0 then
 				kek_entity.glitch_vehicle(player.get_player_vehicle(pid))
 			elseif f.value == 1 then
-				for seat = -1, vehicle.get_vehicle_model_number_of_seats(entity.get_entity_model_hash(player.get_player_vehicle(pid))) - 2 do
-					local Ped <const> = vehicle.get_ped_in_vehicle_seat(player.get_player_vehicle(pid), seat)
-					if entity.is_an_entity(Ped) and not ped.is_ped_a_player(Ped) then
-						kek_entity.clear_entities(kek_entity.get_all_attached_entities(Ped))
-						kek_entity.clear_entities({Ped})
+				if entity.is_entity_a_vehicle(player.get_player_vehicle(pid)) then
+					for seat = -1, vehicle.get_vehicle_model_number_of_seats(entity.get_entity_model_hash(player.get_player_vehicle(pid))) - 2 do
+						local Ped <const> = vehicle.get_ped_in_vehicle_seat(player.get_player_vehicle(pid), seat)
+						if entity.is_an_entity(Ped) and not ped.is_ped_a_player(Ped) then
+							kek_entity.clear_entities(kek_entity.get_all_attached_entities(Ped))
+							kek_entity.clear_entities({Ped})
+						end
 					end
 				end
 			end
@@ -6497,9 +6509,11 @@ end
 			while f.on do
 				system.yield(0)
 				local Ped <const> = player.get_entity_player_is_aiming_at(pid)
-				local target_pid <const> = player.get_player_from_ped(Ped)
-				if ped.is_ped_shooting(player.get_player_ped(pid)) and ped.is_ped_a_player(Ped) and essentials.is_not_friend(target_pid) then
-					globals.kick(target_pid)
+				if entity.is_entity_a_ped(Ped) and ped.is_ped_a_player(Ped) then
+					local target_pid <const> = player.get_player_from_ped(Ped)
+					if ped.is_ped_shooting(player.get_player_ped(pid)) and essentials.is_not_friend(target_pid) then
+						globals.kick(target_pid)
+					end
 				end
 			end
 		end)

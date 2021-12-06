@@ -15,16 +15,16 @@ local function get_properties(...)
 		["IsOnFire"] = entity.is_entity_on_fire(Entity),
 		["IsVisible"] = entity.is_entity_visible(Entity),
 		["IsInvincible"] = entity.get_entity_god_mode(Entity),
-		["MaxHealth"] = ped.get_ped_max_health(Entity),
 		["OpacityLevel"] = 255,
 		["LodDistance"] = 20000,
 		["Dynamic"] = true,
-		["FrozenPos"] = false,
-		["Health"] = ped.get_ped_health(Entity)
+		["FrozenPos"] = false
 	}
 	if entity.is_entity_a_ped(Entity) then
 		info["IsCollisionProof"] = entity.has_entity_collided_with_anything(Entity)
 		info["Type"] = 1
+		info["MaxHealth"] = ped.get_ped_max_health(Entity)
+		info["Health"] = ped.get_ped_health(Entity)
 	elseif entity.is_entity_a_vehicle(Entity) then
 		info["IsCollisionProof"] = initial
 		info["Type"] = 2
