@@ -374,7 +374,6 @@ Notifications §通知
 Auto kicker notifications §自动踢时通知
 Give nearby players horn boost §给附近的玩家喇叭加速
 Turn everything off §关闭所有
-Menyoo vehicle §模组载具
 First seen §首次遇见
 Last seen §最后遇见
 Seen §遇见过
@@ -621,3 +620,11 @@ Has modded weapons. §拥有作弊者武器.
 Type in name of entity. §请输入实体名称.
 Kill engine §破坏引擎
 Heal engine §修复引擎
+Failed to spawn vehice. Driver vehicle was an invalid model hash. §无法生成载具. 驾驶员的载具是无效的模型哈希.
+Failed to spawn vehicle. Invalid vehicle hash. §无法生成载具. 无效的载具哈希.
+Failed to spawn vehicle. Vehicle limit was reached §无法生成载具. 已达到载具限制.
+Failed to spawn §无法生成
+Vehicle limit was reached. §已达到载具限制.
+Save settings and reset lua state to load in debug mode. §现在去保存脚本设置并重置lua状态(转到LUA脚本点击停止正在运行的脚本).
+All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §所有脚本都会运行得更慢,并且可能会出现掉帧.会出现更多的错误,特别是当你一起运行其他脚本的时候.
+Only use this mode if you intend to find bugs. §只有在你想找BUG的时候才使用此模式.
