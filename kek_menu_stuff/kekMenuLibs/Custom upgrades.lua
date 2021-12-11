@@ -1,19 +1,17 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Custom upgrades"] = "1.0.1"
+local custom_upgrades <const> = {version = "1.0.1"}
 
-local custom_upgrades <const> = {}
-
-local essentials <const> = kek_menu.require("Essentials")
-local kek_entity <const> = kek_menu.require("Kek's entity functions")
-local weapon_mapper <const> = kek_menu.require("Weapon mapper")
-local enums <const> = kek_menu.require("Enums")
+local essentials <const> = require("Essentials")
+local kek_entity <const> = require("Kek's entity functions")
+local weapon_mapper <const> = require("Weapon mapper")
+local enums <const> = require("Enums")
 
 function custom_upgrades.create_combat_ped(...)
 	local Vehicle <const> = ...
 	essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 	if vehicle.get_free_seat(Vehicle) ~= -2 then
-		local Ped <const> = kek_menu.spawn_entity(0x9CF26183, function()
+		local Ped <const> = kek_entity.spawn_entity(0x9CF26183, function()
 			return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8), player.get_player_heading(player.player_id())
 		end, true, true, true, enums.ped_types.civmale)
 		kek_entity.set_combat_attributes(Ped, true, {})
@@ -62,7 +60,7 @@ function custom_upgrades.torque_modifier(...)
 		entity.set_entity_as_mission_entity(Vehicle, false, true)
 		while entity.is_an_entity(Vehicle) and player.get_player_from_ped(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver)) == player.player_id() do
 			system.yield(0)
-			kek_menu.get_control_of_entity(Vehicle, 0)
+			kek_entity.get_control_of_entity(Vehicle, 0)
 			vehicle.set_vehicle_engine_torque_multiplier_this_frame(Vehicle, multiplier)
 		end
 	end, nil)
@@ -78,7 +76,7 @@ function custom_upgrades.immune_to_fire(...)
 				or vehicle.get_ped_in_vehicle_seat(Entity, enums.vehicle_seats.driver) == 0 
 				or player.get_player_from_ped(vehicle.get_ped_in_vehicle_seat(Entity, enums.vehicle_seats.driver)) == player.player_id()
 			) and entity.is_entity_on_fire(Entity) 
-			and kek_menu.get_control_of_entity(Entity, 0) then
+			and kek_entity.get_control_of_entity(Entity, 0) then
 				fire.stop_entity_fire(Entity)
 			end
 		end

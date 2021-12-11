@@ -1,13 +1,11 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Location mapper"] = "1.0.1"
+local essentials <const> = require("Essentials")
+local enums <const> = require("Enums")
 
-local essentials <const> = kek_menu.require("Essentials")
-local enums <const> = kek_menu.require("Enums")
+local location_mapper <const> = {version = "1.0.1"}
 
-local location_mapper <const> = {}
-
-local los_santos_customs <const> = table.const_all({
+local los_santos_customs <const> = essentials.const_all({
 	{"Beeker's garage", v3(112, 6619, 31)},
 	{"Blaine county", v3(1178, 2647, 37)},
 	{"Near airport", v3(-1146, -1991, 13)},
@@ -16,7 +14,7 @@ local los_santos_customs <const> = table.const_all({
 	{"Benny's workshop", v3(-208, -1310, 31)}
 })
 
-local ammu_nations <const> = table.const_all({
+local ammu_nations <const> = essentials.const_all({
 	{"Blaine county center", v3(1699, 3752, 34)},
 	{"Blaine county west", v3(-1113, 2690, 18)},
 	{"Blaine county east", v3(2569, 303, 108)},
@@ -30,7 +28,7 @@ local ammu_nations <const> = table.const_all({
 	{"With range city south", v3(811, -2148, 29)}
 })
 
-local zones <const> = table.const_all({
+local zones <const> = essentials.const_all({
 	{"AIRP", "Los Santos International Airport"},
 	{"ALAMO", "Alamo Sea"},
 	{"ALTA", "Alta"},
@@ -122,13 +120,13 @@ local zones <const> = table.const_all({
 	{"SANAND", "San Andreas"}
 })
 
-local casino_locations <const> = table.const_all({
+local casino_locations <const> = essentials.const_all({
 	{"Casino main entrance", v3(921, 42, 80)},
 	{"Casino garage", v3(936, 0, 79)},
 	{"Casino music locker", v3(988, 80, 81)}
 })
 
-location_mapper.GENERAL_POSITIONS = table.const({
+location_mapper.GENERAL_POSITIONS = essentials.const({
 	["Beach"] = v3(-1480.0867919922, -1249.8076171875, 1.7118327617645),
 	["Beeker's garage"] = v3(113.18008422852, 6608.1157226562, 31.126474380493),
 	["lsc near Blaine county"] = v3(1179.6661376953, 2663.5729980469, 37.182151794434),
@@ -241,7 +239,13 @@ location_mapper.GENERAL_POSITIONS = table.const({
 	["Paleto Bay 4"] = v3(-8.2490711212158, 6559.8842773438, 31.970911026001)
 })
 
-local gta5_map <const> = table.const({
+--[[
+	Positions from all across the gta map.
+	Used when we couldn't find a position's correct z property.
+	A quite common example of unknown z property is when a player is in a vehicle and is far away from you.
+	Their z coordinate will always be -50.
+--]]
+local gta5_map <const> = essentials.const({
 	v3(-178.0245513916, -407.62139892578, 32.9674949646),
 	v3(-123.78118133545, -407.53591918945, 34.061668395996),
 	v3(-112.1798324585, -401.09378051758, 35.142150878906),
@@ -7623,11 +7627,11 @@ local gta5_map <const> = table.const({
 	v3(22.129667282104, 7640.9047851562, 17.001989364624)
 })
 
-local function get_vectors(...)
+local function get_vectors(...) -- Converts multi-dimensional table into an array of vectors
 	local location_info_table <const> = ...
 	local vectors <const> = {}
-	for _, location in pairs(location_info_table) do
-		vectors[#vectors + 1] = location[2]
+	for i, location in pairs(location_info_table) do
+		vectors[i] = location[2]
 	end
 	return vectors
 end
@@ -7669,16 +7673,22 @@ function location_mapper.get_set_of_vectors(...)
 	max_distance <const>,
 	max_height <const> = ...
 	local coords <const> = {}
-	for i = 1, 40 do
-		local pos2 <const>, status <const> = attempt_ground_z(pos + essentials.get_offset(pos, -max_distance, max_distance, min_distance, max_distance))
-		if status and pos2.z < max_height and pos2.z > max_height - 13 and essentials.get_distance_between(pos, pos2) >= min_distance then
+	for i = 1, 50 do
+		local pos2 <const>, status <const> = attempt_ground_z(pos + essentials.get_random_offset(-max_distance, max_distance, min_distance, max_distance))
+		if status 
+		and pos2.z < max_height 
+		and pos2.z > max_height - 13 
+		and essentials.get_distance_between(pos, pos2) >= min_distance then
 			coords[#coords + 1] = pos2
 		end
 	end
 	if #coords == 0 then
 		for i = 1, #gta5_map do
 			local distance <const> = essentials.get_distance_between(pos, gta5_map[i])
-			if distance >= min_distance and distance <= max_distance and gta5_map[i].z < max_height and gta5_map[i].z > max_height - 13 then
+			if distance >= min_distance 
+			and distance <= max_distance 
+			and gta5_map[i].z < max_height 
+			and gta5_map[i].z > max_height - 13 then
 				coords[#coords + 1] = gta5_map[i]
 			end
 		end
@@ -7700,11 +7710,11 @@ function location_mapper.get_closest_vector_to_pos(...)
 	return pos2
 end
 
-location_mapper.CASINO_POSITIONS = table.const(get_vectors(casino_locations))
-location_mapper.LSC_POSITIONS = table.const(get_vectors(los_santos_customs))
-location_mapper.AMMU_NATION_POSITIONS = table.const(get_vectors(ammu_nations))
+location_mapper.CASINO_POSITIONS = essentials.const(get_vectors(casino_locations))
+location_mapper.LSC_POSITIONS = essentials.const(get_vectors(los_santos_customs))
+location_mapper.AMMU_NATION_POSITIONS = essentials.const(get_vectors(ammu_nations))
 
-function location_mapper.get_zone_entity_is_in(...)
+function location_mapper.get_zone_entity_is_in(...) -- Zones do overlap each other, beware.
 	local Entity <const> = ...
 	for _, zone in pairs(zones) do
 		if entity.is_entity_in_zone(Entity, zone[1]) then

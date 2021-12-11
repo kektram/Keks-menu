@@ -5,21 +5,27 @@
 	The invalid uses this tool raises errors for aren't by default.
 	Passing a ped to a vehicle function might cause a crash, might cause nothing to happen, you don't know.
 --]]
-local function deep_copy(Table, keep_meta) 
---[[
-	Assigning a table to another table means assigned value is a reference opposed to a full copy.
-	This function will create a full, independent copy of a table.
---]]
+local function deep_copy(Table, keep_meta, seen)
 	local new_copy <const> = {}
+	seen = seen or {}
 	for key, value in pairs(Table) do
 		if type(value) == "table" then
-			new_copy[key] = deep_copy(value, keep_meta)
+			assert(not seen[value], "Tried to deep copy a table with a reference to itself.")
+			seen[value] = true
+			new_copy[key] = deep_copy(value, keep_meta, seen)
+			if keep_meta and type(getmetatable(value)) == "table" then
+				assert(not seen[getmetatable(value)], "Tried to deep copy a table with a reference to one of its own member's metatable.")
+				seen[getmetatable(value)] = true
+				setmetatable(new_copy[key], deep_copy(getmetatable(value), true, seen))
+			end
 		else
 			new_copy[key] = value
 		end
 	end
-	if keep_meta then
-		setmetatable(new_copy, getmetatable(Table))
+	if keep_meta and type(getmetatable(Table)) == "table" then
+		assert(not seen[getmetatable(Table)], "Tried to deep copy a table with a reference to its own metatable.")
+		seen[getmetatable(Table)] = true
+		setmetatable(new_copy, deep_copy(getmetatable(Table), true, seen))
 	end
 	return new_copy
 end
@@ -46,7 +52,7 @@ local originals_newindexes <const> = {
 	utils = getmetatable(utils).__newindex
 }
 
-local originals <const> = deep_copy{
+local originals <const> = deep_copy({
 	menu = menu,
 	event = event,
 	input = input,
@@ -67,7 +73,7 @@ local originals <const> = deep_copy{
 	script = script,
 	utils = utils,
 	system = system
-}
+})
 
 for name, value in pairs(_G) do
 	if originals_newindexes[name] then

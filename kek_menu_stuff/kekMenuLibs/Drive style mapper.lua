@@ -1,12 +1,11 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Drive style mapper"] = "1.0.3"
-local essentials <const> = kek_menu.require("Essentials")
-local enums <const> = kek_menu.require("Enums")
+local essentials <const> = require("Essentials")
+local enums <const> = require("Enums")
 
-local drive_style_mapper <const> = {}
+local drive_style_mapper <const> = {version = "1.0.3"}
 
-drive_style_mapper.DRIVE_STYLE_FLAGS = table.const_all({
+drive_style_mapper.DRIVE_STYLE_FLAGS = essentials.const_all({
 	{name = "Stop before vehicles", flag = 1 << 0},
 	{name = "Stop before peds", flag = 1 << 1},
 	{name = "Avoid vehicles", flag = 1 << 2},

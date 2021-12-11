@@ -1,12 +1,10 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Admin mapper"] = "1.0.3"
+local admin_mapper <const> = {version = "1.0.3"}
+local essentials <const> = require("Essentials")
+local enums <const> = require("Enums")
 
-local admin_mapper <const> = {}
-local essentials <const> = kek_menu.require("Essentials")
-local enums <const> = kek_menu.require("Enums")
-
-local admins <const> = table.const_all({
+local admins <const> = essentials.const_all({
 	["Spacer-galore"] = {67241866, "GTAOnline", "Cheatermonitoring+Gamebugtesting"},
 	["RollD20"] = {89288299, "GTAOnline", "Cheatermonitoring+Gamebugtesting"},
 	["SecretWizzle54"] = {88439202, "GTAOnline", "Cheatermonitoring+Gamebugtesting"},
@@ -155,7 +153,7 @@ local admins <const> = table.const_all({
 	["GTAdev3"] = {20158757, "GTA5", "Coregamedev"}
 })
 
-local admin_ips <const> = table.const_all({
+local admin_ips <const> = essentials.const_all({
 	["NY"] = {"104.255.104.0", "104.255.104.254"},
 	["NY 2"] = {"104.255.107.0", "104.255.107.254"},
 	["NY 3"] = {"192.81.240.0", "192.81.240.254"},

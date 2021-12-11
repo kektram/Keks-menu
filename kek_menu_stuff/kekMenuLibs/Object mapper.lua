@@ -1,12 +1,10 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Object mapper"] = "1.2.4"
+local object_mapper <const> = {version = "1.2.5"}
+local essentials <const> = require("Essentials")
+local enums <const> = require("Enums")
 
-local object_mapper <const> = {}
-local essentials <const> = kek_menu.require("Essentials")
-local enums <const> = kek_menu.require("Enums")
-
-local model_names <const> = table.const({
+local model_names <const> = essentials.const({
 	[446398] = "ba_prop_glass_garage_opaque",
 	[641508] = "v_res_cctv",
 	[701992] = "ch3_lod_emissive1_slod3",
@@ -17589,7 +17587,7 @@ local model_names <const> = table.const({
 	[4294965338] = "ex_prop_crate_closed_rw"
 })
 
-object_mapper.BLACKLISTED_OBJECTS = table.const({ -- These can crash yours or other's game
+object_mapper.BLACKLISTED_OBJECTS = essentials.const({ -- These can crash yours or other's game
 	[17258065] = "proc_meadowmix_01",
 	[213036232] = "proc_grassplantmix_02",
 	[386259036] = "h4_prop_bush_mang_ad",
@@ -17661,30 +17659,47 @@ object_mapper.BLACKLISTED_OBJECTS = table.const({ -- These can crash yours or ot
 }) -- Creds to Sainan for this list.
 
 object_mapper.OBJECT_HASHES = {}
+
 for hash, _ in pairs(model_names) do
+	--[[
+		essentials.assert(streaming.is_model_an_object(hash), "Invalid hash in model_names table: "..tostring(hash))
+		Sometimes model hashes are valid, sometimes not. Tried is_model_in_cdimage, is_model_an_object and is_model_valid. 
+		All return false despite returning true previously.
+	--]]
 	object_mapper.OBJECT_HASHES[#object_mapper.OBJECT_HASHES + 1] = hash
 end
-object_mapper.OBJECT_HASHES = table.const(object_mapper.OBJECT_HASHES)
+object_mapper.OBJECT_HASHES = essentials.const(object_mapper.OBJECT_HASHES)
 
-function object_mapper.GetModelFromHash(...)
-	local hash <const> = ...
-	essentials.assert(streaming.is_model_valid(hash), "Tried to get a model from an invalid hash.")
-	return model_names[hash] or "unknown_object_name"
+function object_mapper.GetModelFromHash(hash)
+	essentials.assert(streaming.is_model_in_cdimage(hash), "Expected a valid object hash: "..tostring(hash)) -- streaming.is_model_an_object and streaming.is_model_a_world_object fails to recognize all objects
+	return model_names[hash] or "unknown_object_name" -- All object names haven't been discovered yet
 end
 
-function object_mapper.GetHashFromModel(...)
-	local model = ...
-	if streaming.is_model_valid(gameplay.get_hash_key(model)) then
-		return gameplay.get_hash_key(model)
-	else
-		if model == "?" then
-			return object_mapper.OBJECT_HASHES[math.random(1, #object_mapper.OBJECT_HASHES)]
-		end
-		model = model:lower()
-		for hash, Model in pairs(model_names) do
-			if Model:find(model, 1, true) then
-				return hash
-			end
+function object_mapper.GetHashFromModel(model)
+	essentials.assert(streaming.is_model_in_cdimage(gameplay.get_hash_key(model)), "Expected a valid object model name: "..tostring(model))
+	return gameplay.get_hash_key(model)
+end
+
+function object_mapper.get_random_object()
+	local hash
+	repeat
+		hash = object_mapper.OBJECT_HASHES[math.random(1, #object_mapper.OBJECT_HASHES)]
+	until streaming.is_model_in_cdimage(hash) -- It's seemingly impossible for the entire list of hashes to be valid at all times.
+	return hash
+end
+
+function object_mapper.get_hash_from_user_input(...)
+	local user_input = ...
+	if user_input == "?" then
+		return object_mapper.get_random_object()
+	end
+	user_input = user_input:lower()
+	if streaming.is_model_in_cdimage(gameplay.get_hash_key(user_input)) then
+		return gameplay.get_hash_key(user_input)
+	end
+	for hash, Model in pairs(model_names) do
+		if Model:find(user_input, 1, true) then
+			return hash
 		end
 	end
 	return 0

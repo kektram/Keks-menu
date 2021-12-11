@@ -1,11 +1,10 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Vehicle saver"] = "1.0.8"
-
-local essentials <const> = kek_menu.require("Essentials")
-local kek_entity <const> = kek_menu.require("Kek's entity functions")
-local enums <const> = kek_menu.require("Enums")
-local vehicle_saver <const> = {}
+local essentials <const> = require("Essentials")
+local kek_entity <const> = require("Kek's entity functions")
+local enums <const> = require("Enums")
+local settings <const> = require("settings")
+local vehicle_saver <const> = {version = "1.0.8"}
 
 local function get_properties(...)
 	local Entity <const>, initial <const> = ...
@@ -33,7 +32,7 @@ local function get_properties(...)
 		info["Type"] = 3
 	end
 	if not initial then
-		info["Attachment isAttached=\"true\""] = table.const({
+		info["Attachment isAttached=\"true\""] = essentials.const({
 			["AttachedTo"] = entity.get_entity_attached_to(Entity),
 			["BoneIndex"] = 0,
 			["Pitch"] = entity.get_entity_pitch(Entity),
@@ -43,7 +42,7 @@ local function get_properties(...)
 			["Y"] = select(2, entity.get_entity_offset_from_entity(entity.get_entity_attached_to(Entity), Entity)).y,
 			["Z"] = select(2, entity.get_entity_offset_from_entity(entity.get_entity_attached_to(Entity), Entity)).z
 		})
-		info["PositionRotation"] = table.const({
+		info["PositionRotation"] = essentials.const({
 			["X"] = entity.get_entity_coords(Entity).x,
 			["Y"] = entity.get_entity_coords(Entity).y,
 			["Z"] = entity.get_entity_coords(Entity).z,
@@ -67,7 +66,7 @@ local function get_properties(...)
 			["EyeColor"] = ped.get_ped_eye_color(Entity)
 		}
 		for i = 0, 11 do 
-			info["PedProperties"]["HeadOverlay"]["_"..i] = table.const({
+			info["PedProperties"]["HeadOverlay"]["_"..i] = essentials.const({
 				["Value"] = ped.get_ped_head_overlay_value(Entity, i),
 				["Opacity"] = ped.get_ped_head_overlay_opacity(Entity, i),
 				["ColorType"] = ped.get_ped_head_overlay_color_type(Entity, i),
@@ -108,10 +107,10 @@ local function get_properties(...)
 			["CurrentGear"] = vehicle.get_vehicle_current_gear(Entity),
 			["WheelsCount"] = vehicle.get_vehicle_wheel_count(Entity),
 			["WheelType"] = math.random(0, 11),
-			["NumberPlateText"] = kek_menu.settings["Plate vehicle text"],
+			["NumberPlateText"] = settings.in_use["Plate vehicle text"],
 			["NumberPlateIndex"] = math.random(0, 3),
 			["WindowTint"] = vehicle.get_vehicle_window_tint(Entity),
-			["Neons"] = table.const({
+			["Neons"] = essentials.const({
 				["R"] = vehicle.get_vehicle_neon_lights_color(Entity),
 				["G"] = 1,
 				["B"] = 1,
@@ -123,7 +122,7 @@ local function get_properties(...)
 			["Mods"] = {}
 		}
 		for i = 0, vehicle.get_vehicle_wheel_count(Entity) - 1 do
-			info["VehicleProperties"]["Wheel_"..i] = table.const({
+			info["VehicleProperties"]["Wheel_"..i] = essentials.const({
 				["TireRadius"] = vehicle.get_vehicle_wheel_tire_radius(Entity, i),
 				["RimRadius"] = vehicle.get_vehicle_wheel_rim_radius(Entity, i),
 				["TireWidth"] = vehicle.get_vehicle_wheel_tire_width(Entity, i),

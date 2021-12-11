@@ -1,8 +1,7 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Enums"] = "1.0.0"
-
 return {
+	version = "1.0.0",
 	ped_types = {
 		any_ped = -1,
 		player_0 = 0,

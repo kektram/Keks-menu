@@ -1,12 +1,11 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Vehicle mapper"] = "1.3.3"
+local vehicle_mapper <const> = {version = "1.3.4"}
+local essentials <const> = require("Essentials")
+local enums <const> = require("Enums")
+local language <const> = require("Language")
 
-local vehicle_mapper <const> = {}
-local essentials <const> = kek_menu.require("Essentials")
-local enums <const> = kek_menu.require("Enums")
-
-local hash_to_model_or_name <const> = table.const_all({
+local hash_to_model_or_name <const> = essentials.const_all({
 	[736672010] = {"dominator8", "Vapid Dominator GTT"},
 	[3186376089] = {"freightcar2", "Freight train 2"},
 	[2568944644] = {"comet6", "Pfister Comet S2"},
@@ -750,21 +749,17 @@ local hash_to_model_or_name <const> = table.const_all({
 	[1336872304] = {"kosatka", "Rune Kosatka (Submarine HQ)"}
 })
 
-local translated_vehicle_names
-if utils.file_exists(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Languages\\Vehicle names\\"..kek_menu.what_language:gsub("%.txt$", ".lua")) then
-	translated_vehicle_names = kek_menu.require("\\Languages\\Vehicle names\\"..kek_menu.what_language:gsub("%.txt", ""))
-end
-
 local model_to_hash = {}
 local name_to_hash = {}
 for hash, model in pairs(hash_to_model_or_name) do
+	essentials.assert(streaming.is_model_a_vehicle(hash), "Invalid vehicle in hash_to_model_or_name table: "..tostring(hash))
 	model_to_hash[model[1]] = hash
 	name_to_hash[model[2]] = hash
 end
-model_to_hash = table.const(model_to_hash)
-name_to_hash = table.const(name_to_hash)
+model_to_hash = essentials.const(model_to_hash)
+name_to_hash = essentials.const(name_to_hash)
 
-vehicle_mapper.HELICOPTERS = table.const({
+vehicle_mapper.HELICOPTERS = essentials.const({
 	gameplay.get_hash_key("savage"),
 	gameplay.get_hash_key("hunter"),
 	gameplay.get_hash_key("akula"),
@@ -785,14 +780,14 @@ vehicle_mapper.HELICOPTERS = table.const({
 
 function vehicle_mapper.GetModelFromHash(...)
 	local hash <const> = ...
-	essentials.assert(streaming.is_model_valid(hash), "Tried to get a model from an invalid hash.")
+	essentials.assert(streaming.is_model_a_vehicle(hash), "Expected a valid vehicle hash: "..hash)
 	essentials.assert(hash_to_model_or_name[hash], "Missing information about a valid, requested vehicle hash: "..hash)
 	return hash_to_model_or_name[hash][1]
 end
 
 function vehicle_mapper.GetNameFromHash(...)
 	local hash <const> = ...
-	essentials.assert(streaming.is_model_valid(hash), "Tried to get a name from an invalid hash.")
+	essentials.assert(streaming.is_model_a_vehicle(hash), "Expected a valid vehicle hash: "..hash)
 	essentials.assert(hash_to_model_or_name[hash], "Missing information about a valid, requested vehicle hash: "..hash)
 	if hash_to_model_or_name[hash] then
 		return hash_to_model_or_name[hash][2]
@@ -803,55 +798,42 @@ end
 
 function vehicle_mapper.get_translated_vehicle_name(...)
 	local hash <const> = ...
-	essentials.assert(streaming.is_model_valid(hash), "Tried to get translated vehicle name from an invalid hash.")
-	essentials.assert(translated_vehicle_names[hash], "Missing information about a valid, requested vehicle hash: "..hash)
-	if translated_vehicle_names then
-		return translated_vehicle_names[hash]
+	essentials.assert(streaming.is_model_a_vehicle(hash), "Expected a valid vehicle hash: "..hash)
+	essentials.assert(language.translated_vehicle_names[hash], "Missing information about a valid, requested vehicle hash: "..hash)
+	if language.translated_vehicle_names then
+		return language.translated_vehicle_names[hash]
 	else
 		return vehicle_mapper.GetNameFromHash(hash)
 	end
 end
 
-function vehicle_mapper.get_hash_from_name(...)
-	local model = ...
-	if name_to_hash[model] then
-		return name_to_hash[model]
+function vehicle_mapper.get_random_vehicle()
+	local hashes <const> = vehicle.get_all_vehicle_model_hashes()
+	return hashes[math.random(1, #hashes)]
+end
+
+function vehicle_mapper.GetHashFromModel(model)
+	essentials.assert(streaming.is_model_a_vehicle(model_to_hash[model]), "Expected a valid vehicle model name: "..model)
+	essentials.assert(model_to_hash[model], "Missing information about a valid, requested vehicle model: "..model)
+	return model_to_hash[model]
+end
+
+function vehicle_mapper.get_hash_from_user_input(...)
+	local user_input = ...
+	if user_input == "?" then
+		return vehicle_mapper.get_random_vehicle()
 	end
-	model = (model:gsub("%s", ""):lower()):gsub("ii", "2")
-	for hash, name in pairs(hash_to_model_or_name) do
-		if (name[2]:gsub("%s", ""):lower()):find(model, 1, true) then
+	user_input = user_input:lower()
+	if streaming.is_model_a_vehicle(gameplay.get_hash_key(user_input)) then
+		return gameplay.get_hash_key(user_input)
+	end
+	user_input = (user_input:gsub("%s", "")):gsub("ii", "2")
+	for Model, hash in pairs(model_to_hash) do
+		if Model:find(user_input, 1, true) then
 			return hash
 		end
 	end
 	return 0
-end
-
-function vehicle_mapper.GetHashFromModel(...)
-	local model = ...
-	model = (model:gsub("%s", ""):lower()):gsub("ii", "2")
-	if model_to_hash[model] then
-		return model_to_hash[model]
-	else
-		if model == "?" then
-			return vehicle.get_all_vehicle_model_hashes()[math.random(1, #vehicle.get_all_vehicle_model_hashes())]
-		end
-		for Model, hash in pairs(model_to_hash) do
-			if Model:find(model, 1, true) then
-				return hash
-			end
-		end
-	end
-	return 0
-end
-
-function vehicle_mapper.get_hash_from_name_or_model(...)
-	local str <const> = ...
-	local result = vehicle_mapper.GetHashFromModel(str)
-	if math.type(result) == "integer" and result ~= 0 then
-		return result
-	end
-	result = vehicle_mapper.get_hash_from_name(str)
-	return result
 end
 
 return vehicle_mapper
