@@ -387,4 +387,4 @@ function keys_and_input.get_controller_key_control_int_from_name(...)
 	end
 end
 
-return keys_and_input
+return essentials.const_all(keys_and_input)

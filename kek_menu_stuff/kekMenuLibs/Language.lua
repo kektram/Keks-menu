@@ -50,9 +50,7 @@ end
 
 setmetatable(language.lang, {
 	__index = function(t, index)
-		local str = (index:match("(.+) §") or index):gsub("\\n", "\n")
-		language.lang[index] = str
-		return str
+		return (index:match("(.+) §") or index):gsub("\\n", "\n")
 	end
 })
 

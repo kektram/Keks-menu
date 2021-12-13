@@ -225,4 +225,4 @@ function admin_mapper.is_there_admin_in_session()
 	end
 end
 
-return admin_mapper
+return essentials.const_all(admin_mapper)

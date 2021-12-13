@@ -3,7 +3,7 @@
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
 
-local drive_style_mapper <const> = {version = "1.0.3"}
+local drive_style_mapper <const> = {version = "1.0.4"}
 
 drive_style_mapper.DRIVE_STYLE_FLAGS = essentials.const_all({
 	{name = "Stop before vehicles", flag = 1 << 0},
@@ -43,4 +43,14 @@ function drive_style_mapper.get_drive_style_property_name_from_int(...)
 	essentials.assert(false, "Failed to get drive style name from flag.")
 end
 
-return drive_style_mapper
+function drive_style_mapper.get_drive_style_from_list(list)
+	local drive_style = 0
+	for _, drive_style_property in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
+		if list[drive_style_property.name] then
+			drive_style = drive_style + drive_style_property.flag
+		end
+	end
+	return drive_style
+end
+
+return essentials.const_all(drive_style_mapper)

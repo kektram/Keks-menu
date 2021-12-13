@@ -82,8 +82,41 @@ function essentials.rawget(...)
 	return value
 end
 
+function essentials.const(Table)
+	essentials.assert(not getmetatable(Table) or getmetatable(Table).__is_const, "Tried to overwrite the metatable while changing the table to const.")
+	if not getmetatable(Table) or not getmetatable(Table).__is_const then
+		return setmetatable({}, {
+			__is_const = true,
+			__index = setmetatable(Table, {__index = function(Table, index)
+				essentials.assert(index ~= nil, "Tried to access a table with index nil.")
+			end}),
+			__newindex = function()
+				error(debug.traceback("Tried to modify a read-only table.", 2))
+			end,
+			__pairs = function(Table)
+				return next, getmetatable(Table).__index
+			end,
+			__len = function(Table)
+				return #getmetatable(Table).__index
+			end,
+		})
+	else
+		return Table
+	end
+end
+
+function essentials.const_all(Table)
+	for key, value in pairs(Table) do
+		if type(value) == "table" then
+			essentials.rawset(Table, key, essentials.const_all(value))
+		end
+	end
+	return essentials.const(Table)
+end
+
 function essentials.assert(bool, msg)
 	if not bool then
+		menu.notify(msg, "Error", 6, 6)
 		essentials.log_error(msg)
 		error(msg)
 	end
@@ -104,11 +137,11 @@ function essentials.delete_player_feature(id)
 end
 
 do
-	local originals <const> = {
+	local originals <const> = essentials.const({
 		add_feature = menu.add_feature,
 		add_player_feature = menu.add_player_feature,
 		menu_newindex = getmetatable(menu).__newindex
-	}
+	})
 	getmetatable(menu).__newindex = nil
 
 	menu.add_feature = function(...)
@@ -150,41 +183,6 @@ do
 		return feat
 	end
 	getmetatable(menu).__newindex = originals.menu_newindex
-end
-
-function essentials.const(Table)
-	essentials.assert(not getmetatable(Table) or getmetatable(Table).__is_const, "Tried to overwrite the metatable while changing the table to const.")
-	if not getmetatable(Table) or not getmetatable(Table).__is_const then
-		return setmetatable({}, {
-			__is_const = true,
-			__index = setmetatable(Table, {__index = function(Table, index)
-				if index == nil then
-					error(debug.traceback("Index is nil.", 2))
-				end
-				return essentials.rawget(Table, index)
-			end}),
-			__newindex = function()
-				error(debug.traceback("Tried to modify a read-only table.", 2))
-			end,
-			__pairs = function(Table)
-				return next, getmetatable(Table).__index
-			end,
-			__len = function(Table)
-				return #getmetatable(Table).__index
-			end,
-		})
-	else
-		return Table
-	end
-end
-
-function essentials.const_all(Table)
-	for key, value in pairs(Table) do
-		if type(value) == "table" then
-			essentials.rawset(Table, key, essentials.const_all(value))
-		end
-	end
-	return essentials.const(Table)
 end
 
 function essentials.deep_copy(Table, keep_meta, seen)
@@ -539,7 +537,7 @@ function essentials.get_random_player_except(...)
 end
 
 do
-	local special_char_map <const> = {
+	local special_char_map <const> = essentials.const({
 		["%"] = "%%",
 		["["] = "%[",
 		["]"] = "%]",
@@ -552,7 +550,7 @@ do
 		["^"] = "%^",
 		["$"] = "%$",
 		["."] = "%."
-	}
+	})
 	
 	function essentials.remove_special(text)
 		local str <const> = text:gsub("[%%%[%]%(%)%-%+%?%*%^%$%.]", special_char_map)
@@ -900,8 +898,14 @@ function essentials.invalid_pattern(...)
 	end
 end
 
-function essentials.merge_tables(...)
-	local parent_table, children_tables <const> = ...
+function essentials.merge_tables(parent_table, children_tables)
+	parent_table = essentials.deep_copy(parent_table) 
+	--[[
+		parent_table is quite often a reference to a table you don't want to modify.
+		Modifying a reference will modify the original table.
+		Deep copying it will prevent that from happening.
+		Keep in mind metatables aren't kept in the new copy.
+	--]]
 	for _, children_table in pairs(children_tables) do
 		table.move(children_table, 1, #children_table, #parent_table + 1, parent_table)
 	end
@@ -950,4 +954,4 @@ function essentials.modify_entry(...)
 	end
 end
 
-return essentials
+return essentials -- Not a const table, certain members need write permission.

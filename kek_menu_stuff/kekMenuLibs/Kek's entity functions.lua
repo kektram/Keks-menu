@@ -99,7 +99,6 @@ function kek_entity.spawn_entity(...)
 	local hash <const>, 
 	coords_and_heading <const>, 
 	give_godmode <const>, 
-	set_as_mission <const>, 
 	max_vehicle <const>, 
 	ped_type <const>, 
 	dont_disregard_hash_after_spawn <const>, 
@@ -111,15 +110,15 @@ function kek_entity.spawn_entity(...)
 	essentials.assert(not object_mapper.BLACKLISTED_OBJECTS[hash], "Tried to spawn a blacklisted object.")
 	essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a blacklisted ped.")
 	if utils.time_ms() > essentials.new_session_timer then
-		if not streaming.is_model_an_object(hash) and not streaming.is_model_a_world_object(hash) then
+		if not streaming.is_model_an_object(hash) then
 			repeat
 				system.yield(0)
 			until utils.time_ms() >= spawn_timer or utils.time_ms() < essentials.new_session_timer
 		end
-		if utils.time_ms() > essentials.new_session_timer and (streaming.is_model_an_object(hash) or streaming.is_model_a_world_object(hash) or utils.time_ms() >= spawn_timer) then
+		if utils.time_ms() > essentials.new_session_timer and (streaming.is_model_an_object(hash) or utils.time_ms() >= spawn_timer) then
 			local status <const>, had_to_request_hash <const> = kek_entity.request_model(hash)
 			if status then
-				if not streaming.is_model_an_object(hash) and not streaming.is_model_a_world_object(hash) then
+				if not streaming.is_model_an_object(hash) then
 					spawn_timer = utils.time_ms() + 2500
 				end
 				local coords <const>, dir <const> = coords_and_heading()
@@ -130,9 +129,11 @@ function kek_entity.spawn_entity(...)
 						kek_entity.max_car(Entity)
 					end	
 					decorator.decor_set_int(Entity, "MPBitset", 1 << 10)
+					system.yield(0)
 				elseif streaming.is_model_a_ped(hash) then
 					essentials.assert(ped_type >= -1 and ped_type <= 29, "Invalid ped type.")
 					Entity = ped.create_ped(ped_type, hash, coords, dir, not_networked ~= true, not_networked == true, weight)
+					system.yield(0)
 				elseif streaming.is_model_a_world_object(hash) then
 					Entity = object.create_world_object(hash, coords, not not_networked, not not_dynamic_object, weight)
 				elseif streaming.is_model_an_object(hash) then
@@ -141,13 +142,10 @@ function kek_entity.spawn_entity(...)
 				if give_godmode then
 					entity.set_entity_god_mode(Entity, true)
 				end
-				if set_as_mission then
-					entity.set_entity_as_mission_entity(Entity, false, true)
-				end
 				if had_to_request_hash and not dont_disregard_hash_after_spawn then
 					streaming.set_model_as_no_longer_needed(hash)
 				end
-				if not streaming.is_model_an_object(hash) and not streaming.is_model_a_world_object(hash) then
+				if not streaming.is_model_an_object(hash) then
 					spawn_timer = 0
 				end
 			end
@@ -499,21 +497,21 @@ function kek_entity.repair_car(...)
 end
 
 do
-	local toggle_vehicle_mods <const> = {
+	local toggle_vehicle_mods <const> = essentials.const({
 		unk1 = 17,
 		unk2 = 19, 
 		unk3 = 21,
 		turbo = 18, 
 		tire_smoke = 20, 
 		xenon_lights = 22
-	}
-	local performance_mods <const> = {
+	})
+	local performance_mods <const> = essentials.const({
 		engine = 11,
 		brakes = 12,
 		transmission = 13,
 		suspension = 15,
 		armor = 16
-	}
+	})
 
 	function kek_entity.max_car(...)
 		local Vehicle <const>,
@@ -720,7 +718,7 @@ function kek_entity.set_combat_attributes(...)
 		[52] = attributes.ignore_traffic,
 		[1424] = attributes.use_fireing_weapons
 	}) do
-		ped.set_ped_combat_attributes(Ped, attribute_id, set_all_attributes_to_true or is_on)
+		ped.set_ped_combat_attributes(Ped, attribute_id, set_all_attributes_to_true or is_on == true)
 	end
 	ped.set_ped_combat_ability(Ped, 100)
 	ped.set_ped_combat_range(Ped, enums.combat_range.CR_Far)
@@ -735,17 +733,17 @@ function kek_entity.create_cage(...)
 	system.yield(250)
 	local temp_ped <const> = kek_entity.spawn_entity(gameplay.get_hash_key("a_f_y_tourist_02"), function() 
 		return select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x3779, v3())), 0
-	end, true, true, false, enums.ped_types.civmale)
+	end, true, false, enums.ped_types.civmale)
 	if entity.is_entity_a_ped(temp_ped) then
 		entity.set_entity_visible(temp_ped, false)
 		ped.set_ped_config_flag(temp_ped, enums.ped_config_flags.InVehicle, 1)
 		entity.freeze_entity(temp_ped, true)
 		local cage <const> = kek_entity.spawn_entity(gameplay.get_hash_key("prop_test_elevator"), function()
 			return player.get_player_coords(pid) + v3(0, 0, 10), 0
-		end, false, true)
+		end)
 		local cage_2 <const> = kek_entity.spawn_entity(gameplay.get_hash_key("prop_test_elevator"), function()
 			return player.get_player_coords(pid) + v3(0, 0, 10), 0
-		end, false, true)
+		end)
 		entity.set_entity_visible(temp_ped, true)
 		entity.attach_entity_to_entity(cage, temp_ped, 0, v3(), v3(), false, true, true, 0, true)
 		entity.attach_entity_to_entity(cage_2, cage, 0, v3(), v3(0, 0, 90), false, true, false, 0, true)
@@ -846,7 +844,7 @@ function kek_entity.spawn_car()
 		local velocity <const> = entity.get_entity_velocity(essentials.get_most_relevant_entity(player.player_id()))
 		local Vehicle <const> = kek_entity.spawn_entity(hash, function()
 			return get_prefered_vehicle_pos(hash), player.get_player_heading(player.player_id())
-		end, settings.toggle["Spawn #vehicle# in godmode"].on, false, settings.toggle["Spawn #vehicle# maxed"].on)
+		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
 		if settings.toggle["Always f1 wheels on #vehicle#"].on then
 			vehicle.set_vehicle_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
 		end
@@ -888,21 +886,21 @@ do
 		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		local seat <const> = vehicle.get_free_seat(Vehicle)
 		if seat ~= -2 and entity.is_an_entity(Vehicle) then
-			local Ped <const> = kek_entity.spawn_entity(0x9CF26183, function() 
+			local Ped <const> = kek_entity.spawn_entity(gameplay.get_hash_key("a_f_y_topless_01"), function() 
 				return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + v3(0, 0, 10), 0
-			end, true, true, false, enums.ped_types.civmale)
+			end, true, false, enums.ped_types.civmale)
 			if entity.is_entity_a_ped(Ped) then
 				entity.set_entity_collision(Ped, false, false, false)
 				entity.set_entity_visible(Ped, false)
 				ped.set_ped_into_vehicle(Ped, Vehicle, seat)
 				local Entity <const> = kek_entity.spawn_entity(gameplay.get_hash_key(table_of_glitch_entity_models[math.random(1, #table_of_glitch_entity_models)]), function()
 					return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + v3(0, 0, 10), 0
-				end, true, true, false, enums.ped_types.civmale)
-				if entity.is_entity_an_object(Entity) then
+				end, true, false, enums.ped_types.civmale) -- This can spawn an object, ped or vehicle.
+				if entity.is_an_entity(Entity) then
 					entity.set_entity_visible(Entity, false)
-					entity.attach_entity_to_entity(Entity, Ped, 0, v3(), v3(math.random(0, 180), math.random(0, 180), math.random(0, 180)), true, true, entity.is_entity_a_ped(Entity), 0, false)
+					entity.attach_entity_to_entity(Entity, Ped, 0, v3(), v3(math.random(0, 180), math.random(0, 180), math.random(0, 180)), false, true, entity.is_entity_a_ped(Entity), 0, false)
 				else
-					kek_entity.clear_entities({Ped})
+					kek_entity.clear_entities({Ped, Entity})
 				end
 			end
 		end
@@ -956,35 +954,10 @@ function kek_entity.teleport_session(...)
 end
 
 --[[
-	List of end vehicles is the last vehicle in each vehicle class
-	when using vehicle.get_all_vehicle_model_hashes().
+	List of end vehicles is the first vehicle in each class except compacts, because compacts is the first class.
+	Using vehicle.get_all_vehicle_model_hashes().
 --]]
 do
-	local list_of_end_vehicles <const> = essentials.const({
-		2485144969, -- Asea
-		3505073125, -- Cavalcade
-		4289813342, -- Exemplar
-		2351681756, -- Nightshade
-		2049897956, -- Rapid_GT_Classic
-		970598228, -- Sultan
-		3612858749, -- Zorrusso
-		822018448, -- Defiler
-		2198148358, -- Technical
-		1353720154, -- Flatbed
-		3417488910, -- Trailer
-		219613597, -- Speedo_Custom
-		3061159916, -- Endurex_Race_Bike
-		3251507587, -- Marquis
-		2623428164, -- SuperVolito_Carbon
-		2621610858, -- Velum
-		3039269212, -- Trashmaster
-		1127131465, -- FIB
-		2014313426, -- Vetir
-		2157618379, -- Phantom
-		184361638, -- Freight_Train
-		1492612435 -- BR8
-	})
-
 	local vehicle_category_info <const> = essentials.const({
 		{class_name = lang["Compacts §"], 		 num_of_vehicles_in_class = 0},
 		{class_name = lang["Sedans §"], 		 num_of_vehicles_in_class = 0},
@@ -1011,6 +984,31 @@ do
 		{class_name = lang["Open Wheel §"],		 num_of_vehicles_in_class = 0}
 	})
 
+do
+	local list_of_end_vehicles <const> = essentials.const({
+		2485144969, -- Asea
+		3505073125, -- Cavalcade
+		4289813342, -- Exemplar
+		2351681756, -- Nightshade
+		2049897956, -- Rapid_GT_Classic
+		970598228, -- Sultan
+		3612858749, -- Zorrusso
+		822018448, -- Defiler
+		2198148358, -- Technical
+		1353720154, -- Flatbed
+		3417488910, -- Trailer
+		219613597, -- Speedo_Custom
+		3061159916, -- Endurex_Race_Bike
+		3251507587, -- Marquis
+		2623428164, -- SuperVolito_Carbon
+		2621610858, -- Velum
+		3039269212, -- Trashmaster
+		1127131465, -- FIB
+		2014313426, -- Vetir
+		2157618379, -- Phantom
+		184361638, -- Freight_Train
+		1492612435 -- BR8
+	})
 	local i = 1
 	for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
 		if hash == list_of_end_vehicles[i] then
@@ -1018,6 +1016,7 @@ do
 		end
 		vehicle_category_info[i].num_of_vehicles_in_class = vehicle_category_info[i].num_of_vehicles_in_class + 1
 	end
+end
 
 	function kek_entity.generate_vehicle_list(...)
 		local feat_type <const>,
@@ -1075,4 +1074,4 @@ do
 	end
 end
 
-return kek_entity
+return kek_entity -- Not a const table, certain members need write permission.

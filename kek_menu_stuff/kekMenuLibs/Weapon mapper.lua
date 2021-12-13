@@ -846,6 +846,16 @@ local function get_hashes(...)
 	return hashes
 end
 
+weapon_mapper.melee_hashes = get_hashes(melee_weapons)
+weapon_mapper.rifle_hashes = get_hashes(rifles)
+weapon_mapper.smg_hashes = get_hashes(SMGs)
+weapon_mapper.explosive_hashes = get_hashes(explosive_weapons)
+weapon_mapper.shotgun_hashes = get_hashes(shotguns)
+weapon_mapper.misc_weapon_hashes = get_hashes(misc)
+weapon_mapper.throwables_hashes = get_hashes(throwables)
+weapon_mapper.pistol_hashes = get_hashes(pistols)
+weapon_mapper.heavy_weapon_hashes = get_hashes(heavy_weapons)
+
 function weapon_mapper.get_table_of_melee_weapons()
 	return get_hashes(melee_weapons)
 end
@@ -883,42 +893,34 @@ function weapon_mapper.get_table_of_heavy_weapons()
 end
 
 function weapon_mapper.get_table_of_weapons(...)
-	local rif <const>,
-	smg <const>,
-	sg <const>,
-	pis <const>,
-	xpl <const>,
-	throw <const>,
-	hev <const>,
-	mel <const>,
-	Misc <const> = ...
+	local properties <const> = ...
 	local Table <const> = {}
-	if rif then
-		table.move(get_hashes(rifles), 1, #get_hashes(rifles), 1, Table)
+	if properties.rifles then
+		table.move(weapon_mapper.rifle_hashes, 1, #weapon_mapper.rifle_hashes, 1, Table)
 	end
-	if smg then
-		table.move(get_hashes(SMGs), 1, #get_hashes(SMGs), 1, Table)
+	if properties.smgs then
+		table.move(weapon_mapper.smg_hashes, 1, #weapon_mapper.smg_hashes, 1, Table)
 	end
-	if sg then
-		table.move(get_hashes(shotguns), 1, #get_hashes(shotguns), 1, Table)
+	if properties.shotguns then
+		table.move(weapon_mapper.shotgun_hashes, 1, #weapon_mapper.shotgun_hashes, 1, Table)
 	end
-	if pis then
-		table.move(get_hashes(pistols), 1, #get_hashes(pistols), 1, Table)
+	if properties.pistols then
+		table.move(weapon_mapper.pistol_hashes, 1, #weapon_mapper.pistol_hashes, 1, Table)
 	end
-	if xpl then
-		table.move(get_hashes(explosive_weapons), 1, #get_hashes(explosive_weapons), 1, Table)
+	if properties.explosives_heavy then
+		table.move(weapon_mapper.explosive_hashes, 1, #weapon_mapper.explosive_hashes, 1, Table)
 	end
-	if hev then
-		table.move(get_hashes(heavy_weapons), 1, #get_hashes(heavy_weapons), 1, Table)
+	if properties.heavy then
+		table.move(weapon_mapper.heavy_weapon_hashes, 1, #weapon_mapper.heavy_weapon_hashes, 1, Table)
 	end
-	if throw then
-		table.move(get_hashes(throwables), 1, #get_hashes(throwables), 1, Table)
+	if properties.throwables then
+		table.move(weapon_mapper.throwables_hashes, 1, #weapon_mapper.throwables_hashes, 1, Table)
 	end
-	if mel then
-		table.move(get_hashes(melee_weapons), 1, #get_hashes(melee_weapons), 1, Table)
+	if properties.melee then
+		table.move(weapon_mapper.melee_hashes, 1, #weapon_mapper.melee_hashes, 1, Table)
 	end
-	if Misc then
-		table.move(get_hashes(misc), 1, #get_hashes(misc), 1, Table)
+	if properties.misc then
+		table.move(weapon_mapper.misc_weapon_hashes, 1, #weapon_mapper.misc_weapon_hashes, 1, Table)
 	end
 	return Table
 end
@@ -995,4 +997,4 @@ function weapon_mapper.set_ped_weapon_attachments(...)
 	weapon.set_ped_ammo(Ped, weapon_hash, ammo)
 end
 
-return weapon_mapper
+return essentials.const_all(weapon_mapper)

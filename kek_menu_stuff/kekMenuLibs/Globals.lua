@@ -480,4 +480,4 @@ function globals.script_event_crash(...)
 	end
 end
 
-return globals
+return essentials.const_all(globals)

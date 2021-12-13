@@ -192,4 +192,4 @@ function vehicle_saver.save_vehicle(...)
 	end
 end
 
-return vehicle_saver
+return essentials.const_all(vehicle_saver)

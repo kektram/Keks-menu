@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-local ped_mapper <const> = {version = "1.2.5"}
+local ped_mapper <const> = {version = "1.2.6"}
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
 
@@ -20,8 +20,6 @@ local ped_models <const> = essentials.const({
 	[101298480] = "cs_tracydisanto",
 	[103106535] = "cs_floyd",
 	[109850898] = "unknown_ped_name",
-	[111281960] = "a_c_pigeon",
-	[113504370] = "a_c_sharktiger",
 	[115168927] = "a_m_m_genfat_01",
 	[117698822] = "csb_anita",
 	[130590395] = "u_f_y_dancelthr_01",
@@ -50,7 +48,6 @@ local ped_models <const> = essentials.const({
 	[261586155] = "s_m_y_chef_01",
 	[275618457] = "g_m_m_chicold_01",
 	[279228114] = "a_f_y_smartcaspat_01",
-	[307287994] = "a_c_mtlion",
 	[321657486] = "a_m_y_latino_01",
 	[322310057] = "ig_isldj_03",
 	[327394568] = "csb_car3guy2",
@@ -63,7 +60,6 @@ local ped_models <const> = essentials.const({
 	[348382215] = "s_f_y_hooker_02",
 	[349505262] = "a_m_y_hipster_02",
 	[349680864] = "s_m_m_dockwork_01",
-	[351016938] = "a_c_chop",
 	[355916122] = "a_m_o_ktown_01",
 	[357447289] = "a_f_y_clubcust_02",
 	[357551935] = "ig_paige",
@@ -75,7 +71,6 @@ local ped_models <const> = essentials.const({
 	[379310561] = "a_f_m_prolhost_01",
 	[390939205] = "a_m_o_tramp_01",
 	[400495475] = "ig_djblamryanh",
-	[402729631] = "a_c_crow",
 	[406009421] = "csb_avon",
 	[411081129] = "csb_rashcosvki",
 	[411102470] = "s_m_m_gentransport",
@@ -161,7 +156,6 @@ local ped_models <const> = essentials.const({
 	[793443893] = "csb_porndudes",
 	[795497466] = "ig_djsolmike",
 	[797459875] = "ig_barry",
-	[802685111] = "a_c_fish",
 	[803106487] = "a_m_m_malibu_01",
 	[808778210] = "cs_janet",
 	[808859815] = "a_f_m_beach_01",
@@ -179,7 +173,6 @@ local ped_models <const> = essentials.const({
 	[866411749] = "mp_m_famdd_01",
 	[874722259] = "u_m_m_fibarchitect",
 	[880829941] = "u_m_y_imporage",
-	[882848737] = "a_c_retriever",
 	[887084708] = "csb_isldj_01",
 	[891398354] = "a_m_y_genstreet_02",
 	[891945583] = "g_m_m_korboss_01",
@@ -214,7 +207,6 @@ local ped_models <const> = essentials.const({
 	[1006915658] = "ig_oldrichguy",
 	[1011059922] = "u_m_y_rsranger_01",
 	[1012965715] = "cs_dreyfuss",
-	[1015224100] = "a_c_sharkhammer",
 	[1020431539] = "g_m_m_casrn_01",
 	[1021093698] = "s_m_y_mime",
 	[1024089777] = "ig_russiandrunk",
@@ -236,8 +228,6 @@ local ped_models <const> = essentials.const({
 	[1099321454] = "mp_m_weapwork_01",
 	[1099825042] = "s_m_m_hairdress_01",
 	[1123963760] = "cs_tanisha",
-	[1125994524] = "a_c_poodle",
-	[1126154828] = "a_c_shepherd",
 	[1126998116] = "mp_f_execpa_01",
 	[1129928304] = "cs_martinmadrazo",
 	[1135976220] = "ig_jimmyboston_02",
@@ -260,7 +250,6 @@ local ped_models <const> = essentials.const({
 	[1189322339] = "u_m_o_finguru_01",
 	[1191403201] = "cs_fabien",
 	[1191548746] = "u_m_y_militarybum",
-	[1193010354] = "a_c_humpback",
 	[1194880004] = "ig_djsolrobt",
 	[1198698306] = "cs_dom",
 	[1204772502] = "a_f_o_ktown_01",
@@ -288,7 +277,6 @@ local ped_models <const> = essentials.const({
 	[1302784073] = "ig_lestercrest",
 	[1309468115] = "g_f_y_families_01",
 	[1312913862] = "a_m_y_hipster_03",
-	[1318032802] = "a_c_husky",
 	[1324952405] = "csb_sol",
 	[1325314544] = "cs_natalia",
 	[1328415626] = "a_m_m_salton_01",
@@ -324,10 +312,8 @@ local ped_models <const> = essentials.const({
 	[1446741360] = "a_f_y_tourist_01",
 	[1456041926] = "s_m_m_prisguard_01",
 	[1456705429] = "mp_m_cocaine_01",
-	[1457690978] = "a_c_cormorant",
 	[1459905209] = "ig_jimmydisanto",
 	[1461287021] = "ig_trafficwarden",
-	[1462895032] = "a_c_cat_01",
 	[1464257942] = "ig_bestmen",
 	[1464721716] = "cs_marnie",
 	[1466037421] = "g_m_m_mexboss_01",
@@ -380,7 +366,6 @@ local ped_models <const> = essentials.const({
 	[1669696074] = "s_m_m_armoured_02",
 	[1674107025] = "a_f_m_eastsa_02",
 	[1681385341] = "ig_priest",
-	[1682622302] = "a_c_coyote",
 	[1684083350] = "s_m_m_movalien_01",
 	[1694362237] = "a_m_y_motox_01",
 	[1699403886] = "a_f_m_downtown_01",
@@ -404,7 +389,6 @@ local ped_models <const> = essentials.const({
 	[1777626099] = "s_f_y_factory_01",
 	[1787764635] = "u_m_o_tramp_01",
 	[1794381917] = "u_m_y_sbike",
-	[1794449327] = "a_c_hen",
 	[1798879480] = "cs_paper",
 	[1809430156] = "a_m_m_hasjew_01",
 	[1813637474] = "u_m_m_streetart_01",
@@ -414,7 +398,6 @@ local ped_models <const> = essentials.const({
 	[1823868411] = "u_f_y_poppymich_02",
 	[1825562762] = "ig_clay",
 	[1830688247] = "ig_amandatownley",
-	[1832265812] = "a_c_pug",
 	[1835399538] = "csb_djblamadon",
 	[1836024091] = "cs_jimmydisanto2",
 	[1841036427] = "csb_mp_agent14",
@@ -518,7 +501,6 @@ local ped_models <const> = essentials.const({
 	[2331262242] = "csb_gustavo",
 	[2339419141] = "cs_omega",
 	[2340239206] = "u_m_y_burgerdrug_01",
-	[2344268885] = "a_c_dolphin",
 	[2346291386] = "a_m_m_soucent_03",
 	[2346790124] = "csb_screen_writer",
 	[2349847778] = "cs_tomepsilon",
@@ -527,7 +509,6 @@ local ped_models <const> = essentials.const({
 	[2363277399] = "csb_burgerdrug",
 	[2372398717] = "cs_movpremmale",
 	[2373903780] = "unknown_ped_name",
-	[2374682809] = "a_c_killerwhale",
 	[2374966032] = "s_m_y_swat_01",
 	[2414729609] = "g_m_y_korean_02",
 	[2422005962] = "g_m_y_salvaboss_01",
@@ -550,7 +531,6 @@ local ped_models <const> = essentials.const({
 	[2494442380] = "u_m_y_tattoo_01",
 	[2495782975] = "u_m_y_corpse_01",
 	[2503965067] = "u_f_y_beth",
-	[2506301981] = "a_c_rottweiler",
 	[2512875213] = "s_m_m_armoured_01",
 	[2515474659] = "cs_amandatownley",
 	[2521108919] = "a_m_m_salton_04",
@@ -598,7 +578,6 @@ local ped_models <const> = essentials.const({
 	[2688103263] = "a_f_m_bevhills_02",
 	[2700978005] = "csb_mjo",
 	[2705543429] = "a_m_y_business_03",
-	[2705875277] = "a_c_stingray",
 	[2718472679] = "u_f_m_promourn_01",
 	[2719478597] = "s_m_y_westsec_01",
 	[2721800023] = "ig_tenniscoach",
@@ -621,7 +600,6 @@ local ped_models <const> = essentials.const({
 	[2802535058] = "ig_ballasog",
 	[2810251555] = "ig_kaylee",
 	[2813792322] = "a_m_y_clubcust_01",
-	[2825402133] = "a_c_chimp",
 	[2831296918] = "csb_chin_goon",
 	[2841034142] = "s_m_m_gaffer_01",
 	[2842417644] = "s_m_m_janitor",
@@ -630,7 +608,6 @@ local ped_models <const> = essentials.const({
 	[2850754114] = "a_m_m_golfer_01",
 	[2858686092] = "csb_roccopelosi",
 	[2860711835] = "a_m_y_epsilon_02",
-	[2864127842] = "a_c_chickenhawk",
 	[2867128955] = "ig_chengsr",
 	[2869588309] = "a_m_y_yoga_01",
 	[2872052743] = "s_m_y_pilot_01",
@@ -644,7 +621,6 @@ local ped_models <const> = essentials.const({
 	[2905870170] = "cs_orleans",
 	[2907468364] = "s_m_y_waiter_01",
 	[2908022696] = "a_m_o_genstreet_01",
-	[2910340283] = "a_c_westy",
 	[2912874939] = "s_m_o_busker_01",
 	[2923947184] = "s_f_m_shop_high",
 	[2925257274] = "csb_chef2",
@@ -653,7 +629,6 @@ local ped_models <const> = essentials.const({
 	[2936266209] = "ig_molly",
 	[2952446692] = "a_m_y_skater_02",
 	[2962707003] = "a_f_m_skidrow_01",
-	[2971380566] = "a_c_pig",
 	[2972453492] = "ig_djtalaurelia",
 	[2974087609] = "s_m_y_sheriff_01",
 	[2979249514] = "ig_isldj_04_d_01",
@@ -717,13 +692,11 @@ local ped_models <const> = essentials.const({
 	[3254803008] = "csb_janitor",
 	[3263172030] = "csb_ramp_gang",
 	[3265820418] = "a_m_m_stlat_02",
-	[3268439891] = "a_c_rhesus",
 	[3269663242] = "s_f_y_beachbarstaff_01",
 	[3271294718] = "a_m_m_soucent_04",
 	[3272005365] = "u_m_m_bankman",
 	[3272690865] = "ig_patricia_02",
 	[3272931111] = "cs_gurk",
-	[3283429734] = "a_c_rat",
 	[3284966005] = "cs_mrk",
 	[3287349092] = "a_m_y_soucent_03",
 	[3287737221] = "mp_f_chbar_01",
@@ -765,7 +738,6 @@ local ped_models <const> = essentials.const({
 	[3455013896] = "mp_s_m_armoured_01",
 	[3457361118] = "ig_hunter",
 	[3459037009] = "u_m_m_jesus_01",
-	[3462393972] = "a_c_boar",
 	[3465614249] = "s_m_m_strvend_01",
 	[3465937675] = "u_m_m_promourn_01",
 	[3473698871] = "ig_ary",
@@ -783,7 +755,6 @@ local ped_models <const> = essentials.const({
 	[3533210174] = "csb_englishdave",
 	[3534913217] = "mp_f_meth_01",
 	[3538133636] = "u_f_y_princess",
-	[3549666813] = "a_c_seagull",
 	[3552233440] = "unknown_ped_name",
 	[3564307372] = "s_m_m_doctor_01",
 	[3572886207] = "a_m_y_clubcust_03",
@@ -799,7 +770,6 @@ local ped_models <const> = essentials.const({
 	[3623056905] = "u_f_m_drowned_01",
 	[3628252818] = "ig_kerrymcintosh_02",
 	[3630066984] = "s_m_m_movprem_01",
-	[3630914197] = "a_c_deer",
 	[3640249671] = "s_m_y_busboy_01",
 	[3654768780] = "a_m_m_skater_01",
 	[3658575486] = "u_m_y_babyd",
@@ -826,7 +796,6 @@ local ped_models <const> = essentials.const({
 	[3735478533] = "unknown_ped_name",
 	[3740245870] = "ig_ramp_hipster",
 	[3750433537] = "cs_patricia",
-	[3753204865] = "a_c_rabbit_01",
 	[3756278757] = "ig_lazlow",
 	[3767780806] = "s_f_m_maid_01",
 	[3772505184] = "csb_sss",
@@ -849,7 +818,6 @@ local ped_models <const> = essentials.const({
 	[3870061732] = "ig_ramp_mex",
 	[3872144604] = "u_m_m_jewelthief",
 	[3877027275] = "a_m_y_soucent_01",
-	[3877461608] = "a_c_panther",
 	[3881194279] = "cs_andreas",
 	[3881519900] = "s_m_m_pilot_01",
 	[3882958867] = "g_m_m_armlieut_01",
@@ -924,7 +892,6 @@ local ped_models <const> = essentials.const({
 	[4227433577] = "ig_mp_agent14",
 	[4242313482] = "ig_magenta",
 	[4242698434] = "ig_avon",
-	[4244282910] = "a_c_cow",
 	[4245210443] = "unknown_ped_name",
 	[4246489531] = "g_m_y_strpunk_01",
 	[4248931856] = "ig_manuel",
@@ -935,7 +902,78 @@ local ped_models <const> = essentials.const({
 	[4274948997] = "ig_groom",
 	[4282288299] = "a_m_y_dhill_01",
 	[4285659174] = "g_m_m_chigoon_02",
-	[4293277303] = "ig_screen_writer"
+	[4293277303] = "ig_screen_writer",
+	-- Animals --
+	[3462393972] = "a_c_boar",
+	[1462895032] = "a_c_cat_01",
+	[2864127842] = "a_c_chickenhawk",
+	[2825402133] = "a_c_chimp",
+	[351016938] = "a_c_chop",
+	[1457690978] = "a_c_cormorant",
+	[4244282910] = "a_c_cow",
+	[1682622302] = "a_c_coyote",
+	[402729631] = "a_c_crow",
+	[3630914197] = "a_c_deer",
+	[2344268885] = "a_c_dolphin",
+	[802685111] = "a_c_fish",
+	[1794449327] = "a_c_hen",
+	[1193010354] = "a_c_humpback",
+	[1318032802] = "a_c_husky",
+	[2374682809] = "a_c_killerwhale",
+	[307287994] = "a_c_mtlion",
+	[3877461608] = "a_c_panther",
+	[2971380566] = "a_c_pig",
+	[111281960] = "a_c_pigeon",
+	[1125994524] = "a_c_poodle",
+	[1832265812] = "a_c_pug",
+	[3753204865] = "a_c_rabbit_01",
+	[3283429734] = "a_c_rat",
+	[882848737] = "a_c_retriever",
+	[3268439891] = "a_c_rhesus",
+	[2506301981] = "a_c_rottweiler",
+	[3549666813] = "a_c_seagull",
+	[1015224100] = "a_c_sharkhammer",
+	[113504370] = "a_c_sharktiger",
+	[1126154828] = "a_c_shepherd",
+	[2705875277] = "a_c_stingray",
+	[2910340283] = "a_c_westy"
+	-- Animals --
+})
+
+ped_mapper.ANIMAL_HASHES = essentials.const({
+	3462393972,
+	1462895032,
+	2864127842,
+	2825402133,
+	351016938,
+	1457690978,
+	4244282910,
+	1682622302,
+	402729631,
+	3630914197,
+	2344268885,
+	802685111,
+	1794449327,
+	1193010354,
+	1318032802,
+	2374682809,
+	307287994,
+	3877461608,
+	2971380566,
+	111281960,
+	1125994524,
+	1832265812,
+	3753204865,
+	3283429734,
+	882848737,
+	3268439891,
+	2506301981,
+	3549666813,
+	1015224100,
+	113504370,
+	1126154828,
+	2705875277,
+	2910340283
 })
 
 ped_mapper.BLACKLISTED_PEDS = essentials.const({ -- These will crash yours or other's game
@@ -946,11 +984,15 @@ ped_mapper.BLACKLISTED_PEDS = essentials.const({ -- These will crash yours or ot
 })
 
 ped_mapper.PED_HASHES = {}
-for hash, _ in pairs(ped_models) do
+for hash, model in pairs(ped_models) do
 	essentials.assert(streaming.is_model_a_ped(hash), "Invalid ped in ped_models table: "..tostring(hash))
-	ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = hash
+	if not model:find("a_c", 1, true) then -- To make sure animal hashes are the 33 last in the array.
+		ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = hash
+	end
 end
-ped_mapper.PED_HASHES = essentials.const(ped_mapper.PED_HASHES)
+for i = 1, #ped_mapper.ANIMAL_HASHES do -- Makes sure animal hashes are the 33 last in the array.
+	ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = ped_mapper.ANIMAL_HASHES[i]
+end
 
 local model_to_hash = {}
 
@@ -987,11 +1029,15 @@ ped_mapper.LIST_OF_SPECIAL_PEDS = essentials.const({
 	"s_m_y_clown_01"
 })
 
-function ped_mapper.get_random_ped(no_animals)
-	if no_animals then
-		return ped_mapper.PED_HASHES[math.random(1, #ped_mapper.PED_HASHES - 33)]
-	else
+function ped_mapper.get_random_ped(Type)
+	if Type == "all peds" then
 		return ped_mapper.PED_HASHES[math.random(1, #ped_mapper.PED_HASHES)]
+	elseif Type == "all peds except animals" then
+		return ped_mapper.PED_HASHES[math.random(1, #ped_mapper.PED_HASHES - #ped_mapper.ANIMAL_HASHES)]
+	elseif Type == "only animals" then
+		return ped_mapper.ANIMAL_HASHES[math.random(1, #ped_mapper.ANIMAL_HASHES)]
+	else
+		essentials.assert(false, "Invalid random ped type.")
 	end
 end
 
@@ -1007,9 +1053,9 @@ function ped_mapper.get_hash_from_model(model)
 end
 
 function ped_mapper.get_hash_from_user_input(...)
-	local user_input, no_animals <const> = ...
+	local user_input = ...
 	if user_input == "?" then
-		return ped_mapper.get_random_ped(no_animals)
+		return ped_mapper.get_random_ped("all peds except animals")
 	end
 	user_input = user_input:lower()
 	for Model, _ in pairs(model_to_hash) do
@@ -1020,4 +1066,4 @@ function ped_mapper.get_hash_from_user_input(...)
 	return 0
 end
 
-return ped_mapper
+return essentials.const_all(ped_mapper)

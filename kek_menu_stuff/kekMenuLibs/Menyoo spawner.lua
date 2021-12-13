@@ -24,10 +24,12 @@ local enums <const> = require("Enums")
 local settings <const> = require("Settings")
 
 local function new_attachment_check(...)
-	local str,
+	local str <const>,
 	End <const>,
 	initial <const> = ...
-	str = str or ""
+	if not str then
+		return true
+	end
 	if initial then
 		return str:find(initial, 1, true)
 	elseif End then
@@ -263,7 +265,7 @@ local function apply_entity_modifications(...)
 				t = 0
 			end
 			ped.set_ped_config_flag(Entity, 104, t)
-			if math.type(info["CurrentWeapon"]) == "integer" and info["CurrentWeapon"] ~= 2725352035 then
+			if math.type(info["CurrentWeapon"]) == "integer" and info["CurrentWeapon"] ~= gameplay.get_hash_key("weapon_unarmed") then
 				weapon.give_delayed_weapon_to_ped(Entity, info["CurrentWeapon"], 0, 1)
 				weapon_mapper.set_ped_weapon_attachments(Entity, true, info["CurrentWeapon"])
 				kek_entity.set_combat_attributes(Entity, true, {})
@@ -339,7 +341,7 @@ local function apply_entity_modifications(...)
 				end
 			end
 		elseif pid == player.player_id() 
-			and entity.get_entity_model_hash(Entity) == 3084738513 
+			and entity.get_entity_model_hash(Entity) == gameplay.get_hash_key("p_rcss_folded") -- Is object turret? 
 			and info["isAttached"] 
 			and entities[info["AttachedTo"]] then
 				local offset = v3()
@@ -416,7 +418,7 @@ local function spawn_vehicle(...)
 	if streaming.is_model_valid(hash) then
 		local Entity <const> = kek_entity.spawn_entity(hash, function()
 			return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), 0
-		end, false, false, false, enums.ped_types.civmale, true, nil, info["Dynamic"] == false)
+		end, false, false, enums.ped_types.civmale, true, nil, info["Dynamic"] == false)
 		if not entity.is_an_entity(Entity) then
 			return entities, hash
 		end
@@ -445,7 +447,7 @@ local function spawn_map_object(...)
 	and streaming.is_model_valid(hash) then
 		local Entity <const> = kek_entity.spawn_entity(hash, function()
 			return player.get_player_coords(player.player_id()) + v3(0, 0, 50), 0
-		end, false, true, false, enums.ped_types.civmale, true, 0.6, info["Dynamic"] == false, true)
+		end, false, false, enums.ped_types.civmale, true, 0.6, info["Dynamic"] == false, true)
 		entities[info["InitialHandle"]] = Entity
 		apply_entity_modifications(Entity, info, entities, pid)
 		if info["isAttached"] then
@@ -485,7 +487,7 @@ function menyoo.spawn_custom_vehicle(...)
 	if streaming.is_model_valid(info["ModelHash"]) then
 		parent_entity = kek_entity.spawn_entity(info["ModelHash"], function()
 			return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), player.get_player_heading(pid)
-		end, false, false, false, enums.ped_types.civmale, true, nil, info["Dynamic"] == false)
+		end, false, false, enums.ped_types.civmale, true, nil, info["Dynamic"] == false)
 		kek_entity.max_car(parent_entity, true)
 		if entity.is_an_entity(parent_entity) then
 			hashes[#hashes + 1] = info["ModelHash"]
@@ -554,11 +556,10 @@ function menyoo.spawn_map(...)
 			local x <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
 			local y <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
 			local z <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-			essentials.file(file, "read", "*l")
-			str = essentials.file(file, "read", "*l")
 			if type(x) == "number" and type(y) == "number" and type(z) == "number" then
 				reference_pos = v3(x, y, z)
 			end
+			break
 		end
 		str = essentials.file(file, "read", "*l")
 	until new_attachment_check(str)
@@ -585,12 +586,7 @@ function menyoo.spawn_map(...)
 		if reference_pos then
 			kek_entity.teleport(essentials.get_most_relevant_entity(pid), reference_pos)
 		else
-			for _, Entity in pairs(entities) do
-				if entity.is_an_entity(Entity) then
-					kek_entity.teleport(essentials.get_most_relevant_entity(pid), entity.get_entity_coords(Entity))
-					break
-				end
-			end
+			essentials.msg(lang["Failed to find reference coordinates. §"], 6, true, 6)
 		end
 	end
 	return entities
@@ -609,4 +605,4 @@ function menyoo.clone_vehicle(...)
 	return 0
 end
 
-return menyoo
+return essentials.const_all(menyoo)

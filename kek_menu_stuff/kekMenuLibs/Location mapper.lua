@@ -7753,4 +7753,4 @@ function location_mapper.get_ground_z(...)
 	end
 end
 
-return location_mapper
+return essentials.const_all(location_mapper)

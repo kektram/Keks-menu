@@ -11,9 +11,9 @@ function custom_upgrades.create_combat_ped(...)
 	local Vehicle <const> = ...
 	essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 	if vehicle.get_free_seat(Vehicle) ~= -2 then
-		local Ped <const> = kek_entity.spawn_entity(0x9CF26183, function()
+		local Ped <const> = kek_entity.spawn_entity(gameplay.get_hash_key("a_f_y_topless_01"), function()
 			return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8), player.get_player_heading(player.player_id())
-		end, true, true, true, enums.ped_types.civmale)
+		end, false, false, enums.ped_types.civmale)
 		kek_entity.set_combat_attributes(Ped, true, {})
 		local weapon_hash <const> = weapon.get_all_weapon_hashes()[math.random(1, #weapon.get_all_weapon_hashes())]
 		weapon.give_delayed_weapon_to_ped(Ped, weapon_hash, 0, 1)
@@ -33,7 +33,7 @@ function custom_upgrades.vehicle_turret(...)
 			if player.get_player_vehicle(player.player_id()) == Vehicle and player.is_player_in_any_vehicle(player.player_id()) then
 				entity.attach_entity_to_entity(turret, Vehicle, 0, offset, cam.get_gameplay_cam_rot() + v3(cam.get_gameplay_cam_rot().x * -2, 0, 180), false, true, false, 0, false)
 				if controls.is_disabled_control_pressed(0, enums.inputs["RIGHT MOUSE BUTTON A"]) then
-					gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_in_front_of_me(turret, 0.5), kek_entity.get_vector_in_front_of_me(turret, 2000), 100, 177293209, player.get_player_ped(player.player_id()), true, false, 3000)
+					gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_in_front_of_me(turret, 0.5), kek_entity.get_vector_in_front_of_me(turret, 2000), 100, gameplay.get_hash_key("weapon_heavysniper_mk2"), player.get_player_ped(player.player_id()), true, false, 3000)
 				end
 				if controls.is_disabled_control_pressed(0, enums.inputs["LEFT MOUSE BUTTON RT"]) then
 					essentials.use_ptfx_function(
@@ -83,4 +83,4 @@ function custom_upgrades.immune_to_fire(...)
 	end, nil)
 end
 
-return custom_upgrades
+return essentials.const_all(custom_upgrades)

@@ -17668,7 +17668,6 @@ for hash, _ in pairs(model_names) do
 	--]]
 	object_mapper.OBJECT_HASHES[#object_mapper.OBJECT_HASHES + 1] = hash
 end
-object_mapper.OBJECT_HASHES = essentials.const(object_mapper.OBJECT_HASHES)
 
 function object_mapper.GetModelFromHash(hash)
 	essentials.assert(streaming.is_model_in_cdimage(hash), "Expected a valid object hash: "..tostring(hash)) -- streaming.is_model_an_object and streaming.is_model_a_world_object fails to recognize all objects
@@ -17705,4 +17704,4 @@ function object_mapper.get_hash_from_user_input(...)
 	return 0
 end
 
-return object_mapper
+return essentials.const_all(object_mapper)

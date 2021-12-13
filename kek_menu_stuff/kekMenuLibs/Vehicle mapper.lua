@@ -751,32 +751,17 @@ local hash_to_model_or_name <const> = essentials.const_all({
 
 local model_to_hash = {}
 local name_to_hash = {}
+vehicle_mapper.HELICOPTERS = {}
 for hash, model in pairs(hash_to_model_or_name) do
 	essentials.assert(streaming.is_model_a_vehicle(hash), "Invalid vehicle in hash_to_model_or_name table: "..tostring(hash))
 	model_to_hash[model[1]] = hash
 	name_to_hash[model[2]] = hash
+	if streaming.is_model_a_heli(hash) then
+		vehicle_mapper.HELICOPTERS[#vehicle_mapper.HELICOPTERS + 1] = hash
+	end
 end
 model_to_hash = essentials.const(model_to_hash)
 name_to_hash = essentials.const(name_to_hash)
-
-vehicle_mapper.HELICOPTERS = essentials.const({
-	gameplay.get_hash_key("savage"),
-	gameplay.get_hash_key("hunter"),
-	gameplay.get_hash_key("akula"),
-	gameplay.get_hash_key("valkyrie2"),
-	gameplay.get_hash_key("havok"),
-	gameplay.get_hash_key("buzzard"),
-	gameplay.get_hash_key("annihilator"),
-	gameplay.get_hash_key("annihilator2"),
-	gameplay.get_hash_key("cargobob"),
-	gameplay.get_hash_key("seasparrow"),
-	gameplay.get_hash_key("supervolito"),
-	gameplay.get_hash_key("supervolito2"),
-	gameplay.get_hash_key("swift2"),
-	gameplay.get_hash_key("volatus"),
-	gameplay.get_hash_key("skylift"),
-	gameplay.get_hash_key("maverick")
-})
 
 function vehicle_mapper.GetModelFromHash(...)
 	local hash <const> = ...
@@ -828,12 +813,12 @@ function vehicle_mapper.get_hash_from_user_input(...)
 		return gameplay.get_hash_key(user_input)
 	end
 	user_input = (user_input:gsub("%s", "")):gsub("ii", "2")
-	for Model, hash in pairs(model_to_hash) do
-		if Model:find(user_input, 1, true) then
+	for hash, names in pairs(hash_to_model_or_name) do
+		if names[1]:find(user_input, 1, true) or ((names[2]:lower()):gsub("%s", "")):find(user_input, 1, true) then
 			return hash
 		end
 	end
 	return 0
 end
 
-return vehicle_mapper
+return essentials.const_all(vehicle_mapper)
