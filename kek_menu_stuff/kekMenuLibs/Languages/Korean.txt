@@ -35,7 +35,6 @@ Modded scid detection §스푸핑 SCID 감지
 Modded name detection §스푸핑 닉네임 감지
 Blacklist §블랙리스트
 Check people's stats automatically §플레이어들 통계 자동 확인
-Detect any modded spectate §모드 메뉴 사용 관전 감지
 Kick any vote kickers §추방 투표한 플레이어 추방
 Add session §모든 플레이어 추가
 Remove session §모든 플레이어 제거
@@ -119,10 +118,8 @@ Couldn't find file §파일을 찾을 수 없습니다
 Removed §자동 스크립트 실행기:
 from script loader §을/를 지웠습니다.
 autoexec doesn't exist §Autoexec(자동 스크립트 실행기 파일)이 존재하지 않습니다.
-Chat judge:\nBounty set on §채팅 판단:\n현상금
 Chat judge:\nRamming §채팅 판단:\n충돌
 with explosive tankers §폭발 탱커와 함께
-out of their vehicle. §차량의 밖에 있습니다.
 Chat judge:\nKicking §채팅 판단:\n세션에서 추방 중
 Chat judge\nCrashing §채팅 판단:\n크래쉬 중
 sent vote kick. Kicking them... §추방 투표를 보냈습니다. 추방 하는 중...
@@ -133,7 +130,6 @@ Recognized §인식 완료
 \nDetected: §\n감지:
 \nTags:\n §\n사유:\n
 Checked blacklist. §블랙리스트를 확인하였습니다.
-is spectating §관전 중
 Changed the reason this person was added to the blacklist. §블랙리스트에 추가돼서 추가 된 사유가 변경되었습니다.
 Added to blacklist. §블랙리스트에 추가했습니다.
 Removed rid. §SCID를 지웠습니다.
@@ -256,13 +252,12 @@ Turned off the hotkey:\n §핫키 끄기:\n
 Changed §핫키 변경:
 to §을/를 해당 키로:
 Turned off §비활성화
-Max kicks for auto host §호스트에 대한 최대 킥 횟수
+Max kicks for auto host §호스트에 대한 최대 추방 횟수
 Type in clear distance limit. §분명하게 보이는 거리 제한을 입력하세요.
 Vehicle clear distance §차량이 분명하게 보이는 거리
 Ped clear distance §NPC가 분명하게 보이는 거리
 Object clear distance §물체가 분명하게 보이는 거리
 Pickup clear distance §주운 아이템이 보이는 거리
-Dump world §월드 버리기
 Make nearby peds hostile §근처 NPC들을 적대로 변경
 Kick gun §추방 총
 Kidnap player §플레이어 납치
@@ -329,7 +324,6 @@ Set speed §속도 설정
 Disable ped spawning §NPC 소환 비활성화
 Disable vehicle spawning §차량 소환 비활성화
 Cops clear distance §경찰이 분명하게 보이는 거리
-Set on fire §불로 설정
 Clear ped tasks §소환한 NPC를 삭제
 kek's chopper §kek's chopper
 Session trolling §모든 플레이어 트롤링
@@ -346,7 +340,6 @@ Kick from session §세션에서 추방
 Crash §크래쉬
 Blame for killing session §모든 플레이어 누명 킬
 Random §랜덤
-Bounty §현상금
 Ram §충돌
 Kick from vehicle §차량에서 쫓아내기
 EMP §EMP
@@ -366,7 +359,7 @@ From file & send each line §파일과 각각의 줄
 Send each line §각각의 줄로 보내기
 Chat commands §채팅 명령어
 Chat commands §채팅 명령어
-Send chat command info every 15th min §채팅 명령어 정보 15분마다 보내기 (/help)
+Send command list every §명령어 목록 보낼 쿨타임
 Only friends can use commands §친구만 채팅 명령어 사용
 Teleport to §순간 이동
 This player can't use chat commands §이 플레이어를 채팅 명령어를 쓸 수 없도록 하기
@@ -388,7 +381,6 @@ Notifications §알림
 Auto kicker notifications §자동 추방 알림
 Give nearby players horn boost §근처 플레이어에게 경적 부스트
 Turn everything off §모든 옵션 비활성화
-Menyoo vehicle §싱글 트레이너 차량
 First seen §처음으로 본 날짜와 시간
 Last seen §마지막으로 본 날짜와 시간
 Seen §플레이어를 본 횟수:
@@ -492,7 +484,6 @@ Found no vehicle to save. §저장할 차량을 찾지 못했습니다.
 Existing file found. Please choose another name. §존재하는 이름의 파일을 찾았습니다. 다른 이름으로 지정하세요.
 Illegal characters detected. Please try again. Illegal chars: §유효하지 않은 글자가 감지되었습니다. 다시 시도하세요. 유효하지 않은 글자:
 Refresh list §새로고침 목록
-Found no vehicle to spawn. §소환할 차량을 찾지 못했습니다.
 Cancelled. §취소되었습니다.
 Too few reactions to add entry. §항목을 추가할 응답이 너무 적습니다.
 Glitch §차량 흔들기
@@ -502,7 +493,6 @@ Unblock §막지 않음
 Type in what to spam in chat §채팅 도배할 문구를 입력하세요
 Xml file is empty. §XML 파일이 비어있습니다.
 File name §파일 이름
-Wrong file extension. §파일 확장자가 잘못됐습니다.
 Warning: missing "%" before any of these characters; §경고: 다음 글자 앞에 "%"가 없습니다;
 This is fine, just note that if you don't put the "%" before those characters, they mean something else. §"%"를 이 글자 앞에 붙이지 않으면 다른 의미가 된다는 점을 기억하세요.
 Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §잘못된 패턴입니다. "[", "]", "(", ")" 또는 "%"가 누락되어 있을 가능성이 높습니다. "[]"일 수도 있고, "[]"가 오류를 발생할 수 있습니다.
@@ -511,7 +501,6 @@ Attackers can't use planes. Cancelled. §공격자들이 비행기를 사용하�
 Chance to reply §답할 기회
 Missing necessarry file. Please reinstall. Read the README that comes with the script for more information. §필수적인 파일이 없습니다. 다시 다운로드 받으세요. '사용 전 읽어주세요' 파일을 읽으면 Lua Script의 더 많은 정보에 대해 알게 될겁니다.
 New profile §새로운 프로필
-Failed to find vehicle. Try again. §차량 찾기에 실패했습니다. 다시 시도하세요.
 Type in name of vehicle §차량의 이름을 입력하세요
 Vehicle name §차량 이름
 Save to Menyoo vehicles §싱글 트레이너 차량으로 저장
@@ -535,8 +524,6 @@ When adding entries, it's important to know about patterns. A pattern could look
 Note that these characters: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" have special meanings. Google "Lua magic characters" to find out what they mean. §문자 "*", "+", "-", "^", "$", "?", "?", "[]", "("&")"는 특별한 의미가 있습니다. 구글에 "Lua magic characters" 를 검색하면 찾을 수 있습니다.
 For further assistance, join the Kek's menu discord. An invite comes with the script. It is in a file called "Discord invite.txt". §도움이 필요하시면 Kek's menu 디스코드 서버에 참여하세요. 초대장은 Lua Script와 함께 제공됩니다. "Discord invest.txt" 라는 파일에 있습니다.
 Get parachute §낙하산 얻기
-Get invite to Kek's menu Discord server §Kek's menu 디스코드 서버 초대장 얻기
-Invite to the Kek's menu Discord copied to the clipboard. §Kek's menu 디스코드 서버 초대장이 클립보드에 복사되었습니다.
 Anti stuck §Stuck 방지
 Entry already exists in this profile. §이 프로필에 항목이 이미 존재합니다.
 Clear tasks §작업 클리어
@@ -560,15 +547,6 @@ Hotkey:\nTeleported forward. §핫키:\n앞으로 순간 이동되었습니다.
 Teleport forward §앞으로 순간 이동
 Vehicle blacklist:\nstealing §차량 블랙리스트:\n훔치기
 Mount Chiliad & kill §마운트 칠라아드 & 죽이기
-Order personal vehicle §개인 차량 요청
-Hotkey:\nOrdered personal vehicle. §핫키:\n개인 차량을 요청했습니다.
-Close to you §자신 근처
-In front of you §자신의 앞
-Failed to find spawn location for personal vehicle. §개인 차량이 소환될 적합한 장소를 찾지 못했습니다.
-You are already in your personal vehicle. §이미 개인 차량 안에 탑승해있습니다.
-This vehicle is already your personal vehicle. §이 차량은 이미 자신의 개인 차량입니다.
-Set personal vehicle §개인 차량 설정
-Spawn inside §탑승한 채로 소환
 Log chat & use as chatbot §채팅 기록 및 채팅 봇으로 사용
 Compacts §콤팩트
 Sedans §세단
@@ -595,7 +573,6 @@ Trains §기차
 Open Wheel §오픈 휠
 Menyoo maps §싱글 맵
 Type in name of menyoo map. §싱글 맵의 이름을 입력하세요.
-Found no map to spawn. §소환할 맵을 찾지 못했습니다.
 Set where you spawn §소환 위치 설정
 Teleport to map spawn §맵 소환 위치로 순간 이동
 Found no spawn. §소환할 것을 찾지 못했습니다.
@@ -611,7 +588,7 @@ Failed to load file. §파일 불러오기를 실패했습니다.
 Cleared old race & recording a new one. §오래된 레이스 클리어 & 새로운 레이스를 기록하였습니다.
 Save recorded race §기록된 레이스 저장
 Teleport to player when spectating §플레이어가 관전할 때 순간 이동
-Flamethrower §화염방사기
+Flamethrower §화염 방사기
 Display notifications §알림 보이기
 Display 2take1 notifications on screen §화면에 2Take1 알림 보이기
 Number of notifications §알림 개수
@@ -623,3 +600,38 @@ Downwards §다운워드
 Stretch §스트레치
 Type in stretch §스트레치 값 입력
 Atomize §아토마이저
+This feature doesn't work on yourself. §이 기능은 자신에게 작동하지 않습니다.
+minute §분
+Weapon blacklist §무기 블랙리스트
+Rifles §라이플
+SMGs §SMG
+Shotguns §샷건
+Pistols §권총
+Explosives §폭발물
+Throwables §투척류
+Heavy §중화기
+Melee §근접 무기
+Miscellaneous §기타
+Toggle engine §엔진 켜놓기
+Show sphere §구 보이기
+Lock player inside §플레이어 차량 내부 잠금
+Anti chat spam §채팅 도배 방지
+kicked for spamming chat. §채팅 도배로 인해 추방했습니다.
+kicked for sending the same message 3 times in a row. §한 줄에 같은 메시지를 3회 이상 보내서 추방했습니다.
+Kick & add to timeout §추방 & 타임아웃에 추가
+Crash & add to timeout §크래쉬 & 타임아웃에 추가
+Type in name of a player or regular feature. §플레이어의 이름이나 일반적인 기능의 이름을 적으세요.
+Has modded weapons. §핵 사용 무기를 가지고 있습니다.
+This feature doesn't work on yourself. §이 기능은 자신에게는 작동하지 않습니다.
+Type in name of entity. §엔티티의 이름을 입력하세요.
+Kill engine §엔진 부수기
+Heal engine §엔진 복구
+Failed to spawn vehice. Driver vehicle was an invalid model hash. §차량 소환 실패, 운전자 차량은 유효하지 않은 모델입니다.
+Failed to spawn vehicle. Invalid vehicle hash. §차량 소환 실패, 유효하지 않은 차량
+Failed to spawn vehicle. Vehicle limit was reached §차량 소환 실패, 제한에 도달했습니다.
+Failed to spawn §차량 소환 실패
+Vehicle limit was reached. §차량 제한에 도달했습니다.
+Save settings and reset lua state to load in debug mode. §디버그 모드에선 설정 저장하고 Lua 재설정을 하세요. 
+All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §모든 Lua Script가 느리게 작동하고 렉이 걸릴 것입니다. 더 많은 오류가 발생할 것이고 특히, 다른 Lua Script를 작동 중이라면요.
+Only use this mode if you intend to find bugs. §버그를 찾으려고 할 때만 이 기능을 사용하세요.
+Failed to find reference coordinates. §참고 좌표를 찾는 것을 실패했습니다.
