@@ -314,7 +314,6 @@ Set speed §ﺔﻋﺮﺴﻟﺍ ﻊﺿﻭ
 Disable ped spawning §ﻥﻭﺎﺒﺳ ﺪﻴﺒﻟﺍ ﻞﻴﻄﻌﺗ
 Disable vehicle spawning §ﺕﺎﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ ﻞﻴﻄﻌﺗ
 Cops clear distance §ﺔﻃﺮﺸﻟﺍ ﻑﺬﺣ ﺔﻓﺎﺴﻣ
-Set on fire §ﻝﺎﻌﺷﺍ
 Clear ped tasks §ﺯﺪﻴﺒﻟﺍ ﺮﻣﺍﻭﺍ ﺀﺎﻐﻟﺍ
 Kek's chopper §Kek's ﺮﺑﻮﺸﺗ
 Session trolling §ﻦﺸﻴﺴﻠﻟ ﻖﻨﻟﻭﺮﺗ
@@ -372,7 +371,6 @@ Notifications §ﺕﺍﺭﺎﻌﺷﺍ
 Auto kicker notifications §ﻲﺋﺎﻘﻠﺘﻟﺍ ﺩﺮﻄﻟﺍ ﺕﺍﺭﺎﻌﺷﺍ
 Give nearby players horn boost §ﻱﺭﻮﺑﻟﺍ ﺖﺳﻭﺑ ﻦﻴﺒﻳﺮﻘﻟﺍ ﻦﻴﺒﻋﻼﻟﺍ ﺀﺎﻄﻋﺍ
 Turn everything off §ﺀﻲﺷ ﻞﻛ ﺀﺎﻔﻃﺍ
-Menyoo vehicle §ﻭﻮﻴﻨﻤﻟﺍ ﺕﺎﺒﻛﺮﻣ
 First seen §ﺔﻳﺅﺭ ﻝﻭﺍ
 Last seen §ﺔﻳﺅﺭ ﺮﺧﺍ
 Seen §ﺔﺘﻳﺅﺭ ﺖﻤﺗ
@@ -486,7 +484,6 @@ Unblock §ﺮﺠﺤﻟﺍ ﺔﻟﺍﺯﺍ
 Type in what to spam in chat §ﺕﺎﺸﻟﺍ ﻲﻓ ﻪﺑ ﻡﺎﺒﺳ ﻱﻮﺴﺗ ﻲﺒﺗ ﺵﻭ ﺐﺘﻛﺍ
 Xml file is empty. §ﻍﺭﺎﻓ ﻝﺍ ﻡﺍ ﺲﻛﺍ ﻒﻠﻣ
 File name §ﻒﻠﻤﻟﺍ ﻢﺳﺍ
-Wrong file extension. §ﺔﺌﻃﺎﺧ ﻒﻠﻣ ﺔﻐﻴﺻ
 Warning: missing "%" before any of these characters; §ﻱﺫﺎﻫ ﻑﺮﺣﻻﺍ ﻞﺒﻗ ﺓﺩﻮﺟﻮﻣ ﺮﻴﻏ "%" ﺔﻣﻼﻋ :ﺮﻳﺬﺤﺗ
 This is fine, just note that if you don't put the "%" before those characters, they mean something else. §.ﺮﺧﺍ ﻰﻨﻌﻣ ﺎﻬﻟ ﻥﻮﻜﻴﺳ ﻑﻭﺮﺤﻟﺍ ﻚﻠﺗ ﻞﺒﻗ "%" ﺔﻣﻼﻌﻟﺍ ﻊﻀﺗ ﻢﻟ ﺍﺫﺍ ﻦﻛﻻ ﺔﻠﻜﺸﻣ ﺔﻴﻓﺎﻣ
 Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §nm6 3'yr 97y7. 3la ala3'lb a7d al3lamat ha4y "[", "]", "(", ")" ao "%" mf8odh. 8d ykon "[]" mojod lanh y5rb alnm6.
@@ -617,3 +614,14 @@ Crash & add to timeout §timeout ﻰﻟﺍ ﺔﻓﺎﺿﺍ & ﺵﺍﺮﻛ
 Type in name of a player or regular feature. §.ﺔﻳﺩﺎﻋ ﺔﻴﺻﺎﺧ ﻭﺍ ﺐﻋﻻ ﻢﺳﺍ ﺐﺘﻛﺍ
 Has modded weapons. §.ﺪﻳﺩﺩﻮﻣ ﻪﺤﻠﺳﺍ ﺔﻳﺪﻟ
 Type in name of entity. §.ﻦﺋﺎﻜﻟﺍ ﻢﺳﺍ ﺐﺘﻛﺍ
+Failed to find reference coordinates. §.ﺕﺎﻴﺛﺍﺪﺣﻻﺍ ﺩﺎﺠﻳﺍ ﻲﻓ ﻞﺸﻓ
+Failed to spawn vehice. Driver vehicle was an invalid model hash. §.ﺢﻴﺤﺻ ﺮﻴﻏ ﻞﻳﻭﺪﻣ ﻥﺎﻛ ﻖﺋﺎﺴﻟﺍ ﺔﺒﻛﺮﻣ .ﺔﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ ﺔﻴﻠﻤﻋ ﻲﻓ ﻞﺸﻓ
+Failed to spawn vehicle. Invalid vehicle hash. §.ﺢﻴﺤﺻ ﺮﻴﻏ ﺔﺒﻛﺮﻣ ﺵﺎﻫ .ﺔﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ ﺔﻴﻠﻤﻋ ﻲﻓ ﻞﺸﻓ
+Failed to spawn vehicle. Vehicle limit was reached §.ﺕﺎﺒﻛﺮﻤﻠﻟ ﻰﺼﻗﻻﺍ ﺪﺤﻟﺍ ﻰﻟﺍ ﻝﻮﺻﻮﻟﺍ ﻢﺗ .ﺔﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ ﺔﻴﻠﻤﻋ ﻲﻓ ﻞﺸﻓ
+Failed to spawn §ﻥﻭﺎﺒﺴﻟﺍ ﺔﻴﻠﻤﻋ ﻲﻓ ﻞﺸﻓ
+Vehicle limit was reached. §.ﺕﺎﺒﻛﺮﻤﻠﻟ ﻰﺼﻗﻻﺍ ﺪﺤﻟﺍ ﻰﻟﺍ ﻝﻮﺻﻮﻟﺍ ﻢﺗ
+Save settings and reset lua state to load in debug mode. §.debugﻝﺍ ﻊﺿﻭ ﻞﺧﺪﺗ ﻥﺎﺸﻋ ﺖﻳﺎﺘﺳ ﺖﺑﺮﻜﺴﻠﻟ ﺖﻴﺴﻳﺭ ﻮﺳﻭ ﺕﺍﺩﺍﺪﻋﻻﺍ ﻆﻔﺣﺍ
+All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §.ﻪﻴﻧﺎﺛ ﺕﺎﺘﺑﺮﻜﺳ ﻞﻐﺸﻣ ﺖﻨﻛ ﺍﺫﺍ ﺎﺘﺻﺎﺧ ,ﻊﻠﻄﺘﺑ ﺮﺜﻛﺍ ﻁﻼﻏﺍ .ﻖﻠﻌﺗ ﻥﺍ ﻦﻜﻤﻳﻭ ﺀﻂﺒﺑ ﻞﻐﺘﺸﺗ ﺡﺍﺭ ﺕﺎﺘﺑﺮﻜﺴﻟﺍ ﻊﻴﻤﺟ
+Only use this mode if you intend to find bugs. §.ﻁﻼﻏﺍ ﻰﻘﻠﺗ ﺖﻴﻐﺑ ﺍﺫﺍ ﻊﺿﻮﻟﺍ ﺍﺬﻫ ﻡﺪﺨﺘﺳﺍ ﻂﻘﻓ
+Kill engine §دمر المكينة
+Heal engine §ﺔﻨﻴﻜﻤﻟﺍ ﺢﻠﺻ
