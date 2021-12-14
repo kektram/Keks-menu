@@ -623,5 +623,5 @@ Vehicle limit was reached. §.ﺕﺎﺒﻛﺮﻤﻠﻟ ﻰﺼﻗﻻﺍ ﺪﺤﻟ
 Save settings and reset lua state to load in debug mode. §.debugﻝﺍ ﻊﺿﻭ ﻞﺧﺪﺗ ﻥﺎﺸﻋ ﺖﻳﺎﺘﺳ ﺖﺑﺮﻜﺴﻠﻟ ﺖﻴﺴﻳﺭ ﻮﺳﻭ ﺕﺍﺩﺍﺪﻋﻻﺍ ﻆﻔﺣﺍ
 All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §.ﻪﻴﻧﺎﺛ ﺕﺎﺘﺑﺮﻜﺳ ﻞﻐﺸﻣ ﺖﻨﻛ ﺍﺫﺍ ﺎﺘﺻﺎﺧ ,ﻊﻠﻄﺘﺑ ﺮﺜﻛﺍ ﻁﻼﻏﺍ .ﻖﻠﻌﺗ ﻥﺍ ﻦﻜﻤﻳﻭ ﺀﻂﺒﺑ ﻞﻐﺘﺸﺗ ﺡﺍﺭ ﺕﺎﺘﺑﺮﻜﺴﻟﺍ ﻊﻴﻤﺟ
 Only use this mode if you intend to find bugs. §.ﻁﻼﻏﺍ ﻰﻘﻠﺗ ﺖﻴﻐﺑ ﺍﺫﺍ ﻊﺿﻮﻟﺍ ﺍﺬﻫ ﻡﺪﺨﺘﺳﺍ ﻂﻘﻓ
-Kill engine §دمر المكينة
+Kill engine §ﺔﻨﻴﻜﻤﻟﺍ ﺮﻣﺩ
 Heal engine §ﺔﻨﻴﻜﻤﻟﺍ ﺢﻠﺻ
