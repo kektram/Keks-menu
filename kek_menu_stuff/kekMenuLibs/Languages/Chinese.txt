@@ -315,7 +315,6 @@ Set speed §设置速度
 Disable ped spawning §禁止附近生成NPC
 Disable vehicle spawning §禁止附近生成载具
 Cops clear distance §警察清除距离
-Set on fire §火烧
 Clear ped tasks §清除NPC的任务
 Kek's chopper §kek直升机
 Session trolling §战局恶搞
@@ -628,3 +627,4 @@ Vehicle limit was reached. §已达到载具限制.
 Save settings and reset lua state to load in debug mode. §现在去保存脚本设置并重置lua状态(转到LUA脚本点击停止正在运行的脚本).
 All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §所有脚本都会运行得更慢,并且可能会出现掉帧.会出现更多的错误,特别是当你一起运行其他脚本的时候.
 Only use this mode if you intend to find bugs. §只有在你想找BUG的时候才使用此模式.
+Failed to find reference coordinates. §查找参考坐标失败
