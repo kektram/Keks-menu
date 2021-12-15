@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-local essentials <const> = {version = "1.3.4"}
+local essentials <const> = {version = "1.3.6"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -80,6 +80,11 @@ function essentials.rawget(...)
 		metatable.__index = __index
 	end
 	return value
+end
+
+function essentials.create_empty_file(file_path)
+	essentials.assert(not utils.file_exists(file_path), "Tried to overwrite existing file: "..file_path)
+	local file <close> = io.open(file_path, "w+")
 end
 
 function essentials.const(Table)
@@ -277,38 +282,20 @@ function essentials.get_safe_feat_name(...)
 	return name
 end
 
-function essentials.file(...)
-	local file <const>,
-	Type <const>,
-	str <const> = ...
-	if io.type(file) == "file" or (type(file) == "string" and Type == "rename") then
-		if Type == "close" then
-			file:close()
-		elseif Type == "read" and type(str) == "string" then
-			return file:read(str)
-		elseif Type == "flush" then
-			file:flush()
-		elseif Type == "write" and type(str) == "string" then
-			file:write(str)
-		elseif Type == "rename" and type(str) == "string" and type(file) == "string" then
-			if not tostring(str:match(".+\\(.-)$")):find("[<>:\"/\\|%?%*]") then
-				if utils.file_exists(home..file) then
-					local file_string <const> = essentials.get_file_string(file, "*a")
-					io.remove(home..file)
-					local file <close> = io.open(home..str, "w+")
-					essentials.file(file, "write", file_string)
-					essentials.file(file, "flush")
-					return true
-				else
-					return false 
-				end
-			else
-				return false
-			end
-		end
-	else
-		essentials.log_error("Failed to interact with a file.")
-	end
+function essentials.rename_file(...)
+	local file_path <const>, 
+	original_file_name <const>, 
+	new_file_name <const>, 
+	file_extension = ...
+	file_extension = "."..file_extension
+	essentials.assert(not new_file_name:find("[<>:\"/\\|%?%*]"), "Tried to rename file to a name containing illegal characters: "..new_file_name)
+	essentials.assert(utils.file_exists(home..file_path..original_file_name..file_extension), "Tried to rename a file that doesn't exist.")
+	essentials.assert(not utils.file_exists(home..file_path..new_file_name..file_extension), "Tried to overwrite an existing file while attempting to rename a file.")
+	local file_string <const> = essentials.get_file_string(file_path..original_file_name..file_extension, "*a")
+	io.remove(home..file_path..original_file_name..file_extension)
+	local file <close> = io.open(home..file_path..new_file_name..file_extension, "w+")
+	file:write(file_string)
+	file:flush()
 end
 
 function essentials.wait_conditional(duration, func, ...)
@@ -327,17 +314,17 @@ function essentials.write_xml(...)
 	tabs <const>,
 	name <const> = ...
 	if name then
-		essentials.file(file, "write", tabs:sub(2, #tabs).."<"..name..">\n")
+		file:write(tabs:sub(2, #tabs).."<"..name..">\n")
 	end
 	for property_name, property in pairs(Table) do
 		if type(property) == "table" then
 			essentials.write_xml(file, property, tabs.."	", property_name)
 		else
-			essentials.file(file, "write", tabs.."<"..property_name..">"..tostring(property).."</"..property_name..">\n")
+			file:write(tabs.."<"..property_name..">"..tostring(property).."</"..property_name..">\n")
 		end
 	end
 	if name then
-		essentials.file(file, "write", tabs:sub(2, #tabs).."</"..name:match("^([%w%p]+)")..">\n")
+		file:write(tabs:sub(2, #tabs).."</"..name:match("^([%w%p]+)")..">\n")
 	end
 end
 
@@ -349,7 +336,7 @@ function essentials.log_error(...)
 	if utils.time_ms() > last_error_time and last_error ~= debug.traceback(str, 2) then
 		last_error_time = utils.time_ms() + 100
 		last_error = debug.traceback(str, 2)
-		local file <close> = io.open(file_path, "a+")
+		local file <close> = io.open(file_path, "a")
 		local additional_info = ""
 		for i2 = 2, 1000 do
 			if pcall(function() 
@@ -559,11 +546,10 @@ do
 end
 
 function essentials.get_file_string(...)
-	local path <const>,
-	type <const>,
-	not_wait <const> = ...
-	local file <close> = io.open(home..path)
-	return essentials.file(file, "read", type) or ""
+	local file_path <const>, type <const> = ...
+	local file <close> = io.open(home..file_path)
+	essentials.assert(file and io.type(file) == "file", "Failed to open file: "..file_path)
+	return file:read(type) or ""
 end
 
 function essentials.get_file(...)
@@ -779,8 +765,9 @@ function essentials.search_for_match_and_get_line(...)
 	search <const>,
 	exact <const>, -- Whether the existing text check must be identical to an entire line or a substring of a line.
 	yield <const> = ...
+	assert(utils.file_exists(home..file_name), "Tried to search a file that doesn't exist.") -- essentials.assert calls log_error. log_error calls essentials.log. essentials.log calls search_for_match_and_get_line. Using regular essentials.assert might cause recursion loop.
 	local str <const> = essentials.get_file_string(file_name, "*a")
-	if yield then 
+	if yield then -- 2 separate loops for performance reasons. Function calls have a lot of overhead.
 		for i = 1, #search do
 			for line in str:gmatch("([^\n]*)\n?") do
 				if search[i] == line or (not exact and line:find(search[i], 1, true)) then
@@ -832,20 +819,23 @@ function essentials.log(...)
 	search <const>, -- Whether to check if text_to_log appears in the file already or not
 	exact <const>, -- Whether the existing text check must be identical to an entire line or a substring of a line.
 	yield <const> = ... -- Whether to yield every 500th line of checking if text exists in file or not
+	assert(utils.file_exists(home..file_name), "Tried to log to a file that doesn't exist.") -- essentials.assert calls log_error. log_error calls essentials.log. Using regular essentials.assert might cause recursion loop.
 	if search then
 		local str <const> = essentials.search_for_match_and_get_line(file_name, search, exact, yield)
 		if str then
 			return str
 		end
 	end
-	local file <close> = io.open(home..file_name, "a+")
-	essentials.file(file, "write", text_to_log.."\n")
+	local file <close> = io.open(home..file_name, "a")
+	file:write(text_to_log.."\n")
 end
 
 function essentials.add_to_timeout(...)
-	local pid <const> = ...
-	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
-	essentials.log("cfg\\scid.cfg", player.get_player_name(pid)..":"..select(1, string.format("%x", player.get_player_scid(pid)))..":c", {select(1, string.format("%x", player.get_player_scid(pid))), player.get_player_name(pid)}, false, true)
+	if utils.file_exists(home.."cfg\\scid.cfg") then
+		local pid <const> = ...
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
+		essentials.log("cfg\\scid.cfg", player.get_player_name(pid)..":"..select(1, string.format("%x", player.get_player_scid(pid)))..":c", {select(1, string.format("%x", player.get_player_scid(pid))), player.get_player_name(pid)}, false, true)
+	end
 end
 
 function essentials.send_pattern_guide_msg(...)
@@ -912,46 +902,82 @@ function essentials.merge_tables(parent_table, children_tables)
 	return parent_table
 end
 
-function essentials.modify_entry(...)
-	local file_name <const>,
-	input <const>,
-	exact <const>, -- Whether the existing text check must be identical to an entire line or a substring of a line.
-	replace_text <const>, -- Whether to replace a set of lines with a set of other lines or not
-	yield <const> = ... -- Whether to yield every 500th line of checking if text exists in file or not
-	if utils.file_exists(home..file_name) then
-		if essentials.search_for_match_and_get_line(file_name, input, exact, yield) then -- Checks if input already exists in the file
-			local random_file_name <const> = "temp_"..math.random(1, 2^62)..".log"
-			local file = io.open(kek_menu_stuff_path.."kekMenuData\\"..random_file_name, "w+")
-			local input_len <const> = #input
-			if io.type(file) ~= "file" then
-				essentials.log_error("Failed to open file despite it existing.")
-				return 3
-			end
-			for line in essentials.get_file_string(file_name, "*a"):gmatch("([^\n]*)\n?") do
-				for i = 1, input_len do
-					if not replace_text and (line == input[i] or (not exact and line:find(input[i], 1, true))) then
-						goto skip
-					elseif replace_text and i // 2 ~= i / 2 and (line == input[i] or (not exact and line:find(input[i], 1, true))) then
-						file:write(input[i + 1].."\n")
-						goto skip
-					end
-				end
-				file:write(line.."\n")
-				::skip::
-			end
-			essentials.file(file, "flush")
-			essentials.file(file, "close")
-			local file <close> = io.open(home..file_name, "w+")
-			essentials.file(file, "write", essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\"..random_file_name, "*a"))
-			io.remove(kek_menu_stuff_path.."kekMenuData\\"..random_file_name)
-			return 1 -- Success
+function essentials.replace_line_in_file_exact(...)
+	local file_path <const>,
+	what_to_be_replaced <const>,
+	replacement <const> = ...
+	local new_string <const> = {}
+	local found_what_to_be_replaced = false
+	for line in essentials.get_file_string(file_path, "*a"):gmatch("([^\n]*)\n?") do
+		if line == what_to_be_replaced then
+			new_string[#new_string + 1] = replacement
+			found_what_to_be_replaced = true
 		else
-			return 2 -- Didn't find entry to modify
+			new_string[#new_string + 1] = line
 		end
-	else
-		essentials.log_error("Couldn't modify file, it doesn't exist: "..file_name)
-		return 3 -- File doesnt exist
 	end
+	local file <close> = io.open(home..file_path, "w+")
+	file:write(table.concat(new_string, "\n").."\n")
+	file:flush()
+	return found_what_to_be_replaced
+end
+
+function essentials.replace_line_in_file_substring(...)
+	local file_path <const>,
+	what_to_be_replaced <const>,
+	replacement <const>,
+	use_regex <const> = ...
+	local new_string <const> = {}
+	local found_what_to_be_replaced = false
+	for line in essentials.get_file_string(file_path, "*a"):gmatch("([^\n]*)\n?") do
+		if line:find(what_to_be_replaced, 1, not use_regex) then
+			new_string[#new_string + 1] = replacement
+			found_what_to_be_replaced = true
+		else
+			new_string[#new_string + 1] = line
+		end
+	end
+	local file <close> = io.open(home..file_path, "w+")
+	file:write(table.concat(new_string, "\n").."\n")
+	file:flush()
+	return found_what_to_be_replaced
+end
+
+function essentials.remove_line_from_file_exact(...)
+	local file_path <const>,
+	what_to_be_removed <const> = ...
+	local new_string <const> = {}
+	local found_what_to_be_removed = false
+	for line in essentials.get_file_string(file_path, "*a"):gmatch("([^\n]*)\n?") do
+		if line ~= what_to_be_removed then
+			new_string[#new_string + 1] = line
+		else
+			found_what_to_be_removed = true
+		end
+	end
+	local file <close> = io.open(home..file_path, "w+")
+	file:write(table.concat(new_string, "\n").."\n")
+	file:flush()
+	return found_what_to_be_removed
+end
+
+function essentials.remove_line_from_file_substring(...)
+	local file_path <const>,
+	what_to_be_removed <const>,
+	use_regex <const> = ...
+	local new_string <const> = {}
+	local found_what_to_be_removed = false
+	for line in essentials.get_file_string(file_path, "*a"):gmatch("([^\n]*)\n?") do
+		if not line:find(what_to_be_removed, 1, not use_regex) then
+			new_string[#new_string + 1] = line
+		else
+			found_what_to_be_removed = true
+		end
+	end
+	local file <close> = io.open(home..file_path, "w+")
+	file:write(table.concat(new_string, "\n").."\n")
+	file:flush()
+	return found_what_to_be_removed
 end
 
 return essentials -- Not a const table, certain members need write permission.

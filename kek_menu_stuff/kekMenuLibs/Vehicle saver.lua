@@ -173,18 +173,18 @@ function vehicle_saver.save_vehicle(...)
 			system.yield(0)
 		end
 		local file <close> = io.open(file_path, "w+")
-		essentials.file(file, "write", "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n")
-		essentials.file(file, "write", "<Vehicle menyoo_ver=\"0.9998b\">\n")
+		file:write("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n")
+		file:write("<Vehicle menyoo_ver=\"0.9998b\">\n")
 		essentials.write_xml(file, get_properties(Entity, true), "	")
 		if #attachments > 0 then
-			essentials.file(file, "write", "	<SpoonerAttachments SetAttachmentsPersistentAndAddToSpoonerDatabase=\"false\">\n")
+			file:write("	<SpoonerAttachments SetAttachmentsPersistentAndAddToSpoonerDatabase=\"false\">\n")
 			for i = 1, #attachments do
 				essentials.write_xml(file, {["Attachment"] = get_properties(attachments[i])}, "		")
 			end
-			essentials.file(file, "write", "	</SpoonerAttachments>\n")
+			file:write("	</SpoonerAttachments>\n")
 		end
-		essentials.file(file, "write", "</Vehicle>\n")
-		essentials.file(file, "flush")
+		file:write("</Vehicle>\n")
+		file:flush()
 		entity.freeze_entity(Entity, false)
 		if clear_tasks and #attachments > 0 then
 			ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), Entity, -1)

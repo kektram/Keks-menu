@@ -54,7 +54,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Language"] = "1.0.0",
 		["Settings"] = "1.0.0",
-		["Essentials"] = "1.3.4",
+		["Essentials"] = "1.3.6",
 		["Enums"] = "1.0.0",
 		["Vehicle mapper"] = "1.3.4", 
 		["Ped mapper"] = "1.2.6",
@@ -251,7 +251,7 @@ for _, file_name in pairs({
 	"kekMenuLogs\\All players.log"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff..file_name) then
-		local file <close> = io.open(paths.kek_menu_stuff..file_name, "w+")
+		essentials.create_empty_file(paths.kek_menu_stuff..file_name)
 	end
 end
 
@@ -863,16 +863,16 @@ end
 
 menu.add_feature(lang["Set §"].." ".."English".." "..lang["as default language. §"], "action", u.language_config.id, function(f)
 	local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\language.ini", "w+")
-	essentials.file(file, "write", "English.txt")
-	essentials.file(file, "flush")
+	file:write("English.txt")
+	file:flush()
 	essentials.msg("English".." "..lang["was set as the default language. §"], 210, true)
 	essentials.msg("Reset lua state for language change to apply.", 6, true, 10)
 end)
 for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages", "txt")) do
 	menu.add_feature(lang["Set §"].." "..file_name:gsub("%.txt$", "").." "..lang["as default language. §"], "action", u.language_config.id, function(f)
 		local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\language.ini", "w+")
-		essentials.file(file, "write", file_name)
-		essentials.file(file, "flush")
+		file:write(file_name)
+		file:flush()
 		essentials.msg(file_name:gsub("%.txt$", "").." "..lang["was set as the default language. §"], 210, true)
 		essentials.msg("Reset lua state for language change to apply.", 6, true, 10)
 	end)
@@ -894,19 +894,19 @@ do
 			local str <const> = essentials.get_file_string("scripts\\autoexec.lua", "*a")
 			if (bypass_requirement and not str:find("sjhvnciuyu44khdjkhUSx", 1, true)) or (str:find("sjhvnciuyu44khdjkhUSx", 1, true) and str:match("%-%- Version ([%d%.]+)\n") ~= __kek_menu_version) then
 				local file <close> = io.open(paths.home.."scripts\\autoexec.lua", "w+")
-				essentials.file(file, "write", "if false then return end")
-				essentials.file(file, "write", "\n-- Version "..__kek_menu_version)
-				essentials.file(file, "write", "\n-- sjhvnciuyu44khdjkhUSx\n")
-				essentials.file(file, "write", "local appdata_path = utils.get_appdata_path(\"PopstarDevs\", \"2Take1Menu\")..\"\\\\\"\n")
-				essentials.file(file, "write", "local scripts = {}\n")
-				essentials.file(file, "write", "for _, script_name in pairs(scripts) do\n")
-				essentials.file(file, "write", "	if utils.file_exists(appdata_path..\"scripts\\\\\"..script_name) then\n")
-				essentials.file(file, "write", "		if not require(script_name:gsub(\"%.lua$\", \"\")) then\n")
-				essentials.file(file, "write", "			menu.notify(\"Failed to load \"..script_name..\".\", \"\", 3, 6)\n")
-				essentials.file(file, "write", "		end\n")
-				essentials.file(file, "write", "	end\n")
-				essentials.file(file, "write", "end\n")
-				essentials.file(file, "flush")
+				file:write("if false then return end")
+				file:write("\n-- Version "..__kek_menu_version)
+				file:write("\n-- sjhvnciuyu44khdjkhUSx\n")
+				file:write("local appdata_path = utils.get_appdata_path(\"PopstarDevs\", \"2Take1Menu\")..\"\\\\\"\n")
+				file:write("local scripts = {}\n")
+				file:write("for _, script_name in pairs(scripts) do\n")
+				file:write("	if utils.file_exists(appdata_path..\"scripts\\\\\"..script_name) then\n")
+				file:write("		if not require(script_name:gsub(\"%.lua$\", \"\")) then\n")
+				file:write("			menu.notify(\"Failed to load \"..script_name..\".\", \"\", 3, 6)\n")
+				file:write("		end\n")
+				file:write("	end\n")
+				file:write("end\n")
+				file:flush()
 			end
 		end
 	end
@@ -915,10 +915,18 @@ do
 		update_autoexec(true)
 		local str <const> = essentials.get_file_string("scripts\\autoexec.lua", "*a")
 		if str:find("^if false then return end") then
-			essentials.modify_entry("scripts\\autoexec.lua", {"if false then return end", "if true then return end"}, true, true)
+			essentials.replace_line_in_file_exact(
+				"scripts\\autoexec.lua", 
+				"if false then return end", 
+				"if true then return end"
+			)
 			essentials.msg(lang["Turned off script loader §"], 212, true)
 		elseif str:find("^if true then return end") then
-			essentials.modify_entry("scripts\\autoexec.lua", {"if true then return end", "if false then return end"}, true, true)
+			essentials.replace_line_in_file_exact(
+				"scripts\\autoexec.lua", 
+				"if true then return end", 
+				"if false then return end"
+			)
 			essentials.msg(lang["Turned on script loader §"], 212, true)
 		end
 		update_script_loader_toggle_name()
@@ -926,63 +934,67 @@ do
 
 	menu.add_feature(lang["Empty script loader file §"], "action", u.script_loader.id, function()
 		local file <close> = io.open(paths.home.."scripts\\autoexec.lua", "w+")
-		essentials.file(file, "flush")
 		update_autoexec(true)
 		update_script_loader_toggle_name()
 		essentials.msg(lang["Emptied script loader §"], 212, true)
 	end)
 
 	menu.add_feature(lang["Add script to auto loader §"], "action", u.script_loader.id, function()
-		update_autoexec(true)
-		local input, status <const> = keys_and_input.get_input(lang["Type in the name of the lua script to add. §"], "", 128, 0)
-		if status == 2 then
-			return
-		end
-		input = input:lower():gsub("%.lua$", "")
-		local file_path <const>, file_name <const> = essentials.get_file("scripts\\", "lua", input)
-		if not utils.file_exists(paths.home.."scripts\\autoexec.lua") then
-			local file <close> = io.open(paths.home.."scripts\\autoexec.lua", "w+")
-		end
-		if file_path:match(essentials.remove_special(paths.home).."scripts\\(.+)") and not file_path:find("autoexec%.lua$") then 
-			if not essentials.search_for_match_and_get_line("scripts\\autoexec.lua", {file_name}) then
-				essentials.modify_entry("scripts\\autoexec.lua", {"local scripts = {}", "local scripts = {}\nscripts[#scripts + 1] = \""..file_name.."\""}, true, true)
-				essentials.msg(lang["Added §"].." "..file_path:match(essentials.remove_special(paths.home).."scripts\\(.+)").." "..lang["to script loader §"], 212, true)
-			else
-				essentials.msg(file_path:match(essentials.remove_special(paths.home).."scripts\\(.+)").." "..lang["is already in the script loader §"], 210, true)
+		if utils.file_exists(paths.home.."scripts\\autoexec.lua") then
+			update_autoexec(true)
+			local input, status <const> = keys_and_input.get_input(lang["Type in the name of the lua script to add. §"], "", 128, 0)
+			if status == 2 then
+				return
 			end
-		else
-			essentials.msg(lang["Couldn't find file §"], 6, true)
-		end
-		update_script_loader_toggle_name()
-	end)
-
-	menu.add_feature(lang["Remove script from auto loader §"], "action", u.script_loader.id, function()
-		update_autoexec(true)
-		local input <const>, status <const> = keys_and_input.get_input(lang["Type in the lua script you want to remove. §"], "", 128, 0)
-		if status == 2 then
-			return
-		end
-		local file_path <const>, file_name = essentials.get_file("scripts\\", "lua", input:lower())
-		if file_name == "" then
-			for line in essentials.get_file_string("scripts\\autoexec.lua", "*a"):gmatch("([^\n]*)\n?") do
-				if line:lower():find(input:lower(), 1, true) then
-					file_name = line:match("scripts%[#scripts %+ 1%] = \"(.+)\"")
-					break
+			input = input:lower():gsub("%.lua$", "")
+			local file_path <const>, file_name <const> = essentials.get_file("scripts\\", "lua", input)
+			if file_path:match(essentials.remove_special(paths.home).."scripts\\(.+)") and not file_path:find("autoexec%.lua$") then 
+				if not essentials.search_for_match_and_get_line("scripts\\autoexec.lua", {file_name}) then
+					essentials.replace_line_in_file_exact(
+						"scripts\\autoexec.lua", 
+						"local scripts = {}", 
+						"local scripts = {}\nscripts[#scripts + 1] = \""..file_name.."\""
+					)
+					essentials.msg(lang["Added §"].." "..file_path:match(essentials.remove_special(paths.home).."scripts\\(.+)").." "..lang["to script loader §"], 212, true)
+				else
+					essentials.msg(file_path:match(essentials.remove_special(paths.home).."scripts\\(.+)").." "..lang["is already in the script loader §"], 210, true)
 				end
+			else
+				essentials.msg(lang["Couldn't find file §"], 6, true)
 			end
-		end
-		local result = 2
-		if file_name and file_name ~= "" then
-			result = essentials.modify_entry("scripts\\autoexec.lua", {"scripts[#scripts + 1] = \""..file_name.."\""}, true)
-		end
-		if result == 1 then
-			essentials.msg(lang["Removed §"].." "..file_name:gsub("%.lua$", "").." "..lang["from script loader §"], 140, true)
-		elseif result == 2 then
-			essentials.msg(lang["Couldn't find file §"], 6, true)
+			update_script_loader_toggle_name()
 		else
 			essentials.msg(lang["autoexec doesn't exist §"], 6, true)
 		end
-		update_script_loader_toggle_name()
+	end)
+
+	menu.add_feature(lang["Remove script from auto loader §"], "action", u.script_loader.id, function()
+		if utils.file_exists(paths.home.."scripts\\autoexec.lua") then
+			update_autoexec(true)
+			local input <const>, status <const> = keys_and_input.get_input(lang["Type in the lua script you want to remove. §"], "", 128, 0)
+			if status == 2 then
+				return
+			end
+			local file_path <const>, file_name = essentials.get_file("scripts\\", "lua", input:lower())
+			if file_name == "" then
+				for line in essentials.get_file_string("scripts\\autoexec.lua", "*a"):gmatch("([^\n]*)\n?") do
+					if line:lower():find(input:lower(), 1, true) then
+						file_name = line:match("scripts%[#scripts %+ 1%] = \"(.+)\"")
+						break
+					end
+				end
+			end
+			if file_name and file_name ~= "" then
+				if essentials.remove_line_from_file_exact("scripts\\autoexec.lua", "scripts[#scripts + 1] = \""..file_name.."\"") then
+					essentials.msg(lang["Removed §"].." "..file_name:gsub("%.lua$", "").." "..lang["from script loader §"], 140, true)
+				else
+					essentials.msg(lang["Couldn't find file §"], 6, true)
+				end
+			end
+			update_script_loader_toggle_name()
+		else
+			essentials.msg(lang["autoexec doesn't exist §"], 6, true)
+		end
 	end)
 	update_autoexec()
 	update_script_loader_toggle_name()
@@ -1168,43 +1180,55 @@ end)
 settings.toggle["Automatically check player stats"].data = {}
 
 local function add_to_blacklist(...)
-	local name,
-	ip <const>,
-	rid <const>,
-	reason,
-	text <const> = ...
-	if not name or #name < 1 then
-		name = "INVALID_NAME_758349843"
-	end
-	if not reason or #reason == 0 then
-		reason = "Manually added"
-	end
-	local results <const> = essentials.log("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", "§"..name.."§ /"..rid.."/ &"..ip.."& <"..reason..">", {"/"..rid.."/", "&"..ip.."&", "§"..name.."§"})
-	if results then
-		essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", {results, results:match("(.+)<").."<"..reason..">"}, true, true)
-		essentials.msg(lang["Changed the reason this person was added to the blacklist. §"], 212, text)
+	if utils.file_exists(paths.home.."scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log") then
+		local name,
+		ip <const>,
+		rid <const>,
+		reason,
+		text <const> = ...
+		if not name or #name < 1 then
+			name = "INVALID_NAME_758349843"
+		end
+		if not reason or #reason == 0 then
+			reason = "Manually added"
+		end
+		local results <const> = essentials.log("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", "§"..name.."§ /"..rid.."/ &"..ip.."& <"..reason..">", {"/"..rid.."/", "&"..ip.."&", "§"..name.."§"})
+		if results then
+			essentials.replace_line_in_file_exact(
+				"scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", 
+				results, 
+				results:match("(.+)<").."<"..reason..">"
+			)
+			essentials.msg(lang["Changed the reason this person was added to the blacklist. §"], 212, text)
+		else
+			essentials.msg(lang["Added to blacklist. §"], 210, text)
+			return true
+		end
 	else
-		essentials.msg(lang["Added to blacklist. §"], 210, text)
-		return true
+		essentials.msg(lang["Blacklist file doesn't exist. §"], 6, text)
 	end
 end
 
 local function remove_from_blacklist(...)
-	local name,
-	ip,
-	rid,
-	text <const> = ...
-	ip = tostring(ip)
-	rid = tostring(rid)
-	if ip:find("%.") then
-		ip = tostring(essentials.ipv4_to_dec(ip))
-	end
-	local result <const> = essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", {"/"..rid.."/", "&"..ip.."&", "§"..name.."§"})
-	if result == 1 then
-		essentials.msg(lang["Removed rid. §"], 210, text)
-	elseif result == 2 then 
-		essentials.msg(lang["Couldn't find player. §"], 6, text)
-	elseif result == 3 then
+	if utils.file_exists(paths.home.."scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log") then
+		local name,
+		ip,
+		rid,
+		text <const> = ...
+		ip = tostring(ip)
+		rid = tostring(rid)
+		if ip:find("%.") then
+			ip = tostring(essentials.ipv4_to_dec(ip))
+		end
+		local result = essentials.remove_line_from_file_substring("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", "/"..rid.."/")
+		result = result or essentials.remove_line_from_file_substring("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", "&"..ip.."&")
+		result = result or essentials.remove_line_from_file_substring("scripts\\kek_menu_stuff\\kekMenuLogs\\Blacklist.log", "§"..name.."§")
+		if result then
+			essentials.msg(lang["Removed rid. §"], 210, text)
+		else
+			essentials.msg(lang["Couldn't find player. §"], 6, text)
+		end
+	else
 		essentials.msg(lang["Blacklist file doesn't exist. §"], 6, text)
 	end
 end
@@ -1829,16 +1853,18 @@ end):set_str_data({
 do
 	local weapon_blacklist_settings <const> = {}
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuData\\weapon_blacklist_settings.ini") then
-		local file <close> = io.open(paths.kek_menu_stuff.."kekMenuData\\weapon_blacklist_settings.ini", "w+")
+		essentials.create_empty_file(paths.kek_menu_stuff.."kekMenuData\\weapon_blacklist_settings.ini")
 	end
-	local str <const> = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", "*a")
-	local file <close> = io.open(paths.kek_menu_stuff.."kekMenuData\\weapon_blacklist_settings.ini", "a")
-	for _, hash in pairs(weapon.get_all_weapon_hashes()) do
-		if not str:find(hash, 1, true) then
-			essentials.file(file, "write", hash.."=".."false".."\n")
+	do
+		local str <const> = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", "*a")
+		local file <close> = io.open(paths.kek_menu_stuff.."kekMenuData\\weapon_blacklist_settings.ini", "a")
+		for _, hash in pairs(weapon.get_all_weapon_hashes()) do
+			if not str:find(hash, 1, true) then
+				file:write(hash.."=".."false".."\n")
+			end
 		end
+		file:flush()
 	end
-	essentials.file(file, "flush")
 	for weapon in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", "*a"):gmatch("([^\n]*)\n?") do
 		weapon_blacklist_settings[tonumber(weapon:match("(%d+)="))] = {setting = weapon:match("=(.+)") == "true"}
 	end
@@ -1891,9 +1917,16 @@ do
 		})) do
 			if not weapon_blacklist_settings[hash].feat then
 				weapon_blacklist_settings[hash].feat = menu.add_feature(weapon.get_weapon_name(hash), "toggle", parent.id, function(f)
-					essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", {hash.."="..tostring(weapon_blacklist_settings[hash].setting), hash.."="..tostring(weapon_blacklist_settings[hash].feat.on)}, true, true)
-					weapon_blacklist_settings[hash].setting = weapon_blacklist_settings[hash].feat.on
+					if utils.time_ms() > f.data then
+						essentials.replace_line_in_file_exact(
+							"scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini",
+							hash.."="..tostring(weapon_blacklist_settings[hash].setting), 
+							hash.."="..tostring(weapon_blacklist_settings[hash].feat.on)
+						)
+						weapon_blacklist_settings[hash].setting = weapon_blacklist_settings[hash].feat.on
+					end
 				end)
+				weapon_blacklist_settings[hash].feat.data = utils.time_ms() + 1000
 				weapon_blacklist_settings[hash].feat.on = weapon_blacklist_settings[hash].setting
 			end
 		end
@@ -1901,9 +1934,16 @@ do
 			for _, hash in pairs(weapon.get_all_weapon_hashes()) do
 				if not weapon_blacklist_settings[hash].feat then
 					weapon_blacklist_settings[hash].feat = menu.add_feature(weapon.get_weapon_name(hash), "toggle", parent.id, function(f)
-						essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", {hash.."="..tostring(weapon_blacklist_settings[hash].setting), hash.."="..tostring(weapon_blacklist_settings[hash].feat.on)}, true, true)
-						weapon_blacklist_settings[hash].setting = weapon_blacklist_settings[hash].feat.on
+						if utils.time_ms() > f.data then
+							essentials.replace_line_in_file_exact(
+								"scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", 
+								hash.."="..tostring(weapon_blacklist_settings[hash].setting), 
+								hash.."="..tostring(weapon_blacklist_settings[hash].feat.on)
+							)
+							weapon_blacklist_settings[hash].setting = weapon_blacklist_settings[hash].feat.on
+						end
 					end)
+					weapon_blacklist_settings[hash].feat.data = utils.time_ms() + 1000
 					weapon_blacklist_settings[hash].feat.on = weapon_blacklist_settings[hash].setting
 				end
 			end
@@ -2092,7 +2132,7 @@ settings.toggle["Player history"] = menu.add_feature(lang["Player history §"], 
 				end
 
 				if not utils.file_exists(paths.kek_menu_stuff.."Player history\\"..year.."\\"..month.."\\"..day.."\\"..time..".log") then
-					local file <close> = io.open(paths.kek_menu_stuff.."Player history\\"..year.."\\"..month.."\\"..day.."\\"..time..".log", "w+")
+					essentials.create_empty_file(paths.kek_menu_stuff.."Player history\\"..year.."\\"..month.."\\"..day.."\\"..time..".log")
 				end
 				if not player_history.hour_parents[year..month..day..time] then
 					player_history.hour_parents[year..month..day..time] = menu.add_feature(time, "parent", player_history.day_parents[year..month..day].id)
@@ -2243,16 +2283,16 @@ do
 	})
 
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuData\\Vehicle blacklist settings.ini") then
-		local file <close> = io.open(paths.kek_menu_stuff.."kekMenuData\\Vehicle blacklist settings.ini", "w+")
+		essentials.create_empty_file(paths.kek_menu_stuff.."kekMenuData\\Vehicle blacklist settings.ini")
 	end
 	local str <const> = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", "*a")
 	local file <close> = io.open(paths.kek_menu_stuff.."kekMenuData\\Vehicle blacklist settings.ini", "a")
 	for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
 		if not str:find(hash, 1, true) then
-			essentials.file(file, "write", hash.."="..vehicle_blacklist_reaction_names[1].."\n")
+			file:write(hash.."="..vehicle_blacklist_reaction_names[1].."\n")
 		end
 	end
-	essentials.file(file, "flush")
+	file:flush()
 	for vehicle_entry in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", "*a"):gmatch("([^\n]*)\n?") do
 		vehicle_blacklist_settings[tonumber(vehicle_entry:match("(%d+)="))] = vehicle_entry:match("=(.+)")
 	end
@@ -2260,14 +2300,14 @@ do
 	menu.add_feature(lang["Turn everything off §"], "action", u.vehicle_blacklist.id, function()
 		local file <close> = io.open(paths.kek_menu_stuff.."kekMenuData\\Vehicle blacklist settings.ini", "w+")
 		for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
-			essentials.file(file, "write", hash.."="..vehicle_blacklist_reaction_names[1].."\n")
+			file:write(hash.."="..vehicle_blacklist_reaction_names[1].."\n")
 		end
 		for _, feat in pairs(essentials.get_descendants(u.vehicle_blacklist, {})) do
 			if math.type(feat.data) == "integer" and streaming.is_model_valid(feat.data) then
 				feat.value = 0
 			end
 		end
-		essentials.file(file, "flush")
+		file:flush()
 	end)
 
 	local parent <const> = menu.add_feature(lang["Search §"], "parent", u.vehicle_blacklist.id)
@@ -2284,7 +2324,11 @@ do
 		for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
 			if vehicle_mapper.get_translated_vehicle_name(hash):lower():find(input) then
 				f.data[#f.data + 1] = menu.add_feature(vehicle_mapper.get_translated_vehicle_name(hash), "autoaction_value_str", parent.id, function(f)
-					essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", {f.data.."="..vehicle_blacklist_settings[f.data], f.data.."="..vehicle_blacklist_reaction_names[f.value + 1]}, true, true)
+					essentials.replace_line_in_file_exact(
+						"scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini",
+						f.data.."="..vehicle_blacklist_settings[f.data], 
+						f.data.."="..vehicle_blacklist_reaction_names[f.value + 1]
+					)
 					vehicle_blacklist_settings[f.data] = vehicle_blacklist_reaction_names[f.value + 1]
 					for _, feat in pairs(essentials.get_descendants(u.vehicle_blacklist, {})) do
 						if feat ~= f and feat.data == f.data then
@@ -2378,7 +2422,11 @@ do
 					feat.value = f.value
 				end
 			end
-			essentials.modify_entry("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", {f.data.."="..vehicle_blacklist_settings[f.data], f.data.."="..vehicle_blacklist_reaction_names[f.value + 1]}, true, true)
+			essentials.replace_line_in_file_exact(
+				"scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini",
+				f.data.."="..vehicle_blacklist_settings[f.data], 
+				f.data.."="..vehicle_blacklist_reaction_names[f.value + 1]
+			)
 			vehicle_blacklist_settings[f.data] = vehicle_blacklist_reaction_names[f.value + 1]
 		end
 	)
@@ -3210,8 +3258,8 @@ do
 					end
 					essentials.msg(lang["Successfully loaded §"].." "..f.name, 210, true)
 					local file <close> = io.open(paths.kek_menu_stuff.."kekMenuData\\custom_chat_judge_data.txt", "w+")
-					essentials.file(file, "write", str)
-					essentials.file(file, "flush")
+					file:write(str)
+					file:flush()
 					o.update_chat_judge = true
 				end
 			elseif f.value == 1 then
@@ -3239,7 +3287,7 @@ do
 				if status == 2 then
 					return
 				end
-				if essentials.modify_entry("scripts\\kek_menu_stuff\\Chat judger profiles\\"..f.name..".ini", {text}, true) == 1 then
+				if essentials.remove_line_from_file_exact("scripts\\kek_menu_stuff\\Chat judger profiles\\"..f.name..".ini", text) then
 					essentials.msg(lang["Removed §"].." "..text, 212, true)
 				else 
 					essentials.msg(lang["Couldn't find entry. §"], 6, true)
@@ -3272,7 +3320,7 @@ do
 					::skip::
 					system.yield(0)
 				end
-				essentials.file("scripts\\kek_menu_stuff\\Chat judger profiles\\"..f.name..".ini", "rename", "scripts\\kek_menu_stuff\\Chat judger profiles\\"..input..".ini")	
+				essentials.rename_file("scripts\\kek_menu_stuff\\Chat judger profiles\\", f.name, input, "ini")
 				f.name = input
 			end
 		end):set_str_data({
@@ -3401,7 +3449,7 @@ do
 			::skip::
 			system.yield(0)
 		end
-		local file <close> = io.open(paths.kek_menu_stuff.."Chat judger profiles\\"..input..".ini", "w+")
+		essentials.create_empty_file(paths.kek_menu_stuff.."Chat judger profiles\\"..input..".ini")
 		create_judge_feat(input)
 	end)
 
@@ -3966,8 +4014,8 @@ do
 					end
 					essentials.msg(lang["Successfully loaded §"].." "..f.name, 210, true)
 					local file <close> = io.open(paths.kek_menu_stuff.."kekMenuData\\Kek's chat bot.txt", "w+")
-					essentials.file(file, "write", str)
-					essentials.file(file, "flush")
+					file:write(str)
+					file:flush()
 					o.update_chat_bot = true
 				end
 			elseif f.value == 1 then
@@ -4018,7 +4066,7 @@ do
 				if status == 2 then
 					return
 				end
-				if essentials.modify_entry("scripts\\kek_menu_stuff\\Chatbot profiles\\"..f.name..".ini", {"|"..what_to_remove.."|"}) == 1 then
+				if essentials.remove_line_from_file_exact("scripts\\kek_menu_stuff\\Chatbot profiles\\"..f.name..".ini", "|"..what_to_remove.."|") then
 					essentials.msg(lang["Removed entry. §"], 212, true)
 				else 
 					essentials.msg(lang["Couldn't find entry. §"], 6, true)
@@ -4051,7 +4099,7 @@ do
 					::skip::
 					system.yield(0)
 				end
-				essentials.file("scripts\\kek_menu_stuff\\Chatbot profiles\\"..f.name..".ini", "rename", "scripts\\kek_menu_stuff\\Chatbot profiles\\"..input..".ini")	
+				essentials.rename_file("scripts\\kek_menu_stuff\\Chatbot profiles\\", f.name, input, "ini")
 				f.name = input
 			end
 		end):set_str_data({
@@ -4161,7 +4209,7 @@ do
 			::skip::
 			system.yield(0)
 		end
-		local file <close> = io.open(paths.kek_menu_stuff.."Chatbot profiles\\"..input..".ini", "w+")
+		essentials.create_empty_file(paths.kek_menu_stuff.."Chatbot profiles\\"..input..".ini")
 		create_chatbot_feat(input)
 	end)
 
@@ -4215,9 +4263,9 @@ settings.toggle["Clever bot"] = menu.add_feature(lang["Log chat & use as chatbot
 						end
 						local file <close> = io.open(paths.kek_menu_stuff.."kekMenuData\\Clever bot.ini", "w+")
 						for statement, responses in pairs(data) do
-							essentials.file(file, "write", statement.."§|§\n")
+							file:write(statement.."§|§\n")
 							for i = 1, #responses do
-								essentials.file(file, "write", "	"..responses[i].."\n")
+								file:write("	"..responses[i].."\n")
 							end
 						end
 						file:flush()
@@ -4385,7 +4433,7 @@ end
 u.display_notifications = menu.add_feature(lang["Display notifications §"], "parent", u.self_options.id)
 settings.toggle["Display 2take1 notifications"] = menu.add_feature(lang["Display 2take1 notifications on screen §"], "toggle", u.display_notifications.id, function(f)
 	if not utils.file_exists(paths.home.."notification.log") then
-		local file <close> = io.open(paths.home.."notification.log", "w+")
+		essentials.create_empty_file(paths.home.."notification.log")
 	end
 	local file, strings
 	f.data.is_on = true
@@ -4430,7 +4478,7 @@ settings.toggle["Display 2take1 notifications"] = menu.add_feature(lang["Display
 		end
 		system.yield(0)
 	end
-	essentials.file(file, "close")
+	file:close()
 end)
 settings.toggle["Display 2take1 notifications"].data = {
 	is_on = true,
@@ -4677,7 +4725,7 @@ local function create_custom_vehicle_feature(...)
 				::skip::
 				system.yield(0)
 			end
-			essentials.file("scripts\\Menyoo Vehicles\\"..f.name..".xml", "rename", "scripts\\Menyoo Vehicles\\"..input..".xml")	
+			essentials.rename_file("scripts\\Menyoo Vehicles\\", f.name, input, "xml")
 			f.name = input
 		end
 	end)
@@ -4906,7 +4954,7 @@ do
 					::skip::
 					system.yield(0)
 				end
-				essentials.file("scripts\\Race ghosts\\"..f.name..".lua", "rename", "scripts\\Race ghosts\\"..input..".lua")	
+				essentials.rename_file("scripts\\Race ghosts\\", f.name, input, "lua")
 				f.name = input
 			end
 		end)
@@ -4932,7 +4980,7 @@ do
 				essentials.msg(lang["Cleared old race & recording a new one. §"], 6, true, 3)
 			end
 			local file <close> = io.open(paths.home.."scripts\\kek_menu_stuff\\kekMenuData\\Temp recorded race.lua", "w+")
-			essentials.file(file, "write", "return "..entity.get_entity_model_hash(player.get_player_vehicle(player.player_id()))..", {\n")
+			file:write("return "..entity.get_entity_model_hash(player.get_player_vehicle(player.player_id()))..", {\n")
 			local time = 0
 			while f.on and player.is_player_in_any_vehicle(player.player_id()) do
 				local str = "	{pos = "..tostring(entity.get_entity_coords(player.get_player_vehicle(player.player_id())))..", rot = "..tostring(entity.get_entity_rotation(player.get_player_vehicle(player.player_id())))..", time = "..time.."}"
@@ -4943,11 +4991,11 @@ do
 				else
 					str = str.."\n"
 				end
-				essentials.file(file, "write", str)
+				file:write(str)
 			end
 			f.on = false
-			essentials.file(file, "write", "}\n")
-			essentials.file(file, "flush")
+			file:write("}\n")
+			file:flush()
 		else
 			f.on = false
 			essentials.msg(lang["You must be in a vehicle in order to record. §"], 6, true, 6)
@@ -4982,8 +5030,8 @@ do
 			system.yield(0)
 		end
 		local file <close> = io.open(paths.home.."scripts\\Race ghosts\\"..input..".lua", "w+")
-		essentials.file(file, "write", essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Temp recorded race.lua", "*a"))
-		essentials.file(file, "flush")
+		file:write(essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Temp recorded race.lua", "*a"))
+		file:flush()
 		create_ghost_racer_feature(input)
 	end)
 
@@ -5000,11 +5048,11 @@ do
 					local file <close> = io.open(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml")
 					local line = ""
 					while line do
-						line = essentials.file(file, "read", "*l")
+						line = file:read("*l")
 						if line and line:find("<ReferenceCoords>", 1, true) then
-							local x <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-							local y <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-							local z <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
+							local x <const> = tonumber((file:read("*l") or ""):match(">(.-)<"))
+							local y <const> = tonumber((file:read("*l") or ""):match(">(.-)<"))
+							local z <const> = tonumber((file:read("*l") or ""):match(">(.-)<"))
 							if type(x) == "number" and type(y) == "number" and type(z) == "number" then
 								kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), v3(x, y, z))
 							else
@@ -5032,18 +5080,18 @@ do
 							if is_existing_ref_pos and line:find("<ReferenceCoords>", 1, true) then
 								End = line_num + 4
 							end
-							essentials.file(file, "write", "	<ReferenceCoords>\n")
-							essentials.file(file, "write", "		<X>"..pos.x.."</X>\n")
-							essentials.file(file, "write", "		<Y>"..pos.y.."</Y>\n")
-							essentials.file(file, "write", "		<Z>"..pos.z.."</Z>\n")
-							essentials.file(file, "write", "	</ReferenceCoords>\n")
+							file:write("	<ReferenceCoords>\n")
+							file:write("		<X>"..pos.x.."</X>\n")
+							file:write("		<Y>"..pos.y.."</Y>\n")
+							file:write("		<Z>"..pos.z.."</Z>\n")
+							file:write("	</ReferenceCoords>\n")
 						end
 						if line_num < start or line_num > End then
-							essentials.file(file, "write", line.."\n")
+							file:write(line.."\n")
 						end
 						line_num = line_num + 1
 					end
-					essentials.file(file, "flush")
+					file:flush()
 				end
 			elseif f.value == 3 then
 				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
@@ -5074,7 +5122,7 @@ do
 					::skip::
 					system.yield(0)
 				end
-				essentials.file("scripts\\Menyoo Maps\\"..f.name..".xml", "rename", "scripts\\Menyoo Maps\\"..input..".xml")	
+				essentials.rename_file("scripts\\Menyoo Maps\\", f.name, input, "xml")
 				f.name = input
 			end
 		end)
@@ -6756,7 +6804,7 @@ do
 					::skip::
 					system.yield(0)
 				end
-				essentials.file("scripts\\kek_menu_stuff\\profiles\\"..f.name..".ini", "rename", "scripts\\kek_menu_stuff\\profiles\\"..input..".ini")
+				essentials.rename_file("scripts\\kek_menu_stuff\\profiles\\", f.name, input, "ini")
 				f.name = input
 				essentials.msg(lang["Saved profile name. §"], 212, true)
 			end
@@ -6795,7 +6843,7 @@ do
 				::skip::
 				system.yield(0)
 			end
-			local file <close> = io.open(paths.kek_menu_stuff.."profiles\\"..input..".ini", "w+")
+			essentials.create_empty_file(paths.kek_menu_stuff.."profiles\\"..input..".ini")
 			settings.save("scripts\\kek_menu_stuff\\profiles\\"..input..".ini")
 			create_profile_feature(input..".ini")
 			essentials.msg(lang["Settings saved! §"], 210, true)

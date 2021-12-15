@@ -72,7 +72,7 @@ local function extract_info(...)
 				tree_parent = ""
 			end
 		end
-		str = essentials.file(file, "read", "*l")
+		str = file:read("*l")
 		essentials.random_wait(2500)
 	end
 	return info
@@ -473,8 +473,8 @@ function menyoo.spawn_custom_vehicle(...)
 	local parent_entity, entities = 0, {}
 	local hashes <const> = {}
 	local file <close> = io.open(file_path)
-	local str2 <const> = essentials.file(file, "read", "*l")
-	local str = essentials.file(file, "read", "*l")
+	local str2 <const> = file:read("*l")
+	local str = file:read("*l")
 	if not str or str == "" then
 		essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%.xml$")).."]: "..lang["Xml file is empty. §"], 6, true, 8)
 		return 0, {}
@@ -516,7 +516,7 @@ function menyoo.spawn_custom_vehicle(...)
 			}
 			entities, hashes[#hashes + 1] = spawn_vehicle(file, entities, pid, parent_entity)
 		end
-		str = essentials.file(file, "read", "*l")
+		str = file:read("*l")
 	end
 	entity.freeze_entity(parent_entity, info["FrozenPos"] == true)
 	for _, hash in pairs(hashes) do
@@ -541,7 +541,7 @@ function menyoo.spawn_map(...)
 	local entities = {}
 	local hashes <const> = {}
 	local file <close> = io.open(file_path)
-	local str = essentials.file(file, "read", "*l")
+	local str = file:read("*l")
 	if not str or str == "" then
 		essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%.xml$")).."]: "..lang["Xml file is empty. §"], 6, true, 8)
 		return 0, {}
@@ -553,15 +553,15 @@ function menyoo.spawn_map(...)
 	local reference_pos
 	repeat
 		if str:find("<ReferenceCoords>", 1, true) then
-			local x <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-			local y <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-			local z <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
+			local x <const> = tonumber((file:read("*l") or ""):match(">(.-)<"))
+			local y <const> = tonumber((file:read("*l") or ""):match(">(.-)<"))
+			local z <const> = tonumber((file:read("*l") or ""):match(">(.-)<"))
 			if type(x) == "number" and type(y) == "number" and type(z) == "number" then
 				reference_pos = v3(x, y, z)
 			end
 			break
 		end
-		str = essentials.file(file, "read", "*l")
+		str = file:read("*l")
 	until new_attachment_check(str)
 	while str do
 		essentials.random_wait(2500)
@@ -577,7 +577,7 @@ function menyoo.spawn_map(...)
 			}
 			entities, hashes[#hashes + 1] = spawn_map_object(file, entities, pid)
 		end
-		str = essentials.file(file, "read", "*l")
+		str = file:read("*l")
 	end
 	for _, hash in pairs(hashes) do
 		streaming.set_model_as_no_longer_needed(hash)
