@@ -4700,8 +4700,7 @@ local function create_custom_vehicle_feature(...)
 			if utils.file_exists(paths.home.."scripts\\Menyoo Vehicles\\"..f.name..".xml") then
 				io.remove(paths.home.."scripts\\Menyoo Vehicles\\"..f.name..".xml")
 			end
-			f.name = ";:~"
-			f.hidden = true 
+			essentials.delete_feature(f.id)
 		elseif f.value == 2 then
 			local input, status = f.name
 			while true do
@@ -4849,7 +4848,7 @@ do
 					f.data.number_of_racers = f.data.number_of_racers + 1
 					f.data.id[Vehicle] = f.data.number_of_racers
 					kek_entity.set_blip(Vehicle, 56, math.min(f.data.number_of_racers, 84))
-					menu.create_thread(function()
+					f.data.threads[Vehicle] = menu.create_thread(function()
 						while f.data.status ~= "STOP" do
 							system.yield(0)
 							local i = 2
@@ -4906,10 +4905,13 @@ do
 						end
 						f.data.number_of_laps[Vehicle] = nil
 						f.data.id[Vehicle] = nil
+						f.data.threads[Vehicle] = nil
 						kek_entity.clear_entities({Vehicle})
 					end, nil)
 				end
 			elseif f.value == 1 then
+				f.data.status = "STOP"
+			elseif f.value == 2 then
 				local properties = loadfile(paths.home.."scripts\\Race ghosts\\"..f.name..".lua")
 				local hash
 				if not pcall(function()
@@ -4920,8 +4922,6 @@ do
 				end
 				kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), properties[1].pos)
 				entity.set_entity_rotation(essentials.get_most_relevant_entity(player.player_id()), properties[1].rot)
-			elseif f.value == 2 then
-				f.data.status = "STOP"
 			elseif f.value == 3 then
 				ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), f.data.vehicle, enums.vehicle_seats.driver)
 			elseif f.value == 4 then
@@ -4929,8 +4929,15 @@ do
 				if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..f.name..".lua") then
 					io.remove(paths.home.."scripts\\Race ghosts\\"..f.name..".lua")
 				end
-				f.name = ";:~"
-				f.hidden = true
+				f.hidden = true -- So that there is no delay between pressing delete and feature disappearing
+				repeat
+					system.yield(0)
+					local count = 0
+					for _, thread in pairs(f.data.threads) do -- Threads need access to f.data until they're finished. Deleting the feature removes that access.
+						count = count + 1
+					end
+				until count == 0
+				essentials.delete_feature(f.id)
 			elseif f.value == 5 then
 				local input, status = f.name
 				while true do
@@ -4960,8 +4967,8 @@ do
 		end)
 		feat:set_str_data({
 			lang["Load §"],
-			lang["Teleport to start §"],
 			lang["Unload §"],
+			lang["Teleport to start §"],
 			lang["Set yourself in seat §"],
 			lang["Delete §"],
 			lang["Change name §"]
@@ -4970,7 +4977,8 @@ do
 			number_of_racers = 0,
 			vehicle = 0,
 			number_of_laps = {},
-			id = {}
+			id = {},
+			threads = {}
 		}
 	end
 
@@ -5097,8 +5105,7 @@ do
 				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
 					io.remove(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml")
 				end
-				f.name = ";:~"
-				f.hidden = true 
+				essentials.delete_feature(f.id)
 			elseif f.value == 4 then
 				local input, status = f.name
 				while true do
@@ -5244,7 +5251,7 @@ do
 					essentials.write_xml(file, info, "	")
 				end
 			end
-			file:write("</SpoonerPlacements>")
+			file:write("</SpoonerPlacements>\n")
 			file:flush()
 			create_custom_map_feature(input)
 		elseif f.value == 2 then
