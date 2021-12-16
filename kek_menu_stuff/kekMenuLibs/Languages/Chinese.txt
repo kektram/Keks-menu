@@ -315,8 +315,7 @@ Set speed §设置速度
 Disable ped spawning §禁止附近生成NPC
 Disable vehicle spawning §禁止附近生成载具
 Cops clear distance §警察清除距离
-Set on fire §火烧
-Clear ped tasks §清除任务NPC
+Clear ped tasks §清除NPC的任务
 Kek's chopper §kek直升机
 Session trolling §战局恶搞
 Vehicles §载具
@@ -374,7 +373,6 @@ Notifications §通知
 Auto kicker notifications §自动踢时通知
 Give nearby players horn boost §给附近的玩家喇叭加速
 Turn everything off §关闭所有
-Menyoo vehicle §模组载具
 First seen §首次遇见
 Last seen §最后遇见
 Seen §遇见过
@@ -487,7 +485,6 @@ Unblock §取消阻止
 Type in what to spam in chat §请输入文本内容
 Xml file is empty. §Xml文件为空
 File name §文件名称
-Wrong file extension. §文件扩展名错误
 Warning: missing "%" before any of these characters; §警告:在这些字符前面缺少 "%" .
 This is fine, just note that if you don't put the "%" before those characters, they mean something else. §这还好,但请注意,如果你不把 "%" 放在这些字符前,它们就意味着别的东西.
 Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §无效模式.很可能在某处缺少 “[” 、“]” 、“(” 、“)” 或 “%”.也可能是“[]”,有“[]”会导致错误
@@ -620,3 +617,14 @@ Crash & add to timeout §崩溃并添加到加入超时
 Type in name of a player or regular feature. §输入玩家或通用功能的名称
 Has modded weapons. §拥有作弊者武器.
 Type in name of entity. §请输入实体名称.
+Kill engine §破坏引擎
+Heal engine §修复引擎
+Failed to spawn vehice. Driver vehicle was an invalid model hash. §无法生成载具. 驾驶员的载具是无效的模型哈希.
+Failed to spawn vehicle. Invalid vehicle hash. §无法生成载具. 无效的载具哈希.
+Failed to spawn vehicle. Vehicle limit was reached §无法生成载具. 已达到载具限制.
+Failed to spawn §无法生成
+Vehicle limit was reached. §已达到载具限制.
+Save settings and reset lua state to load in debug mode. §现在去保存脚本设置并重置lua状态(转到LUA脚本点击停止正在运行的脚本).
+All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §所有脚本都会运行得更慢,并且可能会出现掉帧.会出现更多的错误,特别是当你一起运行其他脚本的时候.
+Only use this mode if you intend to find bugs. §只有在你想找BUG的时候才使用此模式.
+Failed to find reference coordinates. §查找参考坐标失败

@@ -1,29 +1,29 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Vehicle saver"] = "1.0.7"
-
-local essentials = kek_menu.require("Essentials")
-local kek_entity = kek_menu.require("Kek's entity functions")
-local vehicle_saver = {}
+local essentials <const> = require("Essentials")
+local kek_entity <const> = require("Kek's entity functions")
+local enums <const> = require("Enums")
+local settings <const> = require("settings")
+local vehicle_saver <const> = {version = "1.0.8"}
 
 local function get_properties(...)
 	local Entity <const>, initial <const> = ...
-	local info = {
+	local info <const> = {
 		["ModelHash"] = entity.get_entity_model_hash(Entity),
 		["InitialHandle"] = Entity,
 		["IsOnFire"] = entity.is_entity_on_fire(Entity),
 		["IsVisible"] = entity.is_entity_visible(Entity),
 		["IsInvincible"] = entity.get_entity_god_mode(Entity),
-		["MaxHealth"] = ped.get_ped_max_health(Entity),
 		["OpacityLevel"] = 255,
 		["LodDistance"] = 20000,
 		["Dynamic"] = true,
-		["FrozenPos"] = false,
-		["Health"] = ped.get_ped_health(Entity)
+		["FrozenPos"] = false
 	}
 	if entity.is_entity_a_ped(Entity) then
 		info["IsCollisionProof"] = entity.has_entity_collided_with_anything(Entity)
 		info["Type"] = 1
+		info["MaxHealth"] = ped.get_ped_max_health(Entity)
+		info["Health"] = ped.get_ped_health(Entity)
 	elseif entity.is_entity_a_vehicle(Entity) then
 		info["IsCollisionProof"] = initial
 		info["Type"] = 2
@@ -32,7 +32,7 @@ local function get_properties(...)
 		info["Type"] = 3
 	end
 	if not initial then
-		info["Attachment isAttached=\"true\""] = {
+		info["Attachment isAttached=\"true\""] = essentials.const({
 			["AttachedTo"] = entity.get_entity_attached_to(Entity),
 			["BoneIndex"] = 0,
 			["Pitch"] = entity.get_entity_pitch(Entity),
@@ -41,15 +41,15 @@ local function get_properties(...)
 			["X"] = select(2, entity.get_entity_offset_from_entity(entity.get_entity_attached_to(Entity), Entity)).x,
 			["Y"] = select(2, entity.get_entity_offset_from_entity(entity.get_entity_attached_to(Entity), Entity)).y,
 			["Z"] = select(2, entity.get_entity_offset_from_entity(entity.get_entity_attached_to(Entity), Entity)).z
-		}
-		info["PositionRotation"] = {
+		})
+		info["PositionRotation"] = essentials.const({
 			["X"] = entity.get_entity_coords(Entity).x,
 			["Y"] = entity.get_entity_coords(Entity).y,
 			["Z"] = entity.get_entity_coords(Entity).z,
 			["Pitch"] = entity.get_entity_pitch(Entity),
 			["Roll"] = entity.get_entity_roll(Entity),
 			["Yaw"] = entity.get_entity_rotation(Entity).z
-		}
+		})
 	end
 	if entity.is_entity_a_ped(Entity) then
 		info["PedProperties"] = {
@@ -66,13 +66,13 @@ local function get_properties(...)
 			["EyeColor"] = ped.get_ped_eye_color(Entity)
 		}
 		for i = 0, 11 do 
-			info["PedProperties"]["HeadOverlay"]["_"..i] = {
+			info["PedProperties"]["HeadOverlay"]["_"..i] = essentials.const({
 				["Value"] = ped.get_ped_head_overlay_value(Entity, i),
 				["Opacity"] = ped.get_ped_head_overlay_opacity(Entity, i),
 				["ColorType"] = ped.get_ped_head_overlay_color_type(Entity, i),
 				["Color"] = ped.get_ped_head_overlay_color(Entity, i),
 				["HighlightColor"] = ped.get_ped_head_overlay_highlight_color(Entity, i)
-			}
+			})
 		end
 		for i = 0, 19 do
 			info["PedProperties"]["FacialFeatures"]["_"..i] = ped.get_ped_face_feature(Entity, i)
@@ -107,10 +107,10 @@ local function get_properties(...)
 			["CurrentGear"] = vehicle.get_vehicle_current_gear(Entity),
 			["WheelsCount"] = vehicle.get_vehicle_wheel_count(Entity),
 			["WheelType"] = math.random(0, 11),
-			["NumberPlateText"] = kek_menu.settings["Plate vehicle text"],
+			["NumberPlateText"] = settings.in_use["Plate vehicle text"],
 			["NumberPlateIndex"] = math.random(0, 3),
 			["WindowTint"] = vehicle.get_vehicle_window_tint(Entity),
-			["Neons"] = {
+			["Neons"] = essentials.const({
 				["R"] = vehicle.get_vehicle_neon_lights_color(Entity),
 				["G"] = 1,
 				["B"] = 1,
@@ -118,11 +118,11 @@ local function get_properties(...)
 				["Right"] = vehicle.is_vehicle_neon_light_enabled(Entity, 1, true),
 				["Front"] = vehicle.is_vehicle_neon_light_enabled(Entity, 2, true),
 				["Back"] = vehicle.is_vehicle_neon_light_enabled(Entity, 3, true)
-			},
+			}),
 			["Mods"] = {}
 		}
 		for i = 0, vehicle.get_vehicle_wheel_count(Entity) - 1 do
-			info["VehicleProperties"]["Wheel_"..i] = {
+			info["VehicleProperties"]["Wheel_"..i] = essentials.const({
 				["TireRadius"] = vehicle.get_vehicle_wheel_tire_radius(Entity, i),
 				["RimRadius"] = vehicle.get_vehicle_wheel_rim_radius(Entity, i),
 				["TireWidth"] = vehicle.get_vehicle_wheel_tire_width(Entity, i),
@@ -134,7 +134,7 @@ local function get_properties(...)
 				["xOffset"] = vehicle.get_vehicle_wheel_x_offset(Entity, i),
 				["yRotation"] = vehicle.get_vehicle_wheel_y_rotation(Entity, i),
 				["Flags"] = vehicle.get_vehicle_wheel_flags(Entity, i)
-			}
+			})
 		end
 		if info["VehicleProperties"]["Colours"]["IsPrimaryColourCustom"] then
 			info["VehicleProperties"]["Colours"]["Primary"] = vehicle.get_vehicle_custom_primary_colour(Entity)
@@ -156,36 +156,40 @@ end
 
 function vehicle_saver.save_vehicle(...)
 	local Entity, file_path <const> = ...
-	Entity = kek_entity.get_parent_of_attachment(Entity)
-	local attachments <const> = kek_entity.get_all_attached_entities(Entity)
-	local clear_tasks
-	if #attachments > 0 then
-		clear_tasks = player.is_player_in_any_vehicle(player.player_id())
-		if clear_tasks then
-			ped.clear_ped_tasks_immediately(player.get_player_ped(player.player_id()))
+	essentials.assert(not utils.file_exists(file_path), "Tried to overwrite a file without intent to do so.")
+	if entity.is_an_entity(Entity) then
+		essentials.assert(entity.is_entity_a_vehicle(Entity), "Expected a vehicle from argument \"Entity\".")
+		Entity = kek_entity.get_parent_of_attachment(Entity)
+		local attachments <const> = kek_entity.get_all_attached_entities(Entity)
+		local clear_tasks
+		if #attachments > 0 then
+			clear_tasks = player.is_player_in_any_vehicle(player.player_id())
+			if clear_tasks then
+				ped.clear_ped_tasks_immediately(player.get_player_ped(player.player_id()))
+			end
+			entity.freeze_entity(Entity, true)
+			system.yield(0)
+			entity.set_entity_rotation(Entity, v3())
+			system.yield(0)
 		end
-		entity.freeze_entity(Entity, true)
-		system.yield(0)
-		entity.set_entity_rotation(Entity, v3())
-		system.yield(0)
-	end
-	local file <close> = io.open(file_path, "w+")
-	essentials.file(file, "write", "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n")
-	essentials.file(file, "write", "<Vehicle menyoo_ver=\"0.9998b\">\n")
-	essentials.write_xml(file, get_properties(Entity, true), "	")
-	if #attachments > 0 then
-		essentials.file(file, "write", "	<SpoonerAttachments SetAttachmentsPersistentAndAddToSpoonerDatabase=\"false\">\n")
-		for i = 1, #attachments do
-			essentials.write_xml(file, {["Attachment"] = get_properties(attachments[i])}, "		")
+		local file <close> = io.open(file_path, "w+")
+		file:write("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n")
+		file:write("<Vehicle menyoo_ver=\"0.9998b\">\n")
+		essentials.write_xml(file, get_properties(Entity, true), "	")
+		if #attachments > 0 then
+			file:write("	<SpoonerAttachments SetAttachmentsPersistentAndAddToSpoonerDatabase=\"false\">\n")
+			for i = 1, #attachments do
+				essentials.write_xml(file, {["Attachment"] = get_properties(attachments[i])}, "		")
+			end
+			file:write("	</SpoonerAttachments>\n")
 		end
-		essentials.file(file, "write", "	</SpoonerAttachments>\n")
-	end
-	essentials.file(file, "write", "</Vehicle>\n")
-	essentials.file(file, "flush")
-	entity.freeze_entity(Entity, false)
-	if clear_tasks and #attachments > 0 then
-		ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), Entity, -1)
+		file:write("</Vehicle>\n")
+		file:flush()
+		entity.freeze_entity(Entity, false)
+		if clear_tasks and #attachments > 0 then
+			ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), Entity, -1)
+		end
 	end
 end
 
-return vehicle_saver
+return essentials.const_all(vehicle_saver)
