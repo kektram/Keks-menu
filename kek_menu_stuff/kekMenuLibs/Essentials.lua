@@ -768,7 +768,9 @@ function essentials.search_for_match_and_get_line(...)
 	search <const>,
 	exact <const>, -- Whether the existing text check must be identical to an entire line or a substring of a line.
 	yield <const> = ...
-	assert(utils.file_exists(home..file_name), "Tried to search a file that doesn't exist.") -- essentials.assert calls log_error. log_error calls essentials.log. essentials.log calls search_for_match_and_get_line. Using regular essentials.assert might cause recursion loop.
+	if not utils.file_exists(home..file_name) then
+		return
+	end
 	local str <const> = essentials.get_file_string(file_name, "*a")
 	if yield then -- 2 separate loops for performance reasons. Function calls have a lot of overhead.
 		for i = 1, #search do
@@ -822,7 +824,6 @@ function essentials.log(...)
 	search <const>, -- Whether to check if text_to_log appears in the file already or not
 	exact <const>, -- Whether the existing text check must be identical to an entire line or a substring of a line.
 	yield <const> = ... -- Whether to yield every 500th line of checking if text exists in file or not
-	assert(utils.file_exists(home..file_name), "Tried to log to a file that doesn't exist.") -- essentials.assert calls log_error. log_error calls essentials.log. Using regular essentials.assert might cause recursion loop.
 	if search then
 		local str <const> = essentials.search_for_match_and_get_line(file_name, search, exact, yield)
 		if str then
@@ -834,11 +835,14 @@ function essentials.log(...)
 end
 
 function essentials.add_to_timeout(...)
-	if utils.file_exists(home.."cfg\\scid.cfg") then
-		local pid <const> = ...
-		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
-		essentials.log("cfg\\scid.cfg", player.get_player_name(pid)..":"..select(1, string.format("%x", player.get_player_scid(pid)))..":c", {select(1, string.format("%x", player.get_player_scid(pid))), player.get_player_name(pid)}, false, true)
+	if not utils.file_exists(home.."cfg\\scid.cfg") then
+		local file <close> = io.open(home.."cfg\\scid.cfg", "w+")
+		file:write("[SCID]".."\n")
+		file:flush()
 	end
+	local pid <const> = ...
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
+	essentials.log("cfg\\scid.cfg", player.get_player_name(pid)..":"..select(1, string.format("%x", player.get_player_scid(pid)))..":c", {select(1, string.format("%x", player.get_player_scid(pid))), player.get_player_name(pid)}, false, true)
 end
 
 function essentials.send_pattern_guide_msg(...)
