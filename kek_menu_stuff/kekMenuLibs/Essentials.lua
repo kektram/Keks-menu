@@ -548,7 +548,11 @@ end
 function essentials.get_file_string(...)
 	local file_path <const>, type <const> = ...
 	local file <close> = io.open(home..file_path)
-	return file:read(type) or ""
+	if file and io.type(file) == "file" then
+		return file:read(type) or ""
+	else
+		""
+	end
 end
 
 function essentials.get_file(...)
