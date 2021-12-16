@@ -268,7 +268,7 @@ end
 do
 	function fire.add_explosion(pos, type, isAudible, isInvis, fCamShake, Ped)
 		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(type >= 0 and type <= 82, "Invalid explosion type.")
+		assert(type >= 0 and type <= 83, "Invalid explosion type.")
 		return originals.fire.add_explosion(pos, type, isAudible, isInvis, fCamShake, Ped)
 	end
 

@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-local object_mapper <const> = {version = "1.2.5"}
+local object_mapper <const> = {version = "1.2.6"}
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
 
@@ -7986,7 +7986,6 @@ local model_names <const> = essentials.const({
 	[1935720206] = "v_19_strpbar",
 	[1935797906] = "xs_prop_x18_strut_compressor_01a",
 	[1935912868] = "v_24_sta_mesh_glass",
-	[1936183844] = "prop_small_bushyba",
 	[1936480843] = "v_ret_gc_ammo5",
 	[1936747465] = "v_ilev_gangsafe",
 	[1936896016] = "xs_prop_arena_barrel_01a_wl",
@@ -17606,6 +17605,7 @@ object_mapper.BLACKLISTED_OBJECTS = essentials.const({ -- These can crash yours 
 	[1775565172] = "proc_lizardtail_01",
 	[1781006001] = "proc_drygrassfronds01",
 	[1793920587] = "prop_grass_da",
+	[1936183844] = "prop_small_bushyba",
 	[1982224326] = "urbandrygrass_01",
 	[2015249693] = "proc_drygrasses01",
 	[2040219850] = "h4_prop_bush_ear_ab",

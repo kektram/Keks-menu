@@ -7,15 +7,13 @@ end
 
 __kek_menu_version = "0.4.5.1"
 
-do
-	if utils.file_exists(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Debugger.lua") then
-		local file = io.open(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\keksettings.ini")
-		if file then
-			local str <const> = file:read("*a")
-			file:close()
-			if str:match("Debug mode=(%a%a%a%a)") == "true" then
-				dofile(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Debugger.lua")
-			end
+if utils.file_exists(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Debugger.lua") then
+	local file = io.open(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\keksettings.ini")
+	if file then
+		local str <const> = file:read("*a")
+		file:close()
+		if str:match("Debug mode=(%a%a%a%a)") == "true" then
+			dofile(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Debugger.lua")
 		end
 	end
 end
@@ -56,11 +54,11 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Settings"] = "1.0.0",
 		["Essentials"] = "1.3.6",
 		["Enums"] = "1.0.0",
-		["Vehicle mapper"] = "1.3.4", 
-		["Ped mapper"] = "1.2.6",
-		["Object mapper"] = "1.2.5", 
-		["Globals"] = "1.2.7",
-		["Weapon mapper"] = "1.0.4",
+		["Vehicle mapper"] = "1.3.5", 
+		["Ped mapper"] = "1.2.7",
+		["Object mapper"] = "1.2.6", 
+		["Globals"] = "1.2.8",
+		["Weapon mapper"] = "1.0.5",
 		["Location mapper"] = "1.0.1",
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
@@ -135,7 +133,7 @@ do -- Extra functionality to api functions
 		weight <const> = ...
 		if kek_entity.entity_manager:update().is_vehicle_limit_not_breached then
 			local Entity <const> = originals.create_vehicle(model, pos, heading, networked, alwaysFalse)
-			kek_entity.entity_manager[Entity] = tonumber(weight) or 1
+			kek_entity.entity_manager[Entity] = weight or 1
 			return Entity
 		end
 		return 0
@@ -151,7 +149,7 @@ do -- Extra functionality to api functions
 		weight <const> = ...
 		if kek_entity.entity_manager:update().is_ped_limit_not_breached then
 			local Entity <const> = originals.create_ped(type, model, pos, heading, isNetworked, unk1)
-			kek_entity.entity_manager[Entity] = tonumber(weight) or 1.5
+			kek_entity.entity_manager[Entity] = weight or 1.5
 			return Entity
 		end
 		return 0
@@ -170,20 +168,20 @@ do -- Extra functionality to api functions
 	end
 
 	object.create_object = function(...)
-		local weight <const> = select(5, ...)
 		if kek_entity.entity_manager:update().is_object_limit_not_breached then
 			local Entity <const> = originals.create_object(...)
-			kek_entity.entity_manager[Entity] = tonumber(weight) or 1
+			local weight <const> = select(5, ...)
+			kek_entity.entity_manager[Entity] = weight or 1
 			return Entity
 		end
 		return 0
 	end
 
 	object.create_world_object = function(...)
-		local weight <const> = select(5, ...)
 		if kek_entity.entity_manager:update().is_object_limit_not_breached then
 			local Entity <const> = originals.create_world_object(...)
-			kek_entity.entity_manager[Entity] = tonumber(weight) or 1
+			local weight <const> = select(5, ...)
+			kek_entity.entity_manager[Entity] = weight or 1
 			return Entity
 		end
 		return 0
@@ -1347,7 +1345,7 @@ settings.toggle["Aim protection"] = menu.add_feature(lang["Aim protection §"], 
 						system.yield(0)
 					end
 				elseif f.value == 3 then
-					globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 114), 1, 1, 1}, true)
+					globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 113), 1, 1, 1}, true)
 				elseif f.value == 4 and (not player_cooldowns.cage[player.get_player_scid(pid)] or utils.time_ms() > player_cooldowns.cage[player.get_player_scid(pid)]) then
 					kek_entity.create_cage(pid)
 					player_cooldowns.cage[player.get_player_scid(pid)] = utils.time_ms() + 10000
@@ -2377,7 +2375,7 @@ do
 							essentials.msg(lang["Vehicle blacklist:\\nExploding §"].." "..name.."'s' "..veh_name..".", 140, settings.in_use["Vehicle blacklist #notifications#"])
 							local time <const> = utils.time_ms() + 10000
 							while time > utils.time_ms() and not entity.is_entity_dead(player.get_player_ped(pid)) do
-								essentials.use_ptfx_function(fire.add_explosion, location_mapper.get_most_accurate_position(player.get_player_coords(pid)), math.random(0, 82), true, false, 0, player.get_player_ped(pid))
+								essentials.use_ptfx_function(fire.add_explosion, location_mapper.get_most_accurate_position(player.get_player_coords(pid)), math.random(0, 83), true, false, 0, player.get_player_ped(pid))
 								system.yield(300)
 							end
 						elseif what_reaction == "Ram" then
@@ -2854,13 +2852,13 @@ u.send_30k_to_session = menu.add_feature(lang["30k ceo loop §"], "toggle", u.se
 			for pid in essentials.players() do
 				globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 0, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
 			end
-			essentials.wait_conditional(15000, function() 
+			essentials.wait_conditional(20000, function() 
 				return f.on 
 			end)
 			for pid in essentials.players() do
 				globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
 			end
-			essentials.wait_conditional(15000, function() 
+			essentials.wait_conditional(20000, function() 
 				return f.on 
 			end)
 		end
@@ -2869,7 +2867,7 @@ u.send_30k_to_session = menu.add_feature(lang["30k ceo loop §"], "toggle", u.se
 		for pid in essentials.players() do
 			globals.send_script_event("CEO money", pid, {pid, 30000, 198210293, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
 		end
-		essentials.wait_conditional(100000, function() 
+		essentials.wait_conditional(120000, function() 
 			return f.on 
 		end)
 		system.yield(0)
@@ -2921,7 +2919,7 @@ menu.add_feature(lang["Apartment invites §"], "toggle", u.session_trolling.id, 
 	while f.on do
 		for pid in essentials.players() do
 			if not player.is_player_modder(pid, -1) then
-				globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 114), 1, 1, 1}, true)
+				globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 113), 1, 1, 1}, true)
 			end
 		end
 		system.yield(5000)
@@ -3841,7 +3839,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands §"], "t
 							end, nil)
 						elseif settings.in_use["apartmentinvite #chat command#"] and str:match("^%papartmentinvite%s+%d+$") then
 							local num <const> = tonumber(str:match("^%papartmentinvite%s+(%d+)$"))
-							if num and num > 0 and num <= 114 then
+							if num and num > 0 and num <= 113 then
 								globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, num, 1, 1, 1})
 							end
 						elseif settings.in_use["otr #chat command#"] and str:find("^%potr%s*$") then
@@ -5471,18 +5469,18 @@ player_feat_ids["30k ceo"] = menu.add_player_feature(lang["30k ceo loop §"], "t
 		while f.on do
 			system.yield(0)
 			globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 0, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
-			essentials.wait_conditional(15000, function() 
+			essentials.wait_conditional(20000, function() 
 				return f.on 
 			end)
 			globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
-			essentials.wait_conditional(15000, function() 
+			essentials.wait_conditional(20000, function() 
 				return f.on 
 			end)
 		end
 	end, nil)
 	while f.on do
 		globals.send_script_event("CEO money", pid, {pid, 30000, 198210293, 1, globals.generic_player_global(pid), globals.get_9__10_globals_pair()})
-		essentials.wait_conditional(100000, function() 
+		essentials.wait_conditional(120000, function() 
 			return f.on 
 		end)
 		system.yield(0)
@@ -5491,7 +5489,10 @@ end).id
 
 menu.add_player_feature(lang["Block passive §"], "toggle", u.script_stuff, function(f, pid)
 	if f.on then
-		globals.send_script_event("Block passive", pid, {pid, 1})
+		while f.on do
+			globals.send_script_event("Block passive", pid, {pid, 1})
+			system.yield(0)
+		end
 	else
 		globals.send_script_event("Block passive", pid, {pid, 0})
 	end
@@ -5530,13 +5531,13 @@ menu.add_player_feature(lang["Perico island §"], "toggle", u.script_stuff, func
 	if f.on then
 		globals.send_script_event("Send to Perico island", pid, {pid, globals.get_script_event_hash("Send to Perico island"), 0, 0})
 	else
-		globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 114), 1, 1, 1})
+		globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 113), 1, 1, 1})
 	end
 end)
 
 menu.add_player_feature(lang["Apartment invites §"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
-		globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 114), 1, 1, 1})
+		globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 113), 1, 1, 1})
 		system.yield(5000)
 	end
 end)
@@ -6133,7 +6134,7 @@ menu.add_player_feature(lang["Explosion gun §"], "toggle", u.pWeapons, function
 	while f.on do
 		if ped.is_ped_shooting(player.get_player_ped(pid)) then
 			local pos = select(2, ped.get_ped_last_weapon_impact(player.get_player_ped(pid)))
-			essentials.use_ptfx_function(fire.add_explosion, pos, math.random(0, 82), true, false, 0, player.get_player_ped(pid))
+			essentials.use_ptfx_function(fire.add_explosion, pos, math.random(0, 83), true, false, 0, player.get_player_ped(pid))
 		end
 		system.yield(0)
 	end
@@ -6444,7 +6445,7 @@ do
 						essentials.use_ptfx_function(fire.add_explosion, entity.get_entity_coords(Entity), f.value, true, false, 0, player.get_player_ped(player.player_id()))
 					end								
 				end)
-				exp_type.max, exp_type.min, exp_type.mod = 82, 0, 1
+				exp_type.max, exp_type.min, exp_type.mod = 83, 0, 1
 				exp_type.value = 29
 				if i == 1 then
 					local speed_set = menu.add_feature(lang["Set speed §"], "action_value_i", parent.id, function(f)
@@ -6545,7 +6546,7 @@ do
 					local exp_type = menu.add_feature(lang["Explode §"], "action_value_i", parent.id, function(f)
 						essentials.use_ptfx_function(fire.add_explosion, entity.get_entity_coords(parent.data.entity), f.value, true, false, 0, player.get_player_ped(player.player_id()))
 					end)
-					exp_type.max, exp_type.min, exp_type.mod = 82, 0, 1
+					exp_type.max, exp_type.min, exp_type.mod = 83, 0, 1
 					exp_type.value = 29
 					if i == 1 then
 						local speed_set = menu.add_feature(lang["Set speed §"], "action_value_i", parent.id, function(f)

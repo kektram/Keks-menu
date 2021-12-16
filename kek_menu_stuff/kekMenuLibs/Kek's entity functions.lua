@@ -18,14 +18,14 @@ kek_entity.user_vehicles = {}
 kek_entity.entity_manager = {
 	entities = {},
 	counts = {
-		ped = 0, 
-		object = 0, 
-		vehicle = 0
+		ped = 0.0, 
+		object = 0.0, 
+		vehicle = 0.0
 	},
 	limits = essentials.const({
-		ped = 50,
-		vehicle = 50,
-		object = 210
+		ped = 50.0,
+		vehicle = 50.0,
+		object = 210.0
 	}),
 	type_strings = essentials.const({
 		[3] = "vehicle",
@@ -56,9 +56,9 @@ function kek_entity.entity_manager:update()
 		end
 	end
 	return {
-		is_ped_limit_not_breached = self.counts.ped <= self.limits.ped and #ped.get_all_peds() < 135,
-		is_object_limit_not_breached = self.counts.object < self.limits.object and #object.get_all_objects() < 850, 
-		is_vehicle_limit_not_breached = self.counts.vehicle < self.limits.vehicle and #vehicle.get_all_vehicles() < 135,
+		is_ped_limit_not_breached = self.counts.ped <= self.limits.ped and #ped.get_all_peds() < 135.0,
+		is_object_limit_not_breached = self.counts.object < self.limits.object and #object.get_all_objects() < 850.0, 
+		is_vehicle_limit_not_breached = self.counts.vehicle < self.limits.vehicle and #vehicle.get_all_vehicles() < 135.0,
 		is_misc_limit_not_breached = self.counts.ped + self.counts.vehicle + self.counts.object <= self.limits.ped + self.limits.vehicle,
 		ped_count = self.counts.ped
 	}
@@ -708,15 +708,15 @@ function kek_entity.set_combat_attributes(...)
 	essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped from argument \"Ped\".")
 	essentials.assert(not ped.is_ped_a_player(Ped), "Expected a non-player ped.")
 	for attribute_id, is_on in pairs({
-		[0] = attributes.cover,
-		[1] = attributes.use_vehicle,
-		[2] = attributes.driveby,
-		[3] = attributes.leave_vehicle,
-		[5] = attributes.unarmed_fight_armed, 
-		[20] = attributes.taunt_in_vehicle,
-		[46] = attributes.always_fight,
-		[52] = attributes.ignore_traffic,
-		[1424] = attributes.use_fireing_weapons
+		[0] = attributes.cover or false,
+		[1] = attributes.use_vehicle or false,
+		[2] = attributes.driveby or false,
+		[3] = attributes.leave_vehicle or false,
+		[5] = attributes.unarmed_fight_armed or false, 
+		[20] = attributes.taunt_in_vehicle or false,
+		[46] = attributes.always_fight or false,
+		[52] = attributes.ignore_traffic or false,
+		[1424] = attributes.use_fireing_weapons or false
 	}) do
 		ped.set_ped_combat_attributes(Ped, attribute_id, set_all_attributes_to_true or is_on == true)
 	end
@@ -987,7 +987,7 @@ do
 do
 	local list_of_end_vehicles <const> = essentials.const({
 		2485144969, -- Asea
-		3505073125, -- Cavalcade
+		629969764, -- Astron
 		4289813342, -- Exemplar
 		2351681756, -- Nightshade
 		2049897956, -- Rapid_GT_Classic

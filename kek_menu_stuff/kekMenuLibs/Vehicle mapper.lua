@@ -1,9 +1,14 @@
 -- Copyright © 2020-2021 Kektram
 
-local vehicle_mapper <const> = {version = "1.3.4"}
+local vehicle_mapper <const> = {version = "1.3.5"}
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
 local language <const> = require("Language")
+
+local paths <const> = {
+	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\",
+	kek_menu_stuff = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\"
+}
 
 local hash_to_model_or_name <const> = essentials.const_all({
 	[736672010] = {"dominator8", "Vapid Dominator GTT"},
@@ -77,7 +82,7 @@ local hash_to_model_or_name <const> = essentials.const_all({
 	[1824333165] = {"besra", "Western Company Besra"},
 	[1274868363] = {"bestiagts", "Grotti Bestia GTS"},
 	[86520421] = {"bf400", "Nagasaki BF400"},
-	[1126868326] = {"bf injection", "Injection"},
+	[1126868326] = {"bfinjection", "Bf Injection"},
 	[850991848] = {"biff", "HVY Biff"},
 	[3945366167] = {"bifta", "Bifta"},
 	[4278019151] = {"bison", "Bravado Bison"},
@@ -746,8 +751,39 @@ local hash_to_model_or_name <const> = essentials.const_all({
 	[447548909] = {"volatol", "Volatol"},
 	[2194326579] = {"tug", "Buckingham Tug"},
 	[3929093893] = {"alkonost", "RO-86 Alkonost"},
-	[1336872304] = {"kosatka", "Rune Kosatka (Submarine HQ)"}
+	[1336872304] = {"kosatka", "Rune Kosatka (Submarine HQ)"},
+    [2767531027] = {"cinquemila", "Lampadati Cinquemila"},
+    [1532171089] = {"deity", "Enus Deity"},
+    [629969764] = {"astron", "Pfister Astron"},
+    [461465043] = {"jubilee", "Enus Jubilee"},
+    [359875117] = {"baller7", "Gallivanter Baller ST"},
+    [4033620423] = {"granger2", "Declasse Granger 3600LX"},
+    [662793086] = {"iwagen", "Obey I-Wagen"},
+    [3675036420] = {"buffalo4", "Bravado Buffalo STX"},
+    [1141395928] = {"comet7", "Pfister Comet S2 Cabrio"},
+    [655665811] = {"zeno", "Overflod Zeno"},
+    [3379732821] = {"champion", "Dewbauchee Champion"},
+    [2850852987] = {"ignus", "Pegassi Ignus"},
+    [1993851908] = {"reever", "Western Reever"},
+    [1353120668] = {"shinobi", "Nagasaki Shinobi"},
+    [3624880708] = {"patriot3", "Mammoth Patriot Mil-Spec"},
+    [1486521356] = {"youga4", "Vapid Youga Custom"},
+    [1343932732] = {"mule5", "Maibatsu Mule"}
 })
+
+do
+	local is_missing = false
+	for _, file in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\Vehicle names", "lua")) do
+		local language <const> = require("Languages\\Vehicle names\\"..file:gsub("%.lua", ""))
+		for hash, model in pairs(hash_to_model_or_name) do
+			if not language[hash] then
+				print("Missing info in vehicle translation: File = ["..file.."] Name of missing vehicle = ["..model[2].."]")
+				is_missing = true
+			end
+		end
+	end
+	essentials.assert(not is_missing, "Failed to load script. Is missing one or more entry in vehicle name translation files. Check console for missing names.")
+end
 
 local model_to_hash = {}
 local name_to_hash = {}

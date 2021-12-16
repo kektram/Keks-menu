@@ -1,14 +1,14 @@
 -- Copyright © 2020-2021 Kektram, Sainan
 
-local globals <const> = {version = "1.2.7"}
+local globals <const> = {version = "1.2.8"}
 
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
 local settings <const> = require("settings")
 
 local offsets <const> = essentials.const({
-	["_PLAYER_INFO_MAIN"] = 1590908,
-	["_PLAYER_INFO_OFFSET_PER_PLAYER"] = 874,
+	["_PLAYER_INFO_MAIN"] = 1853128,
+	["_PLAYER_INFO_OFFSET_PER_PLAYER"] = 888,
 	["_PLAYER_INFO_OFFSET_TO_INFO"] = 205
 })
 
@@ -49,7 +49,12 @@ local stats <const> = essentials.const({ -- Thanks to Sainan for some of these s
 	["_PLAYER_INFO_CRMISSION"] = 46,                                    
 	["_PLAYER_INFO_MISSIONS_CREATED"] = 50,                             
 	["_PLAYER_INFO_DROPOUTRATE"] = 27,                                  
-	["_PLAYER_INFO_MOST_FAVORITE_STATION"] = 53
+	["_PLAYER_INFO_MOST_FAVORITE_STATION"] = 53,
+	["_PLAYER_INFO_CAN_SPECTATE"] = 52,
+	-- Freemode script doesn't explicitly define these, but it seems highly likely they are correct.
+	["_PLAYER_INFO_IS_BAD_SPORT"] = 51,
+	["_PLAYER_INFO_GLOBALXP"] = 5
+	-- Freemode script doesn't explicitly define these, but it seems highly likely they are correct.
 })
 
 -- By Sainan
@@ -241,72 +246,68 @@ end
 
 function globals.is_player_otr(pid)
 	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
-	return script.get_global_i(2426865 + (1 + (pid * 449)) + 209) == 1
+	return script.get_global_i(2689156 + (1 + (pid * 453)) + 209) == 1
 end
 
 function globals.get_player_personal_vehicle(pid)
 	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
-	return script.get_global_i(2441237 + (614 + pid + 1))
+	return script.get_global_i(2703656 + (187 + pid + 1))
 end
 
 function globals.get_9__10_globals_pair()
-	return script.get_global_i(1658176 + 9), script.get_global_i(1658176 + 10)
+	return script.get_global_i(1921036 + 9), script.get_global_i(1921036 + 10)
 end
 
 function globals.get_time_global()
-	return script.get_global_i(2544210 + 4627)
+	return script.get_global_i(2810287 + 4628)
 end
 
 function globals.generic_player_global(pid)
 	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
-	return script.get_global_i(1630816 + (1 + (pid * 597) + 508))
+	return script.get_global_i(1893548 + (1 + (pid * 600) + 511))
 end
 
 local script_event_hashes <const> = essentials.const({
-	["Netbail kick"] = 2092565704,
-	["Kick 1"] = 1964309656,
-	["Kick 2"] = 696123127,
-	["Kick 3"] = 43922647,
-	["Kick 4"] = 600486780,
-	["Kick 5"] = 1954846099,
-	["Kick 6"] = 153488394,
-	["Kick 7"] = 1249026189,
-	["Kick 8"] = 515799090,
-	["Kick 9"] = 1463355688,
-	["Kick 10"] = -1382676328,
-	["Kick 11"] = 1256866538,
-	["Kick 12"] = 515799090,
-	["Kick 13"] = -1813981910,
-	["Kick 14"] = 202252150,
-	["Kick 15"] = -19131151,
-	["Kick 16"] = -635501849,
-	["Kick 17"] = 1964309656,
-	["Crash 1"] = -988842806,
-	["Crash 2"] = -2043109205,
-	["Crash 3"] = 1926582096,
-	["Crash 4"] = 153488394,
-	["Script host crash 1"] = 315658550,
-	["Script host crash 2"] = -877212109,
-	["Disown personal vehicle"] = -2072214082,
-	["Vehicle EMP"] = 975723848,
-	["Destroy personal vehicle"] = 1229338575,
-	["Kick out of vehicle"] = -1005623606,
-	["Remove wanted level"] = 1187364773,
-	["Give OTR or ghost organization"] = -397188359,
-	["Block passive"] = 1472357458,
-	["Send to mission"] = -1147284669,
-	["Send to Perico island"] = -1479371259,
-	["Apartment invite"] = 1249026189,
-	["CEO ban"] = 1355230914,
-	["Dismiss or terminate from CEO"] = -316948135,
-	["Insurance notification"] = 299217086,
-	["Transaction error"] = -2041535807,
-	["CEO money"] = 1152266822,
-	["Bounty"] = -1906146218,
-	["Banner"] = 1659915470,
-	["Sound 1"] = 1537221257,
-	["Sound 2"] = -1162153263,
-	["Bribe authorities"] = -151720011
+	["Netbail kick"] = 1228916411,
+	["Kick 1"] = 1246667869,
+	["Kick 2"] = 1757755807,
+	["Kick 3"] = -1125867895,
+	["Kick 4"] = -1991317864,
+	["Kick 5"] = -614457627,
+	["Kick 6"] = 603406648,
+	["Kick 7"] = -1970125962,
+	["Kick 8"] = 998716537,
+	["Kick 9"] = 163598572,
+	["Kick 10"] = -1308840134,
+	["Kick 11"] = -1501164935,
+	["Kick 12"] = 436475575,
+	["Kick 13"] = -290218924,
+	["Kick 14"] = -368423380,
+	["Crash 1"] = 962740265,
+	["Crash 2"] = -1386010354,
+	["Crash 3"] = 2112408256,
+	["Crash 4"] = 677240627,
+	["Script host crash 1"] = -1205085020,
+	["Script host crash 2"] = 1258808115,
+	["Disown personal vehicle"] = -520925154,
+	["Vehicle EMP"] = -2042927980,
+	["Destroy personal vehicle"] = -1026787486,
+	["Kick out of vehicle"] = 578856274,
+	["Remove wanted level"] = -91354030,
+	["Give OTR or ghost organization"] = -391633760,
+	["Block passive"] = 1114091621,
+	["Send to mission"] = 2020588206,
+	["Send to Perico island"] = -621279188,
+	["Apartment invite"] = 603406648,
+	["CEO ban"] = -764524031,
+	["Dismiss or terminate from CEO"] = 248967238,
+	["Insurance notification"] = 802133775,
+	["Transaction error"] = -1704141512,
+	["CEO money"] = 1890277845,
+	["Bounty"] = 1294995624,
+	["Banner"] = 1572255940,
+	["Sound 1"] = 1132878564,
+	["Bribe authorities"] = 1722873242
 })
 
 globals.KICK_NAMES = {}
@@ -417,7 +418,7 @@ function globals.kick(...)
 			parameters[#parameters + 1] = math.random(-2147483647, -10)
 		end
 		globals.send_script_event("Kick 5", pid, parameters)
-		for arg, hash in pairs({-1726396442, 154008137, 428882541, -1714354434}) do
+		for arg, hash in pairs({1880156910, -890479893, 155406806, 1059917272}) do
 			globals.send_script_event("Kick 6", pid, {
 				pid, 
 				hash, 
@@ -446,7 +447,7 @@ function globals.script_event_crash(...)
 		for i = 1, 19 do
 			local parameters <const> = {
 				pid, 
-				-1139568479, 
+				-1774405356, 
 				math.random(0, 4), 
 				math.random(0, 1)
 			}

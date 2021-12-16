@@ -141,7 +141,7 @@ function troll_entity.send_army(...)
 	local update <const> = kek_entity.entity_manager:update()
 	if not update.is_vehicle_limit_not_breached 
 	or not update.is_ped_limit_not_breached 
-	or update.ped_count > kek_entity.entity_manager.limits.ped - 9 then
+	or update.ped_count > kek_entity.entity_manager.limits.ped - 9.0 then
 		return -2
 	end
 	local valkyrie <const> = kek_entity.spawn_entity(gameplay.get_hash_key("valkyrie2"), function()
@@ -370,7 +370,7 @@ function troll_entity.send_clown_van(...)
 	local update <const> = kek_entity.entity_manager:update()
 	if not update.is_vehicle_limit_not_breached 
 	or not update.is_ped_limit_not_breached
-	or update.ped_count > kek_entity.entity_manager.limits.ped - 6 then
+	or update.ped_count > kek_entity.entity_manager.limits.ped - 6.0 then
 		return -2
 	end
 	local clown_van <const> = kek_entity.spawn_entity(gameplay.get_hash_key("speedo2"), function() 

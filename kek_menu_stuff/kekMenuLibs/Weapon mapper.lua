@@ -2,7 +2,7 @@
 
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
-local weapon_mapper <const> = {version = "1.0.4"}
+local weapon_mapper <const> = {version = "1.0.5"}
 
 local weapon_attachments <const> = essentials.const_all({
 	[gameplay.get_hash_key("weapon_stungun")] = {},
@@ -51,6 +51,21 @@ local weapon_attachments <const> = essentials.const_all({
     [gameplay.get_hash_key("weapon_pipebomb")] = {},
     [gameplay.get_hash_key("weapon_hazardcan")] = {},
     [gameplay.get_hash_key("weapon_smokegrenade")] = {},
+	[gameplay.get_hash_key("weapon_stungun_mp")] = {},
+	[gameplay.get_hash_key("weapon_heavyrifle")] = {
+		{"Default Clip", "COMPONENT_HEAVYRIFLE_CLIP_01", gameplay.get_hash_key("COMPONENT_HEAVYRIFLE_CLIP_01")},
+		{"Extended Clip", "COMPONENT_HEAVYRIFLE_CLIP_02", gameplay.get_hash_key("COMPONENT_HEAVYRIFLE_CLIP_02")},
+		{"Iron Sights Scope", "COMPONENT_HEAVYRIFLE_SIGHT_01", gameplay.get_hash_key("COMPONENT_HEAVYRIFLE_SIGHT_01")},
+		{"Scope", "COMPONENT_AT_SCOPE_MEDIUM", gameplay.get_hash_key("COMPONENT_AT_SCOPE_MEDIUM")},
+		{"Flashlight", "COMPONENT_AT_AR_FLSH", gameplay.get_hash_key("COMPONENT_AT_AR_FLSH")},
+		{"Suppressor Muzzle Brake", "COMPONENT_AT_AR_SUPP", gameplay.get_hash_key("COMPONENT_AT_AR_SUPP")},
+		{"Grip", "COMPONENT_AT_AR_AFGRIP", gameplay.get_hash_key("COMPONENT_AT_AR_AFGRIP")},
+		{"Digital Camo", "COMPONENT_HEAVYRIFLE_CAMO1", gameplay.get_hash_key("COMPONENT_HEAVYRIFLE_CAMO1")}
+	},
+	[gameplay.get_hash_key("weapon_emplauncher")] = {
+		{"COMPONENT_EMPLAUNCHER_CLIP_01", "COMPONENT_EMPLAUNCHER_CLIP_01", gameplay.get_hash_key("COMPONENT_EMPLAUNCHER_CLIP_01")}
+	},
+	[gameplay.get_hash_key("weapon_fertilizercan")] = {},
 	[gameplay.get_hash_key("weapon_knuckle")] = {
 		{"Base Model", "COMPONENT_KNUCKLE_VARMOD_BASE", 0xF3462F33},
 		{"The Pimp", "COMPONENT_KNUCKLE_VARMOD_PIMP", 0xC613F685},

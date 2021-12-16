@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-local ped_mapper <const> = {version = "1.2.6"}
+local ped_mapper <const> = {version = "1.2.7"}
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
 
@@ -903,7 +903,56 @@ local ped_models <const> = essentials.const({
 	[4282288299] = "a_m_y_dhill_01",
 	[4285659174] = "g_m_m_chigoon_02",
 	[4293277303] = "ig_screen_writer",
+	[gameplay.get_hash_key("p_franklin_02")] = "p_franklin_02",
+	[gameplay.get_hash_key("cs_lamardavis_02")] = "cs_lamardavis_02",
+	[gameplay.get_hash_key("ig_lamardavis_02")] = "ig_lamardavis_02",
+	[gameplay.get_hash_key("csb_ary_02")] = "csb_ary_02",
+	[gameplay.get_hash_key("ig_ary_02")] = "ig_ary_02",
+	[gameplay.get_hash_key("csb_mjo_02")] = "csb_mjo_02",
+	[gameplay.get_hash_key("ig_mjo_02")] = "ig_mjo_02",
+	[gameplay.get_hash_key("csb_jio_02")] = "csb_jio_02",
+	[gameplay.get_hash_key("ig_jio_02")] = "ig_jio_02",
+	[gameplay.get_hash_key("ig_vincent_3")] = "ig_vincent_3",
+	[gameplay.get_hash_key("csb_ballas_leader")] = "csb_ballas_leader",
+	[gameplay.get_hash_key("ig_ballas_leader")] = "ig_ballas_leader",
+	[gameplay.get_hash_key("csb_vernon")] = "csb_vernon",
+	[gameplay.get_hash_key("ig_vernon")] = "ig_vernon",
+	[gameplay.get_hash_key("csb_imani")] = "csb_imani",
+	[gameplay.get_hash_key("ig_imani")] = "ig_imani",
+	[gameplay.get_hash_key("csb_billionaire")] = "csb_billionaire",
+	[gameplay.get_hash_key("ig_billionaire")] = "ig_billionaire",
+	[gameplay.get_hash_key("csb_party_promo")] = "csb_party_promo",
+	[gameplay.get_hash_key("ig_party_promo")] = "ig_party_promo",
+	[gameplay.get_hash_key("csb_req_officer")] = "csb_req_officer",
+	[gameplay.get_hash_key("ig_req_officer")] = "ig_req_officer",
+	[gameplay.get_hash_key("csb_johnny_guns")] = "csb_johnny_guns",
+	[gameplay.get_hash_key("ig_johnny_guns")] = "ig_johnny_guns",
+	[gameplay.get_hash_key("csb_vagos_leader")] = "csb_vagos_leader",
+	[gameplay.get_hash_key("ig_vagos_leader")] = "ig_vagos_leader",
+	[gameplay.get_hash_key("csb_golfer_a")] = "csb_golfer_a",
+	[gameplay.get_hash_key("ig_golfer_a")] = "ig_golfer_a",
+	[gameplay.get_hash_key("csb_golfer_b")] = "csb_golfer_b",
+	[gameplay.get_hash_key("ig_golfer_b")] = "ig_golfer_b",
+	[gameplay.get_hash_key("ig_entourage_a")] = "ig_entourage_a",
+	[gameplay.get_hash_key("ig_entourage_b")] = "ig_entourage_b",
+	[gameplay.get_hash_key("csb_security_a")] = "csb_security_a",
+	[gameplay.get_hash_key("ig_security_a")] = "ig_security_a",
+	[gameplay.get_hash_key("s_m_m_highsec_05")] = "s_m_m_highsec_05",
+	[gameplay.get_hash_key("csb_musician_00")] = "csb_musician_00",
+	[gameplay.get_hash_key("ig_musician_00")] = "ig_musician_00",
+	[gameplay.get_hash_key("csb_soundeng_00")] = "csb_soundeng_00",
+	[gameplay.get_hash_key("ig_soundeng_00")] = "ig_soundeng_00",
+	[gameplay.get_hash_key("s_m_m_studioprod_01")] = "s_m_m_studioprod_01",
+	[gameplay.get_hash_key("s_m_m_studiosoueng_02")] = "s_m_m_studiosoueng_02",
+	[gameplay.get_hash_key("s_m_m_studioassist_02")] = "s_m_m_studioassist_02",
+	[gameplay.get_hash_key("s_f_m_studioassist_01")] = "s_f_m_studioassist_01",
+	[gameplay.get_hash_key("a_f_y_studioparty_01")] = "a_f_y_studioparty_01",
+	[gameplay.get_hash_key("a_f_y_studioparty_02")] = "a_f_y_studioparty_02",
+	[gameplay.get_hash_key("a_m_y_studioparty_01")] = "a_m_y_studioparty_01",
+	[gameplay.get_hash_key("g_m_m_goons_01")] = "g_m_m_goons_01",
+	[gameplay.get_hash_key("a_m_m_studioparty_01")] = "a_m_m_studioparty_01",
 	-- Animals --
+	[gameplay.get_hash_key("a_c_chop_02")] = "a_c_chop_02",
 	[3462393972] = "a_c_boar",
 	[1462895032] = "a_c_cat_01",
 	[2864127842] = "a_c_chickenhawk",
@@ -973,7 +1022,8 @@ ped_mapper.ANIMAL_HASHES = essentials.const({
 	113504370,
 	1126154828,
 	2705875277,
-	2910340283
+	2910340283,
+	[gameplay.get_hash_key("a_c_chop_02")] = "a_c_chop_02"
 })
 
 ped_mapper.BLACKLISTED_PEDS = essentials.const({ -- These will crash yours or other's game
@@ -986,11 +1036,11 @@ ped_mapper.BLACKLISTED_PEDS = essentials.const({ -- These will crash yours or ot
 ped_mapper.PED_HASHES = {}
 for hash, model in pairs(ped_models) do
 	essentials.assert(streaming.is_model_a_ped(hash), "Invalid ped in ped_models table: "..tostring(hash))
-	if not model:find("a_c", 1, true) then -- To make sure animal hashes are the 33 last in the array.
+	if not model:find("a_c", 1, true) then -- To make sure animal hashes are the 34 last in the array.
 		ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = hash
 	end
 end
-for i = 1, #ped_mapper.ANIMAL_HASHES do -- Makes sure animal hashes are the 33 last in the array.
+for i = 1, #ped_mapper.ANIMAL_HASHES do -- Makes sure animal hashes are the 34 last in the array.
 	ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = ped_mapper.ANIMAL_HASHES[i]
 end
 

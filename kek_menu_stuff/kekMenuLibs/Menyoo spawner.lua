@@ -1,15 +1,5 @@
 -- Copyright © 2020-2021 Kektram
 
-local xml_end = {
-	"^%s*</Attachment>$",
-	"^%s*</Placement>$"
-}
-
-local xml_start = {
-	"^%s*<Attachment>$",
-	"^%s*<Placement>$"
-}
-
 local menyoo <const> = {version = "2.0.2"}
 local home <const> = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 local language <const> = require("Language")
@@ -26,7 +16,9 @@ local settings <const> = require("Settings")
 local function new_attachment_check(...)
 	local str <const>,
 	End <const>,
-	initial <const> = ...
+	initial <const>,
+	xml_start <const>,
+	xml_end <const> = ...
 	if not str then
 		return true
 	end
@@ -40,16 +32,19 @@ local function new_attachment_check(...)
 end
 
 local function extract_info(...)
-	local file <const>, initial <const> = ...
+	local file <const>, 
+	initial <const>,
+	xml_start <const>,
+	xml_end <const> = ...
 	local str = ""
 	local info <const> = {}
 	local tree_parent = ""
-	while str and not new_attachment_check(str, true, initial) do
+	while str and not new_attachment_check(str, true, initial, xml_start, xml_end) do
 		if str:find("<Attachment%s*isAttached=[%w%p]+/*>") then
 			info[str:match("%s*([%w%p]+)=")] = str:match("<Attachment%s*isAttached=(.+)/*>") == "\"true\""
 		else
 			local property <const> = str:match("<.+>(.*)<.+>")
-			if property and not new_attachment_check(str, true, initial) then
+			if property and not new_attachment_check(str, true, initial, xml_start, xml_end) then
 				local str_casted_to_right_type = property
 				if str_casted_to_right_type == "false" then
 					str_casted_to_right_type = false
@@ -65,7 +60,7 @@ local function extract_info(...)
 			if not str:find("=", 1, true)
 			and not str:match("^%s*<(.+)>.*<.+>%s*$") 
 			and str:match("^%s*<([%p%w%c]+)>%s*$")  
-			and not new_attachment_check(str, true, initial) then
+			and not new_attachment_check(str, true, initial, xml_start, xml_end) then
 				tree_parent = str:match("^%s*<([%p%w%c]+)>%s*$")
 			end
 			if str:match("^%s*</(.+)>%s*$") then
@@ -412,8 +407,10 @@ local function spawn_vehicle(...)
 	local file <const>,
 	entities <const>,
 	pid <const>,
-	parent_entity <const> = ...
-	local info <const> = extract_info(file)
+	parent_entity <const>,
+	xml_start <const>,
+	xml_end <const> = ...
+	local info <const> = extract_info(file, nil, xml_start, xml_end)
 	local hash <const> = info["ModelHash"]
 	if streaming.is_model_valid(hash) then
 		local Entity <const> = kek_entity.spawn_entity(hash, function()
@@ -438,8 +435,10 @@ end
 local function spawn_map_object(...)
 	local file <const>,
 	entities <const>,
-	pid <const> = ...
-	local info <const> = extract_info(file)
+	pid <const>,
+	xml_start <const>,
+	xml_end <const> = ...
+	local info <const> = extract_info(file, nil, xml_start, xml_end)
 	local hash <const> = info["ModelHash"]
 	if type(info["PositionRotationX"]) == "number" 
 	and type(info["PositionRotationY"]) == "number" 
@@ -467,6 +466,15 @@ function menyoo.spawn_custom_vehicle(...)
 	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 	essentials.assert(file_path:find("%.xml$"), "Tried to spawn a menyoo map with a non xml file.")
 	essentials.assert(utils.file_exists(file_path), "Tried to read from a file that doesn't exist.")
+	local xml_end = {
+		"^%s*</Attachment>$",
+		"^%s*</Placement>$"
+	}
+
+	local xml_start = {
+		"^%s*<Attachment>$",
+		"^%s*<Placement>$"
+	}
 	if not player.is_player_valid(pid) then
 		return 0, {}
 	end
@@ -483,7 +491,7 @@ function menyoo.spawn_custom_vehicle(...)
 		essentials.msg(lang["Unsupported file format. §"], 6, true)
 		return 0, {}
 	end
-	local info <const> = extract_info(file, "SpoonerAttachments")
+	local info <const> = extract_info(file, "SpoonerAttachments", xml_start, xml_end)
 	if streaming.is_model_valid(info["ModelHash"]) then
 		parent_entity = kek_entity.spawn_entity(info["ModelHash"], function()
 			return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), player.get_player_heading(pid)
@@ -498,13 +506,13 @@ function menyoo.spawn_custom_vehicle(...)
 			return 0, {}
 		end
 	else
-		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash. §"])
+		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash. §"], 6, true, 6)
 		return 0, {}
 	end
 	str = ""
 	while str do
 		essentials.random_wait(2500)
-		if new_attachment_check(str) then
+		if new_attachment_check(str, nil, nil, xml_start, xml_end) then
 			local tabs <const> = str:match("^(%s*)[%w%p]+")
 			xml_end = {
 				"^"..tabs.."</Attachment>$",
@@ -514,7 +522,7 @@ function menyoo.spawn_custom_vehicle(...)
 				"^"..tabs.."<Attachment>$",
 				"^"..tabs.."<Placement>$"
 			}
-			entities, hashes[#hashes + 1] = spawn_vehicle(file, entities, pid, parent_entity)
+			entities, hashes[#hashes + 1] = spawn_vehicle(file, entities, pid, parent_entity, xml_start, xml_end)
 		end
 		str = file:read("*l")
 	end
@@ -535,6 +543,15 @@ function menyoo.spawn_map(...)
 	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 	essentials.assert(file_path:find("%.xml$"), "Tried to spawn a menyoo map with a non xml file.")
 	essentials.assert(utils.file_exists(file_path), "Tried to read from a file that doesn't exist.")
+	local xml_end = {
+		"^%s*</Attachment>$",
+		"^%s*</Placement>$"
+	}
+
+	local xml_start = {
+		"^%s*<Attachment>$",
+		"^%s*<Placement>$"
+	}
 	if not player.is_player_valid(pid) then
 		return 0, {}
 	end
@@ -562,10 +579,10 @@ function menyoo.spawn_map(...)
 			break
 		end
 		str = file:read("*l")
-	until new_attachment_check(str)
+	until new_attachment_check(str, nil, nil, xml_start, xml_end)
 	while str do
 		essentials.random_wait(2500)
-		if new_attachment_check(str) then
+		if new_attachment_check(str, nil, nil, xml_start, xml_end) then
 			local tabs <const> = str:match("^(%s*)[%w%p]+")
 			xml_end = {
 				"^"..tabs.."</Attachment>$",
@@ -575,7 +592,7 @@ function menyoo.spawn_map(...)
 				"^"..tabs.."<Attachment>$",
 				"^"..tabs.."<Placement>$"
 			}
-			entities, hashes[#hashes + 1] = spawn_map_object(file, entities, pid)
+			entities, hashes[#hashes + 1] = spawn_map_object(file, entities, pid, xml_start, xml_end)
 		end
 		str = file:read("*l")
 	end
