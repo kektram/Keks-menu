@@ -548,7 +548,6 @@ end
 function essentials.get_file_string(...)
 	local file_path <const>, type <const> = ...
 	local file <close> = io.open(home..file_path)
-	essentials.assert(file and io.type(file) == "file", "Failed to open file: "..file_path)
 	return file:read(type) or ""
 end
 
