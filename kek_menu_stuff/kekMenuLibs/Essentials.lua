@@ -551,7 +551,7 @@ function essentials.get_file_string(...)
 	if file and io.type(file) == "file" then
 		return file:read(type) or ""
 	else
-		""
+		return ""
 	end
 end
 
