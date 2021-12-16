@@ -49,7 +49,7 @@ function settings.initialize(...)
 	assert(file, debug.traceback("Failed to open settings file.", 2))
 	local str <const> = file:read("*a")
 	file:close()
-	for line in str:gmatch("([^\n]*)\n?") do
+	for line in str:gmatch("([^\n]+)\n?") do
 		local name <const> = line:match("^(.-)=")
 		assert(name, debug.traceback("Failed to initialize setting name: "..line, 2))
 		local setting = line:match("=(.+)$")

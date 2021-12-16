@@ -34,7 +34,7 @@ if language.what_language ~= "English.txt" and utils.file_exists(paths.kek_menu_
 	local file = io.open(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..language.what_language)
 	local str <const> = file:read("*a")
 	file:close()
-	for line in str:gmatch("([^\n]*)\n?") do
+	for line in str:gmatch("([^\n]+)\n?") do
 		local temp_entry = line:match("§(.+)")
 		if temp_entry then
 			temp_entry = temp_entry:gsub("%s", "")

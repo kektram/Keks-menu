@@ -22,6 +22,9 @@ and utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\Debugger.lua") then
 			dofile(paths.kek_menu_stuff.."kekMenuLibs\\Debugger.lua")
 		end
 	end
+else
+	local file <const> = io.open(paths.kek_menu_stuff.."keksettings.ini", "w+")
+	file:close()
 end
 
 if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1, true) then
@@ -976,7 +979,7 @@ do
 			end
 			local file_path <const>, file_name = essentials.get_file("scripts\\", "lua", input:lower())
 			if file_name == "" then
-				for line in essentials.get_file_string("scripts\\autoexec.lua", "*a"):gmatch("([^\n]*)\n?") do
+				for line in essentials.get_file_string("scripts\\autoexec.lua", "*a"):gmatch("([^\n]+)\n?") do
 					if line:lower():find(input:lower(), 1, true) then
 						file_name = line:match("scripts%[#scripts %+ 1%] = \"(.+)\"")
 						break
@@ -1864,7 +1867,7 @@ do
 		end
 		file:flush()
 	end
-	for weapon in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", "*a"):gmatch("([^\n]*)\n?") do
+	for weapon in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\weapon_blacklist_settings.ini", "*a"):gmatch("([^\n]+)\n?") do
 		weapon_blacklist_settings[tonumber(weapon:match("(%d+)="))] = {setting = weapon:match("=(.+)") == "true"}
 	end
 
@@ -2003,7 +2006,7 @@ function player_history.add_features(parent, rid, ip, name)
 		})
 
 		local seen <const> = {}
-		for info in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuLogs\\All players.log", "*a"):gmatch("([^\n]*)\n?") do
+		for info in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuLogs\\All players.log", "*a"):gmatch("([^\n]+)\n?") do
 			if info:find("&"..rid.."&", 1, true) then
 				seen[#seen + 1] = (info:match("<(.+)>") or "").." "..(info:match("!(.+)!") or "")
 			end
@@ -2030,7 +2033,7 @@ menu.add_feature(lang["Player history §"], "action_value_str", u.player_history
 			str = str:reverse()
 			input = input:reverse()
 		end
-		for line in str:gmatch("([^\n]*)\n?") do
+		for line in str:gmatch("([^\n]+)\n?") do
 			if line:lower():find(input, 1, true) then
 				if settings.toggle["Sort player history search from newest to oldest"].on then
 					line = line:reverse()
@@ -2075,7 +2078,7 @@ for _, year in pairs(player_history.sort_numbers(utils.get_all_sub_directories_i
 			player_history.count = player_history.count + 1
 			for _, current_file in pairs(player_history.sort_numbers(utils.get_all_files_in_directory(paths.kek_menu_stuff.."Player history\\"..year.."\\"..month.."\\"..day, "log"))) do
 				player_history.hour_parents[year..month..day..current_file:gsub("%.log$", "")] = menu.add_feature(current_file:gsub("%.log$", ""), "parent", player_history.day_parents[year..month..day].id)
-				for player_info in essentials.get_file_string("scripts\\kek_menu_stuff\\Player history\\"..year.."\\"..month.."\\"..day.."\\"..current_file, "*a"):gmatch("([^\n]*)\n?") do
+				for player_info in essentials.get_file_string("scripts\\kek_menu_stuff\\Player history\\"..year.."\\"..month.."\\"..day.."\\"..current_file, "*a"):gmatch("([^\n]+)\n?") do
 					local name <const> = player_info:match("|(.+)|") or "" 
 					local rid <const> = player_info:match(" &(.+)&") or ""
 					local ip <const> = player_info:match("%^(.+)%^") or ""
@@ -2292,7 +2295,7 @@ do
 		end
 	end
 	file:flush()
-	for vehicle_entry in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", "*a"):gmatch("([^\n]*)\n?") do
+	for vehicle_entry in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Vehicle blacklist settings.ini", "*a"):gmatch("([^\n]+)\n?") do
 		vehicle_blacklist_settings[tonumber(vehicle_entry:match("(%d+)="))] = vehicle_entry:match("=(.+)")
 	end
 
@@ -2980,10 +2983,8 @@ settings.toggle["Chat logger"] = menu.add_feature(lang["Chat logger §"], "toggl
 			and (not f.data[player.get_player_scid(event.player)] or utils.time_ms() + 10000 > f.data[player.get_player_scid(event.player)]) then
 				local name <const> = player.get_player_name(event.player).."                "
 				local str = ""
-				for line in event.body:gmatch("([^\n]*)\n?") do
-					if line ~= "" then
-						str = str.."["..name:sub(1, 16).."]["..os.date().."]: "..line.."\n"
-					end
+				for line in event.body:gmatch("([^\n]+)\n?") do
+					str = str.."["..name:sub(1, 16).."]["..os.date().."]: "..line.."\n"
 				end
 				essentials.log("scripts\\kek_menu_stuff\\kekMenuLogs\\Chat log.log", str)
 				if f.data[player.get_player_scid(event.player)] and utils.time_ms() < f.data[player.get_player_scid(event.player)] then
@@ -3246,7 +3247,7 @@ do
 				else
 					local str <const> = essentials.get_file_string("scripts\\kek_menu_stuff\\Chat judger profiles\\"..f.name..".ini", "*a")
 					local count = 1
-					for chat_judge_entry in str:gmatch("([^\n]*)\n?") do
+					for chat_judge_entry in str:gmatch("([^\n]+)\n?") do
 						if not pcall(function()
 							return str:find(chat_judge_entry)
 						end) then
@@ -3339,7 +3340,7 @@ do
 			f.data.str = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\custom_chat_judge_data.txt", "*a"):lower()
 			do
 				local count = 1
-				for chat_judge_entry in f.data.str:gmatch("([^\n]*)\n?") do
+				for chat_judge_entry in f.data.str:gmatch("([^\n]+)\n?") do
 					if not pcall(function()
 						return f.data.str:find(chat_judge_entry)
 					end) then
@@ -3359,7 +3360,7 @@ do
 						o.update_chat_judge = false
 					end
 					local msg <const> = event.body:lower()
-					for chat_judge_entry in f.data.str:gmatch("([^\n]*)\n?") do
+					for chat_judge_entry in f.data.str:gmatch("([^\n]+)\n?") do
 						local is_blacklist <const> = chat_judge_entry:find("[blacklist]", 1, true) ~= nil
 						local is_timeout <const> = chat_judge_entry:find("[join timeout]", 1, true) ~= nil
 						chat_judge_entry = (chat_judge_entry:gsub("%[join timeout%]", "")):gsub("%[blacklist%]", "")
@@ -3478,7 +3479,7 @@ do
 			elseif f.value == 2 then
 				local str <const> = settings.in_use["Spam text"]
 				local value <const> = f.value
-				for line in str:gmatch("([^\n]*)\n?") do
+				for line in str:gmatch("([^\n]+)\n?") do
 					essentials.send_message(line)
 					f.data.wait(f)
 					if settings.in_use["Spam text"] ~= str or f.value ~= value then
@@ -3493,7 +3494,7 @@ do
 			elseif f.value == 4 then
 				local str <const> = utils.from_clipboard()
 				local value <const> = f.value
-				for line in str:gmatch("([^\n]*)\n?") do
+				for line in str:gmatch("([^\n]+)\n?") do
 					essentials.send_message(line)
 					f.data.wait(f)
 					if utils.from_clipboard() ~= str or f.value ~= value then
@@ -3507,7 +3508,7 @@ do
 				essentials.send_message(essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Spam text.txt", "*a"))
 			elseif f.value == 6 then
 				local value <const> = f.value
-				for line in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Spam text.txt", "*a"):gmatch("([^\n]*)\n?") do
+				for line in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Spam text.txt", "*a"):gmatch("([^\n]+)\n?") do
 					essentials.send_message(line)
 					f.data.wait(f)
 					if f.value ~= value then
@@ -3520,7 +3521,7 @@ do
 			elseif f.value == 7 then
 				local strings <const> = {}
 				local value <const> = f.value
-				for line in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Spam text.txt", "*a"):gmatch("([^\n]*)\n?") do
+				for line in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Spam text.txt", "*a"):gmatch("([^\n]+)\n?") do
 					strings[#strings + 1] = line
 				end
 				for i = 1, #strings do
@@ -4002,7 +4003,7 @@ do
 				else
 					local str <const> = essentials.get_file_string("scripts\\kek_menu_stuff\\Chatbot profiles\\"..f.name..".ini", "*a")
 					local count = 1
-					for chatbot_entry in str:gmatch("([^\n]*)\n?") do
+					for chatbot_entry in str:gmatch("([^\n]+)\n?") do
 						if not pcall(function()
 							return str:find(chatbot_entry)
 						end) then
@@ -4130,7 +4131,7 @@ do
 		if f.on then
 			local str = essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Kek's chat bot.txt", "*a")
 			local line_num = 1
-			for chatbot_entry in str:gmatch("([^\n]*)\n?") do
+			for chatbot_entry in str:gmatch("([^\n]+)\n?") do
 				if not pcall(function()
 					return str:find(chatbot_entry)
 				end) then
@@ -4149,7 +4150,7 @@ do
 						o.update_chat_bot = false
 					end
 					local count, response, found = 0, ""
-					for chat_bot_entry in str:gmatch("([^\n]*)\n?") do
+					for chat_bot_entry in str:gmatch("([^\n]+)\n?") do
 						if chat_bot_entry:match("|(.+)|&¢") then
 							local temp_match_result, temp_count
 							if #chat_bot_entry:gsub("%s", "") > 0 and event.body:lower():find(chat_bot_entry:lower():match("|(.+)|&¢")) then
@@ -4231,7 +4232,7 @@ settings.toggle["Clever bot"] = menu.add_feature(lang["Log chat & use as chatbot
 	if f.on then
 		local data <const> = {}
 		local index = ""
-		for line in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Clever bot.ini", "*a"):gmatch("([^\n]*)\n?") do
+		for line in essentials.get_file_string("scripts\\kek_menu_stuff\\kekMenuData\\Clever bot.ini", "*a"):gmatch("([^\n]+)\n?") do
 			if line:find("§|§", 1, true) then
 				index = line:match("(.*)§|§")
 				data[index] = {}
@@ -4443,7 +4444,7 @@ settings.toggle["Display 2take1 notifications"] = menu.add_feature(lang["Display
 				file:close()
 			end
 			file = io.open(paths.home.."notification.log")
-			for line in file:read("*a"):reverse():gmatch("([^\n]*)\n?") do
+			for line in file:read("*a"):reverse():gmatch("([^\n]+)\n?") do
 				line = line:reverse()
 				if line:find("[%w%p]") and not f.data.filter(line, f) then
 					strings[#strings + 1] = line
@@ -5082,7 +5083,7 @@ do
 					local pos <const> = player.get_player_coords(player.player_id())
 					local line_num = 1
 					local End, start <const> = 7, 3
-					for line in str:gmatch("([^\n]*)\n?") do
+					for line in str:gmatch("([^\n]+)\n?") do
 						if (not is_existing_ref_pos and line_num == 3) or (is_existing_ref_pos and line:find("<ReferenceCoords>", 1, true)) then
 							if is_existing_ref_pos and line:find("<ReferenceCoords>", 1, true) then
 								End = line_num + 4
