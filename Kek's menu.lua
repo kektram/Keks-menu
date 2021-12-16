@@ -7,19 +7,25 @@ end
 
 __kek_menu_version = "0.4.5.1"
 
-if utils.file_exists(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Debugger.lua") then
-	local file = io.open(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\keksettings.ini")
+local paths <const> = {
+	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\",
+	kek_menu_stuff = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\"
+}
+
+if utils.file_exists(paths.kek_menu_stuff.."keksettings.ini") 
+and utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\Debugger.lua") then
+	local file = io.open(paths.kek_menu_stuff.."keksettings.ini")
 	if file then
 		local str <const> = file:read("*a")
 		file:close()
 		if str:match("Debug mode=(%a%a%a%a)") == "true" then
-			dofile(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\Debugger.lua")
+			dofile(paths.kek_menu_stuff.."kekMenuLibs\\Debugger.lua")
 		end
 	end
 end
 
-if not (package.path or ""):find(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\?.lua;", 1, true) then
-	package.path = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\kekMenuLibs\\?.lua"..";"..(package.path or "")
+if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1, true) then
+	package.path = paths.kek_menu_stuff.."kekMenuLibs\\?.lua"..";"..(package.path or "")
 end
 
 collectgarbage("incremental", 110, 100, 10)
@@ -27,11 +33,6 @@ math.randomseed(math.floor(os.clock()) + os.time())
 
 local o <const> = {}
 local u <const> = {}
-local paths <const> = {
-	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\",
-	kek_menu_stuff = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\"
-}
-
 local player_feat_ids <const> = {}
 
 do -- Makes sure each library is loaded once and that every time one is required, has the same environment as the others
@@ -281,7 +282,7 @@ else
 	end
 end
 
-if essentials.get_file_string("scripts\\kek_menu_stuff\\keksettings.ini", "*a"):match("Script quick access=(%a%a%a%a)") == "true" then
+if utils.file_exists(paths.kek_menu_stuff.."keksettings.ini") and essentials.get_file_string("scripts\\kek_menu_stuff\\keksettings.ini", "*a"):match("Script quick access=(%a%a%a%a)") == "true" then
 	u.kekMenu, u.kekMenuP = 0, 0
 else
 	u.kekMenu = menu.add_feature(lang["Kek's menu §"], "parent", 0).id
