@@ -1,11 +1,71 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Weapon mapper"] = "1.0.3"
+local essentials <const> = require("Essentials")
+local enums <const> = require("Enums")
+local weapon_mapper <const> = {version = "1.0.5"}
 
-local essentials = kek_menu.require("Essentials")
-local weapon_mapper = {}
-
-local weapon_attachments <const> = {
+local weapon_attachments <const> = essentials.const_all({
+	[gameplay.get_hash_key("weapon_stungun")] = {},
+	[gameplay.get_hash_key("weapon_flaregun")] = {},
+	[gameplay.get_hash_key("weapon_gadgetpistol")] = {},
+	[gameplay.get_hash_key("weapon_navyrevolver")] = {},
+	[gameplay.get_hash_key("weapon_doubleaction")] = {},
+	[gameplay.get_hash_key("weapon_marksmanpistol")] = {},
+	[gameplay.get_hash_key("weapon_raycarbine")] = {},
+	[gameplay.get_hash_key("weapon_wrench")] = {},
+    [gameplay.get_hash_key("weapon_stone_hatchet")] = {},
+    [gameplay.get_hash_key("weapon_golfclub")] = {},
+    [gameplay.get_hash_key("weapon_hammer")] = {},
+    [gameplay.get_hash_key("weapon_nightstick")] = {},
+    [gameplay.get_hash_key("weapon_crowbar")] = {},
+    [gameplay.get_hash_key("weapon_flashlight")] = {},
+    [gameplay.get_hash_key("weapon_dagger")] = {},
+    [gameplay.get_hash_key("weapon_poolcue")] = {},
+    [gameplay.get_hash_key("weapon_bat")] = {},
+    [gameplay.get_hash_key("weapon_knife")] = {},
+    [gameplay.get_hash_key("weapon_battleaxe")] = {},
+    [gameplay.get_hash_key("weapon_machete")] = {},
+    [gameplay.get_hash_key("weapon_hatchet")] = {},
+    [gameplay.get_hash_key("weapon_bottle")] = {},
+    [gameplay.get_hash_key("weapon_autoshotgun")] = {},
+    [gameplay.get_hash_key("weapon_musket")] = {},
+    [gameplay.get_hash_key("weapon_dbshotgun")] = {},
+    [gameplay.get_hash_key("weapon_compactlauncher")] = {},
+    [gameplay.get_hash_key("weapon_minigun")] = {},
+    [gameplay.get_hash_key("weapon_hominglauncher")] = {},
+    [gameplay.get_hash_key("weapon_rpg")] = {},
+    [gameplay.get_hash_key("weapon_railgun")] = {},
+    [gameplay.get_hash_key("weapon_firework")] = {},
+    [gameplay.get_hash_key("weapon_stinger")] = {}, -- RPG 2
+    [gameplay.get_hash_key("weapon_rayminigun")] = {},
+    [gameplay.get_hash_key("weapon_fireextinguisher")] = {},
+    [gameplay.get_hash_key("weapon_snowball")] = {},
+    [gameplay.get_hash_key("weapon_ball")] = {},
+    [gameplay.get_hash_key("weapon_molotov")] = {},
+    [gameplay.get_hash_key("weapon_stickybomb")] = {},
+    [gameplay.get_hash_key("weapon_petrolcan")] = {},
+    [gameplay.get_hash_key("weapon_flare")] = {},
+    [gameplay.get_hash_key("weapon_grenade")] = {},
+    [gameplay.get_hash_key("weapon_bzgas")] = {},
+    [gameplay.get_hash_key("weapon_proxmine")] = {},
+    [gameplay.get_hash_key("weapon_pipebomb")] = {},
+    [gameplay.get_hash_key("weapon_hazardcan")] = {},
+    [gameplay.get_hash_key("weapon_smokegrenade")] = {},
+	[gameplay.get_hash_key("weapon_stungun_mp")] = {},
+	[gameplay.get_hash_key("weapon_heavyrifle")] = {
+		{"Default Clip", "COMPONENT_HEAVYRIFLE_CLIP_01", gameplay.get_hash_key("COMPONENT_HEAVYRIFLE_CLIP_01")},
+		{"Extended Clip", "COMPONENT_HEAVYRIFLE_CLIP_02", gameplay.get_hash_key("COMPONENT_HEAVYRIFLE_CLIP_02")},
+		{"Iron Sights Scope", "COMPONENT_HEAVYRIFLE_SIGHT_01", gameplay.get_hash_key("COMPONENT_HEAVYRIFLE_SIGHT_01")},
+		{"Scope", "COMPONENT_AT_SCOPE_MEDIUM", gameplay.get_hash_key("COMPONENT_AT_SCOPE_MEDIUM")},
+		{"Flashlight", "COMPONENT_AT_AR_FLSH", gameplay.get_hash_key("COMPONENT_AT_AR_FLSH")},
+		{"Suppressor Muzzle Brake", "COMPONENT_AT_AR_SUPP", gameplay.get_hash_key("COMPONENT_AT_AR_SUPP")},
+		{"Grip", "COMPONENT_AT_AR_AFGRIP", gameplay.get_hash_key("COMPONENT_AT_AR_AFGRIP")},
+		{"Digital Camo", "COMPONENT_HEAVYRIFLE_CAMO1", gameplay.get_hash_key("COMPONENT_HEAVYRIFLE_CAMO1")}
+	},
+	[gameplay.get_hash_key("weapon_emplauncher")] = {
+		{"COMPONENT_EMPLAUNCHER_CLIP_01", "COMPONENT_EMPLAUNCHER_CLIP_01", gameplay.get_hash_key("COMPONENT_EMPLAUNCHER_CLIP_01")}
+	},
+	[gameplay.get_hash_key("weapon_fertilizercan")] = {},
 	[gameplay.get_hash_key("weapon_knuckle")] = {
 		{"Base Model", "COMPONENT_KNUCKLE_VARMOD_BASE", 0xF3462F33},
 		{"The Pimp", "COMPONENT_KNUCKLE_VARMOD_PIMP", 0xC613F685},
@@ -643,175 +703,173 @@ local weapon_attachments <const> = {
 		{"Grip", "COMPONENT_AT_AR_AFGRIP", 0xC164F53},
 		{"Scope", "COMPONENT_AT_SCOPE_SMALL", 0xAA2C45B4}
 	}
-}
+})
 
--- Weapon types
-	local melee_weapons <const> = 
-		{
-			{"Pipe Wrench", 419712736},
-			{"Stone Hatchet", 940833800},
-			{"Golf Club", 1141786504},
-			{"Hammer", 1317494643},
-			{"Nightstick", 1737195953},
-			{"Crowbar", 2227010557},
-			{"Flashlight", 2343591895},
-			{"Antique Cavalry Dagger", 2460120199},
-			{"Pool Cue", 2484171525},
-			{"Baseball Bat", 2508868239},
-			{"Knife", 2578778090},
-			{"Battle Axe", 3441901897},
-			{"Knuckle Duster", 3638508604},
-			{"Machete", 3713923289},
-			{"Switchblade", 3756226112},
-			{"Hatchet", 4191993645},
-			{"Bottle", 4192643659}
-		}
+local melee_weapons <const> = essentials.const_all({
+	{"Pipe Wrench", 419712736},
+	{"Stone Hatchet", 940833800},
+	{"Golf Club", 1141786504},
+	{"Hammer", 1317494643},
+	{"Nightstick", 1737195953},
+	{"Crowbar", 2227010557},
+	{"Flashlight", 2343591895},
+	{"Antique Cavalry Dagger", 2460120199},
+	{"Pool Cue", 2484171525},
+	{"Baseball Bat", 2508868239},
+	{"Knife", 2578778090},
+	{"Battle Axe", 3441901897},
+	{"Knuckle Duster", 3638508604},
+	{"Machete", 3713923289},
+	{"Switchblade", 3756226112},
+	{"Hatchet", 4191993645},
+	{"Bottle", 4192643659}
+})
 
-	local heavy_weapons <const> = 
-		{
-			{"Minigun", 1119849093},
-			{"Homing Launcher", 1672152130},
-			{"Railgun", 1834241177},
-			{"Firework Launcher", 2138347493},
-			{"Grenade Launcher", 2726580491},
-			{"RPG", 2982836145},
-			{"Widowmaker", 3056410471}
-		}
+local heavy_weapons <const> = essentials.const_all({
+	{"Minigun", 1119849093},
+	{"Homing Launcher", 1672152130},
+	{"Railgun", 1834241177},
+	{"Firework Launcher", 2138347493},
+	{"Grenade Launcher", 2726580491},
+	{"RPG", 2982836145},
+	{"Widowmaker", 3056410471}
+})
 
-	local explosive_weapons <const> =
-		{
-			{"Homing Launcher", 1672152130},
-			{"Railgun", 1834241177},
-			{"Firework Launcher", 2138347493},
-			{"Grenade Launcher", 2726580491},
-			{"RPG", 2982836145},
-			{"Compact Grenade Launcher", 125959754}
-		}
+local explosive_weapons <const> = essentials.const_all({
+	{"Homing Launcher", 1672152130},
+	{"Railgun", 1834241177},
+	{"Firework Launcher", 2138347493},
+	{"Grenade Launcher", 2726580491},
+	{"RPG", 2982836145},
+	{"Compact Grenade Launcher", 125959754}
+})
 
-	local rifles <const> = 
-		{
-			{"Assault Rifle Mk II", 961495388},
-			{"Compact Rifle", 1649403952},
-			{"Bullpup Rifle", 2132975508},
-			{"Carbine Rifle", 2210333304},
-			{"Bullpup Rifle Mk II", 2228681469},
-			{"Special Carbine Mk II", 2526821735},
-			{"Advanced Rifle", 2937143193},
-			{"Assault Rifle", 3220176749},
-			{"Special Carbine", 3231910285},
-			{"Carbine Rifle Mk II", 4208062921},
-			{"Sniper Rifle", 100416529},
-			{"Heavy Sniper Mk II", 177293209},
-			{"Heavy Sniper", 205991906},
-			{"Marksman Rifle Mk II", 1785463520},
-			{"Marksman Rifle", 3342088282}	
-		}
+local rifles <const> = essentials.const_all({
+	{"Assault Rifle Mk II", 961495388},
+	{"Compact Rifle", 1649403952},
+	{"Bullpup Rifle", 2132975508},
+	{"Carbine Rifle", 2210333304},
+	{"Bullpup Rifle Mk II", 2228681469},
+	{"Special Carbine Mk II", 2526821735},
+	{"Advanced Rifle", 2937143193},
+	{"Assault Rifle", 3220176749},
+	{"Special Carbine", 3231910285},
+	{"Carbine Rifle Mk II", 4208062921},
+	{"Sniper Rifle", 100416529},
+	{"Heavy Sniper Mk II", 177293209},
+	{"Heavy Sniper", 205991906},
+	{"Marksman Rifle Mk II", 1785463520},
+	{"Marksman Rifle", 3342088282}	
+})
 
-	local SMGs <const> =
-		{
-			{"Combat PDW", 171789620},
-			{"Micro SMG", 324215364},
-			{"SMG", 736523883},
-			{"Unholy Hellbringer", 1198256469},
-			{"Gusenberg Sweeper", 1627465347},
-			{"SMG Mk II", 2024373456},
-			{"Combat MG", 2144741730},
-			{"MG", 2634544996},
-			{"Mini SMG", 3173288789},
-			{"Machine Pistol", 3675956304},
-			{"Combat MG Mk II", 3686625920},
-			{"Assault SMG", 4024951519}
-		}
+local SMGs <const> = essentials.const_all({
+	{"Combat PDW", 171789620},
+	{"Micro SMG", 324215364},
+	{"SMG", 736523883},
+	{"Unholy Hellbringer", 1198256469},
+	{"Gusenberg Sweeper", 1627465347},
+	{"SMG Mk II", 2024373456},
+	{"Combat MG", 2144741730},
+	{"MG", 2634544996},
+	{"Mini SMG", 3173288789},
+	{"Machine Pistol", 3675956304},
+	{"Combat MG Mk II", 3686625920},
+	{"Assault SMG", 4024951519}
+})
 
-	local pistols <const> =
-		{
-			{"Vintage Pistol", 137902532},
-			{"Pistol", 453432689},
-			{"AP Pistol", 584646201},
-			{"Ceramic Pistol", 727643628},
-			{"Stun Gun", 911657153},
-			{"Flare Gun", 1198879012},
-			{"Combat Pistol", 1593441988},
-			{"SNS Pistol Mk II", 2285322324},
-			{"Navy Revolver", 2441047180},
-			{"Double-Action Revolver", 2548703416},
-			{"Pistol .50", 2578377531},
-			{"Up-n-Atomizer", 2939590305},
-			{"SNS Pistol", 3218215474},
-			{"Pistol Mk II", 3219281620},
-			{"Heavy Revolver", 3249783761},
-			{"Heavy Revolver Mk II", 3415619887},
-			{"Heavy Pistol", 3523564046},
-			{"Marksman Pistol", 3696079510}		
-		}
+local pistols <const> = essentials.const_all({
+	{"Vintage Pistol", 137902532},
+	{"Pistol", 453432689},
+	{"AP Pistol", 584646201},
+	{"Ceramic Pistol", 727643628},
+	{"Stun Gun", 911657153},
+	{"Flare Gun", 1198879012},
+	{"Combat Pistol", 1593441988},
+	{"SNS Pistol Mk II", 2285322324},
+	{"Navy Revolver", 2441047180},
+	{"Double-Action Revolver", 2548703416},
+	{"Pistol .50", 2578377531},
+	{"Up-n-Atomizer", 2939590305},
+	{"SNS Pistol", 3218215474},
+	{"Pistol Mk II", 3219281620},
+	{"Heavy Revolver", 3249783761},
+	{"Heavy Revolver Mk II", 3415619887},
+	{"Heavy Pistol", 3523564046},
+	{"Marksman Pistol", 3696079510}		
+})
 
-	local throwables <const> = 
-		{
-			{"Snowball", 126349499},
-			{"Ball", 600439132},
-			{"Molotov", 615608432},
-			{"Sticky Bomb", 741814745},
-			{"Jerry Can", 883325847},
-			{"Flare", 1233104067},
-			{"Grenade", 2481070269},
-			{"BZ Gas", 2694266206},
-			{"Proximity Mine", 2874559379},
-			{"Pipe Bomb", 3125143736},
-			{"Hazardous Jerry Can", 3126027122},
-			{"Tear Gas", 4256991824}		
-		}
+local throwables <const> = essentials.const_all({
+	{"Snowball", 126349499},
+	{"Ball", 600439132},
+	{"Molotov", 615608432},
+	{"Sticky Bomb", 741814745},
+	{"Jerry Can", 883325847},
+	{"Flare", 1233104067},
+	{"Grenade", 2481070269},
+	{"BZ Gas", 2694266206},
+	{"Proximity Mine", 2874559379},
+	{"Pipe Bomb", 3125143736},
+	{"Hazardous Jerry Can", 3126027122},
+	{"Tear Gas", 4256991824}		
+})
 
-	local shotguns <const> = 
-		{
-			{"Sweeper Shotgun", 317205821},
-			{"Pump Shotgun", 487013001},
-			{"Heavy Shotgun", 984333226},
-			{"Pump Shotgun Mk II", 1432025498},
-			{"Sawed-Off Shotgun", 2017895192},
-			{"Bullpup Shotgun", 2640438543},
-			{"Musket", 2828843422},
-			{"Assault Shotgun", 3800352039},
-			{"Double Barrel Shotgun", 4019527611}			
-		}
+local shotguns <const> = essentials.const_all({
+	{"Sweeper Shotgun", 317205821},
+	{"Pump Shotgun", 487013001},
+	{"Heavy Shotgun", 984333226},
+	{"Pump Shotgun Mk II", 1432025498},
+	{"Sawed-Off Shotgun", 2017895192},
+	{"Bullpup Shotgun", 2640438543},
+	{"Musket", 2828843422},
+	{"Assault Shotgun", 3800352039},
+	{"Double Barrel Shotgun", 4019527611}			
+})
 
-	local misc <const> = 
-		{
-			{"Fire Extinguisher", 101631238}
-		}
+local misc <const> = essentials.const_all({
+	{"Fire Extinguisher", 101631238}
+})
 
-	local all_weapons <const> = 
-		{
-			melee_weapons,
-			heavy_weapons,
-			rifles,
-			SMGs,
-			pistols,
-			throwables,
-			shotguns,
-			misc,
-			explosive_weapons
-		}
+local all_weapons <const> = essentials.const_all({
+	melee_weapons,
+	heavy_weapons,
+	rifles,
+	SMGs,
+	pistols,
+	throwables,
+	shotguns,
+	misc,
+	explosive_weapons
+})
 
-local attachment_types <const> = 
-	{
-		{"scope", 1},
-		{"clip", 1},
-		{"grip", 1},
-		{"flashlight", 1},
-		{"rounds", 1},
-		{"barrel", 1},
-		{"muzzle brake", 1},
-		{"magazine", 1}
-	}
+local attachment_types <const> = essentials.const_all({
+	{"scope", 1},
+	{"clip", 1},
+	{"grip", 1},
+	{"flashlight", 1},
+	{"rounds", 1},
+	{"barrel", 1},
+	{"muzzle brake", 1},
+	{"magazine", 1}
+})
 
 local function get_hashes(...)
 	local table_of_weapons <const> = ...
-	local hashes = {}
+	local hashes <const> = {}
 	for i = 1, #table_of_weapons do
 		hashes[i] = table_of_weapons[i][2]
 	end
 	return hashes
 end
+
+weapon_mapper.melee_hashes = get_hashes(melee_weapons)
+weapon_mapper.rifle_hashes = get_hashes(rifles)
+weapon_mapper.smg_hashes = get_hashes(SMGs)
+weapon_mapper.explosive_hashes = get_hashes(explosive_weapons)
+weapon_mapper.shotgun_hashes = get_hashes(shotguns)
+weapon_mapper.misc_weapon_hashes = get_hashes(misc)
+weapon_mapper.throwables_hashes = get_hashes(throwables)
+weapon_mapper.pistol_hashes = get_hashes(pistols)
+weapon_mapper.heavy_weapon_hashes = get_hashes(heavy_weapons)
 
 function weapon_mapper.get_table_of_melee_weapons()
 	return get_hashes(melee_weapons)
@@ -850,62 +908,50 @@ function weapon_mapper.get_table_of_heavy_weapons()
 end
 
 function weapon_mapper.get_table_of_weapons(...)
-	local rif <const>,
-	smg <const>,
-	sg <const>,
-	pis <const>,
-	xpl <const>,
-	throw <const>,
-	hev <const>,
-	mel <const>,
-	Misc <const> = ...
-	local Table = {}
-	if rif then
-		table.move(get_hashes(rifles), 1, #get_hashes(rifles), 1, Table)
+	local properties <const> = ...
+	local Table <const> = {}
+	if properties.rifles then
+		table.move(weapon_mapper.rifle_hashes, 1, #weapon_mapper.rifle_hashes, 1, Table)
 	end
-	if smg then
-		table.move(get_hashes(SMGs), 1, #get_hashes(SMGs), 1, Table)
+	if properties.smgs then
+		table.move(weapon_mapper.smg_hashes, 1, #weapon_mapper.smg_hashes, 1, Table)
 	end
-	if sg then
-		table.move(get_hashes(shotguns), 1, #get_hashes(shotguns), 1, Table)
+	if properties.shotguns then
+		table.move(weapon_mapper.shotgun_hashes, 1, #weapon_mapper.shotgun_hashes, 1, Table)
 	end
-	if pis then
-		table.move(get_hashes(pistols), 1, #get_hashes(pistols), 1, Table)
+	if properties.pistols then
+		table.move(weapon_mapper.pistol_hashes, 1, #weapon_mapper.pistol_hashes, 1, Table)
 	end
-	if xpl then
-		table.move(get_hashes(explosive_weapons), 1, #get_hashes(explosive_weapons), 1, Table)
+	if properties.explosives_heavy then
+		table.move(weapon_mapper.explosive_hashes, 1, #weapon_mapper.explosive_hashes, 1, Table)
 	end
-	if hev then
-		table.move(get_hashes(heavy_weapons), 1, #get_hashes(heavy_weapons), 1, Table)
+	if properties.heavy then
+		table.move(weapon_mapper.heavy_weapon_hashes, 1, #weapon_mapper.heavy_weapon_hashes, 1, Table)
 	end
-	if throw then
-		table.move(get_hashes(throwables), 1, #get_hashes(throwables), 1, Table)
+	if properties.throwables then
+		table.move(weapon_mapper.throwables_hashes, 1, #weapon_mapper.throwables_hashes, 1, Table)
 	end
-	if mel then
-		table.move(get_hashes(melee_weapons), 1, #get_hashes(melee_weapons), 1, Table)
+	if properties.melee then
+		table.move(weapon_mapper.melee_hashes, 1, #weapon_mapper.melee_hashes, 1, Table)
 	end
-	if Misc then
-		table.move(get_hashes(misc), 1, #get_hashes(misc), 1, Table)
+	if properties.misc then
+		table.move(weapon_mapper.misc_weapon_hashes, 1, #weapon_mapper.misc_weapon_hashes, 1, Table)
 	end
 	return Table
 end
 
 function weapon_mapper.get_all_attachment_info_for_weapon(...)
 	local weapon_hash <const> = ...
-	if weapon_attachments[weapon_hash] then
-		return weapon_attachments[weapon_hash]
-	else
-		return {}
-	end
+	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.")
+	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash: "..weapon_hash)
+	return weapon_attachments[weapon_hash]
 end
 
 function weapon_mapper.get_weapon_attachment_details(...)
 	local weapon_hash <const> = ...
-	if weapon_attachments[weapon_hash] then
-		return weapon_attachments[weapon_hash]
-	else
-		return {}
-	end
+	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.")
+	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash: "..weapon_hash)
+	return weapon_attachments[weapon_hash]
 end
 
 function weapon_mapper.get_all_weapon_attachment_details()
@@ -914,46 +960,44 @@ end
 
 function weapon_mapper.get_maxed_attachments_for_weapon(...)
 	local weapon_hash <const> = ...
-	if weapon_attachments[weapon_hash] then
-		local attachments = {}
-		for i, attachment in pairs(weapon_attachments[weapon_hash]) do
-			for p, attachment_type in pairs(attachment_types) do
-				if attachment[attachment_type[2]]:lower():find(attachment_type[1], 1, true) then
-					attachments[i] = attachment[3]
-				end
+	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.")
+	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash: "..weapon_hash)
+	local attachments <const> = {}
+	for i, attachment in pairs(weapon_attachments[weapon_hash]) do
+		for _, attachment_type in pairs(attachment_types) do
+			if attachment[attachment_type[2]]:lower():find(attachment_type[1], 1, true) then
+				attachments[#attachments + 1] = attachment[3]
 			end
 		end
-		return attachments
-	else
-		return {}
 	end
+	return attachments
 end
 
 function weapon_mapper.get_random_attachments_for_weapon(...)
 	local weapon_hash <const> = ...
-	if weapon_attachments[weapon_hash] then
-		local attachments = {}
-		for i, attachment_type in pairs(attachment_types) do
-			local temp = {}
-			for i, attachment in pairs(weapon_attachments[weapon_hash]) do
-				if attachment[attachment_type[2]]:lower():find(attachment_type[1], 1, true) then
-					temp[#temp + 1] = attachment[3]
-				end
-			end
-			if #temp > 0 then
-				attachments[i] = temp[math.random(1, #temp)]
+	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.")
+	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash: "..weapon_hash)
+	local attachments <const> = {}
+	for _, attachment_type in pairs(attachment_types) do
+		local temp <const> = {}
+		for _, attachment in pairs(weapon_attachments[weapon_hash]) do
+			if attachment[attachment_type[2]]:lower():find(attachment_type[1], 1, true) then
+				temp[#temp + 1] = attachment[3]
 			end
 		end
-		return attachments
-	else
-		return {}
+		if #temp > 0 then
+			attachments[#attachments + 1] = temp[math.random(1, #temp)]
+		end
 	end
+	return attachments
 end
 
 function weapon_mapper.set_ped_weapon_attachments(...)
 	local Ped <const>,
 	random_attachments <const>,
 	weapon_hash <const> = ...
+	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.")
+	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash: "..weapon_hash)
 	weapon.set_ped_weapon_tint_index(Ped, weapon_hash, math.random(1, math.max(weapon.get_weapon_tint_count(weapon_hash), 1)))
 	local attachments
 	if random_attachments then
@@ -961,11 +1005,11 @@ function weapon_mapper.set_ped_weapon_attachments(...)
 	else
 		attachments = weapon_mapper.get_maxed_attachments_for_weapon(weapon_hash)
 	end
-	for i, component in pairs(attachments) do
-		weapon.give_weapon_component_to_ped(Ped, weapon_hash, component)
+	for i = 1, #attachments do
+		weapon.give_weapon_component_to_ped(Ped, weapon_hash, attachments[i])
 	end
 	local void <const>, ammo <const> = weapon.get_max_ammo(Ped, weapon_hash)
 	weapon.set_ped_ammo(Ped, weapon_hash, ammo)
 end
 
-return weapon_mapper
+return essentials.const_all(weapon_mapper)

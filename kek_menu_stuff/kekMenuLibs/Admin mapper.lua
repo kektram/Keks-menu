@@ -1,11 +1,10 @@
 -- Copyright © 2020-2021 Kektram
 
-kek_menu.lib_versions["Admin mapper"] = "1.0.2"
+local admin_mapper <const> = {version = "1.0.3"}
+local essentials <const> = require("Essentials")
+local enums <const> = require("Enums")
 
-local admin_mapper = {}
-local essentials = kek_menu.require("Essentials")
-
-local admins <const> = {
+local admins <const> = essentials.const_all({
 	["Spacer-galore"] = {67241866, "GTAOnline", "Cheatermonitoring+Gamebugtesting"},
 	["RollD20"] = {89288299, "GTAOnline", "Cheatermonitoring+Gamebugtesting"},
 	["SecretWizzle54"] = {88439202, "GTAOnline", "Cheatermonitoring+Gamebugtesting"},
@@ -152,9 +151,9 @@ local admins <const> = {
 	["MaxPayne3Dev9"] = {22577121, "MaxPayne3", "Coregamedev"},
 	["GTAdev4"] = {16395782, "GTA5", "Coregamedev"},
 	["GTAdev3"] = {20158757, "GTA5", "Coregamedev"}
-}
+})
 
-local admin_ips <const> = {
+local admin_ips <const> = essentials.const_all({
 	["NY"] = {"104.255.104.0", "104.255.104.254"},
 	["NY 2"] = {"104.255.107.0", "104.255.107.254"},
 	["NY 3"] = {"192.81.240.0", "192.81.240.254"},
@@ -166,13 +165,13 @@ local admin_ips <const> = {
 	["RSGNWE - Massachusetts"] = {"139.138.231.64", "139.138.231.79"},
 	["RSGTOR - Toronto"] = {"139.138.232.0", "139.138.232.15"},
 	["California"] = {"192.81.244.0", "192.81.244.254"}
-}
+})
 
 function admin_mapper.is_ip_admin(...)
 	local ip <const> = ...
 	local IP <const> = ip:match("(.+%..+%..+)%.%d+")
 	local range <const> = math.tointeger(ip:match(".+%..+%..+%.(%d+)"))
-	for name, ip in pairs(admin_ips) do
+	for _, ip in pairs(admin_ips) do
 		local base_ip <const> = ip[1]:match("(.+%..+%..+)%.%d+")
 		local start_range <const> = math.tointeger(ip[1]:match(".+%..+%..+%.(%d+)"))
 		local end_range <const> = math.tointeger(ip[2]:match(".+%..+%..+%.(%d+)"))
@@ -184,7 +183,7 @@ end
 
 function admin_mapper.is_scid_admin(...)
 	local scid <const> = ...
-	for name, rid in pairs(admins) do
+	for _, rid in pairs(admins) do
 		if rid[1] == scid then
 			return rid[1] 
 		end
@@ -193,7 +192,7 @@ end
 
 function admin_mapper.is_name_admin(...)
 	local Name <const> = ...
-	for name, rid in pairs(admins) do
+	for name, _ in pairs(admins) do
 		if Name == name then
 			return name 
 		end
@@ -220,10 +219,10 @@ end
 
 function admin_mapper.is_there_admin_in_session()
 	for pid in essentials.players() do
-		if admin_mapper.is_admin(player.get_player_name(pid), player.get_player_scid(pid), essentials.get_ip_in_ipv4(pid)) then
+		if admin_mapper.is_admin(player.get_player_name(pid), player.get_player_scid(pid), essentials.dec_to_ipv4(player.get_player_ip(pid))) then
 			return true
 		end
 	end
 end
 
-return admin_mapper
+return essentials.const_all(admin_mapper)
