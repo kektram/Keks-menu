@@ -628,3 +628,16 @@ Save settings and reset lua state to load in debug mode. §现在去保存脚本
 All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §所有脚本都会运行得更慢,并且可能会出现掉帧.会出现更多的错误,特别是当你一起运行其他脚本的时候.
 Only use this mode if you intend to find bugs. §只有在你想找BUG的时候才使用此模式.
 Failed to find reference coordinates. §查找参考坐标失败
+The player must be an associate of an organization to use this. They can't be the ceo. §该玩家必须是你的组织成员才能对他使用.他不能是CEO.
+The loop doesn't work on yourself. §该循环不能对你自己使用.
+This feature requires trusted mode to be toggled on. §此功能需要先打开信任模式.
+Perma BST §永久牛鲨睾酮
+Eclipse §日蚀
+Reset orbital cannon cooldown §重置天基炮冷却时间
+Reset Kosatka missile cooldown §重置虎鲸导弹冷却时间
+Also known as §也被称为
+Check rid in also known as §检查rid也被称为
+Check name in also known as §检查名称也被称为
+Check ip in also known as §检查ip也被称为
+What is known for §已知的内容有
+This player already have a bounty set on them. §该玩家已被设置了赏金.
