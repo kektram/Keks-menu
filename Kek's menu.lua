@@ -240,7 +240,10 @@ for _, file_name in pairs({
 	"kekMenuLogs\\Blacklist.log", 
 	"kekMenuData\\Kek's chat bot.txt", 
 	"kekMenuData\\Spam text.txt", 
-	"kekMenuLogs\\All players.log"
+	"kekMenuLogs\\All players.log",
+	"kekMenuData\\Clever bot.ini",
+	"kekMenuLogs\\Chat log.log",
+	"kekMenuLogs\\kek_menu_log.log"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff..file_name) then
 		essentials.create_empty_file(paths.kek_menu_stuff..file_name)
