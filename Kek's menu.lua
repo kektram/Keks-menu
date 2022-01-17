@@ -2274,6 +2274,11 @@ do
 			if status == 2 then
 				return
 			end
+			if input == "" then
+				essentials.msg(lang["Cancelled."], "blue", true)
+				return
+			end
+
 			local pattern_input <const> = essentials.make_string_case_insensitive(essentials.remove_special(input))
 			local file <close> = io.open(paths.player_history_all_players)
 			local results, str
