@@ -2265,7 +2265,7 @@ do
 			if start then
 				results = start
 			end
-		until not start or f.value == 1
+		until not start or f.value == 1 or pattern_input == ""
 		return results, str
 	end
 	menu.add_feature(lang["Player history"], "action_value_str", u.player_history.id, function(f)
