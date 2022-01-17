@@ -1032,7 +1032,7 @@ function essentials.log(...)
 	local file <close> = io.open(file_path, "r+")
 	file:seek("end", -1)
 	local last_char <const> = file:read("*L") -- *L keeps the newline char, unlike *l.
-	if last_char ~= "\n" then
+	if last_char ~= "\n" and file:seek("end") ~= 0 then
 		file:write("\n")
 	end
 	file:write(text_to_log)

@@ -2409,13 +2409,13 @@ do
 					end
 					if not player_history.players_added_to_history[name] then
 						essentials.log(file_path, info_to_log)
+						essentials.log(paths.player_history_all_players, info_to_log)
 						local name_of_feat <const> = string.format("%s [%s]", name, os.date("%X"))
 						menu.add_feature(name_of_feat, "parent", player_history.hour_parents[file_path].id, function(f)
 							if f.child_count == 0 then
 								player_history.add_features(f, rid, ip, name)
 							end
 						end)
-						essentials.log(paths.player_history_all_players, info_to_log)
 						player_history.players_added_to_history[name] = true
 					end
 				end
