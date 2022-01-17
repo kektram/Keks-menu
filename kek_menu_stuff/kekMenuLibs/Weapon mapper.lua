@@ -741,10 +741,12 @@ local explosive_weapons <const> = essentials.const_all({
 	{"Firework Launcher", 2138347493},
 	{"Grenade Launcher", 2726580491},
 	{"RPG", 2982836145},
-	{"Compact Grenade Launcher", 125959754}
+	{"Compact Grenade Launcher", 125959754},
+	{"Emp Launcher", gameplay.get_hash_key("weapon_emplauncher")}
 })
 
 local rifles <const> = essentials.const_all({
+	{"Heavy rifle", gameplay.get_hash_key("weapon_heavyrifle")},
 	{"Assault Rifle Mk II", 961495388},
 	{"Compact Rifle", 1649403952},
 	{"Bullpup Rifle", 2132975508},
@@ -778,6 +780,7 @@ local SMGs <const> = essentials.const_all({
 })
 
 local pistols <const> = essentials.const_all({
+	{"Stun gun 2", gameplay.get_hash_key("weapon_stungun_mp")},
 	{"Vintage Pistol", 137902532},
 	{"Pistol", 453432689},
 	{"AP Pistol", 584646201},
@@ -810,7 +813,8 @@ local throwables <const> = essentials.const_all({
 	{"Proximity Mine", 2874559379},
 	{"Pipe Bomb", 3125143736},
 	{"Hazardous Jerry Can", 3126027122},
-	{"Tear Gas", 4256991824}		
+	{"Tear Gas", 4256991824},
+	{"Fertilizer Can", gameplay.get_hash_key("weapon_fertilizercan")}
 })
 
 local shotguns <const> = essentials.const_all({
@@ -911,46 +915,56 @@ function weapon_mapper.get_table_of_weapons(...)
 	local properties <const> = ...
 	local Table <const> = {}
 	if properties.rifles then
-		table.move(weapon_mapper.rifle_hashes, 1, #weapon_mapper.rifle_hashes, 1, Table)
+		table.move(weapon_mapper.rifle_hashes, 1, #weapon_mapper.rifle_hashes, #Table + 1, Table)
 	end
+	properties.rifles = nil
 	if properties.smgs then
-		table.move(weapon_mapper.smg_hashes, 1, #weapon_mapper.smg_hashes, 1, Table)
+		table.move(weapon_mapper.smg_hashes, 1, #weapon_mapper.smg_hashes, #Table + 1, Table)
 	end
+	properties.smgs = nil
 	if properties.shotguns then
-		table.move(weapon_mapper.shotgun_hashes, 1, #weapon_mapper.shotgun_hashes, 1, Table)
+		table.move(weapon_mapper.shotgun_hashes, 1, #weapon_mapper.shotgun_hashes, #Table + 1, Table)
 	end
+	properties.shotguns = nil
 	if properties.pistols then
-		table.move(weapon_mapper.pistol_hashes, 1, #weapon_mapper.pistol_hashes, 1, Table)
+		table.move(weapon_mapper.pistol_hashes, 1, #weapon_mapper.pistol_hashes, #Table + 1, Table)
 	end
+	properties.pistols = nil
 	if properties.explosives_heavy then
-		table.move(weapon_mapper.explosive_hashes, 1, #weapon_mapper.explosive_hashes, 1, Table)
+		table.move(weapon_mapper.explosive_hashes, 1, #weapon_mapper.explosive_hashes, #Table + 1, Table)
 	end
+	properties.explosives_heavy = nil
 	if properties.heavy then
-		table.move(weapon_mapper.heavy_weapon_hashes, 1, #weapon_mapper.heavy_weapon_hashes, 1, Table)
+		table.move(weapon_mapper.heavy_weapon_hashes, 1, #weapon_mapper.heavy_weapon_hashes, #Table + 1, Table)
 	end
+	properties.heavy = nil
 	if properties.throwables then
-		table.move(weapon_mapper.throwables_hashes, 1, #weapon_mapper.throwables_hashes, 1, Table)
+		table.move(weapon_mapper.throwables_hashes, 1, #weapon_mapper.throwables_hashes, #Table + 1, Table)
 	end
+	properties.throwables = nil
 	if properties.melee then
-		table.move(weapon_mapper.melee_hashes, 1, #weapon_mapper.melee_hashes, 1, Table)
+		table.move(weapon_mapper.melee_hashes, 1, #weapon_mapper.melee_hashes, #Table + 1, Table)
 	end
+	properties.melee = nil
 	if properties.misc then
-		table.move(weapon_mapper.misc_weapon_hashes, 1, #weapon_mapper.misc_weapon_hashes, 1, Table)
+		table.move(weapon_mapper.misc_weapon_hashes, 1, #weapon_mapper.misc_weapon_hashes, #Table + 1, Table)
 	end
+	properties.misc = nil
+	essentials.assert(not next(properties), "Invalid weapon type.")
 	return Table
 end
 
 function weapon_mapper.get_all_attachment_info_for_weapon(...)
 	local weapon_hash <const> = ...
-	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.")
-	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash: "..weapon_hash)
+	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.", weapon_hash)
+	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash:", weapon_hash)
 	return weapon_attachments[weapon_hash]
 end
 
 function weapon_mapper.get_weapon_attachment_details(...)
 	local weapon_hash <const> = ...
-	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.")
-	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash: "..weapon_hash)
+	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.", weapon_hash)
+	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash:", weapon_hash)
 	return weapon_attachments[weapon_hash]
 end
 
@@ -960,8 +974,8 @@ end
 
 function weapon_mapper.get_maxed_attachments_for_weapon(...)
 	local weapon_hash <const> = ...
-	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.")
-	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash: "..weapon_hash)
+	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.", weapon_hash)
+	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash:", weapon_hash)
 	local attachments <const> = {}
 	for i, attachment in pairs(weapon_attachments[weapon_hash]) do
 		for _, attachment_type in pairs(attachment_types) do
@@ -975,8 +989,8 @@ end
 
 function weapon_mapper.get_random_attachments_for_weapon(...)
 	local weapon_hash <const> = ...
-	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.")
-	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash: "..weapon_hash)
+	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.", weapon_hash)
+	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash:", weapon_hash)
 	local attachments <const> = {}
 	for _, attachment_type in pairs(attachment_types) do
 		local temp <const> = {}
@@ -996,8 +1010,8 @@ function weapon_mapper.set_ped_weapon_attachments(...)
 	local Ped <const>,
 	random_attachments <const>,
 	weapon_hash <const> = ...
-	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.")
-	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash: "..weapon_hash)
+	essentials.assert(streaming.is_model_valid(weapon.get_weapon_model(weapon_hash)), "Tried to get attachments for an invalid weapon hash.", weapon_hash)
+	essentials.assert(weapon_attachments[weapon_hash], "Failed to find information about a valid, weapon hash:", weapon_hash)
 	weapon.set_ped_weapon_tint_index(Ped, weapon_hash, math.random(1, math.max(weapon.get_weapon_tint_count(weapon_hash), 1)))
 	local attachments
 	if random_attachments then

@@ -17586,96 +17586,19 @@ local model_names <const> = essentials.const({
 	[4294965338] = "ex_prop_crate_closed_rw"
 })
 
-object_mapper.BLACKLISTED_OBJECTS = essentials.const({ -- These can crash yours or other's game
-	[17258065] = "proc_meadowmix_01",
-	[213036232] = "proc_grassplantmix_02",
-	[386259036] = "h4_prop_bush_mang_ad",
-	[450174759] = "h4_prop_bush_seagrape_low_01",
-	[618696223] = "prop_saplin_002_b",
-	[849975660] = "proc_leafyplant_01",
-	[863710036] = "prop_saplin_002_c",
-	[875648136] = "proc_sml_reeds_01b",
-	[987584502] = "prop_grass_dry_02",
-	[1173321732] = "proc_sml_reeds_01c",
-	[1221915621] = "prop_grass_dry_03",
-	[1481697203] = "prop_grass_ca",
-	[1567950121] = "h4_prop_grass_med_01",
-	[1734157390] = "h4_prop_bush_ear_aa",
-	[1759812941] = "h4_prop_bush_fern_low_01",
-	[1775565172] = "proc_lizardtail_01",
-	[1781006001] = "proc_drygrassfronds01",
-	[1793920587] = "prop_grass_da",
-	[1936183844] = "prop_small_bushyba",
-	[1982224326] = "urbandrygrass_01",
-	[2015249693] = "proc_drygrasses01",
-	[2040219850] = "h4_prop_bush_ear_ab",
-	[2041844081] = "proc_dry_plants_01",
-	[-2114240528] = "proc_desert_sage_01",
-	[-1884146780] = "prop_saplin_001_c",
-	[-1511795599] = "proc_drygrasses01b",
-	[-1231365640] = "h4_prop_weed_groundcover_01",
-	[-1065905452] = "proc_grasses01b",
-	[-1026778664] = "prop_saplin_001_b",
-	[-1025025503] = "proc_lupins_01",
-	[-1010825119] = "proc_grassdandelion01",
-	[-993438434] = "h4_prop_bush_mang_low_ab",
-	[-990984874] = "h4_prop_grass_tropical_lush_01",
-	[-964059938] = "proc_indian_pbrush_01",
-	[-889446717] = "proc_stones_02",
-	[-818431457] = "h4_prop_grass_wiregrass_01",
-	[-814048611] = "proc_sml_reeds_01",
-	[-783590493] = "proc_leafybush_01",
-	[-681705050] = "h4_prop_bush_buddleia_low_01",
-	[-646857810] = "proc_stones_03",
-	[-638302388] = "proc_grassplantmix_01",
-	[-568850501] = "h4_prop_bush_mang_low_aa",
-	[-508643576] = "proc_meadowpoppy_01",
-	[-440885967] = "prop_grass_001_a",
-	[-429997852] = "proc_forest_ivy_01",
-	[-412821612] = "proc_stones_04",
-	[2180726768] = "proc_desert_sage_01", -- In case unsigned versions are tried
-	[2410820516] = "prop_saplin_001_c",
-	[2783171697] = "proc_drygrasses01b",
-	[3063601656] = "h4_prop_weed_groundcover_01",
-	[3229061844] = "proc_grasses01b",
-	[3268188632] = "prop_saplin_001_b",
-	[3269941793] = "proc_lupins_01",
-	[3284142177] = "proc_grassdandelion01",
-	[3301528862] = "h4_prop_bush_mang_low_ab",
-	[3303982422] = "h4_prop_grass_tropical_lush_01",
-	[3330907358] = "proc_indian_pbrush_01",
-	[3405520579] = "proc_stones_02",
-	[3476535839] = "h4_prop_grass_wiregrass_01",
-	[3480918685] = "proc_sml_reeds_01",
-	[3511376803] = "proc_leafybush_01",
-	[3613262246] = "h4_prop_bush_buddleia_low_01",
-	[3648109486] = "proc_stones_03",
-	[3656664908] = "proc_grassplantmix_01",
-	[3726116795] = "h4_prop_bush_mang_low_aa",
-	[3786323720] = "proc_meadowpoppy_01",
-	[3854081329] = "prop_grass_001_a",
-	[3864969444] = "proc_forest_ivy_01",
-	[3882145684] = "proc_stones_04"
-}) -- Creds to Sainan for this list.
-
 object_mapper.OBJECT_HASHES = {}
 
 for hash, _ in pairs(model_names) do
-	--[[
-		essentials.assert(streaming.is_model_an_object(hash), "Invalid hash in model_names table: "..tostring(hash))
-		Sometimes model hashes are valid, sometimes not. Tried is_model_in_cdimage, is_model_an_object and is_model_valid. 
-		All return false despite returning true previously.
-	--]]
 	object_mapper.OBJECT_HASHES[#object_mapper.OBJECT_HASHES + 1] = hash
 end
 
 function object_mapper.GetModelFromHash(hash)
-	essentials.assert(streaming.is_model_in_cdimage(hash), "Expected a valid object hash: "..tostring(hash)) -- streaming.is_model_an_object and streaming.is_model_a_world_object fails to recognize all objects
+	essentials.assert(streaming.is_model_valid(hash), "Expected a valid object hash:", hash) -- streaming.is_model_an_object and streaming.is_model_a_world_object fails to recognize all objects
 	return model_names[hash] or "unknown_object_name" -- All object names haven't been discovered yet
 end
 
 function object_mapper.GetHashFromModel(model)
-	essentials.assert(streaming.is_model_in_cdimage(gameplay.get_hash_key(model)), "Expected a valid object model name: "..tostring(model))
+	essentials.assert(streaming.is_model_valid(gameplay.get_hash_key(model)), "Expected a valid object model name:", model)
 	return gameplay.get_hash_key(model)
 end
 
@@ -17683,7 +17606,7 @@ function object_mapper.get_random_object()
 	local hash
 	repeat
 		hash = object_mapper.OBJECT_HASHES[math.random(1, #object_mapper.OBJECT_HASHES)]
-	until streaming.is_model_in_cdimage(hash) -- It's seemingly impossible for the entire list of hashes to be valid at all times.
+	until streaming.is_model_valid(hash) -- It's seemingly impossible for the entire list of hashes to be valid at all times.
 	return hash
 end
 
@@ -17693,11 +17616,11 @@ function object_mapper.get_hash_from_user_input(...)
 		return object_mapper.get_random_object()
 	end
 	user_input = user_input:lower()
-	if streaming.is_model_in_cdimage(gameplay.get_hash_key(user_input)) then
+	if streaming.is_model_valid(gameplay.get_hash_key(user_input)) then
 		return gameplay.get_hash_key(user_input)
 	end
 	for hash, Model in pairs(model_names) do
-		if Model:find(user_input, 1, true) then
+		if Model:find(user_input, 1, true) and streaming.is_model_valid(hash) then
 			return hash
 		end
 	end

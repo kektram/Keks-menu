@@ -5,10 +5,8 @@ local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
 local language <const> = require("Language")
 
-local paths <const> = {
-	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\",
-	kek_menu_stuff = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\scripts\\kek_menu_stuff\\"
-}
+local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
+paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
 
 local hash_to_model_or_name <const> = essentials.const_all({
 	[736672010] = {"dominator8", "Vapid Dominator GTT"},
@@ -751,7 +749,7 @@ local hash_to_model_or_name <const> = essentials.const_all({
 	[447548909] = {"volatol", "Volatol"},
 	[2194326579] = {"tug", "Buckingham Tug"},
 	[3929093893] = {"alkonost", "RO-86 Alkonost"},
-	[1336872304] = {"kosatka", "Rune Kosatka (Submarine HQ)"},
+	[1336872304] = {"kosatka", "Rune Kosatka"},
     [2767531027] = {"cinquemila", "Lampadati Cinquemila"},
     [1532171089] = {"deity", "Enus Deity"},
     [629969764] = {"astron", "Pfister Astron"},
@@ -777,7 +775,7 @@ do
 		local language <const> = require("Languages\\Vehicle names\\"..file:gsub("%.lua", ""))
 		for hash, model in pairs(hash_to_model_or_name) do
 			if not language[hash] then
-				print("Missing info in vehicle translation: File = ["..file.."] Name of missing vehicle = ["..model[2].."]")
+				print(string.format("Missing info in vehicle translation: File = [%s] Name of missing vehicle = [%s]", file, model[2]))
 				is_missing = true
 			end
 		end
@@ -785,11 +783,14 @@ do
 	essentials.assert(not is_missing, "Failed to load script. Is missing one or more entry in vehicle name translation files. Check console for missing names.")
 end
 
+local INVALID_HASH_ERR <const> = "Expected a valid vehicle hash:"
+local MISSING_INFO_ERR <const> = "Missing information about a valid, requested vehicle hash:"
+
 local model_to_hash = {}
 local name_to_hash = {}
 vehicle_mapper.HELICOPTERS = {}
 for hash, model in pairs(hash_to_model_or_name) do
-	essentials.assert(streaming.is_model_a_vehicle(hash), "Invalid vehicle in hash_to_model_or_name table: "..tostring(hash))
+	essentials.assert(streaming.is_model_a_vehicle(hash), MISSING_INFO_ERR, hash)
 	model_to_hash[model[1]] = hash
 	name_to_hash[model[2]] = hash
 	if streaming.is_model_a_heli(hash) then
@@ -801,27 +802,23 @@ name_to_hash = essentials.const(name_to_hash)
 
 function vehicle_mapper.GetModelFromHash(...)
 	local hash <const> = ...
-	essentials.assert(streaming.is_model_a_vehicle(hash), "Expected a valid vehicle hash: "..hash)
-	essentials.assert(hash_to_model_or_name[hash], "Missing information about a valid, requested vehicle hash: "..hash)
+	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
+	essentials.assert(hash_to_model_or_name[hash], MISSING_INFO_ERR, hash)
 	return hash_to_model_or_name[hash][1]
 end
 
 function vehicle_mapper.GetNameFromHash(...)
 	local hash <const> = ...
-	essentials.assert(streaming.is_model_a_vehicle(hash), "Expected a valid vehicle hash: "..hash)
-	essentials.assert(hash_to_model_or_name[hash], "Missing information about a valid, requested vehicle hash: "..hash)
-	if hash_to_model_or_name[hash] then
-		return hash_to_model_or_name[hash][2]
-	else
-		return tostring(hash)
-	end
+	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
+	essentials.assert(hash_to_model_or_name[hash], MISSING_INFO_ERR, hash)
+	return hash_to_model_or_name[hash][2]
 end
 
 function vehicle_mapper.get_translated_vehicle_name(...)
 	local hash <const> = ...
-	essentials.assert(streaming.is_model_a_vehicle(hash), "Expected a valid vehicle hash: "..hash)
-	essentials.assert(language.translated_vehicle_names[hash], "Missing information about a valid, requested vehicle hash: "..hash)
+	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
 	if language.translated_vehicle_names then
+		essentials.assert(language.translated_vehicle_names[hash], MISSING_INFO_ERR, hash)
 		return language.translated_vehicle_names[hash]
 	else
 		return vehicle_mapper.GetNameFromHash(hash)
@@ -834,8 +831,8 @@ function vehicle_mapper.get_random_vehicle()
 end
 
 function vehicle_mapper.GetHashFromModel(model)
-	essentials.assert(streaming.is_model_a_vehicle(model_to_hash[model]), "Expected a valid vehicle model name: "..model)
-	essentials.assert(model_to_hash[model], "Missing information about a valid, requested vehicle model: "..model)
+	essentials.assert(streaming.is_model_a_vehicle(model_to_hash[model]), INVALID_HASH_ERR, model)
+	essentials.assert(model_to_hash[model], MISSING_INFO_ERR, model)
 	return model_to_hash[model]
 end
 
