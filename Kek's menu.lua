@@ -38,7 +38,7 @@ else
 end
 
 if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1, true) then
-	package.path = paths.kek_menu_stuff.."kekMenuLibs\\?.lua;%s"..package.path
+	package.path = paths.kek_menu_stuff.."kekMenuLibs\\?.lua;"..package.path
 end
 
 collectgarbage("incremental", 110, 100)
@@ -67,7 +67,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Language"] = "1.0.0",
 		["Settings"] = "1.0.1",
-		["Essentials"] = "1.3.8",
+		["Essentials"] = "1.3.9",
 		["Memoize"] = "1.0.0",
 		["Enums"] = "1.0.0",
 		["Vehicle mapper"] = "1.3.5", 
@@ -987,6 +987,7 @@ do
 			return 
 				f.on
 				and player.is_player_god(pid)
+				and entity.is_entity_visible(player.get_player_ped(pid))
 				and memoize.get_player_coords(pid).z ~= -190
 				and memoize.get_player_coords(pid).z ~= -180
 				and not memoize.is_in_vehicle(pid)
@@ -1657,8 +1658,9 @@ end)
 
 local function vehicle_effect_standard(...)
 	local remove_players <const>, effect_callback <const>, dont_yield <const> = ...
-	local entities = memoize.get_all_vehicles()
+	local entities <const> = memoize.get_all_vehicles()
 	local Ped <const> = essentials.get_ped_closest_to_your_pov()
+	local time <const> = utils.time_ms() + 2000
 	for Vehicle in essentials.entities(entities) do
 		if memoize.get_distance_between(Vehicle, Ped, nil, nil, 5) < 200
 		and not entity.is_entity_attached(Vehicle)
@@ -1669,6 +1671,9 @@ local function vehicle_effect_standard(...)
 				system.yield(0)
 			end
 		end
+	end
+	while time > utils.time_ms() do
+		system.yield(0)
 	end
 end		
 
@@ -2115,10 +2120,14 @@ function player_history.add_features(parent, rid, ip, name)
 						break
 					end
 				end
-				blacklist_feat.name = string.format("%s: %s", lang["Blacklist reason"], input)
+				if blacklist_feat then
+					blacklist_feat.name = string.format("%s: %s", lang["Blacklist reason"], input)
+				end
 			elseif f.value == 1 then
 				remove_from_blacklist(name, essentials.ipv4_to_dec(ip), rid, true)
-				blacklist_feat.name = string.format("%s: %s", lang["Blacklist reason"], lang["isn't blacklisted"])
+				if blacklist_feat then
+					blacklist_feat.name = string.format("%s: %s", lang["Blacklist reason"], lang["isn't blacklisted"])
+				end
 			end
 		end):set_str_data({
 			lang["Add"],
@@ -2203,7 +2212,7 @@ function player_history.add_features(parent, rid, ip, name)
 								feats[i].hidden = true
 							end
 							for i = f.value - (f.mod - 1), f.value do
-								local str <const> = (parent.data[#parent.data - i] or ""):match("%]: ([^\n]+)") or ""
+								local str <const> = essentials.unicode_match((parent.data[#parent.data - i] or ""), "]: ")
 								feats[i2].hidden = str == ""
 								if not feats[i2].hidden then
 									feats[i2].data = essentials.split_string(str, 34)
@@ -3601,14 +3610,27 @@ do
 				and event.player ~= player.player_id()
 				and (not f.data.tracker[player.get_player_scid(event.player)] or utils.time_ms() > f.data.tracker[player.get_player_scid(event.player)])
 				and essentials.is_not_friend(event.player) then
+					f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 1000 -- Prevent chat spam problems
 					local msg <const> = event.body:lower()
 					for chat_judge_entry in io.lines(paths.chat_judger) do
-						local is_blacklist <const> = chat_judge_entry:find("[blacklist]", 1, true) ~= nil
-						local is_timeout <const> = chat_judge_entry:find("[join timeout]", 1, true) ~= nil
-						chat_judge_entry = (chat_judge_entry:gsub("%[join timeout%]", "")):gsub("%[blacklist%]", "")
-						if msg:find(chat_judge_entry) then
-							f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 4000
-							if player.is_player_valid(event.player) then
+						essentials.random_wait(50)
+						if player.is_player_valid(event.player) then
+							local is_blacklist <const> = chat_judge_entry:find("[blacklist]", 1, true) ~= nil
+							local is_timeout <const> = chat_judge_entry:find("[join timeout]", 1, true) ~= nil
+							local unicode_present_in_entry <const> = utf8.len(chat_judge_entry) == #chat_judge_entry 
+							local unicode_present_in_msg <const> = utf8.len(msg) == #msg
+							chat_judge_entry = (chat_judge_entry:gsub("%[join timeout%]", "")):gsub("%[blacklist%]", "")
+							if (not unicode_present_in_entry 
+								and not unicode_present_in_msg 
+								and msg:find(chat_judge_entry)
+							)
+							or (
+								unicode_present_in_entry 
+								and unicode_present_in_msg 
+								and essentials.unicode_find(essentials.unicode_gsub(msg, "%", ""), chat_judge_entry)
+							) then
+
+								f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 4000
 								local player_name <const> = player.get_player_name(event.player)
 								if not f.data.blacklist_tracker[player.get_player_scid(event.player)] and is_blacklist then
 									add_to_blacklist(player_name, player.get_player_ip(event.player), player.get_player_scid(event.player), string.format("%s: \"%s\"", lang["Custom chat judge"], chat_judge_entry))
@@ -3619,8 +3641,8 @@ do
 									f.data.timeout_tracker[player.get_player_scid(event.player)] = true
 								end
 								if f.value == 0 then
-									ped.clear_ped_tasks_immediately(player.get_player_ped(event.player))
 									essentials.msg(string.format("%s %s %s [%s]", lang["Chat judge:\nRamming"], player_name, lang["with explosive tankers"], chat_judge_entry), "orange", settings.in_use["Chat judge #notifications#"])
+									ped.clear_ped_tasks_immediately(player.get_player_ped(event.player))
 									system.yield(0)
 									kek_entity.ram_player(event.player)
 								elseif f.value == 1 then
@@ -3631,7 +3653,9 @@ do
 									essentials.msg(string.format("%s %s [%s]", lang["Chat judge\nCrashing"], player_name, chat_judge_entry), "orange", settings.in_use["Chat judge #notifications#"])
 									globals.script_event_crash(event.player)
 								end
+								break
 							end
+						else
 							break
 						end
 					end

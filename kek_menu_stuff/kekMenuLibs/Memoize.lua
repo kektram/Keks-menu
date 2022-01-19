@@ -118,7 +118,7 @@ do
 	end
 end
 
-do -- memoizes entity tables for 100 frames. Useful in loops. Turns 10000s of bytes of garbage to just a few 100.
+do -- memoizes entity tables for 50 frames. Only useful in loops.
 	for func_name, func_table_name in pairs({
 		get_all_peds = "ped",
 		get_all_vehicles = "vehicle",
@@ -128,7 +128,7 @@ do -- memoizes entity tables for 100 frames. Useful in loops. Turns 10000s of by
 		local memoized <const> = {timer = 0}
 		memoize[func_name] = function()
 			if utils.time_ms() > memoized.timer then
-				memoized.timer = utils.time_ms() + math.ceil(100000 * gameplay.get_frame_time())
+				memoized.timer = utils.time_ms() + math.ceil(50000 * gameplay.get_frame_time())
 				memoized.Table = essentials.const(_G[func_table_name][func_name]())
 				return memoized.Table
 			else

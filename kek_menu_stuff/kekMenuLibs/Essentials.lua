@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-local essentials <const> = {version = "1.3.8"}
+local essentials <const> = {version = "1.3.9"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -133,6 +133,12 @@ do
 	end
 end
 
+do
+	function essentials.pack_2_positive_integers(x, y)
+		return 0 | x << 31 | y
+	end
+end
+
 function essentials.unpack_3_nums(packed_num)
 	local sign_bit_1, sign_bit_2, sign_bit_3 = 1, 1, 1
 	if packed_num & 1 << 60 ~= 0 then sign_bit_1 = -1 end
@@ -255,10 +261,11 @@ end
 function essentials.split_string(str, size)
 	local strings <const> = {}
 	local pos = 1
+	local len <const> = utf8.len(str)
 	repeat
-		strings[#strings + 1] = str:sub(pos, pos + size)
+		strings[#strings + 1] = essentials.sub_unicode(str, pos, math.min(len, pos + size))
 		pos = pos + size + 1
-	until pos > #str
+	until pos > len
 	return strings
 end
 
@@ -394,6 +401,7 @@ end
 
 do
 	local memoized <const> = {}
+	local is_valid <const> = player.is_player_valid
 	function essentials.players(me)
 		local pid = -1
 		if not me then
@@ -404,7 +412,7 @@ do
 			func = function()
 				repeat
 					pid = pid + 1
-				until pid == 32 or (me ~= pid and player.is_player_valid(pid))
+				until pid == 32 or (me ~= pid and is_valid(pid))
 				if pid ~= 32 then
 					return pid
 				end
@@ -424,6 +432,9 @@ end
 
 do
 	local memoized <const> = {}
+	local is_entity <const> = entity.is_an_entity
+	local math_type <const> = math.type
+	local next <const> = next
 	function essentials.entities(Table)
 		local mt <const> = getmetatable(Table)
 		if mt and mt.__is_const then
@@ -436,9 +447,9 @@ do
 				local Entity
 				repeat
 					key, Entity = next(Table, key)
-				until not key 
-				or (math.type(Entity) == "integer" and entity.is_an_entity(Entity)) 
-				or (math.type(key) == "integer" and entity.is_an_entity(key))
+				until key == nil 
+				or (math_type(Entity) == "integer" and is_entity(Entity)) 
+				or (math_type(key) == "integer" and is_entity(key))
 				if key == nil then
 					table.insert(memoized, func)
 				end
@@ -456,45 +467,182 @@ do
 end
 
 essentials.FEATURE_ID_MAP = essentials.const({ -- The table keys are derived from the Feat.type property.
-	-- Regular types --
-	[512]   = "action",
-	[1]     = "toggle",
-	[11]    = "value_i",
-	[131]   = "value_f",
-	[7]     = "slider",
-	[35]    = "value_str",
-	[522]   = "action_value_i",
-	[642]   = "action_value_f",
-	[518]   = "action_slider",
-	[546]   = "action_value_str",
-	[1034]  = "autoaction_value_i",
-	[1154]  = "autoaction_value_f",
-	[1030]  = "autoaction_slider",
-	[1058]  = "autoaction_value_str",
-	-- Regular types --
+-- Regular feat types
+	[1 << 9] = "action",
+	[1 << 0] = "toggle",
+	[1 << 1 | 1 << 7 | 1 << 9 ] = "action_value_f",
+	[1 << 0 | 1 << 1 | 1 << 7 ] = "value_f",
+	[1 << 1 | 1 << 2 | 1 << 9 ] = "action_slider",
+	[1 << 0 | 1 << 1 | 1 << 2 ] = "slider",
+	[1 << 1 | 1 << 5 | 1 << 10] = "autoaction_value_str",
+	[1 << 1 | 1 << 2 | 1 << 10] = "autoaction_slider",
+	[1 << 1 | 1 << 3 | 1 << 9 ] = "action_value_i",
+	[1 << 0 | 1 << 1 | 1 << 3 ] = "value_i",
+	[1 << 1 | 1 << 7 | 1 << 10] = "autoaction_value_f",
+	[1 << 1 | 1 << 3 | 1 << 10] = "autoaction_value_i",
+	[1 << 1 | 1 << 5 | 1 << 9 ] = "action_value_str",
+	[1 << 0 | 1 << 1 | 1 << 5 ] = "value_str",
+-- Regular feat types
 
-	[2048]  = "parent", -- Both player and regular feats .type returns 2048
+	[1 << 11] = "parent", -- Both player feat & regular feat type have same id
 
-	-- Player types --
-	[33280] = "action",
-	[32769] = "toggle",
-	[32779] = "value_i",
-	[32899] = "value_f",
-	[32775] = "slider",
-	[32803] = "value_str",
-	[33290] = "action_value_i",
-	[33410] = "action_value_f",
-	[33286] = "action_slider",
-	[33314] = "action_value_str",
-	[33802] = "autoaction_value_i",
-	[33922] = "autoaction_value_f",
-	[33798] = "autoaction_slider",
-	[33826] = "autoaction_value_str"
-	-- Player types --
+-- Player feat types
+	[1 << 9 | 1 << 15] = "action",
+	[1 << 0 | 1 << 15] = "toggle",
+	[1 << 1 | 1 << 7 | 1 << 9  | 1 << 15] = "action_value_f",
+	[1 << 0 | 1 << 1 | 1 << 7  | 1 << 15] = "value_f",
+	[1 << 1 | 1 << 2 | 1 << 9  | 1 << 15] = "action_slider",
+	[1 << 0 | 1 << 1 | 1 << 2  | 1 << 15] = "slider",
+	[1 << 1 | 1 << 5 | 1 << 10 | 1 << 15] = "autoaction_value_str",
+	[1 << 1 | 1 << 2 | 1 << 10 | 1 << 15] = "autoaction_slider",
+	[1 << 1 | 1 << 3 | 1 << 9  | 1 << 15] = "action_value_i",
+	[1 << 0 | 1 << 1 | 1 << 3  | 1 << 15] = "value_i",
+	[1 << 1 | 1 << 7 | 1 << 10 | 1 << 15] = "autoaction_value_f",
+	[1 << 1 | 1 << 3 | 1 << 10 | 1 << 15] = "autoaction_value_i",
+	[1 << 1 | 1 << 5 | 1 << 9  | 1 << 15] = "action_value_str",
+	[1 << 0 | 1 << 1 | 1 << 5  | 1 << 15] = "value_str"
+-- Player feat types
+
+--[[
+	1 << 0 == toggle flag
+	1 << 1 == Not a parent, toggle or regular action feature?
+	1 << 2 == slider flag
+	1 << 3 == value_i flag
+	1 << 5 == value_str flag
+	1 << 7 == value_f flag
+	1 << 9 == action flag
+	1 << 10 == autoaction flag
+	1 << 11 == parent flag
+	1 << 15 == player_feat flag
+--]]
+
 })
 
+function essentials.sub_unicode(str, start, End)
+	return str:sub(utf8.offset(str, start), utf8.offset(str, End + 1) - 1)
+end
+
+function essentials.sub_unicode_byte_len(str, start, End)
+	return utf8.char(utf8.codepoint(str, start, End))
+end
+
+do -- Reasonable performance. 342k characters per millisecond. Garbage compared to regular string.find.
+	local codes <const> = utf8.codes
+	function essentials.unicode_find(str, pattern, type)
+		local pattern_bytes <const> = table.pack(utf8.codepoint(pattern, 1, #pattern))
+		local pos, i = 1, 1
+		local pattern_len <const> = #pattern_bytes	
+		if type == "from start" then
+			for byte_pos, char in codes(str) do
+				if pattern_bytes[i] ~= char then
+					return
+				else
+					if i == pattern_len then
+						return pos - i + 1, pos
+					end
+					i = i + 1
+				end
+				pos = pos + 1
+			end
+		elseif type == "from end" then
+			local when_to_start <const> = utf8.len(str) - pattern_len
+			for byte_pos, char in codes(str) do
+				if pos >= when_to_start then
+					if pattern_bytes[i] ~= char then
+						i = 1
+					else
+						if i == pattern_len then
+							return pos - i + 1, pos
+						end
+						i = i + 1
+					end
+				end
+				pos = pos + 1
+			end
+		else
+			for byte_pos, char in codes(str) do
+				if pattern_bytes[i] ~= char then
+					i = 1
+				else
+					if i == pattern_len then
+						return pos - i + 1, pos
+					end
+					i = i + 1
+				end
+				pos = pos + 1
+			end
+		end
+	end
+end
+
+do
+	local memoized <const> = {} -- Expensive function.
+	local codes <const> = utf8.codes
+	function essentials.unicode_gsub(str, pattern, replacement)
+		local hash <const> = essentials.pack_2_positive_integers(gameplay.get_hash_key(pattern), gameplay.get_hash_key(replacement))
+		if not memoized[hash] then
+			replacement = table.pack(utf8.codepoint(replacement, 1, #replacement))
+			local pattern_bytes <const> = table.pack(utf8.codepoint(pattern, 1, #pattern))
+			local i = 1
+			local pattern_len = #pattern_bytes
+			local new_str <const> = {}
+			for _, char in codes(str) do
+				if pattern_bytes[i] ~= char then
+					new_str[#new_str + 1] = char
+					i = 1
+				else
+					if i == pattern_len then
+						for i = 1, #replacement do
+							new_str[#new_str + 1] = replacement[i]
+						end
+						i = 1
+					else
+						i = i + 1
+					end
+				end
+			end
+			memoized[hash] = utf8.char(table.unpack(new_str))
+		end
+		return memoized[hash]
+	end
+end
+
+do
+	local codes <const> = utf8.codes
+	function essentials.unicode_match(str, first, End)
+		first = table.pack(utf8.codepoint(first, 1, #first))
+		local first_len <const> = #first
+		if End then
+			End = utf8.codepoint(End, 1, #End)
+		end
+		local new_str <const> = {}
+		local add = false
+		local i = 1
+		for _, char in codes(str) do
+			if add and End == char then
+				break
+			end
+			if add then
+				new_str[#new_str + 1] = char
+			end
+			if char == first[i] then
+				i = i + 1
+			else
+				i = 1
+			end
+			if i > first_len then
+				add = true
+			end
+		end
+		return utf8.char(table.unpack(new_str))
+	end
+end
+
 function essentials.get_safe_feat_name(name)
-	local str <const> = name:gsub("[^A-Za-z0-9%s%p%c]", "")
+	local str = name
+	if not utf8.len(name) then
+		str = name:gsub("[^A-Za-z0-9%s%p%c]", "")
+	end
 	return str
 end
 

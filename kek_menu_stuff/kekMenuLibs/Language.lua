@@ -7,11 +7,13 @@ paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
 paths.language_ini = paths.kek_menu_stuff.."kekMenuLibs\\Languages\\language.ini"
 
 do
-	local file <const> = io.open(paths.language_ini)
-	if io.type(file) == "file" then
+	if utils.file_exists(paths.language_ini) then
+		local file <const> = io.open(paths.language_ini)
 		language.what_language = file:read("*l") or "English.txt"
+		file:close()
+	else
+		language.what_language = "English.txt"
 	end
-	file:close()
 	paths.what_language = paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..language.what_language	
 end
 
@@ -30,14 +32,25 @@ end
 
 language.lang = {}
 
+local function sub_unicode(str, start, End)
+    return str:sub(utf8.offset(str, start), utf8.offset(str, End + 1) - 1)
+end
+
 if language.what_language ~= "English.txt" and utils.file_exists(paths.what_language) then
-	local file = io.open(paths.what_language)
-	local str <const> = file:read("*a")
-	file:close()
-	for english, translation in str:gmatch("([^\n§]+) §([^\n§]+)") do
-		translation = translation:gsub("\\n", "\n")
-		english = english:gsub("\\n", "\n")
-		language.lang[english] = translation
+	local pattern <const> = string.rep("[\0-\x7F\xC2-\xFD]?[\x80-\xBF]*", 1000)
+	for line in io.lines(paths.what_language) do
+		local english = line:match("([^§]+)\32§") or line:match("([^§]+)§")
+		if english then
+			local translation = sub_unicode(line, utf8.len(english) + 3, utf8.len(line))
+			local status, err = pcall(function() assert(utf8.len(translation), "Invalid translation") end)
+			if not status then
+				print(english, err)
+				error(err)
+			end
+			translation = translation:gsub("\\n", "\n")
+			english = english:gsub("\\n", "\n")
+			language.lang[english] = translation
+		end
 	end
 end
 

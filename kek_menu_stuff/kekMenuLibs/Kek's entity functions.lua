@@ -340,19 +340,13 @@ function kek_entity.hard_remove_entity_and_its_attachments(...)
 	end
 end
 
-local is_clear_active = false
 function kek_entity.clear_entities(...)
-	while is_clear_active do
-		system.yield(0)
-	end
-	is_clear_active = true
 	local table_of_entities <const> = ...
-	for i = 1, 2 do
+	for i2 = 1, 2 do
 		local count = 1
-		local deleted_all_entities = true
 		for Entity, i in essentials.entities(table_of_entities) do
 			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
-			if i == 1 then 
+			if i2 == 1 and not network.has_control_of_entity(Entity) then 
 				network.request_control_of_entity(Entity)
 			end
 			if network.has_control_of_entity(Entity) then
@@ -362,18 +356,16 @@ function kek_entity.clear_entities(...)
 				entity.set_entity_as_mission_entity(Entity, false, true)
 				entity.delete_entity(Entity)
 				table_of_entities[i] = nil
+				count = count + 1
 			end
-			if count % 15 == 0 then
+			if count % 10 == 0 then
 				system.yield(0)
 			end
-			count = count + 1
-			deleted_all_entities = deleted_all_entities and not entity.is_an_entity(Entity)
 		end
-		if not deleted_all_entities then
+		if next(table_of_entities) then
 			system.yield(0)
 		end
 	end
-	is_clear_active = false
 end			
 
 function kek_entity.get_number_of_passengers(...)
