@@ -67,7 +67,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Language"] = "1.0.0",
 		["Settings"] = "1.0.1",
-		["Essentials"] = "1.3.9",
+		["Essentials"] = "1.4.0",
 		["Memoize"] = "1.0.0",
 		["Enums"] = "1.0.0",
 		["Vehicle mapper"] = "1.3.5", 
@@ -278,7 +278,7 @@ else
 	end
 end
 
-if utils.file_exists(paths.kek_settings) and essentials.get_file_string(paths.kek_settings, "*a"):match("Script quick access=(%a%a%a%a)") == "true" then
+if utils.file_exists(paths.kek_settings) and essentials.get_file_string(paths.kek_settings):match("Script quick access=(%a%a%a%a)") == "true" then
 	u.kekMenu, u.kekMenuP = 0, 0
 else
 	u.kekMenu = menu.add_feature(lang["Kek's menu"], "parent", 0).id
@@ -808,7 +808,7 @@ end
 
 do
 	local function update_script_loader_toggle_name()
-		local str <const> = essentials.get_file_string(paths.home.."scripts\\autoexec.lua", "*a")
+		local str <const> = essentials.get_file_string(paths.home.."scripts\\autoexec.lua")
 		if str:find("if false then return end", 1, true) then
 			u.toggle_script_loader.name = lang["Turn off script loader"]
 		else
@@ -821,7 +821,7 @@ do
 		if is_user_action and not utils.file_exists(paths.home.."scripts\\autoexec.lua") then
 			essentials.create_empty_file(paths.home.."scripts\\autoexec.lua")
 		end
-		local str <const> = essentials.get_file_string(paths.home.."scripts\\autoexec.lua", "*a")
+		local str <const> = essentials.get_file_string(paths.home.."scripts\\autoexec.lua")
 		if utils.file_exists(paths.home.."scripts\\autoexec.lua") and not str:find("sjhvnciuyu44khdjkhUSx", 1, true) then
 			local file <close> = io.open(paths.home.."scripts\\autoexec.lua", "w+")
 			file:write(table.concat({
@@ -848,7 +848,7 @@ do
 
 	u.toggle_script_loader = menu.add_feature("", "action", u.script_loader.id, function(f)
 		update_autoexec(true)
-		local str <const> = essentials.get_file_string(paths.home.."scripts\\autoexec.lua", "*a")
+		local str <const> = essentials.get_file_string(paths.home.."scripts\\autoexec.lua")
 		if str:find("^if false then return end") then
 			essentials.replace_lines_in_file_exact(
 				paths.home.."scripts\\autoexec.lua", 
@@ -908,7 +908,7 @@ do
 		end
 		input = essentials.make_string_case_insensitive(essentials.remove_special(input))
 		update_autoexec(true)
-		for file_name in essentials.get_file_string(paths.home.."scripts\\autoexec.lua", "*a"):gmatch("scripts%[#scripts %+ 1%] = \"([^\n]+)\"") do
+		for file_name in essentials.get_file_string(paths.home.."scripts\\autoexec.lua"):gmatch("scripts%[#scripts %+ 1%] = \"([^\n]+)\"") do
 			if file_name:find(input) then
 				if essentials.remove_lines_from_file_exact(paths.home.."scripts\\autoexec.lua", "scripts[#scripts + 1] = \""..file_name.."\"") then
 					essentials.msg(string.format("%s %s %s.", lang["Removed"], file_name, lang["from script loader"]), "blue", true)
@@ -2148,13 +2148,13 @@ function player_history.add_features(parent, rid, ip, name)
 			what_to_check[#what_to_check + 1] = string.format("^%s^", ip)
 		end
 		if #what_to_check > 0 then -- In case all toggles are off
-			local str <const> = essentials.get_file_string(paths.player_history_all_players, "*a")
+			local str <const> = essentials.get_file_string(paths.player_history_all_players)
 			for _, input in pairs(what_to_check) do
 				local End, start = 0
 				repeat
 					start, End = str:find(input, End + 1, true)
 					if start then
-						local str_pos <const> = essentials.get_position_of_previous_newline(str, start) + 1
+						local str_pos <const> = essentials.get_position_of_previous_newline(str, start)
 						local line <const> = str:sub(str_pos, str:find("\n", start, true))
 						if not matches[line] then
 							seen[#seen + 1] = {
@@ -2178,30 +2178,14 @@ function player_history.add_features(parent, rid, ip, name)
 
 			local feat
 			menu.add_feature(lang["Chat log"], "parent", parent.id, function(parent)
-				if not parent.data or (function()
-					for name in pairs(known_as) do
-						if essentials.name_to_pid(name) ~= 32 then
-							return true
-						end
-					end
-				end)() then
-					parent.data = {} 
-					local find <const> = string.find
-					local i = 1 -- Hardcore function. Every micro optimization matters. This is about twice as fast as #x + 1
-					local names <const> = {}
-					for name in pairs(known_as) do
-						names[#names + 1] = name
-					end
-					local len <const> = #names
-					for msg in io.lines(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log") do
-						for i2 = 1, len do
-							if find(msg, names[i2], 1, true) then
-								parent.data[i] = msg
-								i = i + 1
-								break
-							end
-						end
-					end
+				parent.data = {} 
+				local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log")
+				print("original_len = "..#str)
+				for name in pairs(known_as) do
+					name = name:sub(1, 16)
+					local spaces <const> = string.rep("\32", 16 - utf8.len(name))
+					local matches <const> = essentials.get_all_matches(str, "["..name..spaces.."]", "]: ")
+					table.move(matches, 1, #matches, #parent.data + 1, parent.data)
 				end
 				if parent.child_count == 0 then
 					local feats <const> = {}
@@ -2211,9 +2195,9 @@ function player_history.add_features(parent, rid, ip, name)
 							for i = 1, #feats do
 								feats[i].hidden = true
 							end
-							for i = f.value - (f.mod - 1), f.value do
-								local str <const> = essentials.unicode_match((parent.data[#parent.data - i] or ""), "]: ")
-								feats[i2].hidden = str == ""
+							for i = f.value - f.mod, f.value - 1 do
+								local str <const> = parent.data[#parent.data - i]
+								feats[i2].hidden = str == nil
 								if not feats[i2].hidden then
 									feats[i2].data = essentials.split_string(str, 34)
 									feats[i2].name = essentials.get_safe_feat_name(feats[i2].data[1])
@@ -2236,7 +2220,7 @@ function player_history.add_features(parent, rid, ip, name)
 				end
 				local toggle_on <const> = feat.value == 0 or feat.value > #parent.data
 				feat.min = math.min(10, #parent.data)
-				feat.max = #parent.data
+				feat.max = math.ceil(#parent.data / 10) * 10
 				feat.mod = math.min(10, #parent.data)
 				feat.on = toggle_on
 			end)
@@ -2289,7 +2273,7 @@ do
 			end
 
 			local pattern_input <const> = essentials.make_string_case_insensitive(essentials.remove_special(input))
-			local file <close> = io.open(paths.player_history_all_players)
+			local file <close> = io.open(paths.player_history_all_players, "rb")
 			local results, str
 			if f.value == 0 then
 				file:seek("end", -math.min(file:seek("end"), 65 * 801))
@@ -2301,7 +2285,7 @@ do
 				results, str = search(file, pattern_input, f)
 			end
 			if results then
-				local str_pos <const> = essentials.get_position_of_previous_newline(str, results) + 1
+				local str_pos <const> = essentials.get_position_of_previous_newline(str, results)
 				local line <const> = str:sub(str_pos, str:find("\n", results, true))
 				local name <const> = line:match("|(.+)|") or "" 
 				local rid <const> = line:match("&(%d+)&") or ""
@@ -2346,7 +2330,7 @@ for _, year in pairs(player_history.sort_numbers(utils.get_all_sub_directories_i
 				local file_path <const> = day_folder.."\\"..current_file
 				player_history.hour_parents[file_path] = menu.add_feature(current_file:gsub("%.log$", ""), "parent", player_history.day_parents[day_folder].id)
 
-				for name, rid, ip, time in essentials.get_file_string(file_path, "*a"):gmatch("|([^\n|]+)| &(%d+)& %^([%d.]+)%^ !([%d:]+)!") do
+				for name, rid, ip, time in essentials.get_file_string(file_path):gmatch("|([^\n|]+)| &(%d+)& %^([%d.]+)%^ !([%d:]+)!") do
 					menu.add_feature(string.format("%s [%s]", name, time), "parent", player_history.hour_parents[file_path].id, function(f)
 						player_history.add_features(f, rid, ip, name)	
 					end)
@@ -3238,7 +3222,7 @@ settings.toggle["Chat logger"] = menu.add_feature(lang["Chat logger"], "toggle",
 		essentials.listeners["chat"]["logger"] = event.add_event_listener("chat", function(event)
 			if player.is_player_valid(event.player)
 			and (not f.data[player.get_player_scid(event.player)] or utils.time_ms() + 10000 > f.data[player.get_player_scid(event.player)]) then
-				local name <const> = (player.get_player_name(event.player)..string.rep("\32", 16 - #player.get_player_name(event.player))):sub(1, 16)
+				local name <const> = player.get_player_name(event.player)..string.rep("\32", 16 - utf8.len(player.get_player_name(event.player):sub(1, 16)))
 				local str <const> = {}
 				for line in event.body:gmatch("[^\n]+") do
 					str[#str + 1] = string.format("[%s][%s]: %s\n", name, os.date(), line)
@@ -3517,7 +3501,7 @@ do
 				if not utils.file_exists(paths.kek_menu_stuff.."Chat judger profiles\\"..f.name..".ini") then
 					essentials.msg(lang["Couldn't find file"], "red", true)
 				else
-					local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."Chat judger profiles\\"..f.name..".ini", "*a")
+					local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."Chat judger profiles\\"..f.name..".ini")
 					do
 						local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "[^\n]+")
 						if not is_valid then
@@ -3757,7 +3741,7 @@ do
 					end
 				end
 			elseif f.value == 5 then
-				essentials.send_message(essentials.get_file_string(paths.chat_spam_text, "*a"))
+				essentials.send_message(essentials.get_file_string(paths.chat_spam_text))
 			elseif f.value == 6 then
 				local value <const> = f.value
 				for line in io.lines(paths.chat_spam_text) do
@@ -4347,7 +4331,7 @@ do
 				if not utils.file_exists(paths.kek_menu_stuff.."Chatbot profiles\\"..f.name..".ini") then
 					essentials.msg(lang["Couldn't find file"], "red", true)
 				else
-					local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."Chatbot profiles\\"..f.name..".ini", "*a")
+					local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."Chatbot profiles\\"..f.name..".ini")
 					do
 						local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "|([^\n]+)|&")
 						if not is_valid then
@@ -4472,7 +4456,7 @@ do
 
 	settings.toggle["chat bot"] = menu.add_feature(lang["Chat bot"], "toggle", u.chat_bot.id, function(f)
 		if f.on then
-			local str = essentials.get_file_string(paths.chat_bot, "*a")
+			local str = essentials.get_file_string(paths.chat_bot)
 			do
 				local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "|([^\n]+)|&")
 				if not is_valid then
@@ -4488,7 +4472,7 @@ do
 					system.yield(settings.valuei["chat bot delay"].value)
 					if player.is_player_valid(event.player) then
 						if u.update_chat_bot then
-							str = essentials.get_file_string(paths.chat_bot, "*a")
+							str = essentials.get_file_string(paths.chat_bot)
 							u.update_chat_bot = false
 						end
 						local count, reactions_str = 0
@@ -4784,7 +4768,7 @@ settings.toggle["Display 2take1 notifications"] = menu.add_feature(lang["Display
 	if not utils.file_exists(paths.home.."notification.log") then
 		essentials.create_empty_file(paths.home.."notification.log")
 	end
-	local file <const>, strings = io.open(paths.home.."notification.log")
+	local file <const>, strings = io.open(paths.home.."notification.log", "rb")
 	f.data.is_on = true
 	while f.on do
 		if f.data.is_on then
@@ -4865,7 +4849,7 @@ settings.valuei["Number of notifications to display"].min = 1
 settings.valuei["Number of notifications to display"].mod = 1
 
 settings.toggle["Log 2take1 notifications to console"] = menu.add_feature(lang["Log to console"], "toggle", u.display_notifications.id, function(f)
-	local file <close> = io.open(paths.home.."notification.log")
+	local file <close> = io.open(paths.home.."notification.log", "rb")
 	file:seek("end")
 	while f.on do
 		local str <const> = file:read("*l")
@@ -5365,7 +5349,7 @@ do
 			system.yield(0)
 		end
 		local file <close> = io.open(paths.home.."scripts\\Race ghosts\\"..input..".lua", "w+")
-		file:write(essentials.get_file_string(paths.kek_menu_stuff.."kekMenuData\\Temp recorded race.lua", "*a"))
+		file:write(essentials.get_file_string(paths.kek_menu_stuff.."kekMenuData\\Temp recorded race.lua"))
 		file:flush()
 		create_ghost_racer_feature(input)
 	end)
@@ -5379,7 +5363,7 @@ do
 			if f.value == 0 then
 				menyoo.spawn_map(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml", player.player_id(), true)
 			elseif f.value == 1 then
-				if essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml", "*a"):find("<ReferenceCoords>", 1, true) then
+				if essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml"):find("<ReferenceCoords>", 1, true) then
 					local file <close> = io.open(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml")
 					repeat
 						local line <const> = file:read("*l")
@@ -5411,7 +5395,7 @@ do
 				end
 			elseif f.value == 2 then
 				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
-					local str <const> = essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml", "*a")
+					local str <const> = essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml")
 					local is_existing_ref_pos <const> = str:find("<ReferenceCoords>", 1, true) ~= nil
 					local file <close> = io.open(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml", "w+")
 					local pos <const> = player.get_player_coords(player.player_id())

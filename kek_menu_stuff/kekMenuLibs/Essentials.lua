@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-local essentials <const> = {version = "1.3.9"}
+local essentials <const> = {version = "1.4.0"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -657,7 +657,7 @@ function essentials.rename_file(...)
 	essentials.assert(not new_file_name:find("[<>:\"/\\|%?%*]"), "Tried to rename file to a name containing illegal characters:", new_file_name)
 	essentials.assert(utils.file_exists(original_file_path), "Tried to rename a file that doesn't exist.", original_file_path)
 	essentials.assert(not utils.file_exists(new_file_path), "Tried to overwrite an existing file while attempting to rename a file.", original_file_path, new_file_path)
-	local file_string <const> = essentials.get_file_string(original_file_path, "*a")
+	local file_string <const> = essentials.get_file_string(original_file_path)
 	io.remove(original_file_path)
 	local file <close> = io.open(new_file_path, "w+")
 	file:write(file_string)
@@ -957,11 +957,10 @@ do
 	end
 end
 
-function essentials.get_file_string(...)
-	local file_path <const>, type <const> = ...
-	local file <close> = io.open(file_path)
+function essentials.get_file_string(file_path)
+	local file <close> = io.open(file_path, "rb")
 	if file and io.type(file) == "file" then
-		return file:read(type) or ""
+		return file:read("*a") or ""
 	else
 		return ""
 	end
@@ -1108,17 +1107,17 @@ function essentials.ipv4_to_dec(...)
 end
 
 function essentials.get_position_of_previous_newline(str, str_pos)
-	repeat
+	while str_pos > 1 and str:sub(str_pos, str_pos) ~= '\n' do
 		str_pos = str_pos - 1
-	until str_pos <= 1 or str:sub(str_pos, str_pos) == '\n'
-	return math.max(str_pos, 1)
+	end
+	return str_pos > 1 and str_pos + 1 or 1
 end
 
 function essentials.search_for_match_and_get_line(...)
 	local file_path <const>,
 	search <const>,
 	exact <const> = ... -- Whether the existing text check must be identical to an entire line or a substring of a line.
-	local str <const> = essentials.get_file_string(file_path, "*a")
+	local str <const> = essentials.get_file_string(file_path)
 	for i = 1, #search do
 		local str_pos
 		if exact then
@@ -1130,9 +1129,39 @@ function essentials.search_for_match_and_get_line(...)
 			str_pos = str:find(search[i], 1, true)
 		end
 		if str_pos then
-			str_pos = essentials.get_position_of_previous_newline(str, str_pos) + 1
+			str_pos = essentials.get_position_of_previous_newline(str, str_pos)
 			return str:sub(str_pos, (str:find("\n", str_pos, true) or #str + 1) - 1), search[i]
 		end
+	end
+end
+
+do
+	local get_start <const> = essentials.get_position_of_previous_newline
+	local find <const> = string.find
+	local unicode_match <const> = essentials.unicode_match
+	local unicode_sub <const> = essentials.sub_unicode_byte_len
+	local unicode_match <const> = essentials.unicode_match
+	function essentials.get_all_matches(str, pattern, match_pattern_start, match_pattern_end) -- About 60% faster than using gmatch. Is mostly unicode friendly.
+		local End, start = 1
+		local i = 1
+		local matches <const> = {}
+		print("len = "..#str, "utf8 len = "..tostring(utf8.len(str)))
+		while true do
+			start, End = find(str, pattern, End, true)
+			if start then
+				local str_pos <const> = get_start(str, start)
+				End = find(str, "\n", End, true) or #str + 1
+				matches[i] = unicode_sub(str, str_pos, End - 1)
+				End = End + 1
+				if match_pattern_start or match_pattern_end then
+					matches[i] = unicode_match(matches[i], match_pattern_start, match_pattern_end)
+				end
+				i = i + 1
+			else
+				break
+			end
+		end
+		return matches
 	end
 end
 
@@ -1177,12 +1206,14 @@ function essentials.log(...)
 			return str
 		end
 	end
-	local file <close> = io.open(file_path, "r+")
+	local file <close> = io.open(file_path, "r+b")
 	file:seek("end", -1)
 	local last_char <const> = file:read("*L") -- *L keeps the newline char, unlike *l.
 	if last_char ~= "\n" and file:seek("end") ~= 0 then
+		file:seek("end")
 		file:write("\n")
 	end
+	file:seek("end")
 	file:write(text_to_log)
 	file:write("\n")
 end
