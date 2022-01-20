@@ -1145,7 +1145,6 @@ do
 		local End, start = 1
 		local i = 1
 		local matches <const> = {}
-		print("len = "..#str, "utf8 len = "..tostring(utf8.len(str)))
 		while true do
 			start, End = find(str, pattern, End, true)
 			if start then

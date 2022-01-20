@@ -2180,7 +2180,6 @@ function player_history.add_features(parent, rid, ip, name)
 			menu.add_feature(lang["Chat log"], "parent", parent.id, function(parent)
 				parent.data = {} 
 				local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log")
-				print("original_len = "..#str)
 				for name in pairs(known_as) do
 					name = name:sub(1, 16)
 					local spaces <const> = string.rep("\32", 16 - utf8.len(name))
