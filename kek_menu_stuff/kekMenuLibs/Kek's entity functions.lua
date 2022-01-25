@@ -1,10 +1,9 @@
 -- Copyright © 2020-2021 Kektram
 
-local kek_entity <const> = {version = "1.1.9"}
+local kek_entity <const> = {version = "1.1.8"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
-local memoize <const> = require("Memoize")
 local location_mapper <const> = require("Location mapper")
 local vehicle_mapper <const> = require("Vehicle mapper")
 local essentials <const> = require("Essentials")
@@ -19,125 +18,68 @@ kek_entity.user_vehicles = {}
 kek_entity.entity_manager = {
 	entities = {},
 	counts = {
-		ped = 0, 
-		object = 0, 
-		vehicle = 0
+		ped = 0.0, 
+		object = 0.0, 
+		vehicle = 0.0
 	},
-	entity_type_to_str = {
+	limits = essentials.const({
+		ped = 50.0,
+		vehicle = 50.0,
+		object = 210.0
+	}),
+	type_strings = essentials.const({
 		[3] = "vehicle",
 		[4] = "ped",
 		[5] = "object"
-	},
-	flag_to_str = {
-		[1 << 10] = "vehicle",
-		[1 << 11] = "ped",
-		[1 << 12] = "object"
-	},
+	}),
 	entity_type_to_return_type = setmetatable({
 		[3] = "is_vehicle_limit_not_breached",
 		[4] = "is_ped_limit_not_breached",
 		[5] = "is_object_limit_not_breached"
 	}, {
 		__index = function()
-			return "is_object_limit_not_breached"
+			return "is_misc_limit_not_breached"
 		end
 	})
 }
+--[[
+	The indices in type_strings & entity_type_to_return_type are based on entity.get_entity_model_hash.
+	Entities have different weights, peds usually have 1.5, vehicle and objects 1.
+	The count is incremented by these weights.
+--]]
 
-do
-	local update_buf <const> = {} -- Faster than creating a new table every time. This function is called tens of thousands of times.
-	function kek_entity.entity_manager:update()
-		for Entity, flags in pairs(self.entities) do
-			if not entity.is_an_entity(Entity) then
-				local weight <const> = ((flags & (flags ~ (1 << 10))) & (flags ~ (1 << 11))) & (flags ~ (1 << 12)) -- Clears entity type bits
-				flags = flags - weight
-				local type_string <const> = self.flag_to_str[flags]
-				self.counts[type_string] = self.counts[type_string] - weight
-				self.entities[Entity] = nil
-			end
+function kek_entity.entity_manager:update()
+	for Entity, properties in pairs(self.entities) do
+		if not entity.is_an_entity(Entity) then
+			self.counts[properties.type] = self.counts[properties.type] - properties.weight
+			self.entities[Entity] = nil
 		end
-		update_buf.is_ped_limit_not_breached = self.counts.ped <= settings.valuei["Ped limit"].value and #memoize.get_all_peds() < 135.0
-
-		update_buf.is_object_limit_not_breached = self.counts.object < settings.valuei["Object limit"].value and #memoize.get_all_objects() < 850.0
-
-		update_buf.is_vehicle_limit_not_breached = self.counts.vehicle < settings.valuei["Vehicle limit"].value and #memoize.get_all_vehicles() < 135.0
-
-		return update_buf
 	end
+	return {
+		is_ped_limit_not_breached = self.counts.ped <= self.limits.ped and #ped.get_all_peds() < 135.0,
+		is_object_limit_not_breached = self.counts.object < self.limits.object and #object.get_all_objects() < 850.0, 
+		is_vehicle_limit_not_breached = self.counts.vehicle < self.limits.vehicle and #vehicle.get_all_vehicles() < 135.0,
+		is_misc_limit_not_breached = self.counts.ped + self.counts.vehicle + self.counts.object <= self.limits.ped + self.limits.vehicle,
+		ped_count = self.counts.ped
+	}
 end
 
 setmetatable(kek_entity.entity_manager, {
 	__newindex = function(Table, Entity, weight)
-		local entity_type <const> = entity.get_entity_type(Entity)
-		if entity_type >= 3 
-		and entity_type <= 5
-		and not Table.entities[Entity] 
-		and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
-			weight = math.tointeger(weight)
-			if not weight or weight > 30 or (weight ~= 0 and weight < 1) then -- In case other scripts accidentally pass a value as weight
-				weight = 15
-			end
-			local type_string <const> = Table.entity_type_to_str[entity.get_entity_type(Entity)] or "object"
-			local flags = (0 | (1 << (7 + entity_type))) + weight
-			Table.entities[Entity] = flags
-			Table.counts[type_string] = Table.counts[type_string] + weight
+		if entity.is_an_entity(Entity)
+		and not Table.entities[Entity]
+		and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity))
+		and player.get_player_vehicle(player.player_id()) ~= Entity then
+			local properties = {weight = weight}
+			properties.type = Table.type_strings[entity.get_entity_type(Entity)] or "object"
+			Table.counts[properties.type] = Table.counts[properties.type] + properties.weight
+			Table.entities[Entity] = properties
 		end
 	end
 })
 
-function kek_entity.get_random_offset(...)
-	local min_random_range <const>,
-	max_random_range <const>,
-	min_magnitude <const>,
-	max_magnitude <const> = ...
-	essentials.assert(max_random_range * 0.8 >= min_random_range, "Max random range must be at least 20% bigger than min random range.", max_random_range, min_random_range)
-	essentials.assert(max_magnitude * 0.8 > min_magnitude, "Max magnitude must be at least 20% bigger than min magnitude.", max_magnitude, min_magnitude)
-	essentials.assert(max_magnitude > 0 and min_magnitude > 0, "Min and max magnitude must be a positive number.", max_magnitude, min_magnitude)
-	local min_absolute_number = min_random_range
-	if min_absolute_number < 0 and max_random_range > 0 then
-		min_absolute_number = 0
-	elseif min_absolute_number < 0 and max_random_range < 0 then
-		min_absolute_number = math.abs(math.max(min_random_range, max_random_range))
-	end
-	local max_absolute_number <const> = math.max(math.abs(min_random_range), math.abs(max_random_range))
-	essentials.assert(
-		memoize.v3(
-			min_absolute_number,
-			min_absolute_number,
-			0
-		):magnitude() < max_magnitude * 0.8,
-		"Min random range is too big.",
-		min_absolute_number,
-		max_absolute_number
-	)
-	essentials.assert(
-		memoize.v3(
-			max_absolute_number, 
-			max_absolute_number, 
-			0
-		):magnitude() > min_magnitude * 1.2, 
-		"Max random range is too small.",
-		min_absolute_number,
-		max_absolute_number
-	)
-	local offset
-	repeat 
-	--[[
-		Any combination of arguments that could cause infinite loop will raise error.
-		The random range is required to be reasonable and will raise error if it's too small.
-	--]]
-		offset = memoize.v3(
-			math.random(min_random_range, max_random_range),
-			math.random(min_random_range, max_random_range), 
-			0
-		)
-		local dist <const> = offset:magnitude()
-	until dist >= min_magnitude and dist <= max_magnitude
-	return offset
-end
-
 function kek_entity.get_control_of_entity(...)
-	local Entity <const>, time_to_wait <const>, no_condition <const>, send_msg <const> = ...
+	local Entity <const>, time_to_wait <const>, no_condition <const> = ...
 	if not network.has_control_of_entity(Entity) 
 	and entity.is_an_entity(Entity) 
 	and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) 
@@ -149,45 +91,53 @@ function kek_entity.get_control_of_entity(...)
 			system.yield(0)
 		end
 	end
-	if send_msg and not network.has_control_of_entity(Entity) then
-		essentials.msg(lang["Failed to get control. If you're blocking \"give control\" in net event hooks, disable it."], "red", true, 6)
-	end
 	return network.has_control_of_entity(Entity)
 end
 
-do
-	local spawn_timer = 0
-	function kek_entity.spawn_ped_or_vehicle(...)
-		local hash <const>, 
-		coords_and_heading <const>, 
-		give_godmode <const>, 
-		max_vehicle <const>, 
-		ped_type <const>, 
-		dont_disregard_hash_after_spawn <const>, 
-		weight <const>, 
-		not_networked <const> = ...
-		essentials.assert(streaming.is_model_valid(hash), "Tried to use an invalid model hash.", hash)
-		essentials.assert(not streaming.is_model_an_object(hash), "Tried to spawn an object with wrong function.", hash)
-		while spawn_timer > utils.time_ms() and essentials.new_session_timer < utils.time_ms() do
-			system.yield(0)
+local spawn_timer = 0
+function kek_entity.spawn_entity(...)
+	local hash <const>, 
+	coords_and_heading <const>, 
+	give_godmode <const>, 
+	max_vehicle <const>, 
+	ped_type <const>, 
+	dont_disregard_hash_after_spawn <const>, 
+	weight <const>, 
+	not_dynamic_object <const>, 
+	not_networked <const> = ...
+	local Entity = 0
+	essentials.assert(streaming.is_model_valid(hash), "Tried to use an invalid model hash.")
+	essentials.assert(not object_mapper.BLACKLISTED_OBJECTS[hash], "Tried to spawn a blacklisted object.")
+	essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a blacklisted ped.")
+	if utils.time_ms() > essentials.new_session_timer then
+		if not streaming.is_model_an_object(hash) then
+			repeat
+				system.yield(0)
+			until utils.time_ms() >= spawn_timer or utils.time_ms() < essentials.new_session_timer
 		end
-		local Entity = 0
-		if utils.time_ms() > essentials.new_session_timer then -- Clears spawn queue immediately if new session
+		if utils.time_ms() > essentials.new_session_timer and (streaming.is_model_an_object(hash) or utils.time_ms() >= spawn_timer) then
 			local status <const>, had_to_request_hash <const> = kek_entity.request_model(hash)
 			if status then
-				spawn_timer = utils.time_ms() + 2500
+				if not streaming.is_model_an_object(hash) then
+					spawn_timer = utils.time_ms() + 2500
+				end
 				local coords <const>, dir <const> = coords_and_heading()
+				essentials.assert(type(coords) == "userdata", "Invalid coordinates.")
 				if streaming.is_model_a_vehicle(hash) then
 					Entity = vehicle.create_vehicle(hash, coords, dir, not_networked ~= true, not_networked == true, weight)
 					if max_vehicle then
 						kek_entity.max_car(Entity)
 					end	
-					decorator.decor_set_int(Entity, "MPBitset", 1 << 10) -- Stops the game from kicking people out of the vehicle
+					decorator.decor_set_int(Entity, "MPBitset", 1 << 10)
+					system.yield(0)
 				elseif streaming.is_model_a_ped(hash) then
-					essentials.assert(ped_type >= -1 and ped_type <= 29, "Invalid ped type.", ped_type, hash)
+					essentials.assert(ped_type >= -1 and ped_type <= 29, "Invalid ped type.")
 					Entity = ped.create_ped(ped_type, hash, coords, dir, not_networked ~= true, not_networked == true, weight)
 					system.yield(0)
-					ped.clear_ped_tasks_immediately(Entity) -- Peds won't start animation & possibly other problems if not clearing tasks.
+				elseif streaming.is_model_a_world_object(hash) then
+					Entity = object.create_world_object(hash, coords, not not_networked, not not_dynamic_object, weight)
+				elseif streaming.is_model_an_object(hash) then
+					Entity = object.create_object(hash, coords, not not_networked, not not_dynamic_object, weight)
 				end
 				if give_godmode then
 					entity.set_entity_god_mode(Entity, true)
@@ -195,47 +145,20 @@ do
 				if had_to_request_hash and not dont_disregard_hash_after_spawn then
 					streaming.set_model_as_no_longer_needed(hash)
 				end
-				system.yield(0)
-				spawn_timer = 0
+				if not streaming.is_model_an_object(hash) then
+					spawn_timer = 0
+				end
 			end
 		end
-		return Entity
 	end
-end
-
-function kek_entity.spawn_object(...)
-	local hash <const>,
-	coords <const>,
-	dont_disregard_hash_after_spawn <const>,
-	not_dynamic_object <const>,
-	not_networked <const>,
-	weight <const> = ...
-	essentials.assert(streaming.is_model_valid(hash), "Tried to use an invalid model hash.", hash)
-	if utils.time_ms() > essentials.new_session_timer then
-		local status <const>, had_to_request_hash <const> = kek_entity.request_model(hash)
-		local Object = 0
-		if status then
-			local coords <const> = coords()
-			if streaming.is_model_a_world_object(hash) then
-				Object = object.create_world_object(hash, coords, not not_networked, not not_dynamic_object, weight)
-			elseif streaming.is_model_an_object(hash) then
-				Object = object.create_object(hash, coords, not not_networked, not not_dynamic_object, weight)
-			else
-				essentials.assert(false, "Tried to use a non-object hash in spawn_object function.", hash)
-			end
-		end
-		if had_to_request_hash and not dont_disregard_hash_after_spawn then
-			streaming.set_model_as_no_longer_needed(hash)
-		end
-		return Object
-	end
-	return 0
+	return Entity
 end
 
 function kek_entity.is_entity_valid(Entity)
 	return entity.is_an_entity(Entity)
 	and not entity.is_entity_static(Entity)
 	and (not entity.is_entity_a_vehicle(Entity) or not vehicle.is_vehicle_stuck_on_roof(Entity))
+	and (not entity.is_entity_a_ped(Entity) or not ai.is_task_active(Entity, enums.ctasks.DoNothing))
 end
 
 function kek_entity.teleport(...)
@@ -250,33 +173,34 @@ end
 
 function kek_entity.is_any_tasks_active(...)
 	local Ped <const>, tasks <const> = ...
-	local active_tasks <const> = {}
-	if entity.is_an_entity(Ped) then
-		essentials.assert(entity.is_entity_a_ped(Ped), "Expected a ped from argument \"Ped\".")
-		for i = 1, #tasks do
-			if ai.is_task_active(Ped, tasks[i]) then
-				active_tasks[#active_tasks + 1] = tasks[i]
-			end
+	essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped from argument \"Ped\".")
+	for _, task in pairs(tasks) do
+		if ai.is_task_active(Ped, task) then
+			return true
 		end
 	end
-	return active_tasks
 end
 
-function kek_entity.check_player_vehicle_and_teleport_if_necessary(...)
-	local pid <const>, feature <const> = ...
+function kek_entity.is_target_viable(...)
+	local pid <const>,
+	is_a_toggle <const>,
+	feature <const> = ...
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 	local had_to_teleport = false
-	local time <const> = utils.time_ms() + 1250
-	while time > utils.time_ms() and essentials.is_in_vehicle(pid) do
-		if player.is_player_in_any_vehicle(pid) then
-			return true, had_to_teleport
-		else
-			had_to_teleport = true
-			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), location_mapper.get_ground_z(memoize.get_player_coords(pid)) + memoize.v3(0, 0, 45))
+	if player.is_player_valid(pid) and essentials.is_in_vehicle(pid) then
+		local time <const> = utils.time_ms() + 1500
+		while time > utils.time_ms() and essentials.is_in_vehicle(pid) do
+			system.yield(0)
+			if player.is_player_in_any_vehicle(pid) then
+				return true, had_to_teleport
+			else
+				had_to_teleport = true
+				kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), location_mapper.get_ground_z(player.get_player_coords(pid)) + v3(0, 0, 45))
+			end
+			if is_a_toggle and not feature.on then
+				return false, had_to_teleport
+			end
 		end
-		if feature and not feature.on then
-			break
-		end
-		system.yield(0)
 	end
 	return false, had_to_teleport
 end
@@ -284,8 +208,8 @@ end
 function kek_entity.remove_player_entities(...)
 	local table_of_entities <const> = ...
 	local new <const> = {}
-	for Entity in essentials.entities(table_of_entities) do
-		if not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity) then
+	for _, Entity in pairs(table_of_entities) do
+		if entity.is_an_entity(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
 			local status = true
 			if entity.is_entity_a_vehicle(Entity) then
 				for pid in essentials.players(true) do
@@ -303,18 +227,15 @@ function kek_entity.remove_player_entities(...)
 	return new
 end
 
-function kek_entity.get_all_attached_entities(Entity, entities)
-	local entities <const> = entities or {}
-	for _, all_entities in pairs({
-		vehicle.get_all_vehicles(),
-		ped.get_all_peds(),
-		object.get_all_objects()
-	}) do
-		for i = 1, #all_entities do
-			if entity.get_entity_attached_to(all_entities[i]) == Entity and (not entity.is_entity_a_ped(all_entities[i]) or not ped.is_ped_a_player(all_entities[i])) then
-				entities[#entities + 1] = all_entities[i]
-				kek_entity.get_all_attached_entities(all_entities[i], entities)
-			end
+function kek_entity.get_all_attached_entities(...)
+	local Entity <const> = ...
+	local entities <const> = {}
+	local all_entities <const> = essentials.const(kek_entity.get_table_of_close_entity_type(6))
+	for i = 1, #all_entities do
+		if entity.get_entity_attached_to(all_entities[i]) == Entity and (not entity.is_entity_a_ped(all_entities[i]) or not ped.is_ped_a_player(all_entities[i])) then
+			entities[#entities + 1] = all_entities[i]
+			local attached_entities <const> = kek_entity.get_all_attached_entities(all_entities[i])
+			table.move(attached_entities, 1, #attached_entities, #entities + 1, entities)
 		end
 	end
 	return entities
@@ -340,52 +261,67 @@ function kek_entity.hard_remove_entity_and_its_attachments(...)
 	end
 end
 
+function kek_entity.get_table_of_close_entity_type(...)
+	local type <const> = ...
+	if type == 1 then
+		return vehicle.get_all_vehicles()
+	elseif type == 2 then
+		return ped.get_all_peds()
+	elseif type == 3 then
+		return object.get_all_objects()
+	elseif type == 4 then
+		return object.get_all_pickups()
+	elseif type == 5 then
+		return essentials.merge_tables(vehicle.get_all_vehicles(), {ped.get_all_peds()})
+	elseif type == 6 then
+		return essentials.merge_tables(vehicle.get_all_vehicles(), {ped.get_all_peds(), object.get_all_pickups(), object.get_all_objects()})
+	else
+		essentials.assert(false, "Invalid entity type.")
+	end
+end
+
 function kek_entity.clear_entities(...)
-	local table_of_entities <const> = ...
-	for i2 = 1, 2 do
-		local count = 1
-		for Entity, i in essentials.entities(table_of_entities) do
+	local table_of_entities = ...
+	for i = 1, 2 do
+		local count = 0
+		local removed_entities = 0
+		for i, Entity in pairs(table_of_entities) do
 			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
-			if i2 == 1 and not network.has_control_of_entity(Entity) then 
-				network.request_control_of_entity(Entity)
-			end
+			network.request_control_of_entity(Entity)
+			count = count + 1
 			if network.has_control_of_entity(Entity) then
-				if ui.get_blip_from_entity(Entity) ~= 0 then
-					ui.remove_blip(ui.get_blip_from_entity(Entity))
-				end
+				ui.remove_blip(ui.get_blip_from_entity(Entity))
 				entity.set_entity_as_mission_entity(Entity, false, true)
 				entity.delete_entity(Entity)
-				table_of_entities[i] = nil
-				count = count + 1
+				if not entity.is_an_entity(Entity) then
+					removed_entities = removed_entities + 1
+					table_of_entities[i] = nil
+				end
 			end
-			if count % 10 == 0 then
+			if count % 16 == 15 then
 				system.yield(0)
 			end
 		end
-		if next(table_of_entities) then
+		if i == 1 and removed_entities ~= count then
 			system.yield(0)
 		end
 	end
 end			
 
 function kek_entity.get_number_of_passengers(...)
-	local Vehicle <const> = ...
-	if entity.is_an_entity(Vehicle) then
-		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
-		local passengers <const>, is_there_a_player_in_the_vehicle = {}
-		for i = -1, vehicle.get_vehicle_max_number_of_passengers(Vehicle) - 2 do
-			local Ped <const> = vehicle.get_ped_in_vehicle_seat(Vehicle, i)
-			if entity.is_entity_a_ped(Ped) then
-				passengers[#passengers + 1] = Ped
-				if ped.is_ped_a_player(Ped) and player.get_player_from_ped(Ped) ~= player.player_id() then
-					is_there_a_player_in_the_vehicle = true
-				end
+	local car <const> = ...
+	essentials.assert(not entity.is_an_entity(car) or entity.is_entity_a_vehicle(car), "Expected a vehicle from argument \"car\".")
+	local passengers <const>, is_there_a_player_in_the_vehicle = {}
+	for i = -1, vehicle.get_vehicle_max_number_of_passengers(car) - 2 do
+		local Ped <const> = vehicle.get_ped_in_vehicle_seat(car, i)
+		if entity.is_an_entity(Ped) then
+			passengers[#passengers + 1] = Ped
+			if ped.is_ped_a_player(Ped) and player.get_player_from_ped(Ped) ~= player.player_id() then
+				is_there_a_player_in_the_vehicle = true
 			end
 		end
-		return passengers, is_there_a_player_in_the_vehicle
-	else
-		return {}, false
 	end
+	return passengers, is_there_a_player_in_the_vehicle
 end
 
 function kek_entity.is_player_in_vehicle(...)
@@ -409,7 +345,7 @@ end
 function kek_entity.request_model(...)
 	local model_hash <const> = ...
 	local is_hash_already_loaded <const> = not streaming.has_model_loaded(model_hash)
-	essentials.assert(streaming.is_model_valid(model_hash), "Tried to request invalid model hash.", model_hash)
+	essentials.assert(streaming.is_model_valid(model_hash), "Tried to request invalid model hash.")
 	if is_hash_already_loaded then
 		streaming.request_model(model_hash)
 		local time <const> = utils.time_ms() + 450
@@ -425,24 +361,21 @@ function kek_entity.get_rotated_heading(...)
 	angle <const>,
 	pid <const>,
 	heading = ...
-	if entity.is_an_entity(Entity) then
-		if not heading then
-			if pid then
-				heading = player.get_player_heading(pid)
-			else
-				heading = entity.get_entity_heading(Entity)
-			end
+	essentials.assert(not pid or (pid >= 0 and pid <= 31), "Invalid pid.")
+	if not heading then
+		if pid then
+			heading = player.get_player_heading(pid)
+		else
+			heading = entity.get_entity_heading(Entity)
 		end
-		heading = heading + angle
-		if heading > 179.99999 then
-			heading = -179.99999 + (math.abs(heading) - 179.99999)
-		elseif heading < -179.99999 then
-			heading = 179.99999 - (math.abs(heading) - 179.99999)
-		end
-		return heading
-	else
-		return 0
 	end
+	heading = heading + angle
+	if heading > 179.99999 then
+		heading = -179.99999 + (math.abs(heading) - 179.99999)
+	elseif heading < -179.99999 then
+		heading = 179.99999 - (math.abs(heading) - 179.99999)
+	end
+	return heading
 end
 
 function kek_entity.get_vector_relative_to_entity(...)
@@ -451,28 +384,25 @@ function kek_entity.get_vector_relative_to_entity(...)
 	angle <const>,
 	get_z_axis <const>,
 	pid <const> = ...
-	if entity.is_an_entity(Entity) then
-		local rot, heading = v3(), 0
-		if pid then
-			heading = kek_entity.get_rotated_heading(Entity, angle or 0, pid)
-		else
-			heading = entity.get_entity_heading(Entity)
-		end
-		local pos = entity.get_entity_coords(Entity)
-		if get_z_axis then
-			rot = entity.get_entity_rotation(Entity)
-			rot.z = kek_entity.get_rotated_heading(Entity, angle or 0, nil, rot.z)
-	        rot:transformRotToDir()
-			pos = pos + (rot * distance_from_entity)
-		else
-			heading = math.rad((heading - 180) * -1)
-			pos.x = pos.x + (math.sin(heading) * -distance_from_entity)
-			pos.y = pos.y + (math.cos(heading) * -distance_from_entity)
-		end
-		return pos
+	essentials.assert(not pid or (pid >= 0 and pid <= 31), "Invalid pid.")
+	local rot, heading = v3(), 0
+	if pid then
+		heading = kek_entity.get_rotated_heading(Entity, angle or 0, pid)
 	else
-		return memoize.v3()
+		heading = entity.get_entity_heading(Entity)
 	end
+	local pos = entity.get_entity_coords(Entity)
+	if get_z_axis then
+		rot = entity.get_entity_rotation(Entity)
+		rot.z = kek_entity.get_rotated_heading(Entity, angle or 0, nil, rot.z)
+        rot:transformRotToDir()
+		pos = pos + (rot * distance_from_entity)
+	else
+		heading = math.rad((heading - 180) * -1)
+		pos.x = pos.x + (math.sin(heading) * -distance_from_entity)
+		pos.y = pos.y + (math.cos(heading) * -distance_from_entity)
+	end
+	return pos
 end
 
 function kek_entity.get_vector_in_front_of_me(...)
@@ -488,7 +418,7 @@ function kek_entity.get_empty_seats(...)
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		for i = -1, vehicle.get_vehicle_model_number_of_seats(entity.get_entity_model_hash(Vehicle)) - 2 do
-			if not entity.is_entity_a_ped(vehicle.get_ped_in_vehicle_seat(Vehicle, i)) then
+			if not entity.is_an_entity(vehicle.get_ped_in_vehicle_seat(Vehicle, i)) then
 				seats[#seats + 1] = i
 			end
 		end
@@ -538,33 +468,30 @@ end
 
 function kek_entity.modify_entity_godmode(...)
 	local Entity <const>, toggle_on_god <const> = ...
-	if entity.is_an_entity(Entity) then
-		essentials.assert(entity.is_entity_a_ped(Entity) or entity.is_entity_a_vehicle(Entity), "Expected a vehicle or ped from argument \"Entity\".")
-		if kek_entity.get_control_of_entity(Entity) then
-			entity.set_entity_god_mode(Entity, toggle_on_god)
-			if entity.is_entity_a_vehicle(Entity) then
-				vehicle.set_vehicle_can_be_visibly_damaged(Entity, false)
-			end
+	essentials.assert(not entity.is_an_entity(Entity) or entity.is_entity_a_ped(Entity) or entity.is_entity_a_vehicle(Entity), "Expected a vehicle or ped from argument \"Entity\".")
+	if kek_entity.get_control_of_entity(Entity) then
+		entity.set_entity_god_mode(Entity, toggle_on_god)
+		if entity.is_entity_a_vehicle(Entity) then
+			vehicle.set_vehicle_can_be_visibly_damaged(Entity, false)
 		end
+		return entity.get_entity_god_mode(Entity)
 	end
 end
 
 function kek_entity.repair_car(...)
-	local Vehicle <const>, preserve_velocity <const> = ...
-	if entity.is_an_entity(Vehicle) then
-		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
-		if kek_entity.get_control_of_entity(Vehicle) then
-			vehicle.set_vehicle_undriveable(Vehicle, false)
-			local velocity <const> = entity.get_entity_velocity(Vehicle)
-			if entity.is_entity_on_fire(Vehicle) then
-				fire.stop_entity_fire(Vehicle)
-			end
-			vehicle.set_vehicle_fixed(Vehicle)
-			vehicle.set_vehicle_engine_health(Vehicle, 1000)
-			vehicle.set_vehicle_engine_on(Vehicle, true, true, true)
-			if preserve_velocity and velocity ~= memoize.v3() then
-				entity.set_entity_velocity(Vehicle, velocity)
-			end
+	local car <const>, preserve_velocity <const> = ...
+	essentials.assert(not entity.is_an_entity(car) or entity.is_entity_a_vehicle(car), "Expected a vehicle from argument \"car\".")
+	if kek_entity.get_control_of_entity(car) then
+		vehicle.set_vehicle_undriveable(car, false)
+		local velocity <const> = entity.get_entity_velocity(car)
+		if entity.is_entity_on_fire(car) then
+			fire.stop_entity_fire(car)
+		end
+		vehicle.set_vehicle_fixed(car)
+		vehicle.set_vehicle_engine_health(car, 1000)
+		vehicle.set_vehicle_engine_on(car, true, true, true)
+		if preserve_velocity and velocity ~= v3() then
+			entity.set_entity_velocity(car, velocity)
 		end
 	end
 end
@@ -651,7 +578,7 @@ do
 		else
 			vehicle.set_vehicle_mod(Vehicle, 10, 1)
 		end
-		if preserve_velocity and velocity ~= memoize.v3() then
+		if preserve_velocity and velocity ~= v3() then
 			entity.set_entity_velocity(Vehicle, velocity)
 		end
 		return
@@ -661,10 +588,10 @@ end
 -- Gets the position on a surface the player is looking at.
 function kek_entity.get_collision_vector(...)
 	local pid <const> = ...
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 	local rot = cam.get_gameplay_cam_rot()
     rot:transformRotToDir()
-    local hit_pos <const> = select(2, worldprobe.raycast(player.get_player_coords(pid), rot * 1000 + cam.get_gameplay_cam_pos(), -1, player.get_player_ped(pid)))
-    return hit_pos
+    return select(2, worldprobe.raycast(player.get_player_coords(pid), rot * 1000 + cam.get_gameplay_cam_pos(), -1, player.get_player_ped(pid)))
 end
 
 --[[
@@ -681,14 +608,14 @@ function kek_entity.get_table_of_entities_with_respect_to_distance_and_set_limit
 	local entity_tables <const>, Ped <const> = ...
 	essentials.assert(not entity.is_an_entity(Ped) or ped.is_ped_a_player(Ped), "Expected a player ped from argument \"Ped\".")
 	local new_sorted_tables <const> = {}
-	for i, entity_table in pairs(entity_tables) do
+	for _, entity_table in pairs(entity_tables) do
 		if entity_table.remove_player_entities then
 			entity_table.entities = kek_entity.remove_player_entities(entity_table.entities)
 		end
 		if entity_table.max_range then
 			local temp <const> = {}
 			for i = 1, #entity_table.entities do
-				if memoize.get_distance_between(Ped, entity_table.entities[i]) < entity_table.max_range then
+				if essentials.get_distance_between(Ped, entity_table.entities[i]) < entity_table.max_range then
 					temp[#temp + 1] = entity_table.entities[i]
 				end
 			end
@@ -696,7 +623,7 @@ function kek_entity.get_table_of_entities_with_respect_to_distance_and_set_limit
 		end
 		if entity_table.sort_by_closest then
 			table.sort(entity_table.entities, function(a, b) 
-				return memoize.get_distance_between(Ped, a) < memoize.get_distance_between(Ped, b)
+				return (essentials.get_distance_between(a, Ped) < essentials.get_distance_between(b, Ped)) 
 			end)
 		end
 		if entity_table.max_number_of_entities then
@@ -704,15 +631,16 @@ function kek_entity.get_table_of_entities_with_respect_to_distance_and_set_limit
 				entity_table.entities[#entity_table.entities] = nil
 			end
 		end
-		new_sorted_tables[i] = entity_table.entities
+		new_sorted_tables[#new_sorted_tables + 1] = entity_table.entities
 	end
-	return new_sorted_tables
+	return essentials.merge_tables({}, new_sorted_tables)
 end
 
 function kek_entity.remove_player_vehicle(...)
 	local pid <const> = ...
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 	local initial_pos <const> = player.get_player_coords(player.player_id())
-	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
+	local status <const>, had_to_teleport <const> = kek_entity.is_target_viable(pid)
 	if status then
 		local time <const> = utils.time_ms() + 2000
 		while player.is_player_in_any_vehicle(pid) and time > utils.time_ms() do
@@ -726,7 +654,7 @@ function kek_entity.remove_player_vehicle(...)
 	if had_to_teleport then
 		kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
-	return not entity.is_entity_a_vehicle(player.get_player_vehicle(pid))
+	return not entity.is_an_entity(player.get_player_vehicle(pid))
 end
 
 function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
@@ -734,101 +662,94 @@ function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
 	clear_vehicle_after_ram <const>,
 	distance_from_target,
 	hash_or_entity <const> = ...
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 	local speed
 	if math.random(0, 1) == 1 then -- Whether vehicle is pushed from behind or front of player
-		speed = 120
+		speed = 140
 		distance_from_target = -math.abs(distance_from_target)
 	else
-		speed = -120
+		speed = -140
 	end
 	if not entity.is_entity_dead(player.get_player_ped(pid)) then
 		if player.is_player_in_any_vehicle(pid) then
 			kek_entity.get_control_of_entity(player.get_player_vehicle(pid), 0)
 		end
-		local Vehicle = hash_or_entity
+		local car = hash_or_entity
 		local spawn_pos
-		if not entity.is_entity_a_vehicle(hash_or_entity) then
-			essentials.assert(streaming.is_model_a_vehicle(hash_or_entity), "Expected a valid vehicle hash.", hash_or_entity)
-			Vehicle = kek_entity.spawn_ped_or_vehicle(hash_or_entity, function()
+		if not entity.is_an_entity(hash_or_entity) then
+			essentials.assert(streaming.is_model_a_vehicle(hash_or_entity), "Expected a valid vehicle hash.")
+			car = kek_entity.spawn_entity(hash_or_entity, function()
 				spawn_pos = kek_entity.get_vector_relative_to_entity(essentials.get_most_relevant_entity(pid), distance_from_target, nil, nil, pid)
-				spawn_pos.z = select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f1, memoize.v3())).z
+				spawn_pos.z = select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f1, v3())).z
 				return spawn_pos, player.get_player_heading(pid)
 			end)
 		else
 			essentials.assert(not entity.is_an_entity(hash_or_entity) or entity.is_entity_a_vehicle(hash_or_entity), "Expected a vehicle from argument \"hash_or_entity\".")
 		end
-		if entity.is_entity_a_vehicle(Vehicle) then
-			vehicle.set_vehicle_out_of_control(Vehicle, false, true)
-			vehicle.set_vehicle_forward_speed(Vehicle, speed)
+		entity.set_entity_max_speed(car, 45000)
+		if entity.is_an_entity(car) then
+			vehicle.set_vehicle_out_of_control(car, false, true)
+			vehicle.set_vehicle_forward_speed(car, speed)
+			entity.set_entity_as_no_longer_needed(car)
 			if clear_vehicle_after_ram then
 				system.yield(300)
-				kek_entity.clear_entities({Vehicle})
+				kek_entity.clear_entities({car})
 			end
-			return Vehicle
+			return car
 		end
 	end
 	return 0
-end
-
-function kek_entity.ram_player(pid)
-	local count = 0
-	while count < 5 and player.is_player_valid(pid) and not entity.is_entity_dead(player.get_player_ped(pid)) do
-		essentials.use_ptfx_function(kek_entity.spawn_and_push_a_vehicle_in_direction, pid, true, 8, gameplay.get_hash_key("tanker"))
-		system.yield(150)
-		count = count + 1
-	end
 end
 
 function kek_entity.set_combat_attributes(...)
 	local Ped <const>, 
 	set_all_attributes_to_true <const>,
 	attributes <const> = ...
-	if entity.is_an_entity(Ped) then
-		essentials.assert(entity.is_entity_a_ped(Ped), "Expected a ped from argument \"Ped\".")
-		essentials.assert(not ped.is_ped_a_player(Ped), "Expected a non-player ped.")
-		for attribute_id, is_on in pairs({
-			[0] = attributes.cover or false,
-			[1] = attributes.use_vehicle or false,
-			[2] = attributes.driveby or false,
-			[3] = attributes.leave_vehicle or false,
-			[5] = attributes.unarmed_fight_armed or false, 
-			[20] = attributes.taunt_in_vehicle or false,
-			[46] = attributes.always_fight or false,
-			[52] = attributes.ignore_traffic or false,
-			[1424] = attributes.use_fireing_weapons or false
-		}) do
-			ped.set_ped_combat_attributes(Ped, attribute_id, set_all_attributes_to_true or is_on == true)
-		end
-		ped.set_ped_combat_ability(Ped, 100)
-		ped.set_ped_combat_range(Ped, enums.combat_range.CR_Far)
-		ped.set_ped_combat_movement(Ped, enums.combat_movement.offensive)
-		ped.set_ped_relationship_group_hash(Ped, gameplay.get_hash_key("HATES_PLAYER"))
+	essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped from argument \"Ped\".")
+	essentials.assert(not ped.is_ped_a_player(Ped), "Expected a non-player ped.")
+	for attribute_id, is_on in pairs({
+		[0] = attributes.cover or false,
+		[1] = attributes.use_vehicle or false,
+		[2] = attributes.driveby or false,
+		[3] = attributes.leave_vehicle or false,
+		[5] = attributes.unarmed_fight_armed or false, 
+		[20] = attributes.taunt_in_vehicle or false,
+		[46] = attributes.always_fight or false,
+		[52] = attributes.ignore_traffic or false,
+		[1424] = attributes.use_fireing_weapons or false
+	}) do
+		ped.set_ped_combat_attributes(Ped, attribute_id, set_all_attributes_to_true or is_on == true)
 	end
+	ped.set_ped_combat_ability(Ped, 100)
+	ped.set_ped_combat_range(Ped, enums.combat_range.CR_Far)
+	ped.set_ped_combat_movement(Ped, enums.combat_movement.offensive)
+	ped.set_ped_relationship_group_hash(Ped, gameplay.get_hash_key("HATES_PLAYER"))
 end
 
 function kek_entity.create_cage(...)
 	local pid <const> = ...
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 	ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 	system.yield(250)
-	local temp_ped <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("a_f_y_tourist_02"), function() 
-		return select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x3779, memoize.v3())), 0
+	local temp_ped <const> = kek_entity.spawn_entity(gameplay.get_hash_key("a_f_y_tourist_02"), function() 
+		return select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x3779, v3())), 0
 	end, true, false, enums.ped_types.civmale)
 	if entity.is_entity_a_ped(temp_ped) then
 		entity.set_entity_visible(temp_ped, false)
 		ped.set_ped_config_flag(temp_ped, enums.ped_config_flags.InVehicle, 1)
 		entity.freeze_entity(temp_ped, true)
-		local cage <const> = kek_entity.spawn_object(gameplay.get_hash_key("prop_test_elevator"), function()
-			return player.get_player_coords(pid) + memoize.v3(0, 0, 10)
+		local cage <const> = kek_entity.spawn_entity(gameplay.get_hash_key("prop_test_elevator"), function()
+			return player.get_player_coords(pid) + v3(0, 0, 10), 0
 		end)
-		local cage_2 <const> = kek_entity.spawn_object(gameplay.get_hash_key("prop_test_elevator"), function()
-			return player.get_player_coords(pid) + memoize.v3(0, 0, 10)
+		local cage_2 <const> = kek_entity.spawn_entity(gameplay.get_hash_key("prop_test_elevator"), function()
+			return player.get_player_coords(pid) + v3(0, 0, 10), 0
 		end)
 		entity.set_entity_visible(temp_ped, true)
-		entity.attach_entity_to_entity(cage, temp_ped, 0, memoize.v3(), memoize.v3(), false, true, true, 0, true)
-		entity.attach_entity_to_entity(cage_2, cage, 0, memoize.v3(), memoize.v3(0, 0, 90), false, true, false, 0, true)
+		entity.attach_entity_to_entity(cage, temp_ped, 0, v3(), v3(), false, true, true, 0, true)
+		entity.attach_entity_to_entity(cage_2, cage, 0, v3(), v3(0, 0, 90), false, true, false, 0, true)
 		entity.set_entity_visible(temp_ped, false)
 		menu.create_thread(function()
-			while player.is_player_valid(pid) and entity.is_entity_a_ped(temp_ped) do
+			while player.is_player_valid(pid) and entity.is_an_entity(temp_ped) do
 				kek_entity.get_control_of_entity(temp_ped, 0)
 				ped.clear_ped_tasks_immediately(temp_ped)
 				system.yield(0)
@@ -842,7 +763,7 @@ end
 
 local function get_prefered_vehicle_pos(...)
 	local hash <const> = ...
-	essentials.assert(streaming.is_model_a_vehicle(hash), "Expected a valid vehicle hash.", hash)
+	essentials.assert(streaming.is_model_a_vehicle(hash), "Expected a valid vehicle hash.")
 	if settings.toggle["Air #vehicle# spawn mid-air"].on and settings.toggle["Spawn inside of spawned #vehicle#"].on and streaming.is_model_a_heli(hash) then
 		return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 10), true) + v3(0, 0, 100 - kek_entity.get_entity_altitude(essentials.get_most_relevant_entity(player.player_id())))
 	elseif settings.toggle["Air #vehicle# spawn mid-air"].on and settings.toggle["Spawn inside of spawned #vehicle#"].on and streaming.is_model_a_plane(hash) then
@@ -854,30 +775,26 @@ end
 
 function kek_entity.vehicle_preferences(...)
 	local Vehicle <const>, teleport <const> = ...
+	essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
+	if settings.toggle["Delete old #vehicle#"].on then
+		for _, Entity in pairs(kek_entity.user_vehicles) do
+			kek_entity.hard_remove_entity_and_its_attachments(Entity)
+		end
+		kek_entity.user_vehicles = {}
+	end
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
-		kek_entity.user_vehicles[player.get_player_vehicle(player.player_id())] = player.get_player_vehicle(player.player_id())
-		if settings.toggle["Delete old #vehicle#"].on then
-			for Vehicle in essentials.entities(essentials.deep_copy(kek_entity.user_vehicles)) do
-				kek_entity.user_vehicles[Vehicle] = nil
-				essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected only vehicles in user_vehicles table.")
-				kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
-			end
+		local hash <const> = entity.get_entity_model_hash(Vehicle)
+		if teleport then
+			kek_entity.teleport(Vehicle, get_prefered_vehicle_pos(hash))
 		end
-		if entity.is_entity_a_vehicle(Vehicle) then
-			essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
-			local hash <const> = entity.get_entity_model_hash(Vehicle)
-			if teleport then
-				kek_entity.teleport(Vehicle, get_prefered_vehicle_pos(hash))
+		if settings.toggle["Spawn inside of spawned #vehicle#"].on then
+			if streaming.is_model_a_heli(hash) then
+				vehicle.set_heli_blades_full_speed(Vehicle)
+			elseif streaming.is_model_a_plane(hash) then
+				vehicle.set_vehicle_forward_speed(Vehicle, 100)
 			end
-			if settings.toggle["Spawn inside of spawned #vehicle#"].on then
-				if streaming.is_model_a_heli(hash) then
-					vehicle.set_heli_blades_full_speed(Vehicle)
-				elseif streaming.is_model_a_plane(hash) then
-					vehicle.set_vehicle_forward_speed(Vehicle, 100)
-				end
-				ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), Vehicle, enums.vehicle_seats.driver)
-			end
+			ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), Vehicle, enums.vehicle_seats.driver)
 		end
 	end
 end
@@ -905,28 +822,27 @@ end
 
 function kek_entity.spawn_car()
 	if settings.toggle["Always ask what #vehicle#"].on then
-		local input <const>, status <const> = keys_and_input.input_user_entity("vehicle")
+		local input <const>, status <const> = keys_and_input.get_input(lang["Type in what car to use §"], "", 128, 0)
 		if status == 2 then
 			return
 		end
-		settings:update_user_entity(input, "vehicle")
+		settings.in_use["Default vehicle"] = input
 	end
-	local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
+	local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["Default vehicle"])
 	if streaming.is_model_a_vehicle(hash) then
 		if not kek_entity.entity_manager:update().is_vehicle_limit_not_breached then
-			essentials.msg(lang["Failed to spawn vehicle. Vehicle limit was reached"], "red", true, 6)
+			essentials.msg(lang["Failed to spawn vehicle. Vehicle limit was reached §"], 6, true, 6)
 			return -1
 		end
-		kek_entity.user_vehicles[player.get_player_vehicle(player.player_id())] = player.get_player_vehicle(player.player_id())
+		kek_entity.user_vehicles[#kek_entity.user_vehicles + 1] = player.get_player_vehicle(player.player_id())
 		if settings.toggle["Delete old #vehicle#"].on then
-			for Vehicle in essentials.entities(essentials.deep_copy(kek_entity.user_vehicles)) do
-				kek_entity.user_vehicles[Vehicle] = nil
-				essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected only vehicles in user_vehicles table.")
-				kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
+			for _, Entity in pairs(kek_entity.user_vehicles) do
+				kek_entity.hard_remove_entity_and_its_attachments(Entity)
 			end
+			kek_entity.user_vehicles = {}
 		end
 		local velocity <const> = entity.get_entity_velocity(essentials.get_most_relevant_entity(player.player_id()))
-		local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+		local Vehicle <const> = kek_entity.spawn_entity(hash, function()
 			return get_prefered_vehicle_pos(hash), player.get_player_heading(player.player_id())
 		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
 		if settings.toggle["Always f1 wheels on #vehicle#"].on then
@@ -934,9 +850,9 @@ function kek_entity.spawn_car()
 		end
 		kek_entity.vehicle_preferences(Vehicle)
 		vehicle.set_vehicle_engine_on(Vehicle, true, true, false)
-		kek_entity.user_vehicles[Vehicle] = Vehicle
+		kek_entity.user_vehicles[#kek_entity.user_vehicles + 1] = Vehicle
 	else
-		essentials.msg(lang["Failed to spawn vehicle. Invalid vehicle hash."], "red", true, 6)
+		essentials.msg(lang["Failed to spawn vehicle. Invalid vehicle hash. §"], 6, true, 6)
 		return -1
 	end
 end
@@ -967,33 +883,24 @@ do
 
 	function kek_entity.glitch_vehicle(...)
 		local Vehicle <const> = ...
-		if entity.is_an_entity(Vehicle) then
-			essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
-			local seat <const> = vehicle.get_free_seat(Vehicle)
-			if seat ~= -2 then
-				local Ped <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("a_f_y_topless_01"), function() 
-					return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 10), 0
-				end, true, false, enums.ped_types.civmale)
-				if entity.is_entity_a_ped(Ped) then
-					entity.set_entity_collision(Ped, false, false, false)
-					entity.set_entity_visible(Ped, false)
-					ped.set_ped_into_vehicle(Ped, Vehicle, seat)
-					local hash <const>, Entity = gameplay.get_hash_key(table_of_glitch_entity_models[math.random(1, #table_of_glitch_entity_models)])
-					if streaming.is_model_an_object(hash) then
-						Entity = kek_entity.spawn_object(hash, function()
-							return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 10)
-						end)
-					else
-						Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
-							return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 10), 0
-						end, true, false, enums.ped_types.civmale)
-					end
-					if entity.is_an_entity(Entity) then
-						entity.set_entity_visible(Entity, false)
-						entity.attach_entity_to_entity(Entity, Ped, 0, memoize.v3(), v3(math.random(0, 180), math.random(0, 180), math.random(0, 180)), false, true, entity.is_entity_a_ped(Entity), 0, false)
-					else
-						kek_entity.clear_entities({Ped, Entity})
-					end
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
+		local seat <const> = vehicle.get_free_seat(Vehicle)
+		if seat ~= -2 and entity.is_an_entity(Vehicle) then
+			local Ped <const> = kek_entity.spawn_entity(gameplay.get_hash_key("a_f_y_topless_01"), function() 
+				return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + v3(0, 0, 10), 0
+			end, true, false, enums.ped_types.civmale)
+			if entity.is_entity_a_ped(Ped) then
+				entity.set_entity_collision(Ped, false, false, false)
+				entity.set_entity_visible(Ped, false)
+				ped.set_ped_into_vehicle(Ped, Vehicle, seat)
+				local Entity <const> = kek_entity.spawn_entity(gameplay.get_hash_key(table_of_glitch_entity_models[math.random(1, #table_of_glitch_entity_models)]), function()
+					return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + v3(0, 0, 10), 0
+				end, true, false, enums.ped_types.civmale) -- This can spawn an object, ped or vehicle.
+				if entity.is_an_entity(Entity) then
+					entity.set_entity_visible(Entity, false)
+					entity.attach_entity_to_entity(Entity, Ped, 0, v3(), v3(math.random(0, 180), math.random(0, 180), math.random(0, 180)), false, true, entity.is_entity_a_ped(Entity), 0, false)
+				else
+					kek_entity.clear_entities({Ped, Entity})
 				end
 			end
 		end
@@ -1004,26 +911,20 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 	local pid <const>,
 	pos <const>,
 	teleport_you_back_to_original_pos <const>,
-	show_message <const>,
+	is_show_message <const>,
+	is_a_toggle <const>,
 	f <const> = ...
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 	local initial_pos <const> = player.get_player_coords(player.player_id())
-	local value
-	if f then
-		value = f.value
-	end
-	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid, f)
+	local status <const>, had_to_teleport <const> = kek_entity.is_target_viable(pid, is_a_toggle, f)
 	if status then
 		local time <const> = utils.time_ms() + 2000
 		repeat
 			kek_entity.teleport(player.get_player_vehicle(pid), pos)
-		until utils.time_ms() > time 
-		or (f and not f.on)
-		or (f and f.value ~= value)
-		or not entity.is_entity_a_vehicle(player.get_player_vehicle(pid)) 
-		or network.has_control_of_entity(player.get_player_vehicle(pid)) 
-		or not player.is_player_in_any_vehicle(pid)
-	elseif show_message then
-		essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is not in a vehicle."]), "red", true)
+			system.yield(100)
+		until not entity.is_an_entity(player.get_player_vehicle(pid)) or utils.time_ms() > time or network.has_control_of_entity(player.get_player_vehicle(pid)) or not player.is_player_in_any_vehicle(pid)
+	elseif is_show_message then
+		essentials.msg(player.get_player_name(pid).." "..lang["is not in a vehicle. §"], 6, true)
 	end
 	if teleport_you_back_to_original_pos and had_to_teleport then
 		kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
@@ -1035,19 +936,19 @@ function kek_entity.teleport_session(...)
 	local pos <const>, f <const> = ...
 	local pids <const> = {}
 	for pid in essentials.players() do
-		if essentials.is_in_vehicle(pid)
-		and memoize.get_player_coords(pid):magnitude(pos) > 50
+		if (player.is_player_in_any_vehicle(pid) or player.get_player_coords(pid).z == -50)
+		and essentials.get_distance_between(player.get_player_coords(pid), pos) > 35
 		and essentials.is_not_friend(pid) then
 			pids[#pids + 1] = pid
 		end
 	end
 	local value <const> = f.value
 	while #pids > 0 and f.on and f.value == value do
-		local my_ped <const> = player.get_player_ped(player.player_id())
+		system.yield(0)
 		table.sort(pids, function(a, b) -- Makes sure closest player is teleported at all times. Needs to be updated on each iteration.
-			return (memoize.get_distance_between(player.get_player_ped(a), my_ped) < memoize.get_distance_between(player.get_player_ped(b), my_ped)) 
+			return (essentials.get_distance_between(player.get_player_ped(a), player.get_player_ped(player.player_id())) < essentials.get_distance_between(player.get_player_ped(b), player.get_player_ped(player.player_id()))) 
 		end)
-		kek_entity.teleport_player_and_vehicle_to_position(pids[1], pos, nil, nil, f)
+		kek_entity.teleport_player_and_vehicle_to_position(pids[1], pos)
 		table.remove(pids, 1)
 	end
 end
@@ -1058,29 +959,29 @@ end
 --]]
 do
 	local vehicle_category_info <const> = essentials.const({
-		{class_name = lang["Compacts"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Sedans"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["SUVs"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Coupes"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Muscle"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Sports classics"], num_of_vehicles_in_class = 0},
-		{class_name = lang["Sports"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Super"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Motorcycles"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Off-Road"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Industrial"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Utility"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Vans"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Cycles"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Boats"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Helicopters"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Planes"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Service"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Emergency"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Military"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Commercial"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Trains"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Open Wheel"],		 num_of_vehicles_in_class = 0}
+		{class_name = lang["Compacts §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Sedans §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["SUVs §"], 			 num_of_vehicles_in_class = 0},
+		{class_name = lang["Coupes §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Muscle §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Sports classics §"], num_of_vehicles_in_class = 0},
+		{class_name = lang["Sports §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Super §"], 			 num_of_vehicles_in_class = 0},
+		{class_name = lang["Motorcycles §"], 	 num_of_vehicles_in_class = 0},
+		{class_name = lang["Off-Road §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Industrial §"], 	 num_of_vehicles_in_class = 0},
+		{class_name = lang["Utility §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Vans §"], 			 num_of_vehicles_in_class = 0},
+		{class_name = lang["Cycles §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Boats §"], 			 num_of_vehicles_in_class = 0},
+		{class_name = lang["Helicopters §"], 	 num_of_vehicles_in_class = 0},
+		{class_name = lang["Planes §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Service §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Emergency §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Military §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Commercial §"], 	 num_of_vehicles_in_class = 0},
+		{class_name = lang["Trains §"], 		 num_of_vehicles_in_class = 0},
+		{class_name = lang["Open Wheel §"],		 num_of_vehicles_in_class = 0}
 	})
 
 do
@@ -1122,8 +1023,7 @@ end
 		feat_str <const>,
 		parent <const>,
 		value_i_func <const>,
-		func <const>,
-		add_to_vehicle_blacklist <const> = ...
+		func <const> = ...
 		local hashes <const> = vehicle.get_all_vehicle_model_hashes()
 		for i2, info in pairs(vehicle_category_info) do
 			local count = 0 -- Iteration ends at next end vehicle
@@ -1137,10 +1037,6 @@ end
 						feature.data = hashes[i]
 						feature:set_str_data(feat_str)
 						feature.value = value_i_func(hashes[i])
-						if add_to_vehicle_blacklist then
-							local setting_name <const> = "vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(hashes[i])
-							settings.valuei[setting_name] = settings.valuei[setting_name] or feature
-						end
 					end
 				end
 			end)
