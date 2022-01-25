@@ -635,3 +635,16 @@ Save settings and reset lua state to load in debug mode. §디버그 모드에�
 All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §모든 Lua Script가 느리게 작동하고 렉이 걸릴 것입니다. 더 많은 오류가 발생할 것이고 특히, 다른 Lua Script를 작동 중이라면요.
 Only use this mode if you intend to find bugs. §버그를 찾으려고 할 때만 이 기능을 사용하세요.
 Failed to find reference coordinates. §참고 좌표를 찾는 것을 실패했습니다.
+The player must be an associate of an organization to use this. They can't be the ceo. §플레이어가 이를 사용하려면 조직의 구성원이어야 합니다. ceo는 사용할 수 없습니다.
+The loop doesn't work on yourself. §이 반복은 자신에게는 작동하지 않습니다.
+This feature requires trusted mode to be toggled on. §이 기능은 Trusted Mode가 켜져 있어야 합니다.
+Perma BST §영구 불 샤크 테스테론
+Eclipse §이클립스
+Reset orbital cannon cooldown §오비탈 캐넌 쿨타임 초기화
+Reset Kosatka missile cooldown §코사트카 미사일 쿨타임 초기화
+Also known as §또한 알려져 있습니다:
+Check rid in also known as §알려진 RID 확인: 
+Check name in also known as §알려진 닉네임 확인:
+Check ip in also known as §알려진 IP 확인:
+What is known for §알려진 것:
+This player already have a bounty set on them. §이 플레이어는 이미 현상금이 걸려 있습니다.

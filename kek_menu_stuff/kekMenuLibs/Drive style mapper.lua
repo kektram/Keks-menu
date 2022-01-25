@@ -5,7 +5,7 @@ local enums <const> = require("Enums")
 
 local drive_style_mapper <const> = {version = "1.0.4"}
 
-drive_style_mapper.DRIVE_STYLE_FLAGS = essentials.const_all({
+drive_style_mapper.DRIVE_STYLE_FLAGS = essentials.const_all({ -- Entries are tables to get consistent order of indices
 	{name = "Stop before vehicles", flag = 1 << 0},
 	{name = "Stop before peds", flag = 1 << 1},
 	{name = "Avoid vehicles", flag = 1 << 2},
@@ -25,9 +25,9 @@ drive_style_mapper.DRIVE_STYLE_FLAGS = essentials.const_all({
 
 function drive_style_mapper.get_drive_style_property_from_name(...)
 	local name <const> = ...
-	for _, drive_style_property in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
-		if drive_style_property.name == name then
-			return drive_style_property.flag
+	for _, properties in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
+		if properties.name == name then
+			return properties.flag
 		end
 	end
 	essentials.assert(false, "Failed to get drive style flag from name.")
@@ -35,9 +35,9 @@ end
 
 function drive_style_mapper.get_drive_style_property_name_from_int(...)
 	local int <const> = ...
-	for _, drive_style_property in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
-		if drive_style_property.flag == int then
-			return drive_style_property.name
+	for _, properties in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
+		if properties.flag == int then
+			return properties.name
 		end
 	end
 	essentials.assert(false, "Failed to get drive style name from flag.")
@@ -47,7 +47,7 @@ function drive_style_mapper.get_drive_style_from_list(list)
 	local drive_style = 0
 	for _, drive_style_property in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
 		if list[drive_style_property.name] then
-			drive_style = drive_style + drive_style_property.flag
+			drive_style = drive_style ~ drive_style_property.flag
 		end
 	end
 	return drive_style

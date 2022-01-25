@@ -5,6 +5,12 @@
 	The invalid uses this tool raises errors for aren't by default.
 	Passing a ped to a vehicle function might cause a crash, might cause nothing to happen, you don't know.
 --]]
+
+setmetatable(_G, {
+	__newindex = function()
+		error("Tried to set a global variable.")
+	end
+})
 local function deep_copy(Table, keep_meta, seen)
 	local new_copy <const> = {}
 	seen = seen or {}
@@ -413,6 +419,29 @@ end
 		assert(utils.dir_exists(path), "Tried to get all files from a directory that doesn't exist.")
 		return originals.utils.get_all_files_in_directory(path, extension)
 	end
+
+do
+	local deleted_entities <const> = {}
+	entity.delete_entity = function(Entity)
+		if network.has_control_of_entity(Entity) then
+			assert(utils.time_ms() > (deleted_entities[Entity] or 0), "Tried to delete an entity that was already deleted.")
+			local status <const> = originals.entity.delete_entity(Entity)
+			if status then
+				deleted_entities[Entity] = utils.time_ms() + 20000
+			end
+			return status
+		else
+			return false
+		end
+	end
+end
+
+streaming.set_model_as_no_longer_needed = function(hash)
+	assert(streaming.is_model_valid(hash), "Tried to set an invalid hash as no longer needed.")
+	local status <const> = originals.streaming.set_model_as_no_longer_needed(hash)
+	assert(status, "Failed to set model as no longer needed.")
+	return status
+end
 
 -- Exceptions
 	player.is_player_valid = originals.player.is_player_valid
