@@ -989,6 +989,13 @@ local ped_models <const> = essentials.const({
 	-- Animals --
 })
 
+ped_mapper.BLACKLISTED_PEDS = essentials.const({ -- These will crash yours or other's game
+	[762327283] = "slod_small_quadped",
+	[1057201338] = "slod_human",
+	[-2056455422] = "slod_large_quadped",
+	[2238511874] = "slod_large_quadped" -- In case unsigned version is tried
+})
+
 ped_mapper.ANIMAL_HASHES = essentials.const({
 	3462393972,
 	1462895032,

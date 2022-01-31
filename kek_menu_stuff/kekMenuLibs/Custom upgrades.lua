@@ -28,11 +28,11 @@ function custom_upgrades.vehicle_turret(...)
 	local Vehicle <const>,
 	turret <const>,
 	offset <const> = ...
+	essentials.assert(Vehicle ~= turret, "Attempted to attach entity to itself.")
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		menu.create_thread(function()
 			while entity.is_entity_an_object(turret) and entity.is_entity_a_vehicle(Vehicle) do
-				system.yield(0)
 				if player.get_player_vehicle(player.player_id()) == Vehicle and player.is_player_in_any_vehicle(player.player_id()) then
 					entity.attach_entity_to_entity(turret, Vehicle, 0, offset, cam.get_gameplay_cam_rot() + v3(cam.get_gameplay_cam_rot().x * -2, 0, 180), false, true, false, 0, false)
 					if controls.is_disabled_control_pressed(0, enums.inputs["RIGHT MOUSE BUTTON A"]) then
@@ -52,7 +52,9 @@ function custom_upgrades.vehicle_turret(...)
 						)
 					end
 				end
+				system.yield(0)
 			end
+			kek_entity.clear_entities({turret})
 		end, nil)
 	end
 end
@@ -62,11 +64,10 @@ function custom_upgrades.torque_modifier(...)
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		menu.create_thread(function()
-			entity.set_entity_as_mission_entity(Vehicle, false, true)
 			while entity.is_entity_a_vehicle(Vehicle) and player.get_player_from_ped(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver)) == player.player_id() do
-				system.yield(0)
 				kek_entity.get_control_of_entity(Vehicle, 0)
 				vehicle.set_vehicle_engine_torque_multiplier_this_frame(Vehicle, multiplier)
+				system.yield(0)
 			end
 		end, nil)
 	end

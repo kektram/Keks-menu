@@ -132,7 +132,7 @@ function troll_entity.setup_peds_and_put_in_seats(...)
 				end
 			end, kek_entity.spawn_ped_or_vehicle(hash, function()
 				return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 20), 0
-			end, false, false, enums.ped_types.civmale, false, 15))
+			end, false, false, enums.ped_types.civmale, 15))
 		end
 	end
 end
@@ -232,7 +232,7 @@ function troll_entity.send_attack_chopper(...)
 	vehicle.set_vehicle_doors_locked_for_all_players(chopper, true)
 	local pilot <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("a_f_y_topless_01"), function() 
 		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid)) + memoize.v3(0, 0, 10), 0
-	end, false, false, enums.ped_types.civmale, false, 15)
+	end, false, false, enums.ped_types.civmale, 15)
 	if not ped.set_ped_into_vehicle(pilot, chopper, enums.vehicle_seats.driver) then
 		kek_entity.clear_entities({pilot, chopper})
 		return -2
@@ -299,7 +299,7 @@ function troll_entity.send_kek_chopper(...)
 	entity.set_entity_collision(chopper, false, true, true)
 	local pilot <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("s_m_y_swat_01"), function()
 		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid)) + memoize.v3(0, 0, 20), 0
-	end, true, false, enums.ped_types.civmale, false, 20)
+	end, true, false, enums.ped_types.civmale, 20)
 	kek_entity.set_combat_attributes(
 		pilot, 
 		false, 
@@ -414,7 +414,7 @@ function troll_entity.send_clown_van(...)
 	vehicle.set_vehicle_mod(clown_van, 14, 2)
 	local driver <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("s_m_y_clown_01"), function()
 		return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 20), 0
-	end, false, false, enums.ped_types.civmale, false, 15)
+	end, false, false, enums.ped_types.civmale, 15)
 	if not ped.set_ped_into_vehicle(driver, clown_van, enums.vehicle_seats.driver) then
 		kek_entity.clear_entities({driver, clown_van})
 		return -2
@@ -519,7 +519,7 @@ function troll_entity.send_clown_van(...)
 			kek_entity.clear_entities({clown})
 		end, kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key(ped_mapper.LIST_OF_SPECIAL_PEDS[math.random(1, #ped_mapper.LIST_OF_SPECIAL_PEDS)]), function()
 			return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 20), 0
-		end, false, false, enums.ped_types.civmale, false, 15))
+		end, false, false, enums.ped_types.civmale, 15))
 	end
 	return clown_van
 end

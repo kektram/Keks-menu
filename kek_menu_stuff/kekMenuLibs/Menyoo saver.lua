@@ -75,13 +75,16 @@ local function get_properties(...)
 		for i = 0, 19 do
 			info.PedProperties.FacialFeatures["_"..i] = ped.get_ped_face_feature(Entity, i)
 		end
-		for i = 0, 2 do
+		for i = 0, 9 do
 			info.PedProperties.PedProps["_"..i] = string.format("%i,%i", ped.get_ped_prop_index(Entity, i), ped.get_ped_prop_texture_index(Entity, i))
 		end
 		for i = 0, 11 do
 			info.PedProperties.PedComps["_"..i] = string.format("%i,%i", ped.get_ped_texture_variation(Entity, i), ped.get_ped_drawable_variation(Entity, i))
 		end
 	elseif entity.is_entity_a_vehicle(Entity) then
+		local Cust1_R <const>, Cust1_G <const>, Cust1_B <const> = essentials.rgb_to_bytes(vehicle.get_vehicle_custom_primary_colour(Entity))
+		local Cust2_R <const>, Cust2_G <const>, Cust2_B <const> = essentials.rgb_to_bytes(vehicle.get_vehicle_custom_secondary_colour(Entity))
+		local neon_r <const>, neon_g <const>, neon_b <const> = essentials.rgb_to_bytes(vehicle.get_vehicle_neon_lights_color(Entity))
 		info.VehicleProperties = {
 			Colours = {
 				Primary = vehicle.get_vehicle_primary_color(Entity),
@@ -89,7 +92,16 @@ local function get_properties(...)
 				Pearl = vehicle.get_vehicle_pearlecent_color(Entity),
 				Rim = vehicle.get_vehicle_wheel_color(Entity),
 				IsPrimaryColourCustom = vehicle.is_vehicle_primary_colour_custom(Entity),
-				IsSecondaryColourCustom = vehicle.is_vehicle_secondary_colour_custom(Entity)
+				IsSecondaryColourCustom = vehicle.is_vehicle_secondary_colour_custom(Entity),
+				IsPearlColourCustom = vehicle.is_vehicle_primary_colour_custom(Entity) or vehicle.is_vehicle_secondary_colour_custom(Entity),
+				Cust1_R = Cust1_R, 
+				Cust1_G = Cust1_G, 
+				Cust1_B = Cust1_B,
+				Cust2_R = Cust2_R, 
+				Cust2_G = Cust2_G, 
+				Cust2_B = Cust2_B,
+				PearlCustom = vehicle.get_vehicle_custom_pearlescent_colour(Entity),
+				LrXenonHeadlights = vehicle.get_vehicle_headlight_color(Entity)
 			},
 			Livery = vehicle.get_vehicle_livery(Entity),
 			RpmMultiplier = 1,
@@ -106,9 +118,9 @@ local function get_properties(...)
 			NumberPlateIndex = math.random(0, 3),
 			WindowTint = vehicle.get_vehicle_window_tint(Entity),
 			Neons = essentials.const({
-				R = vehicle.get_vehicle_neon_lights_color(Entity),
-				G = 1,
-				B = 1,
+				R = neon_r,
+				G = neon_g,
+				B = neon_b,
 				Left = vehicle.is_vehicle_neon_light_enabled(Entity, 0, true),
 				Right = vehicle.is_vehicle_neon_light_enabled(Entity, 1, true),
 				Front = vehicle.is_vehicle_neon_light_enabled(Entity, 2, true),
@@ -133,12 +145,11 @@ local function get_properties(...)
 		end
 		if info.VehicleProperties.Colours.IsPrimaryColourCustom then
 			info.VehicleProperties.Colours.Primary = vehicle.get_vehicle_custom_primary_colour(Entity)
-			info.VehicleProperties.Colours.Pearl = vehicle.get_vehicle_custom_pearlescent_colour(Entity)
 		end
 		if info.VehicleProperties.Colours.IsSecondaryColourCustom then
 			info.VehicleProperties.Colours.Secondary = vehicle.get_vehicle_custom_secondary_colour(Entity)
 		end
-		for i = 0, 48 do
+		for i = 0, 75 do
 			if i >= 17 and i <= 22 then
 				info.VehicleProperties.Mods["_"..i] = vehicle.is_toggle_mod_on(Entity, i)
 			else
@@ -169,7 +180,7 @@ function menyoo_saver.save_vehicle(...)
 		end
 		local file <close> = io.open(file_path, "w+")
 		local str <const> = {
-			"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" kek_menu_version=\""..__kek_menu_version.."\"?>",
 			"<Vehicle menyoo_ver=\"0.9998b\">",
 			essentials.table_to_xml(get_properties(Vehicle, true), 1, nil, {}, true)
 		}
@@ -197,7 +208,7 @@ function menyoo_saver.save_map(...)
 	local file <close> = io.open(file_path, "w+")
 	local ref <const> = player.get_player_coords(player.player_id())
 	local xml_string <const> = {
-		"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>",
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" kek_menu_version=\""..__kek_menu_version.."\"?>",
 		"<SpoonerPlacements>",
 		essentials.table_to_xml({
 			ReferenceCoords = essentials.const({
@@ -208,6 +219,7 @@ function menyoo_saver.save_map(...)
 		}, 1, nil, {}, true)
 	}
 	local count = 0
+	local is_attached_str <const> = string.format("Attachment isAttached=\"%s\"", true)
 	for _, entities in pairs({
 		ped.get_all_peds(),
 		vehicle.get_all_vehicles(),
@@ -217,21 +229,19 @@ function menyoo_saver.save_map(...)
 			if entity.is_entity_visible(entities[i]) 
 			and not entity.is_entity_attached(entities[i])
 			and (not entity.is_entity_a_ped(entities[i]) or not ped.is_ped_a_player(entities[i])) then
-				local info <const> = {Attachment = get_properties(entities[i])}
-				info.Attachment.FrozenPos = entity.is_entity_an_object(entities[i])
+				local info <const> = {Placement = get_properties(entities[i])}
+				info.Placement.FrozenPos = entity.is_entity_an_object(entities[i])
 				xml_string[#xml_string + 1] = essentials.table_to_xml(info, 1, nil, {}, true)
 				local attached_entities <const> = kek_entity.get_all_attached_entities(entities[i])
 				count = count + #attached_entities + 1
 				for i = 1, #attached_entities do
 					if entity.is_entity_visible(attached_entities[i]) then
-						local info <const> = {Attachment = get_properties(attached_entities[i])}
+						info[is_attached_str] = get_properties(attached_entities[i])
 						if entity.is_entity_an_object(entities[i]) then
-							local is_attached_str <const> = string.format("Attachment isAttached=\"%s\"", entity.is_entity_attached(attached_entities[i]))
-							info.Attachment[is_attached_str].Pitch = 0
-							info.Attachment[is_attached_str].Yaw = 0
-							info.Attachment[is_attached_str].Roll = 0
+							info[is_attached_str].Pitch = 0
+							info[is_attached_str].Yaw = 0
+							info[is_attached_str].Roll = 0
 						end
-						info.Attachment.FrozenPos = entity.is_entity_an_object(attached_entities[i])
 						xml_string[#xml_string + 1] = essentials.table_to_xml(info, 1, nil, {}, true)
 					end
 				end

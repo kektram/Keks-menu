@@ -67,9 +67,9 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Language"] = "1.0.0",
 		["Settings"] = "1.0.1",
-		["Essentials"] = "1.4.0",
+		["Essentials"] = "1.4.1",
 		["Memoize"] = "1.0.0",
-		["Enums"] = "1.0.0",
+		["Enums"] = "1.0.2",
 		["Vehicle mapper"] = "1.3.5", 
 		["Ped mapper"] = "1.2.7",
 		["Object mapper"] = "1.2.6", 
@@ -78,7 +78,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Location mapper"] = "1.0.1",
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
-		["Menyoo spawner"] = "2.1.1",
+		["Menyoo spawner"] = "2.2.0",
 		["Kek's entity functions"] = "1.1.9",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.1",
@@ -232,6 +232,17 @@ for _, folder_name in pairs({
 }) do
 	if not utils.dir_exists(paths.kek_menu_stuff..folder_name) then
 		utils.make_dir(paths.kek_menu_stuff..folder_name)
+	end
+end
+
+for _, folder_name in pairs({
+	"Menyoo Vehicles",
+	"Race ghosts",
+	"Menyoo Maps",
+	"Ini vehicles"
+}) do
+	if not utils.dir_exists(paths.kek_menu_stuff..folder_name) then
+		utils.make_dir(paths.home.."scripts\\"..folder_name)
 	end
 end
 
@@ -816,9 +827,8 @@ do
 		end
 	end
 
-	local function update_autoexec(...)
-		local is_user_action <const> = ...
-		if is_user_action and not utils.file_exists(paths.home.."scripts\\autoexec.lua") then
+	local function update_autoexec()
+		if not utils.file_exists(paths.home.."scripts\\autoexec.lua") then
 			essentials.create_empty_file(paths.home.."scripts\\autoexec.lua")
 		end
 		local str <const> = essentials.get_file_string(paths.home.."scripts\\autoexec.lua")
@@ -908,7 +918,7 @@ do
 		end
 		input = essentials.make_string_case_insensitive(essentials.remove_special(input))
 		update_autoexec(true)
-		for file_name in essentials.get_file_string(paths.home.."scripts\\autoexec.lua"):gmatch("scripts%[#scripts %+ 1%] = \"([^\n]+)\"") do
+		for file_name in essentials.get_file_string(paths.home.."scripts\\autoexec.lua"):gmatch("scripts%[#scripts %+ 1%] = \"([^\n\r]+)\"") do
 			if file_name:find(input) then
 				if essentials.remove_lines_from_file_exact(paths.home.."scripts\\autoexec.lua", "scripts[#scripts + 1] = \""..file_name.."\"") then
 					essentials.msg(string.format("%s %s %s.", lang["Removed"], file_name, lang["from script loader"]), "blue", true)
@@ -919,7 +929,6 @@ do
 		end
 		essentials.msg(lang["Couldn't find file"], "red", true)
 	end)
-	update_autoexec()
 	update_script_loader_toggle_name()
 end
 
@@ -2090,10 +2099,10 @@ function player_history.sort_numbers(t)
 	return t
 end
 
-function player_history.add_features(parent, rid, ip, name)
-	if parent.child_count == 0 then
+function player_history.add_features(main_parent, rid, ip, name)
+	if main_parent.child_count == 0 then
 		local blacklist_feat
-		menu.add_feature(lang["Copy to clipboard"], "action_value_str", parent.id, function(f, pid)
+		menu.add_feature(lang["Copy to clipboard"], "action_value_str", main_parent.id, function(f, pid)
 			if f.value == 0 then
 				utils.to_clipboard(rid)
 			elseif f.value == 1 then
@@ -2107,7 +2116,7 @@ function player_history.add_features(parent, rid, ip, name)
 			lang["name"]
 		})
 
-		menu.add_feature(lang["Blacklist"], "action_value_str", parent.id, function(f)
+		menu.add_feature(lang["Blacklist"], "action_value_str", main_parent.id, function(f)
 			if f.value == 0 then
 				local input <const>, status <const> = keys_and_input.get_input(lang["Type in why you're adding this person."], "", 128, 0)
 				if status == 2 then
@@ -2155,7 +2164,7 @@ function player_history.add_features(parent, rid, ip, name)
 					start, End = str:find(input, End + 1, true)
 					if start then
 						local str_pos <const> = essentials.get_position_of_previous_newline(str, start)
-						local line <const> = str:sub(str_pos, str:find("\n", start, true))
+						local line <const> = str:sub(str_pos, str:find("[\r\n]", start))
 						if not matches[line] then
 							seen[#seen + 1] = {
 								feat_name = string.format("%s %s", line:match("<(.-)>"), line:match("!(.-)!")),
@@ -2177,24 +2186,18 @@ function player_history.add_features(parent, rid, ip, name)
 			end)
 
 			local feat
-			menu.add_feature(lang["Chat log"], "parent", parent.id, function(parent)
-				parent.data = {} 
+			local temporarily_disable_copy_to_clipboard
+			menu.add_feature(lang["Chat log"], "parent", main_parent.id, function(parent)
 				local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log")
-				for name in pairs(known_as) do
-					name = name:sub(1, 16)
-					local spaces <const> = string.rep("\32", 16 - utf8.len(name))
-					local matches <const> = essentials.get_all_matches(str, "["..name..spaces.."]", "]: ")
-					table.move(matches, 1, #matches, #parent.data + 1, parent.data)
-				end
+				local name <const> = main_parent.name:sub(1, 16)
+				local spaces <const> = string.rep("\32", 16 - utf8.len(name))
+				parent.data = essentials.get_all_matches(str, "["..name..spaces.."]", "%]:\32(.+)")
 				if parent.child_count == 0 then
 					local feats <const> = {}
 					feat = menu.add_feature(lang["Scroll through messages"], "autoaction_value_i", parent.id, function(f)
 						if #parent.data > 0 then
 							local i2 = 1
-							for i = 1, #feats do
-								feats[i].hidden = true
-							end
-							for i = f.value - f.mod, f.value - 1 do
+							for i = f.value - 10, f.value - 1 do
 								local str <const> = parent.data[#parent.data - i]
 								feats[i2].hidden = str == nil
 								if not feats[i2].hidden then
@@ -2203,45 +2206,55 @@ function player_history.add_features(parent, rid, ip, name)
 									feats[i2].min = math.min(1, #feats[i2].data)
 									feats[i2].max = #feats[i2].data
 									feats[i2].mod = 1
-									i2 = i2 + 1
-								else
-									break
 								end
+								i2 = i2 + 1
 							end
+						end
+						if utils.time_ms() > temporarily_disable_copy_to_clipboard and keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
+							local str <const> = {}
+							for i = f.value - f.mod, f.value - 1 do
+								str[#str + 1] = parent.data[#parent.data - i]
+							end
+							utils.to_clipboard(table.concat(str, "\n"))
+							essentials.msg(lang["Copied to clipboard."], "blue", true, 3)
 						end
 					end)
 					for i = 1, 10 do
 						feats[i] = menu.add_feature("", "autoaction_value_i", parent.id, function(f)
+							if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
+								utils.to_clipboard(table.concat(f.data))
+								essentials.msg(lang["Copied to clipboard."], "blue", true, 3)
+							end
 							f.name = essentials.get_safe_feat_name(f.data[f.value])
 						end)
 						feats[i].hidden = true
 					end
 				end
-				local toggle_on <const> = feat.value == 0 or feat.value > #parent.data
-				feat.min = math.min(10, #parent.data)
+				feat.min = 10
 				feat.max = math.ceil(#parent.data / 10) * 10
-				feat.mod = math.min(10, #parent.data)
-				feat.on = toggle_on
+				feat.mod = 10
+				temporarily_disable_copy_to_clipboard = utils.time_ms() + 500
+				feat.on = true -- Forces update of chat features
 			end)
 
 			local is_added_to_join_timeout = essentials.search_for_match_and_get_line(paths.home.."cfg\\scid.cfg", {string.format("%x", rid), name}) or ""
 			local fake_friend_flags = tonumber(is_added_to_join_timeout:match(".+:%x+:(%x+)$") or "", 16)
-			menu.add_feature(lang["Is added to join timeout"], "action_value_str", parent.id):set_str_data({tostring(fake_friend_flags ~= nil and fake_friend_flags & 4 == 4)})
+			menu.add_feature(lang["Is added to join timeout"], "action_value_str", main_parent.id):set_str_data({tostring(fake_friend_flags ~= nil and fake_friend_flags & 4 == 4)})
 
 			local is_blacklisted <const> = essentials.search_for_match_and_get_line(paths.blacklist, {string.format("/%i/", rid), string.format("&%s&", essentials.ipv4_to_dec(ip)), string.format("§%s§", name)}) or ""
-			blacklist_feat = menu.add_feature(string.format("%s: %s", lang["Blacklist reason"], is_blacklisted:match("<(.+)>") or lang["isn't blacklisted"]), "action", parent.id)
+			blacklist_feat = menu.add_feature(string.format("%s: %s", lang["Blacklist reason"], is_blacklisted:match("<(.+)>") or lang["isn't blacklisted"]), "action", main_parent.id)
 
-			menu.add_feature(string.format("%s: %s", lang["First seen"], seen[1].feat_name), "action", parent.id)
+			menu.add_feature(string.format("%s: %s", lang["First seen"], seen[1].feat_name), "action", main_parent.id)
 			if #seen > 1 then
-				menu.add_feature(string.format("%s: %s", lang["Last seen"], seen[#seen].feat_name), "action", parent.id)
-				menu.add_feature(string.format("%s %i %s", lang["Seen"], #seen, lang["times."]), "action", parent.id)
+				menu.add_feature(string.format("%s: %s", lang["Last seen"], seen[#seen].feat_name), "action", main_parent.id)
+				menu.add_feature(string.format("%s %i %s", lang["Seen"], #seen, lang["times."]), "action", main_parent.id)
 			else
-				menu.add_feature(string.format("%s 1 %s", lang["Seen"], lang["time."]), "action", parent.id)
+				menu.add_feature(string.format("%s 1 %s", lang["Seen"], lang["time."]), "action", main_parent.id)
 			end
-			menu.add_feature(lang["Also known as"]..":", "action_value_str", parent.id):set_str_data({lang["What is known for"]})
+			menu.add_feature(lang["Also known as"]..":", "action_value_str", main_parent.id):set_str_data({lang["What is known for"]})
 			for _, properties in pairs(known_as) do
-				if not parent.name:find(properties.name, 1, true) then
-					menu.add_feature(string.format("%s [%s]", properties.name, properties.date), "action_value_str", parent.id):set_str_data({properties.matched})
+				if not main_parent.name:find(properties.name, 1, true) then
+					menu.add_feature(string.format("%s [%s]", properties.name, properties.date), "action_value_str", main_parent.id):set_str_data({properties.matched})
 				end
 			end
 		end
@@ -2250,6 +2263,7 @@ end
 
 do
 	local function search(file, pattern_input, f)
+		essentials.assert(#pattern_input > 0, "Tried to get all matches with an empty pattern.")
 		local str <const> = file:read("*a")
 		local End, start, results = 0
 		repeat
@@ -2285,7 +2299,7 @@ do
 			end
 			if results then
 				local str_pos <const> = essentials.get_position_of_previous_newline(str, results)
-				local line <const> = str:sub(str_pos, str:find("\n", results, true))
+				local line <const> = str:sub(str_pos, str:find("[\r\n]", results))
 				local name <const> = line:match("|(.+)|") or "" 
 				local rid <const> = line:match("&(%d+)&") or ""
 				local ip <const> = line:match("%^([%d.]+)%^") or ""
@@ -2329,7 +2343,7 @@ for _, year in pairs(player_history.sort_numbers(utils.get_all_sub_directories_i
 				local file_path <const> = day_folder.."\\"..current_file
 				player_history.hour_parents[file_path] = menu.add_feature(current_file:gsub("%.log$", ""), "parent", player_history.day_parents[day_folder].id)
 
-				for name, rid, ip, time in essentials.get_file_string(file_path):gmatch("|([^\n|]+)| &(%d+)& %^([%d.]+)%^ !([%d:]+)!") do
+				for name, rid, ip, time in essentials.get_file_string(file_path):gmatch("|([^\n\r|]+)| &(%d+)& %^([%d.]+)%^ !([%d:]+)!") do
 					menu.add_feature(string.format("%s [%s]", name, time), "parent", player_history.hour_parents[file_path].id, function(f)
 						player_history.add_features(f, rid, ip, name)	
 					end)
@@ -2450,18 +2464,29 @@ menu.add_player_feature(lang["Script event crash"], "action", u.malicious_player
 end)
 
 menu.add_player_feature(lang["Crash"], "action", u.malicious_player_features, function(f, pid)
-	local Vehicle <const> = menyoo.spawn_custom_vehicle(paths.kek_menu_stuff.."kekMenuLibs\\data\\Truck.xml", player.player_id())
-	entity.freeze_entity(Vehicle, true)
-	local time <const> = utils.time_ms() + 3500
-	while time > utils.time_ms() and entity.is_entity_a_vehicle(Vehicle) and player.is_player_valid(pid) do
-		kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(player.get_player_coords(pid)) + memoize.v3(0, 0, 5))
-		system.yield(0)
+	if player.player_count() == 0 then
+		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
+		return
 	end
-	kek_entity.teleport(Vehicle, v3(math.random(20000, 24000), math.random(20000, 24000), math.random(-2400, 2400)))
-	kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
+	local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.kek_menu_stuff.."kekMenuLibs\\data\\Truck.xml", player.player_id())
+	if entity.is_entity_a_vehicle(Vehicle) then
+		entity.freeze_entity(Vehicle, true)
+		local time <const> = utils.time_ms() + 3500
+		while time > utils.time_ms() and entity.is_entity_a_vehicle(Vehicle) and player.is_player_valid(pid) do
+			kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(player.get_player_coords(pid)) + memoize.v3(0, 0, 5))
+			system.yield(0)
+		end
+		kek_entity.teleport(Vehicle, v3(math.random(20000, 24000), math.random(20000, 24000), math.random(-2400, 2400)))
+		kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
+	end
 end)
 
 settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_player_feature(lang["Hurricane"], "value_str", u.malicious_player_features, function(f, pid)
+	if player.player_count() == 0 then
+		f.on = false
+		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
+		return
+	end
 	essentials.set_all_player_feats_except(menu.get_player_feature(f.id).id, false, {[pid] = true})
 	local vehicles <const> = {}
 	menu.create_thread(function()
@@ -2501,8 +2526,13 @@ settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_playe
 end).id
 
 menu.add_player_feature(lang["Perma-cage"], "toggle", u.malicious_player_features, function(f, pid)
+	if player.player_count() == 0 then
+		f.on = false
+		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
+		return
+	end
 	local Ped = 0
-	while f.on do
+	while f.on and player.player_count() > 0 do
 		system.yield(0)
 		if not kek_entity.get_control_of_entity(Ped) then
 			kek_entity.hard_remove_entity_and_its_attachments(Ped)
@@ -2513,6 +2543,7 @@ menu.add_player_feature(lang["Perma-cage"], "toggle", u.malicious_player_feature
 			kek_entity.teleport(Ped, player.get_player_coords(pid))
 		end
 	end
+	f.on = false
 	kek_entity.hard_remove_entity_and_its_attachments(Ped)
 end)
 
@@ -2760,7 +2791,7 @@ menu.add_player_feature(lang["Make nearby peds hostile"], "toggle", u.player_tro
 end)
 
 player_feat_ids["Mad peds"] = menu.add_player_feature(lang["Mad peds in their car"], "action_value_str", u.player_trolling_features, function(f, pid)
-	for Vehicle in essentials.entities({player.get_player_vehicle(pid), globals.get_player_global("personal_vehicle", pid)}) do
+	for Vehicle in essentials.entities({player.get_player_vehicle(pid), player.player_count() > 0 and globals.get_player_global("personal_vehicle", pid) or 0}) do
 		if not entity.is_entity_dead(Vehicle) then
 			if (f.value == 0 or f.value == 1) and ped.is_ped_a_player(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0) then
 				ped.clear_ped_tasks_immediately(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0)
@@ -3223,7 +3254,7 @@ settings.toggle["Chat logger"] = menu.add_feature(lang["Chat logger"], "toggle",
 			and (not f.data[player.get_player_scid(event.player)] or utils.time_ms() + 10000 > f.data[player.get_player_scid(event.player)]) then
 				local name <const> = player.get_player_name(event.player)..string.rep("\32", 16 - utf8.len(player.get_player_name(event.player):sub(1, 16)))
 				local str <const> = {}
-				for line in event.body:gmatch("[^\n]+") do
+				for line in event.body:gmatch("[^\n\r]+") do
 					str[#str + 1] = string.format("[%s][%s]: %s\n", name, os.date(), line)
 				end
 				essentials.log(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log", table.concat(str, "\n"))
@@ -3502,7 +3533,7 @@ do
 				else
 					local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."Chat judger profiles\\"..f.name..".ini")
 					do
-						local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "[^\n]+")
+						local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "[^\n\r]+")
 						if not is_valid then
 							essentials.msg(string.format("%s: %i\nscripts\\kek_menu_stuff\\Chat judger profiles\\%s.ini", lang["Failed to load profile. Error at line"], line_num, f.name), "red", true, 8)
 							return
@@ -3588,57 +3619,49 @@ do
 			if essentials.listeners["chat"]["judger"] then
 				return
 			end
+			local memoized <const> = {}
+			local gsub_map <const> = {
+				["[BLACKLIST]"] = "",
+				["[JOIN TIMEOUT]"] = ""
+			}
 			essentials.listeners["chat"]["judger"] = event.add_event_listener("chat", function(event)
 				if player.is_player_valid(event.player)
 				and event.player ~= player.player_id()
 				and (not f.data.tracker[player.get_player_scid(event.player)] or utils.time_ms() > f.data.tracker[player.get_player_scid(event.player)])
 				and essentials.is_not_friend(event.player) then
-					f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 1000 -- Prevent chat spam problems
 					local msg <const> = event.body:lower()
+					f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 1000 -- Prevent chat spam problems
 					for chat_judge_entry in io.lines(paths.chat_judger) do
-						essentials.random_wait(50)
-						if player.is_player_valid(event.player) then
-							local is_blacklist <const> = chat_judge_entry:find("[blacklist]", 1, true) ~= nil
-							local is_timeout <const> = chat_judge_entry:find("[join timeout]", 1, true) ~= nil
-							local unicode_present_in_entry <const> = utf8.len(chat_judge_entry) == #chat_judge_entry 
-							local unicode_present_in_msg <const> = utf8.len(msg) == #msg
-							chat_judge_entry = (chat_judge_entry:gsub("%[join timeout%]", "")):gsub("%[blacklist%]", "")
-							if (not unicode_present_in_entry 
-								and not unicode_present_in_msg 
-								and msg:find(chat_judge_entry)
-							)
-							or (
-								unicode_present_in_entry 
-								and unicode_present_in_msg 
-								and essentials.unicode_find(essentials.unicode_gsub(msg, "%", ""), chat_judge_entry)
-							) then
-
-								f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 4000
-								local player_name <const> = player.get_player_name(event.player)
-								if not f.data.blacklist_tracker[player.get_player_scid(event.player)] and is_blacklist then
-									add_to_blacklist(player_name, player.get_player_ip(event.player), player.get_player_scid(event.player), string.format("%s: \"%s\"", lang["Custom chat judge"], chat_judge_entry))
-									f.data.blacklist_tracker[player.get_player_scid(event.player)] = true
-								end
-								if not f.data.timeout_tracker[player.get_player_scid(event.player)] and is_timeout then
-									essentials.add_to_timeout(event.player)
-									f.data.timeout_tracker[player.get_player_scid(event.player)] = true
-								end
-								if f.value == 0 then
-									essentials.msg(string.format("%s %s %s [%s]", lang["Chat judge:\nRamming"], player_name, lang["with explosive tankers"], chat_judge_entry), "orange", settings.in_use["Chat judge #notifications#"])
-									ped.clear_ped_tasks_immediately(player.get_player_ped(event.player))
-									system.yield(0)
-									kek_entity.ram_player(event.player)
-								elseif f.value == 1 then
-									essentials.msg(string.format("%s %s [%s]", lang["Chat judge:\nKicking"], player_name, chat_judge_entry), "orange", settings.in_use["Chat judge #notifications#"])
-									globals.send_script_event("Netbail kick", event.player, {event.player, globals.get_player_global("generic", event.player)})
-									globals.kick(event.player)
-								elseif f.value == 2 then
-									essentials.msg(string.format("%s %s [%s]", lang["Chat judge\nCrashing"], player_name, chat_judge_entry), "orange", settings.in_use["Chat judge #notifications#"])
-									globals.script_event_crash(event.player)
-								end
-								break
+						memoized[chat_judge_entry] = memoized[chat_judge_entry] or {
+							is_blacklist = chat_judge_entry:find("[BLACKLIST]", 1, true) ~= nil,
+							is_timeout = chat_judge_entry:find("[JOIN TIMEOUT]", 1, true) ~= nil,
+							entry = (chat_judge_entry:gsub("%[.-%]", gsub_map)):gsub("\r", "")
+						}
+						local entry <const> = memoized[chat_judge_entry].entry
+						if essentials.unicode_find_2(msg, entry) then
+							f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 4000
+							local player_name <const> = player.get_player_name(event.player)
+							if not f.data.blacklist_tracker[player.get_player_scid(event.player)] and memoized[chat_judge_entry].is_blacklist then
+								add_to_blacklist(player_name, player.get_player_ip(event.player), player.get_player_scid(event.player), string.format("%s: \"%s\"", lang["Custom chat judge"], entry))
+								f.data.blacklist_tracker[player.get_player_scid(event.player)] = true
 							end
-						else
+							if not f.data.timeout_tracker[player.get_player_scid(event.player)] and memoized[chat_judge_entry].is_timeout then
+								essentials.add_to_timeout(event.player)
+								f.data.timeout_tracker[player.get_player_scid(event.player)] = true
+							end
+							if f.value == 0 then
+								essentials.msg(string.format("%s %s %s [%s]", lang["Chat judge:\nRamming"], player_name, lang["with explosive tankers"], entry), "orange", settings.in_use["Chat judge #notifications#"])
+								ped.clear_ped_tasks_immediately(player.get_player_ped(event.player))
+								system.yield(0)
+								kek_entity.ram_player(event.player)
+							elseif f.value == 1 then
+								essentials.msg(string.format("%s %s [%s]", lang["Chat judge:\nKicking"], player_name, entry), "orange", settings.in_use["Chat judge #notifications#"])
+								globals.send_script_event("Netbail kick", event.player, {event.player, globals.get_player_global("generic", event.player)})
+								globals.kick(event.player)
+							elseif f.value == 2 then
+								essentials.msg(string.format("%s %s [%s]", lang["Chat judge\nCrashing"], player_name, entry), "orange", settings.in_use["Chat judge #notifications#"])
+								globals.script_event_crash(event.player)
+							end
 							break
 						end
 					end
@@ -3714,7 +3737,7 @@ do
 			elseif f.value == 2 then
 				local str <const> = settings.in_use["Spam text"]
 				local value <const> = f.value
-				for line in str:gmatch("[^\n]+") do
+				for line in str:gmatch("[^\n\r]+") do
 					essentials.send_message(line)
 					f.data.wait(f)
 					if settings.in_use["Spam text"] ~= str or f.value ~= value then
@@ -3729,7 +3752,7 @@ do
 			elseif f.value == 4 then
 				local str <const> = utils.from_clipboard()
 				local value <const> = f.value
-				for line in str:gmatch("[^\n]+") do
+				for line in str:gmatch("[^\n\r]+") do
 					essentials.send_message(line)
 					f.data.wait(f)
 					if utils.from_clipboard() ~= str or f.value ~= value then
@@ -3881,10 +3904,12 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							end
 							menu.create_thread(function()
 								local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function() 
-									return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 8)), 0
+									return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 50), 0
 								end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
 								if not entity.is_entity_a_vehicle(Vehicle) then
 									essentials.send_message("[Chat commands]: Vehicle spawn limit is reached. Spawns are disabled.", event.player == player.player_id())
+								else
+									kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 8)))
 								end
 							end, nil)
 						elseif settings.in_use["weapon #chat command#"] and str:find("^%pweapon [^\32]+") then
@@ -3892,6 +3917,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
 									if not weapon.has_ped_got_weapon(player.get_player_ped(pid), weapon_hash) then
 										weapon.give_delayed_weapon_to_ped(player.get_player_ped(pid), weapon_hash, 1, 0)
+										weapon.set_ped_ammo(player.get_player_ped(pid), weapon_hash, 9999)
 										system.yield(0)
 										if pid == player.player_id() then 
 											weapon_mapper.set_ped_weapon_attachments(player.get_player_ped(pid), true, weapon_hash)
@@ -3904,6 +3930,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 									if weapon.get_weapon_name(weapon_hash):find(user_input) then
 										if not weapon.has_ped_got_weapon(player.get_player_ped(pid), weapon_hash) then
 											weapon.give_delayed_weapon_to_ped(player.get_player_ped(pid), weapon_hash, 1, 0)
+											weapon.set_ped_ammo(player.get_player_ped(pid), weapon_hash, 9999)
 											if pid == player.player_id() then 
 												weapon_mapper.set_ped_weapon_attachments(player.get_player_ped(pid), true, weapon_hash)
 											end
@@ -4332,7 +4359,7 @@ do
 				else
 					local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."Chatbot profiles\\"..f.name..".ini")
 					do
-						local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "|([^\n]+)|&")
+						local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "|([^\n\r]+)|&")
 						if not is_valid then
 							essentials.msg(string.format("%s: %i\nscripts\\kek_menu_stuff\\Chatbot profiles\\%s.ini", lang["Failed to load profile. Error at line"], line_num, f.name), "red", true, 8)
 							return
@@ -4457,7 +4484,7 @@ do
 		if f.on then
 			local str = essentials.get_file_string(paths.chat_bot)
 			do
-				local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "|([^\n]+)|&")
+				local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "|([^\n\r]+)|&")
 				if not is_valid then
 					essentials.msg(string.format("[%s]: %s: %i\nscripts\\kek_menu_stuff\\kekMenuData\\Kek's chat bot.txt", lang["Chat bot"], lang["Failed to load profile. Error at line"], line_num), "red", true, 12)
 					f.on = false
@@ -4476,7 +4503,7 @@ do
 						end
 						local count, reactions_str = 0
 						local msg <const> = event.body:lower()
-						for what_to_react_to, reactions in str:gmatch("|([^\n]+)|&([^\n]+)&") do
+						for what_to_react_to, reactions in str:gmatch("|([^\n\r]+)|&([^\n\r]+)&") do
 							what_to_react_to = what_to_react_to:lower()
 							local start, End = msg:find(what_to_react_to)
 							if start and End - start > count then
@@ -4771,14 +4798,19 @@ settings.toggle["Display 2take1 notifications"] = menu.add_feature(lang["Display
 	f.data.is_on = true
 	while f.on do
 		if f.data.is_on then
+			local end_pos <const> = file:seek("end")
+			local pos = 0
 			strings = {}
-			file:seek("end", -math.min(file:seek("end"), 1000000))
-			for line in file:lines("*l") do
-				if not f.data.filter(line, f) then
-					strings[#strings + 1] = line
+			repeat
+				pos = math.min(end_pos, pos + 1000000)
+				file:seek("end", -pos)
+				for line in file:lines("*l") do
+					if not f.data.filter(line, f) then
+						strings[#strings + 1] = line
+					end
 				end
-			end
-			strings = table.move(strings, #strings - settings.valuei["Number of notifications to display"].max + 1, #strings, 1, {})
+			until #strings >= settings.valuei["Number of notifications to display"].max or pos == end_pos
+			strings = table.move(strings, math.max(#strings - settings.valuei["Number of notifications to display"].max + 1, 1), #strings, 1, {})
 			f.data.is_on = false
 		end
 		local str <const> = file:read("*l")
@@ -4993,30 +5025,55 @@ u.force_field_offset_z.min = -100
 u.force_field_offset_z.mod = 2
 u.force_field_offset_z.value = 0
 
-if not utils.dir_exists(paths.home.."scripts\\Menyoo Vehicles") then
-	utils.make_dir(paths.home.."scripts\\Menyoo Vehicles")
-end
-local function create_custom_vehicle_feature(...)
-	local name <const> = ...
-	if name:find("..", 1, true) or name:find("%.$") or name ~= essentials.get_safe_feat_name(name) then
-		return
-	end
-	local feat = menu.add_feature(essentials.get_safe_feat_name(name), "action_value_str", u.saved_custom_vehicles.id, function(f)
+for _, properties in pairs({
+	{
+		folder = paths.home.."scripts\\Menyoo vehicles",
+		folder_name = "Menyoo vehicles",
+		extension = "xml",
+		parent = u.gvehicle,
+		func = menyoo.spawn_xml_vehicle,
+		save_func = menyoo_saver.save_vehicle,
+		str_data = {
+			lang["Search"],
+			lang["Refresh list"],
+			lang["Save"]
+		}
+	},
+	{
+		folder = paths.home.."scripts\\Ini vehicles",
+		folder_name = "Ini vehicles",
+		extension = "ini",
+		parent = u.gvehicle,
+		func = menyoo.spawn_ini_vehicle,
+		str_data = {
+			lang["Search"],
+			lang["Refresh list"]
+		}
+	}
+}) do
+	local parent
+	local feat_name_map = {}
+	local feat_str_data <const> = {
+		lang["Spawn"],
+		lang["Delete"],
+		lang["Change name"]
+	}
+
+	local feat_func_callback <const> = function(f)
 		if f.value == 0 then
-			if settings.toggle["Delete old #vehicle#"].on then
-				for Vehicle in essentials.entities(essentials.deep_copy(kek_entity.user_vehicles)) do
-					kek_entity.user_vehicles[Vehicle] = nil
-					essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected only vehicles in user_vehicles table.")
-					kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
-				end
+			local pos <const> = kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)
+			kek_entity.clear_owned_vehicles() -- Must clear before since it old vehicle might be huge & cause crash if next is huge too. Huge meaning many attachments.
+			local Vehicle <const> = properties.func(properties.folder.."\\"..f.name.."."..properties.extension, player.player_id())
+			if entity.is_entity_a_vehicle(Vehicle) then
+				kek_entity.vehicle_preferences(Vehicle)
+				kek_entity.teleport(Vehicle, pos)
+				kek_entity.user_vehicles[Vehicle] = Vehicle
 			end
-			local Vehicle <const> = menyoo.spawn_custom_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..f.name..".xml", player.player_id())
-			kek_entity.vehicle_preferences(Vehicle, true)
-			kek_entity.user_vehicles[Vehicle] = Vehicle
 		elseif f.value == 1 then
-			if utils.file_exists(paths.home.."scripts\\Menyoo Vehicles\\"..f.name..".xml") then
-				io.remove(paths.home.."scripts\\Menyoo Vehicles\\"..f.name..".xml")
+			if utils.file_exists(properties.folder.."\\"..f.name.."."..properties.extension) then
+				io.remove(properties.folder.."\\"..f.name.."."..properties.extension)
 			end
+			feat_name_map[f.name.."."..properties.extension] = nil
 			essentials.delete_feature(f.id)
 		elseif f.value == 2 then
 			local input, status = f.name
@@ -5029,7 +5086,7 @@ local function create_custom_vehicle_feature(...)
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Menyoo Vehicles\\"..input..".xml") then
+				if utils.file_exists(properties.folder.."\\"..input.."."..properties.extension) then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -5041,33 +5098,54 @@ local function create_custom_vehicle_feature(...)
 				::skip::
 				system.yield(0)
 			end
-			essentials.rename_file(paths.home.."scripts\\Menyoo Vehicles\\", f.name, input, "xml")
+			essentials.rename_file(properties.folder.."\\", f.name, input, properties.extension)
+			feat_name_map[f.name.."."..properties.extension] = nil
 			f.name = input
+			feat_name_map[f.name.."."..properties.extension] = true
 		end
-	end)
-	feat.data = "MENYOO"
-	feat:set_str_data({
-		lang["Spawn"],
-		lang["Delete"],
-		lang["Change name"]
-	})
-end
-u.saved_custom_vehicles = menu.add_feature(lang["Menyoo vehicles"], "parent", u.gvehicle.id)
+	end
 
-do
-	local main_feat <const> = menu.add_feature(lang["Menyoo vehicles"], "action_value_str", u.saved_custom_vehicles.id, function(f)
+	local function create_custom_vehicle_feature(name)
+		local safe_feat_name <const> = essentials.get_safe_feat_name(name)
+		if name ~= safe_feat_name or name:find("..", 1, true) or name:find(".", -1, true) then
+			return
+		end
+		local feat = menu.add_feature(safe_feat_name, "action_value_str", parent.id, feat_func_callback)
+		feat.data = "MENYOO"
+		feat_name_map[feat.name.."."..properties.extension] = true
+		feat:set_str_data(feat_str_data)
+	end
+	parent = menu.add_feature(lang[properties.folder_name], "parent", properties.parent.id)
+
+	local main_feat <const> = menu.add_feature(lang[properties.folder_name], "action_value_str", parent.id, function(f)
 		if f.value == 0 then
 			local input, status <const> = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], "", 128, 0)
 			if status == 2 then
 				return
 			end
-			input = input:lower()
-			for _, feature in pairs(u.saved_custom_vehicles.children) do
-				if feature.data == "MENYOO" then
-					feature.hidden = feature.name:lower():find(input, 1, true) == nil
-				end
+			input = essentials.make_string_case_insensitive(essentials.remove_special(input))
+			local children <const> = parent.children
+			for i = 1, #children do
+				children[i].hidden = children[i].data == "MENYOO" and not children[i].name:find(input)
 			end
 		elseif f.value == 1 then
+			local children <const> = parent.children
+			for i = 1, #children do -- 3x faster to delete all then reconstruct than using utils.file_exists
+				local feat <const> = children[i]
+				if feat.data == "MENYOO" then
+					essentials.delete_feature(feat.id)
+				end
+			end
+			local files <const> = utils.get_all_files_in_directory(properties.folder, properties.extension)
+			local End <const> = -1 - #("."..properties.extension)
+			feat_name_map = {}
+			for i = 1, #files do
+				create_custom_vehicle_feature(files[i]:sub(1, End))
+			end
+		elseif f.value == 2 then
+			if not properties.save_func then
+				return
+			end
 			if not entity.is_entity_a_vehicle(player.get_player_vehicle(player.player_id())) then
 				essentials.msg(lang["Found no vehicle to save."], "red", true)
 				return
@@ -5082,7 +5160,7 @@ do
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Menyoo Vehicles\\"..input..".xml") then
+				if utils.file_exists(properties.folder.."\\"..input.."."..properties.extension) then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -5094,199 +5172,180 @@ do
 				::skip::
 				system.yield(0)
 			end
-			menyoo_saver.save_vehicle(player.get_player_vehicle(player.player_id()), paths.home.."scripts\\Menyoo Vehicles\\"..input..".xml")
+			properties.save_func(player.get_player_vehicle(player.player_id()), properties.folder.."\\"..input.."."..properties.extension)
 			create_custom_vehicle_feature(input)
-		elseif f.value == 2 then
-			local feats <const> = {}
-			for _, feat in pairs(u.saved_custom_vehicles.children) do
-				if feat.data == "MENYOO" and not utils.file_exists(paths.home.."scripts\\Menyoo Vehicles\\"..feat.name..".xml") then
-					essentials.delete_feature(feat.id)
-				elseif feat.data == "MENYOO" then
-					feats[#feats + 1] = feat
-				end
-			end
-			for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
-				if essentials.is_all_true(feats, function(feat)
-					return feat.name ~= file_name:gsub("%.xml$", "")
-				end) then
-					create_custom_vehicle_feature(file_name:gsub("%.xml$", ""))
-				end
-			end
 		end
 	end)
-	main_feat:set_str_data({
-		lang["Search"],
-		lang["Save"],
-		lang["Refresh list"]
-	})
+	main_feat:set_str_data(properties.str_data)
 	main_feat.data = "MAIN_FEAT"
 
-	for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
-		create_custom_vehicle_feature(file_name:gsub("%.xml$", ""))
+	local End <const> = -1 - #("."..properties.extension)
+	local files <const> = utils.get_all_files_in_directory(properties.folder, properties.extension)
+	for i = 1, #files do
+		create_custom_vehicle_feature(files[i]:sub(1, End))
 	end
 end
 
 do
-	if not utils.dir_exists(paths.home.."scripts\\Menyoo Maps") then
-		utils.make_dir(paths.home.."scripts\\Menyoo Maps")
-	end
-	if not utils.dir_exists(paths.home.."scripts\\Race ghosts") then
-		utils.make_dir(paths.home.."scripts\\Race ghosts")
-	end
 	local custom_maps_parent <const> = menu.add_feature(lang["Menyoo maps"], "parent", u.self_options.id)
 	local race_ghost_parent <const> = menu.add_feature(lang["Race ghosts"], "parent", u.self_options.id)
 
-	local function create_ghost_racer_feature(...)
-		local name <const> = ...
-		if name:find("..", 1, true) or name:find("%.$") or name ~= essentials.get_safe_feat_name(name) then
-			return
-		end
-		local feat <const> = menu.add_feature(essentials.get_safe_feat_name(name), "action_value_str", race_ghost_parent.id, function(f)
-			if f.value == 0 then
-				if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..f.name..".lua") then
-					local properties = loadfile(paths.home.."scripts\\Race ghosts\\"..f.name..".lua")
-					local hash
-					if not pcall(function()
-						hash, properties = properties()
-					end) or not streaming.is_model_valid(math.tointeger(hash) or 0) or type(properties) ~= "table" or #properties < 5 then
-						essentials.msg(lang["Failed to load file."], "red", true)
-						return
-					end
-					local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(math.tointeger(hash), function()
-						return properties[1].pos, 0 
-					end, true, true, nil, false, 10, true)
-					f.data.vehicle = Vehicle
-					f.data.number_of_laps[Vehicle] = 0
-					entity.set_entity_alpha(Vehicle, 180, true)
-					entity.set_entity_collision(Vehicle, false, true, true)
-					f.data.number_of_racers = f.data.number_of_racers + 1
-					f.data.id[Vehicle] = f.data.number_of_racers
-					kek_entity.set_blip(Vehicle, 56, math.min(f.data.number_of_racers, 84))
-					f.data.threads[Vehicle] = menu.create_thread(function()
-						while f.data.status ~= "STOP" do
-							system.yield(0)
-							local i = 2
-							if f.data.number_of_laps[Vehicle] > 0 and #properties > 1000 then
-								for i2 = 2, #properties do
-									if properties[i2].time > 2 then
-										i = i2
-										break
-									end
-								end
-							end
-							local time = properties[i].time
-							while #properties >= i do
-								if not properties[i] then
-									break
-								end
-								while time > properties[i].time do
-									i = i + 1
-									if not properties[i] then
-										goto exit
-									end
-								end
-								local new_pos = v3(properties[i - 1].pos.x, properties[i - 1].pos.y, properties[i - 1].pos.z)
-								if essentials.round((properties[i].time - time) / gameplay.get_frame_time()) > 1 then
-									while essentials.round((properties[i].time - time) / gameplay.get_frame_time()) > 1 do
-										entity.set_entity_rotation(Vehicle, properties[i].rot)
-										new_pos = new_pos + ((properties[i].pos - properties[i - 1].pos) / essentials.round((properties[i].time - time) / gameplay.get_frame_time()))
-										entity.set_entity_coords_no_offset(Vehicle, new_pos)
-										system.yield(0)
-										time = time + gameplay.get_frame_time()
-										if f.data.status == "STOP" or not entity.is_entity_a_vehicle(Vehicle) then
-											goto complete_exit
-										end
-									end
-								else
-									entity.set_entity_rotation(Vehicle, properties[i].rot)
-									entity.set_entity_coords_no_offset(Vehicle, properties[i].pos)
-									system.yield(0)
-									time = time + gameplay.get_frame_time()
-								end
-								i = i + 1
-								if f.data.status == "STOP" or not entity.is_entity_a_vehicle(Vehicle) then
-									goto complete_exit
-								end
-							end
-							::exit::
-							f.data.number_of_laps[Vehicle] = f.data.number_of_laps[Vehicle] + 1
-							essentials.msg(string.format("[%s]: %s %s %s %s.", lang["Race ghosts"], f.name, f.data.id[Vehicle], lang["has finished lap"], f.data.number_of_laps[Vehicle]), "blue", true, 6)
-						end
-						::complete_exit::
-						f.data.number_of_racers = f.data.number_of_racers - 1
-						if f.data.number_of_racers == 0 then
-							f.data.status = nil
-						end
-						f.data.number_of_laps[Vehicle] = nil
-						f.data.id[Vehicle] = nil
-						f.data.threads[Vehicle] = nil
-						kek_entity.clear_entities({Vehicle})
-					end, nil)
-				end
-			elseif f.value == 1 then
-				f.data.status = "STOP"
-			elseif f.value == 2 then
+	local ghost_feat_callback <const> = function(f)
+		if f.value == 0 then
+			if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..f.name..".lua") then
 				local properties = loadfile(paths.home.."scripts\\Race ghosts\\"..f.name..".lua")
 				local hash
 				if not pcall(function()
 					hash, properties = properties()
-				end) or not streaming.is_model_valid(math.tointeger(hash) or 0) or type(properties) ~= "table" then
+				end) or not streaming.is_model_valid(math.tointeger(hash) or 0) or type(properties) ~= "table" or #properties < 5 then
 					essentials.msg(lang["Failed to load file."], "red", true)
 					return
 				end
-				kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), properties[1].pos)
-				entity.set_entity_rotation(essentials.get_most_relevant_entity(player.player_id()), properties[1].rot)
-			elseif f.value == 3 then
-				ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), f.data.vehicle, enums.vehicle_seats.driver)
-			elseif f.value == 4 then
-				f.data.status = "STOP"
-				if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..f.name..".lua") then
-					io.remove(paths.home.."scripts\\Race ghosts\\"..f.name..".lua")
-				end
-				f.hidden = true -- So that there is no delay between pressing delete and feature disappearing
-				repeat
-					system.yield(0)
-					local count = 0
-					for _, thread in pairs(f.data.threads) do -- Threads need access to f.data until they're finished. Deleting the feature removes that access.
-						count = count + 1
+				local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(math.tointeger(hash), function()
+					return properties[1].pos, 0 
+				end, true, true, nil, 10, true)
+				f.data.vehicle = Vehicle
+				f.data.number_of_laps[Vehicle] = 0
+				entity.set_entity_alpha(Vehicle, 180, true)
+				entity.set_entity_collision(Vehicle, false, true, true)
+				f.data.number_of_racers = f.data.number_of_racers + 1
+				f.data.id[Vehicle] = f.data.number_of_racers
+				kek_entity.set_blip(Vehicle, 56, math.min(f.data.number_of_racers, 84))
+				f.data.threads[Vehicle] = menu.create_thread(function()
+					while f.data.status ~= "STOP" do
+						system.yield(0)
+						local i = 2
+						if f.data.number_of_laps[Vehicle] > 0 and #properties > 1000 then
+							for i2 = 2, #properties do
+								if properties[i2].time > 2 then
+									i = i2
+									break
+								end
+							end
+						end
+						local time = properties[i].time
+						while #properties >= i do
+							if not properties[i] then
+								break
+							end
+							while time > properties[i].time do
+								i = i + 1
+								if not properties[i] then
+									goto exit
+								end
+							end
+							local new_pos = v3(properties[i - 1].pos.x, properties[i - 1].pos.y, properties[i - 1].pos.z)
+							if essentials.round((properties[i].time - time) / gameplay.get_frame_time()) > 1 then
+								while essentials.round((properties[i].time - time) / gameplay.get_frame_time()) > 1 do
+									entity.set_entity_rotation(Vehicle, properties[i].rot)
+									new_pos = new_pos + ((properties[i].pos - properties[i - 1].pos) / essentials.round((properties[i].time - time) / gameplay.get_frame_time()))
+									entity.set_entity_coords_no_offset(Vehicle, new_pos)
+									system.yield(0)
+									time = time + gameplay.get_frame_time()
+									if f.data.status == "STOP" or not entity.is_entity_a_vehicle(Vehicle) then
+										goto complete_exit
+									end
+								end
+							else
+								entity.set_entity_rotation(Vehicle, properties[i].rot)
+								entity.set_entity_coords_no_offset(Vehicle, properties[i].pos)
+								system.yield(0)
+								time = time + gameplay.get_frame_time()
+							end
+							i = i + 1
+							if f.data.status == "STOP" or not entity.is_entity_a_vehicle(Vehicle) then
+								goto complete_exit
+							end
+						end
+						::exit::
+						f.data.number_of_laps[Vehicle] = f.data.number_of_laps[Vehicle] + 1
+						essentials.msg(string.format("[%s]: %s %s %s %s.", lang["Race ghosts"], f.name, f.data.id[Vehicle], lang["has finished lap"], f.data.number_of_laps[Vehicle]), "blue", true, 6)
 					end
-				until count == 0
-				essentials.delete_feature(f.id)
-			elseif f.value == 5 then
-				local input, status = f.name
-				while true do
-					input, status = keys_and_input.get_input(lang["Type in name of race ghost."], input, 128, 0)
-					if status == 2 then
-						return
+					::complete_exit::
+					f.data.number_of_racers = f.data.number_of_racers - 1
+					if f.data.number_of_racers == 0 then
+						f.data.status = nil
 					end
-					if input:find("..", 1, true) or input:find("%.$") then
-						essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-						goto skip
-					end
-					if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..input..".lua") then
-						essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-						goto skip
-					end
-					if input:find("[<>:\"/\\|%?%*]") then
-						essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-					else
-						break
-					end
-					::skip::
-					system.yield(0)
-				end
-				essentials.rename_file(paths.home.."scripts\\Race ghosts\\", f.name, input, "lua")
-				f.name = input
+					f.data.number_of_laps[Vehicle] = nil
+					f.data.id[Vehicle] = nil
+					f.data.threads[Vehicle] = nil
+					kek_entity.clear_entities({Vehicle})
+				end, nil)
 			end
-		end)
-		feat:set_str_data({
-			lang["Load"],
-			lang["Unload"],
-			lang["Teleport to start"],
-			lang["Set yourself in seat"],
-			lang["Delete"],
-			lang["Change name"]
-		})
+		elseif f.value == 1 then
+			f.data.status = "STOP"
+		elseif f.value == 2 then
+			local properties = loadfile(paths.home.."scripts\\Race ghosts\\"..f.name..".lua")
+			local hash
+			if not pcall(function()
+				hash, properties = properties()
+			end) or not streaming.is_model_valid(math.tointeger(hash) or 0) or type(properties) ~= "table" then
+				essentials.msg(lang["Failed to load file."], "red", true)
+				return
+			end
+			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), properties[1].pos)
+			entity.set_entity_rotation(essentials.get_most_relevant_entity(player.player_id()), properties[1].rot)
+		elseif f.value == 3 then
+			ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), f.data.vehicle, enums.vehicle_seats.driver)
+		elseif f.value == 4 then
+			f.data.status = "STOP"
+			if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..f.name..".lua") then
+				io.remove(paths.home.."scripts\\Race ghosts\\"..f.name..".lua")
+			end
+			f.hidden = true -- So that there is no delay between pressing delete and feature disappearing
+			repeat
+				system.yield(0)
+				local count = 0
+				for _, thread in pairs(f.data.threads) do -- Threads need access to f.data until they're finished. Deleting the feature removes that access.
+					count = count + 1
+				end
+			until count == 0
+			essentials.delete_feature(f.id)
+		elseif f.value == 5 then
+			local input, status = f.name
+			while true do
+				input, status = keys_and_input.get_input(lang["Type in name of race ghost."], input, 128, 0)
+				if status == 2 then
+					return
+				end
+				if input:find("..", 1, true) or input:find("%.$") then
+					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
+					goto skip
+				end
+				if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..input..".lua") then
+					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
+					goto skip
+				end
+				if input:find("[<>:\"/\\|%?%*]") then
+					essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
+				else
+					break
+				end
+				::skip::
+				system.yield(0)
+			end
+			essentials.rename_file(paths.home.."scripts\\Race ghosts\\", f.name, input, "lua")
+			f.name = input
+		end
+	end
+
+	local feat_str_data <const> = {
+		lang["Load"],
+		lang["Unload"],
+		lang["Teleport to start"],
+		lang["Set yourself in seat"],
+		lang["Delete"],
+		lang["Change name"]
+	}
+
+	local function create_ghost_racer_feature(...)
+		local name <const> = ...
+		local safe_feat_name = essentials.get_safe_feat_name(name)
+		if name:find("..", 1, true) or name:find(".", -1, true) or name ~= safe_feat_name then
+			return
+		end
+		local feat <const> = menu.add_feature(safe_feat_name, "action_value_str", race_ghost_parent.id, ghost_feat_callback)
+		feat:set_str_data(feat_str_data)
 		feat.data = {
 			number_of_racers = 0,
 			vehicle = 0,
@@ -5353,112 +5412,130 @@ do
 		create_ghost_racer_feature(input)
 	end)
 
+	local feat_name_map = {}
+	local map_feat_callback <const> = function(f)
+		if f.value == 0 then
+			menyoo.spawn_xml_map(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml", true)
+		elseif f.value == 1 then
+			local info <const> = essentials.parse_xml(essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml"))
+			if info.SpoonerPlacements and info.SpoonerPlacements.ReferenceCoords then
+				kek_entity.teleport(
+					essentials.get_most_relevant_entity(player.player_id()), 
+					v3(
+						info.SpoonerPlacements.ReferenceCoords.X, 
+						info.SpoonerPlacements.ReferenceCoords.Y, 
+						info.SpoonerPlacements.ReferenceCoords.Z
+					)
+				)
+			elseif info.Map and info.Map.Objects.MapObject then -- This type has no reference coords
+				local t = info.Map.Objects.MapObject
+				t = t.__is_table and t[1] or t
+				local pos <const> = info.Map.Objects.ReferenceCoords or t.Position
+				kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), v3(pos.X, pos.Y, pos.Z))
+			else
+				essentials.msg(lang["Failed to load spawn coordinates."], "red", true, 6)
+			end
+		elseif f.value == 2 then
+			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
+				local pos <const> = player.get_player_coords(player.player_id())
+				local file_path <const> = paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml"
+				local str, new_str = essentials.get_file_string(file_path)
+				str = str:gsub("\r\n", "\n")
+				essentials.assert(str ~= "", "Tried to replace menyoo map with an empty string.")
+				local where_does_ref_coords_end
+				local replacement <const> = 
+					"\n\t<ReferenceCoords>\n"
+					.. "\t\t<X>"..pos.x.."</X>\n"
+					.. "\t\t<Y>"..pos.y.."</Y>\n"
+					.. "\t\t<Z>"..pos.z.."</Z>\n"
+					.. "\t</ReferenceCoords>\n"
+
+				if str:find("</ReferenceCoords>", 1, true) then
+					new_str = str:gsub(
+						"%s*<ReferenceCoords>[\n\r]+"
+						.. "%s*<X>[%d.-]+</X>[\n\r]+"
+						.. "%s*<Y>[%d.-]+</Y>[\n\r]+"
+						.. "%s*<Z>[%d.-]+</Z>[\n\r]+"
+						.."%s*</ReferenceCoords>[\n\r]+",
+						replacement
+					)
+					where_does_ref_coords_end = select(2, str:find("</ReferenceCoords>", 1, true))
+				elseif not str:find("<Quaternion>", 1, true) then
+					new_str = str:gsub(
+						"<SpoonerPlacements>[\r\n]+",
+						"<SpoonerPlacements>"..replacement
+					)
+					where_does_ref_coords_end = select(2, str:find("<SpoonerPlacements>", 1, true)) + #("<SpoonerPlacements>"..replacement)
+				elseif str:find("<Objects>", 1, true) then
+					new_str = str:gsub(
+						"<Objects>[\r\n]+",
+						"<Objects>"..replacement
+					)
+					where_does_ref_coords_end = select(2, str:find("<Objects>", 1, true)) + #("<Objects>"..replacement)
+				else
+					essentials.msg(lang["Failed to set coordinates."], "red", true, 6)
+					return
+				end
+				
+				essentials.assert(str:find(new_str:sub(where_does_ref_coords_end + 20, -1), 1, true), "Failed to set coords. Something went wrong and would've corrupted the file.")
+				local file <close> = io.open(file_path, "w+")
+				file:write(new_str)
+				file:flush()
+			end
+		elseif f.value == 3 then
+			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
+				io.remove(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml")
+			end
+			feat_name_map[f.name..".xml"] = nil
+			essentials.delete_feature(f.id)
+		elseif f.value == 4 then
+			local input, status = f.name
+			while true do
+				input, status = keys_and_input.get_input(lang["Type in name of menyoo map."], input, 128, 0)
+				if status == 2 then
+					return
+				end
+				if input:find("..", 1, true) or input:find("%.$") then
+					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
+					goto skip
+				end
+				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..input..".xml") then
+					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
+					goto skip
+				end
+				if input:find("[<>:\"/\\|%?%*]") then
+					essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
+				else
+					break
+				end
+				::skip::
+				system.yield(0)
+			end
+			essentials.rename_file(paths.home.."scripts\\Menyoo Maps\\", f.name, input, "xml")
+			feat_name_map[f.name..".xml"] = nil
+			f.name = input
+			feat_name_map[f.name..".xml"] = true
+		end
+	end
+
+	local feat_str_data <const> = {
+		lang["Spawn"],
+		lang["Teleport to map spawn"],
+		lang["Set where you spawn"],
+		lang["Delete"],
+		lang["Change name"]
+	}
+
 	local function create_custom_map_feature(...)
 		local name <const> = ...
-		if name:find("..", 1, true) or name:find("%.$") or name ~= essentials.get_safe_feat_name(name) then
+		local safe_feat_name <const> = essentials.get_safe_feat_name(name)
+		if name:find("..", 1, true) or name:find(".", -1, true) or name ~= safe_feat_name then
 			return
 		end
-		local feat = menu.add_feature(essentials.get_safe_feat_name(name), "action_value_str", custom_maps_parent.id, function(f)
-			if f.value == 0 then
-				menyoo.spawn_map(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml", player.player_id(), true)
-			elseif f.value == 1 then
-				if essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml"):find("<ReferenceCoords>", 1, true) then
-					local file <close> = io.open(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml")
-					repeat
-						local line <const> = file:read("*l")
-						if line and line:find("<ReferenceCoords>", 1, true) then
-							local x, y, z
-							for i = 1, 3 do
-								local line <const> = file:read("*l") or ""
-								if line:find("</X>", 1, true) then
-									x = tonumber(line:match(">(.-)<"))
-								elseif line:find("</Y>", 1, true) then
-									y = tonumber(line:match(">(.-)<"))
-								elseif line:find("</Z>", 1, true) then
-									z = tonumber(line:match(">(.-)<"))
-								end
-							end
-							if type(x) == "number" and type(y) == "number" and type(z) == "number" then
-								kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), v3(x, y, z))
-							else
-								essentials.msg(lang["Failed to load spawn coordinates."], "red", true, 6)
-							end
-							return
-						elseif not line then
-							return
-						end
-					until not line
-					essentials.msg(lang["Failed to load spawn coordinates."], "red", true, 6)
-				else
-					essentials.msg(lang["Found no spawn."], "red", true, 6)
-				end
-			elseif f.value == 2 then
-				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
-					local str <const> = essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml")
-					local is_existing_ref_pos <const> = str:find("<ReferenceCoords>", 1, true) ~= nil
-					local file <close> = io.open(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml", "w+")
-					local pos <const> = player.get_player_coords(player.player_id())
-					local line_num = 1
-					local End, start <const> = 7, 3
-					for line in str:gmatch("[^\n]+") do
-						if (not is_existing_ref_pos and line_num == 3) or (is_existing_ref_pos and line:find("<ReferenceCoords>", 1, true)) then
-							if is_existing_ref_pos and line:find("<ReferenceCoords>", 1, true) then
-								End = line_num + 4
-							end
-							file:write("\9<ReferenceCoords>\n")
-							file:write("\9\9<X>"..pos.x.."</X>\n")
-							file:write("\9\9<Y>"..pos.y.."</Y>\n")
-							file:write("\9\9<Z>"..pos.z.."</Z>\n")
-							file:write("\9</ReferenceCoords>\n")
-						end
-						if line_num < start or line_num > End then
-							file:write(line)
-							file:write("\n")
-						end
-						line_num = line_num + 1
-					end
-					file:flush()
-				end
-			elseif f.value == 3 then
-				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
-					io.remove(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml")
-				end
-				essentials.delete_feature(f.id)
-			elseif f.value == 4 then
-				local input, status = f.name
-				while true do
-					input, status = keys_and_input.get_input(lang["Type in name of menyoo map."], input, 128, 0)
-					if status == 2 then
-						return
-					end
-					if input:find("..", 1, true) or input:find("%.$") then
-						essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-						goto skip
-					end
-					if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..input..".xml") then
-						essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-						goto skip
-					end
-					if input:find("[<>:\"/\\|%?%*]") then
-						essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-					else
-						break
-					end
-					::skip::
-					system.yield(0)
-				end
-				essentials.rename_file(paths.home.."scripts\\Menyoo Maps\\", f.name, input, "xml")
-				f.name = input
-			end
-		end)
+		local feat = menu.add_feature(safe_feat_name, "action_value_str", custom_maps_parent.id, map_feat_callback)
 		feat.data = "MENYOO"
-		feat:set_str_data({
-			lang["Spawn"],
-			lang["Teleport to map spawn"],
-			lang["Set where you spawn"],
-			lang["Delete"],
-			lang["Change name"]
-		})
+		feat:set_str_data(feat_str_data)
+		feat_name_map[feat.name..".xml"] = true
 	end
 
 	local main_feat <const> = menu.add_feature(lang["Menyoo maps"], "action_value_str", custom_maps_parent.id, function(f)
@@ -5467,11 +5544,10 @@ do
 			if status == 2 then
 				return
 			end
-			input = input:lower()
-			for _, feature in pairs(custom_maps_parent.children) do
-				if feature.data == "MENYOO" then
-					feature.hidden = feature.name:lower():find(input, 1, true) == nil
-				end
+			input = essentials.make_string_case_insensitive(essentials.remove_special(input))
+			local children <const> = custom_maps_parent.children
+			for i = 1, #children do
+				children[i].hidden = children[i].data == "MENYOO" and not children[i].name:find(input)
 			end
 		elseif f.value == 1 then
 			local input, status
@@ -5499,20 +5575,17 @@ do
 			menyoo_saver.save_map(paths.home.."scripts\\Menyoo Maps\\"..input..".xml")
 			create_custom_map_feature(input)
 		elseif f.value == 2 then
-			local feats <const> = {}
-			for _, feat in pairs(custom_maps_parent.children) do
-				if feat.data == "MENYOO" and not utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..feat.name..".xml") then
+			local children <const> = custom_maps_parent.children
+			for i = 1, #children do -- 3x faster to delete all then reconstruct than using utils.file_exists
+				local feat <const> = children[i]
+				if feat.data == "MENYOO" then
 					essentials.delete_feature(feat.id)
-				elseif feat.data == "MENYOO" then
-					feats[#feats + 1] = feat
 				end
 			end
-			for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")) do
-				if essentials.is_all_true(feats, function(feat)
-					return feat.name ~= file_name:gsub("%.xml$", "")
-				end) then
-					create_custom_map_feature(file_name:gsub("%.xml$", ""))
-				end
+			local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")
+			feat_name_map = {}
+			for i = 1, #files do
+				create_custom_map_feature(files[i]:sub(1, -5))
 			end
 		end
 	end)
@@ -5522,12 +5595,14 @@ do
 		lang["Refresh list"]
 	})
 	main_feat.data = "MAIN_FEAT"
-	for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")) do
-		create_custom_map_feature(file_name:gsub("%.xml$", ""))
+	local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")
+	for i = 1, #files do
+		create_custom_map_feature(files[i]:sub(1, -5))
 	end
 
-	for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Race ghosts", "lua")) do
-		create_ghost_racer_feature(file_name:gsub("%.lua$", ""))
+	local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Race ghosts", "lua")
+	for i = 1, #files do
+		create_ghost_racer_feature(files[i]:sub(1, -5))
 	end
 end
 
@@ -5605,11 +5680,11 @@ u.vehicle_fly = menu.add_feature(lang["Vehicle fly"], "toggle", u.gvehicle.id, f
 		local thread = -1
 		while f.on do
 			system.yield(0)
-			if menu.has_thread_finished(thread) and not entity.is_entity_a_vehicle(fly_entity) then
+			if menu.has_thread_finished(thread) and player.is_player_in_any_vehicle(player.player_id()) and not entity.is_entity_a_vehicle(fly_entity) then
 				thread = menu.create_thread(function()
 					fly_entity = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("bmx"), function() 
 						return player.get_player_coords(player.player_id()), 0 
-					end, true, false, nil, false, 0, true)
+					end, true, false, nil, 0, true)
 					entity.set_entity_max_speed(fly_entity, 45000)
 					entity.set_entity_visible(fly_entity, false)
 					entity.set_entity_collision(fly_entity, false, false, false)
@@ -5763,7 +5838,7 @@ menu.add_player_feature(lang["Set bounty"], "action_value_str", u.script_stuff, 
 			return
 		end
 		settings.in_use["Bounty amount"] = input
-	else
+	elseif player.player_count() > 0 then
 		if globals.get_player_global("bounty_status", pid) == 1 then
 			essentials.msg(lang["This player already have a bounty set on them."], "red", true, 6)
 			return
@@ -5791,6 +5866,11 @@ end):set_str_data({
 
 
 menu.add_player_feature(lang["Teleport to"], "action_value_str", u.script_stuff, function(f, pid)
+	if player.player_id() == pid then
+		essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
+		f.on = false
+		return
+	end
 	if f.value == 0 then
 		globals.send_script_event("Send to Perico island", pid, {pid, globals.get_script_event_hash("Send to Perico island"), 0, 0})
 	elseif f.value == 1 then
@@ -5907,6 +5987,10 @@ do
 				globals.send_script_event("Destroy personal vehicle", pid, {pid, pid})
 				kek_entity.remove_player_vehicle(pid)
 			elseif f.value == 5 then
+				if player.player_count() == 0 then
+					essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
+					return
+				end
 				menyoo.clone_vehicle(player.get_player_vehicle(pid), relative_pos)
 			end
 		end
@@ -5963,19 +6047,6 @@ kek_entity.generate_player_vehicle_list({
 		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
 	end,
 	"")
-
-menu.add_player_feature(lang["Spawn Menyoo vehicle"], "action", u.player_vehicle_features, function(f, pid)
-	local input <const>, status <const> = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], "", 128, 0)
-	if status == 2 then
-		return
-	end
-	for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
-		if file_name:lower():find(input:lower(), 1, true) then
-			menyoo.spawn_custom_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..file_name, pid, true)
-			return
-		end
-	end
-end)
 
 player_feat_ids["Player horn boost"] = menu.add_player_feature(lang["Horn boost"], "slider", u.player_vehicle_features, function(f, pid)
 	while f.on do
@@ -6088,8 +6159,13 @@ menu.add_player_feature(lang["Vehicle fly player"], "toggle", u.player_vehicle_f
 end)
 
 settings.user_entity_features.vehicle.player_feats["Ram player"] = menu.add_player_feature(lang["Ram player with vehicle"], "value_str", u.player_trolling_features, function(f, pid)
+	if player.player_count() == 0 then
+		f.on = false
+		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
+		return
+	end
 	local hash, vehicle_name
-	while f.on do
+	while f.on and player.player_count() > 0 do
 		if vehicle_name ~= settings.in_use["User vehicle"] then
 			vehicle_name = settings.in_use["User vehicle"]
 			hash = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
@@ -6099,6 +6175,7 @@ settings.user_entity_features.vehicle.player_feats["Ram player"] = menu.add_play
 		end
 		system.yield(0)
 	end
+	f.on = false
 end).id
 
 menu.add_player_feature(lang["Spastic car"], "toggle", u.player_trolling_features, function(f, pid)
@@ -6119,20 +6196,27 @@ menu.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player
 	end
 	for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
 		if file_name:lower():find(input:lower(), 1, true) then
-			local Vehicle <const> = menyoo.spawn_custom_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..file_name, pid, false)
-			if streaming.is_model_a_plane(entity.get_entity_model_hash(Vehicle)) then
-				essentials.msg(lang["Attackers can't use planes. Cancelled."], "red", true)
-				kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
-				return
+			local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..file_name, pid)
+			if entity.is_entity_a_vehicle(Vehicle) then
+				if streaming.is_model_a_plane(entity.get_entity_model_hash(Vehicle)) then
+					essentials.msg(lang["Attackers can't use planes. Cancelled."], "red", true)
+					kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
+					return
+				end
+				kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(player.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0)
+				troll_entity.setup_peds_and_put_in_seats(kek_entity.get_empty_seats(Vehicle), ped_mapper.get_random_ped("all peds except animals"), Vehicle, pid)
 			end
-			kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(player.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0)
-			troll_entity.setup_peds_and_put_in_seats(kek_entity.get_empty_seats(Vehicle), ped_mapper.get_random_ped("all peds except animals"), Vehicle, pid)
 			return
 		end
 	end
 end)
 
 menu.add_player_feature(lang["Send"], "value_str", u.player_trolling_features, function(f, pid)
+	if player.player_count() == 0 then
+		f.on = false
+		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
+		return
+	end
 	while f.on do
 		if f.value == 0 then
 			troll_entity.spawn_standard_alone(f, pid, troll_entity.send_clown_van)
@@ -6142,6 +6226,9 @@ menu.add_player_feature(lang["Send"], "value_str", u.player_trolling_features, f
 			troll_entity.spawn_standard_alone(f, pid, troll_entity.send_army)
 		end
 		system.yield(0)
+		if player.player_count() == 0 then
+			f.on = false
+		end
 	end
 end):set_str_data({
 	lang["Clown vans"],
@@ -6158,6 +6245,11 @@ menu.add_feature(lang["Get parachute"], "action", u.self_options.id, function(f)
 end)
 
 menu.add_feature(lang["Send to session"], "value_str", u.session_trolling.id, function(f)
+	if player.player_count() == 0 then
+		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
+		f.on = false
+		return
+	end
 	while f.on do
 		system.yield(0)
 		if f.value == 0 then
@@ -6210,10 +6302,15 @@ u.atomize.mod = 50
 u.atomize.value = 1000
 
 menu.add_player_feature(lang["Float"], "value_str", u.player_trolling_features, function(f, pid)
+	if player.player_count() == 0 then
+		f.on = false
+		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
+		return
+	end
 	local hash <const> = gameplay.get_hash_key("bkr_prop_biker_bblock_sml2")
 	local platform = 0
 	local pos = v3()
-	while f.on do
+	while f.on and player.player_count() > 0 do
 		system.yield(0)
 		if not entity.is_entity_an_object(platform) then
 			local objects <const> = memoize.get_all_objects()
@@ -6240,6 +6337,7 @@ menu.add_player_feature(lang["Float"], "value_str", u.player_trolling_features, 
 		kek_entity.teleport(platform, pos)
 	end
 	kek_entity.clear_entities({platform})
+	f.on = false
 end):set_str_data({
 	lang["Upwards"],
 	lang["Still"],
@@ -6282,7 +6380,7 @@ menu.add_player_feature(lang["Kidnap player"], "toggle", u.player_trolling_featu
 			end			
 		end
 		if not select(2, kek_entity.get_number_of_passengers(van)) then
-			entity.delete_entity(van)
+			kek_entity.clear_entities({van})
 		end
 	end
 end)
@@ -6417,8 +6515,7 @@ menu.add_player_feature(lang["Delete gun"], "toggle", u.pWeapons, function(f, pi
 		and entity.is_an_entity(Entity) 
 		and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) 
 		and network.has_control_of_entity(Entity) then
-			entity.set_entity_as_mission_entity(Entity, false, true)
-			entity.delete_entity(Entity)
+			kek_entity.clear_entities({Entity})
 		end
 	end
 end)
@@ -6526,7 +6623,7 @@ menu.add_feature(lang["Clear entities"], "value_str", u.kek_utilities.id, functi
 				}
 				radius = settings.valuei["Ped clear distance"].value
 			end
-			if f.value == 2 or f.value == 5 then
+			if f.value == 2 or f.value == 5 and player.player_count() ~= 0 then
 				entities.objects = {
 					entities 			   = object.get_all_objects(),
 					max_number_of_entities = nil,
@@ -6536,7 +6633,7 @@ menu.add_feature(lang["Clear entities"], "value_str", u.kek_utilities.id, functi
 				}
 				radius = settings.valuei["Object clear distance"].value
 			end
-			if f.value == 3 or f.value == 5 then
+			if f.value == 3 or f.value == 5 and player.player_count() ~= 0 then
 				entities.pickups = {
 					entities 			   = object.get_all_pickups(),
 					max_number_of_entities = nil,
@@ -6644,10 +6741,17 @@ end)
 
 do
 	u.entity_manager = menu.add_feature(lang["Entity manager"], "parent", u.kek_utilities.id)
+	local parent_i = 0
 	local entity_manager_parents <const> = essentials.const({
-		menu.add_feature(lang["Vehicles"], "parent", u.entity_manager.id),
-		menu.add_feature(lang["Peds"], "parent", u.entity_manager.id),
-		menu.add_feature(lang["Objects"], "parent", u.entity_manager.id)
+		menu.add_feature(lang["Vehicles"], "parent", u.entity_manager.id, function()
+			parent_i = 1
+		end),
+		menu.add_feature(lang["Peds"], "parent", u.entity_manager.id, function()
+			parent_i = 2
+		end),
+		menu.add_feature(lang["Objects"], "parent", u.entity_manager.id, function()
+			parent_i = 3
+		end)
 	})
 
 	local player_vehicles = {timer = 0}
@@ -6736,6 +6840,10 @@ do
 		menu.add_feature(lang["All entities of this type"], "parent", entity_manager_parents[i].id, function(parent)
 			if parent.child_count == 0 then
 				menu.add_feature(lang["Delete"], "action", parent.id, function(f)
+					if i == 3 and player.player_count() == 0 then
+						essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
+						return
+					end
 					for Entity in entities_ite(i) do
 						kek_entity.hard_remove_entity_and_its_attachments(Entity)
 					end
@@ -6889,7 +6997,8 @@ do
 					if i == 1 or i == 2 then
 						menu.add_feature(lang["Clone"], "action", parent.id, function(f)
 							if entity.is_entity_a_vehicle(parent.data.entity) then
-								menyoo.clone_vehicle(parent.data.entity, kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8))
+								local pos <const> = kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)
+								menyoo.clone_vehicle(parent.data.entity, pos)
 							elseif entity.is_entity_a_ped(parent.data.entity) then
 								local Ped <const> = ped.clone_ped(parent.data.entity)
 								kek_entity.teleport(Ped, kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8))
@@ -6997,43 +7106,45 @@ do
 		-- Localized functions. This feature has a minor hit to fps, any micro optimization is needed.
 
 		while f.on do
-			local my_ped_coords <const> = player.get_player_coords(player.player_id())
-			if time_ms() > player_vehicles.timer then
-				player_vehicles = {timer = time_ms() + 2000}
-				for pid in essentials.players(true) do
-					player_vehicles[player.get_player_vehicle(pid)] = format("[%s]", player.get_player_name(pid))
+			system.yield(0)
+			if parent_i ~= 0 then
+				if parent_i == 1 then
+					if time_ms() > player_vehicles.timer then
+						player_vehicles.timer = time_ms() + 1000
+						for pid in essentials.players(true) do
+							player_vehicles[player.get_player_vehicle(pid)] = format("[%s]", player.get_player_name(pid))
+						end
+					end
 				end
-			end
-			for i = 1, 3 do -- 1 is vehicle, 2 is ped & 3 is object
-				system.yield(0)
-				for Entity, parent in pairs(parents_in_use[i]) do
+				local my_ped_coords <const> = player.get_player_coords(player.player_id())
+				for Entity, parent in pairs(parents_in_use[parent_i]) do
+					parent.on = find(parent.name, filters[parent_i]) ~= nil
 					if is_an_entity(Entity) then
-						if time_ms() > (timer[Entity] or 0) then
-							timer[Entity] = time_ms() + 500
-							if player_vehicles[Entity] then
+						if parent.on and time_ms() > (timer[Entity] or 0) then
+							timer[Entity] = time_ms() + 250
+							if parent_i == 1 and player_vehicles[Entity] then
 								parent.name = format("%s < %i > %s", parent.data.entity_name, magnitude(my_ped_coords, get_entity_coords(Entity)) // 1, player_vehicles[Entity])
 							else
 								parent.name = format("%s < %i >", parent.data.entity_name, magnitude(my_ped_coords, get_entity_coords(Entity)) // 1)
 							end
 						end
-						parent.on = find(parent.name, filters[i]) ~= nil
 					else
 						parent.on = false
 						local children <const> = parent.children
 						for i = 1, #children do
 							children[i].on = children[i].type == 2048
 						end
-						free_parents[i][#free_parents[i] + 1] = parent
-						parents_in_use[i][Entity] = nil
+						free_parents[parent_i][#free_parents[parent_i] + 1] = parent
+						parents_in_use[parent_i][Entity] = nil
 					end
 				end
-				local entities <const> = entity_getters[i]()
+				local entities <const> = entity_getters[parent_i]()
 				for i2 = 1, #entities do
-					if not parents_in_use[i][entities[i2]] and is_an_entity(entities[i2]) and (i ~= 2 or not is_ped_a_player(entities[i2])) then
-						parents_in_use[i][entities[i2]] = free_parents[i][#free_parents[i]]
-						free_parents[i][#free_parents[i]] = nil
-						local entity_name <const> = get_names[i](get_entity_model_hash(entities[i2]))
-						local parent <const> = parents_in_use[i][entities[i2]]
+					if not parents_in_use[parent_i][entities[i2]] and is_an_entity(entities[i2]) and (parent_i ~= 2 or not is_ped_a_player(entities[i2])) then
+						parents_in_use[parent_i][entities[i2]] = free_parents[parent_i][#free_parents[parent_i]]
+						free_parents[parent_i][#free_parents[parent_i]] = nil
+						local entity_name <const> = get_names[parent_i](get_entity_model_hash(entities[i2]))
+						local parent <const> = parents_in_use[parent_i][entities[i2]]
 						parent.data = parent.data or {}
 						parent.data.entity_name = entity_name
 						parent.data.entity = entities[i2]
@@ -7041,6 +7152,8 @@ do
 				end
 			end
 		end
+		parent_i = 0
+		player_vehicles = {timer = 0}
 		for i = 1, 3 do
 			for Entity, parent in pairs(parents_in_use[i]) do
 				for _, child in pairs(parent.children) do
@@ -7280,7 +7393,7 @@ local hotkey_setting_properties <const> = {
 		setting = "off",
 		func = function()
 			local Vehicle = 0
-			if globals.get_player_global("personal_vehicle", player.player_id()) ~= 0 and not entity.is_entity_dead(globals.get_player_global("personal_vehicle", player.player_id())) then
+			if player.player_count() > 0 and globals.get_player_global("personal_vehicle", player.player_id()) ~= 0 and not entity.is_entity_dead(globals.get_player_global("personal_vehicle", player.player_id())) then
 				Vehicle = globals.get_player_global("personal_vehicle", player.player_id())
 			elseif player.get_player_vehicle(player.player_id()) ~= 0 and not entity.is_entity_dead(player.get_player_vehicle(player.player_id())) then
 				Vehicle = player.get_player_vehicle(player.player_id())
@@ -7639,7 +7752,10 @@ essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", fun
 	for _, Entity in essentials.entities(essentials.deep_copy(kek_entity.entity_manager.entities)) do
 		if Entity ~= player.get_player_vehicle(player.player_id()) then
 			ui.remove_blip(ui.get_blip_from_entity(Entity))
-			if network.has_control_of_entity(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
+			if entity.is_entity_attached(Entity) then
+				entity.detach_entity(Entity)
+			end
+			if network.has_control_of_entity(Entity) and not entity.is_entity_attached(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
 				entity.set_entity_as_mission_entity(Entity, false, true)
 				entity.delete_entity(Entity)
 			end

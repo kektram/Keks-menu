@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-local essentials <const> = {version = "1.4.0"}
+local essentials <const> = {version = "1.4.1"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -74,9 +74,9 @@ do
 	local sign_bit_z <const> = 1 << 60
 	local max_20_bit_num <const> = 1048575
 	function essentials.pack_3_nums(x, y, z)
-        local xi = x * 100 // 1
-        local yi = y * 100 // 1
-        local zi = z * 100 // 1
+		local xi = x * 100 // 1
+		local yi = y * 100 // 1
+		local zi = z * 100 // 1
 		essentials.assert(
 			xi >= -max_20_bit_num 
 			and xi <= max_20_bit_num 
@@ -109,8 +109,8 @@ do
 	local sign_bit_y <const> = 1 << 61
 	local max_30_bit_num <const> = 1073741823
 	function essentials.pack_2_nums(x, y)
-        local xi = x * 100 // 1
-        local yi = y * 100 // 1
+		local xi = x * 100 // 1
+		local yi = y * 100 // 1
 		essentials.assert(
 			xi >= -max_30_bit_num 
 			and xi <= max_30_bit_num 
@@ -137,6 +137,17 @@ do
 	function essentials.pack_2_positive_integers(x, y)
 		return 0 | x << 31 | y
 	end
+end
+
+function essentials.get_rgb(r, g, b)
+	return (b << 16) | (g << 8) | r
+end
+
+function essentials.rgb_to_bytes(uint32_rgb)
+	return
+		(uint32_rgb << 56 >> 56),
+		(uint32_rgb << 48 >> 56),
+		(uint32_rgb >> 16)
 end
 
 function essentials.unpack_3_nums(packed_num)
@@ -239,22 +250,21 @@ do
 	end
 end
 
-function essentials.const_all(Table, seen)
-	seen = seen or {}
+function essentials.const_all(Table, timeout)
+	timeout = timeout or utils.time_ms() + 1000
+	essentials.assert(timeout > utils.time_ms(), "Entered recursion loop while setting table to const all.")
 	for key, value in pairs(Table) do
-		essentials.assert(not seen[value], "Tried to set const_all to a table with a reference to itself.")
-		if not seen[value] and type(value) == "table" then
-			seen[value] = true
-			essentials.rawset(Table, key, essentials.const_all(value, seen))
+		if type(value) == "table" then
+			essentials.rawset(Table, key, essentials.const_all(value, timeout))
 		end
 	end
 	return essentials.const(Table)
 end
 
 function essentials.make_string_case_insensitive(str)
-    str = str:gsub("%a", function(str)
-        return "["..str:lower()..str:upper().."]"
-    end)
+	str = str:gsub("%a", function(str)
+		return "["..str:lower()..str:upper().."]"
+	end)
 	return str
 end
 
@@ -277,7 +287,7 @@ function essentials.date_to_int(date)
 end
 
 function essentials.time_to_float(time)
-    local hours <const> = tonumber(time:match("^(%d+):%d+:%d+$")) * 60^2
+	local hours <const> = tonumber(time:match("^(%d+):%d+:%d+$")) * 60^2
 	local minutes <const> = tonumber(time:match("^%d+:(%d+):%d+$")) * 60
 	local seconds <const> = tonumber(time:match("^%d+:%d+:(%d+)$"))
 	return (hours + minutes + seconds) / (60^2 * 24)
@@ -374,28 +384,23 @@ do
 	getmetatable(menu).__newindex = originals.menu_newindex
 end
 
-function essentials.deep_copy(Table, keep_meta, seen)
+function essentials.deep_copy(Table, keep_meta, timeout)
 	local new_copy <const> = {}
-	seen = seen or {}
+	timeout = timeout or utils.time_ms() + 1000 -- Far cheaper than using a seen table.
 	for key, value in pairs(Table) do
 		if type(value) == "table" then
-			essentials.assert(not seen[value], "Tried to deep copy a table with a reference to itself.")
-			seen[value] = true
-			new_copy[key] = essentials.deep_copy(value, keep_meta, seen)
+			new_copy[key] = essentials.deep_copy(value, keep_meta, timeout)
 			if keep_meta and type(getmetatable(value)) == "table" then
-				essentials.assert(not seen[getmetatable(value)], "Tried to deep copy a table with a reference to one of its own member's metatable.")
-				seen[getmetatable(value)] = true
-				setmetatable(new_copy[key], essentials.deep_copy(getmetatable(value), true, seen))
+				setmetatable(new_copy[key], essentials.deep_copy(getmetatable(value), true, timeout))
 			end
 		else
 			new_copy[key] = value
 		end
 	end
 	if keep_meta and type(getmetatable(Table)) == "table" then
-		essentials.assert(not seen[getmetatable(Table)], "Tried to deep copy a table with a reference to its own metatable.")
-		seen[getmetatable(Table)] = true
-		setmetatable(new_copy, essentials.deep_copy(getmetatable(Table), true, seen))
+		setmetatable(new_copy, essentials.deep_copy(getmetatable(Table), true, timeout))
 	end
+	essentials.assert(timeout > utils.time_ms(), "Entered recursion loop while attempting to deep copy table.")
 	return new_copy
 end
 
@@ -575,6 +580,28 @@ do -- Reasonable performance. 342k characters per millisecond. Garbage compared 
 	end
 end
 
+do -- This function is making it so unicode character lead bytes aren't confused as regular characters.
+	local gsub <const> = string.gsub
+	local sub <const> = string.sub
+	local byte <const> = string.byte
+	local char <const> = string.char
+	local find <const> = string.find
+
+	local conversion_callback <const> = function(str)
+		local byte <const> = byte(sub(str, 1, 1))
+		local lead_byte <const> = char(byte < 128 and byte + 128 or byte)
+		return lead_byte..sub(str, 2, -1)
+	end
+	function essentials.unicode_find_2(str, pattern, pos, plain) -- Converts pattern & string's unicode into codepoint.
+		return find(
+			gsub(str, "[\0-\x7F\xC2-\xFD][\x80-\xBF]+", conversion_callback),
+			gsub(pattern, "[\0-\x7F\xC2-\xFD][\x80-\xBF]+", conversion_callback),
+			pos, 
+			plain
+		)
+	end -- Converts lead bytes into characters that doesnt interfere with patterns
+end
+
 do
 	local memoized <const> = {} -- Expensive function.
 	local codes <const> = utf8.codes
@@ -638,7 +665,7 @@ do
 	end
 end
 
-function essentials.get_safe_feat_name(name)
+function essentials.get_safe_feat_name(name) -- Checks if valid utf8 code, removes corrupted bytes if not
 	local str = name
 	if not utf8.len(name) then
 		str = name:gsub("[^A-Za-z0-9%s%p%c]", "")
@@ -679,26 +706,206 @@ function essentials.table_to_xml(...)
 	tabs,
 	name <const>,
 	lines <const>,
-	_return = ...
+	_return,
+	timeout = ...
+	timeout = timeout or utils.time_ms() + 1000 -- In case of recursion loop
 	if name then
-		lines[#lines + 1] = string.format("%s<%s>", ("\9"):rep(tabs - 1), name)
+		lines[#lines + 1] = string.format("%s<%s>", ("\t"):rep(tabs - 1), name)
 	end
-	local tab_string <const> = ("\9"):rep(tabs)
+	local tab_string <const> = ("\t"):rep(tabs)
 	for property_name, property in pairs(Table) do
 		if type(property) == "table" then
 			tabs = tabs + 1
-			essentials.table_to_xml(property, tabs, property_name, lines)
+			essentials.table_to_xml(property, tabs, property_name, lines, nil, timeout)
 			tabs = tabs - 1
 		else
 			lines[#lines + 1] = string.format("%s<%s>%s</%s>", tab_string, property_name, tostring(property), property_name)
 		end
 	end
 	if name then
-		lines[#lines + 1] = string.format("%s</%s>", ("\9"):rep(tabs - 1), name)
+		local line
+		if (type(name) == "string" and name or tostring(name)):find("=", 1, true) then
+			line = string.format("%s</%s>", ("\t"):rep(tabs - 1), name:match("^%S+"))
+		else
+			line = string.format("%s</%s>", ("\t"):rep(tabs - 1), name)
+		end
+		lines[#lines + 1] = line
 	end
+	essentials.assert(timeout > utils.time_ms(), "Entered recursion loop while attempting to convert table to xml.")
 	if _return then
 		return table.concat(lines, "\n")
 	end
+end
+
+function essentials.cast_value(value, parse_type)
+	if parse_type == "xml" and value:find(",", 1, true) then
+		local values = {}
+		for value in value:gmatch("([^,%s]+)") do
+			values[#values + 1] = essentials.cast_value(value, "xml")
+		end
+		return values
+	else
+		if value == "false" then
+			return false
+		else
+			return
+				value == "true"
+				or tonumber(value)
+				or tonumber(value, 16)
+				or tonumber("0x"..value) -- The former tonumber doesn't support hexadecimal with fractions.
+				or value
+		end
+	end
+end
+
+local function parse_attribute(str)
+	local name <const>, where <const> = str:match("^<([^\32>]+)()")
+	local values
+	if str:find("=", where + 1, true) then
+		values = {}
+		for index, value in str:gmatch("([^=]+)=[\"']([^=]+)[\"'][\32>]", where + 1) do
+			values[index] = essentials.cast_value(value, "xml")
+		end
+	end
+	return name, values
+end
+
+--[[
+	DOM XML parser. Read only.
+	Supports:
+		Fundamentals
+		Multi-line elements. Such as a paragraph. Tabs at start of each line are also removed.
+		Multi-line elements must start its value on the same line as the same. <name>\n would have it ignore its content.
+		Multiple values in a element separated by comma
+		Ignore single line & multi line comment, empty lines & nodes with no values
+		Escape sequences
+		Attributes, but only for node parents & tags
+		Multiple roots, if the roots have different names
+		Duplicate parent and child names. They are converted to a new node & split up into nodes, starting from 1, 2, 3...
+	
+	Does not support:
+		Defining types (schema)
+		DOCTYPE declaration
+		CSS
+		Loading files
+
+	This parser is meant to be as fast as possible.
+	Prologue is info.prologue
+	Performance: Parsed a 15k lines menyoo vehicle in 28ms.
+	Parses are remembered until garbage collector is collecting.
+--]]
+
+local __is_table_mt = {__index = {__is_table = true}}
+
+local accepted_whitespace <const> = "[\t\n\r\32]"
+local escape_seq_map <const> = {
+	["&quot;"] = "\"",
+	["&apos;"] = "'",
+	["&lt;"] = "<",
+	["&gt;"] = ">",
+	["&amp;"] = "&"
+}
+
+local memoized <const> = setmetatable({}, {__mode = "vk"})
+function essentials.parse_xml(str)
+	if memoized[str] then
+		return memoized[str]
+	else
+		memoized[str] = {}
+	end
+	local find <const> = string.find
+	local gsub <const> = string.gsub
+	local match <const> = string.match
+	local setmetatable <const> = setmetatable
+	local parse_attribute <const> = parse_attribute
+	local cast_value <const> = essentials.cast_value
+
+	local info = memoized[str]
+
+	if not str:find(accepted_whitespace, -1) then
+		str = str.."\n" -- This is extremely expensive, but adapting the entire parser is worse
+	end -- Completely fails to parse anything if last char isn't whitespace.
+	-- Must have both \r and \n. Missing \r will make certain files like BIGHEAD AngryDoggo unparseable.
+
+	local memoized <const> = {}
+	local parent_tree <const> = {}
+	if pcall(function()
+		local end_of_first_line <const> = select(2, find(str, "\n", 1, true))
+		local first_line <const> = str:sub(1, end_of_first_line - 1)
+		info.prologue = select(2, parse_attribute(first_line:gsub("%?", "")))
+	end) then
+
+		for line in str:gmatch("<.->%f"..accepted_whitespace) do
+			memoized[line] = memoized[line] or {
+				new_value_find = find(line, "^<.+>.+</.+>$"),
+				is_comment = find(line, "^<!%-%-"),
+				index = false,
+				value = false
+			}
+			local memoized <const> = memoized[line]
+			if memoized.is_comment then
+				goto continue
+			end
+			if memoized.new_value_find then
+				if not memoized.index then
+					local value = gsub(match(line, ">([^<>]+)</"), "\n\t*", "\n")
+					value = gsub(value, "&%a%a%a?%a?;", escape_seq_map)
+					memoized.index = match(line, "^<([^>]+)>")
+					memoized.value = cast_value(value, "xml")
+				end
+				local parent <const> = parent_tree[#parent_tree][memoized.index]
+				if parent then
+					if parent.__is_table then
+						parent[#parent + 1] = memoized.value
+					else
+						parent_tree[#parent_tree][memoized.index] = setmetatable({parent, memoized.value}, __is_table_mt)
+					end
+				else
+					parent_tree[#parent_tree][memoized.index] = memoized.value
+				end
+				goto continue
+			end
+
+			memoized.new_tag_find = memoized.new_tag_find or find(line, "^<.+\32/>$")
+			if memoized.new_tag_find then
+				local name <const>, attributes <const> = parse_attribute(line)
+				parent_tree[#parent_tree][name] = {__attributes = attributes}
+				goto continue
+			end
+
+			memoized.new_parent_find = memoized.new_parent_find or find(line, "^<[^/?][^<>]+>$")
+			if memoized.new_parent_find then
+				local name <const>, attributes <const> = parse_attribute(line) -- Each set of attributes must have its own unique table so it can be modified without affecting others.
+				parent_tree[#parent_tree + 1] = {__attributes = attributes}
+				parent_tree[#parent_tree].__name = name
+				goto continue
+			end
+
+			memoized.parent_end = memoized.parent_end or (#parent_tree > 0 and find(line, "</"..parent_tree[#parent_tree].__name..">", 1, true))
+			if memoized.parent_end then
+				local child <const> = parent_tree[#parent_tree]
+				local parent <const> = parent_tree[#parent_tree - 1]
+				if #parent_tree == 1 then
+					info[child.__name] = child
+				else
+					local value <const> = parent[child.__name]
+					if value then
+						if value.__is_table then
+							value[#value + 1] = child
+						else
+							parent[child.__name] = setmetatable({parent[child.__name], child}, __is_table_mt)
+						end
+					else
+						parent[child.__name] = child
+					end
+				end
+				child.__name = nil
+				parent_tree[#parent_tree] = nil
+			end
+			::continue::
+		end
+	end
+	return info
 end
 
 local last_error_time = 0
@@ -897,17 +1104,17 @@ do
 end
 
 function essentials.binary_search(Table, value) -- Only use if table is sorted in ascending numbers.
-    local left, mid, right = 1, 0, #Table
-    while left <= right do
-        local mid <const> = (left + right) // 2
-        if Table[mid] < value then
-            left = mid + 1
-        elseif Table[mid] > value then
-            right = mid - 1
-        else
-            return mid
-        end
-    end
+	local left, mid, right = 1, 0, #Table
+	while left <= right do
+		local mid <const> = (left + right) // 2
+		if Table[mid] < value then
+			left = mid + 1
+		elseif Table[mid] > value then
+			right = mid - 1
+		else
+			return mid
+		end
+	end
 end
 
 function essentials.get_index_of_value(...)
@@ -999,8 +1206,7 @@ function essentials.get_player_descendants(...)
 	return Table
 end
 
-function essentials.name_to_pid(...)
-	local name = ...
+function essentials.name_to_pid(name)
 	if type(name) == "string" then
 		name = name:lower()
 		for pid in essentials.players(true) do
@@ -1107,8 +1313,10 @@ function essentials.ipv4_to_dec(...)
 end
 
 function essentials.get_position_of_previous_newline(str, str_pos)
-	while str_pos > 1 and str:sub(str_pos, str_pos) ~= '\n' do
+	local current_char = str:sub(str_pos, str_pos)
+	while str_pos > 1 and current_char ~= '\n' and current_char ~= '\r' do
 		str_pos = str_pos - 1
+		current_char = str:sub(str_pos, str_pos)
 	end
 	return str_pos > 1 and str_pos + 1 or 1
 end
@@ -1122,15 +1330,21 @@ function essentials.search_for_match_and_get_line(...)
 		local str_pos
 		if exact then
 			str_pos = str:find(string.format("\n%s\n", search[i]), 1, true) 
-			or str:find(string.format("^%s\n", search[i])) 
-			or str:find(string.format("\n%s$", search[i]))
-			or str:find(string.format("^%s$", search[i]))
+			or str:find(string.format("^%s\n", search[i]), 1, true) 
+			or str:find(string.format("\n%s$", search[i]), 1, true)
+			or str:find(string.format("^%s$", search[i]), 1, true)
 		else
 			str_pos = str:find(search[i], 1, true)
 		end
 		if str_pos then
 			str_pos = essentials.get_position_of_previous_newline(str, str_pos)
-			return str:sub(str_pos, (str:find("\n", str_pos, true) or #str + 1) - 1), search[i]
+			local End = str:find("[\n\r]", str_pos)
+			if End then
+				End = End - 1
+			else
+				End = #str
+			end
+			return str:sub(str_pos, End), search[i]
 		end
 	end
 end
@@ -1138,10 +1352,11 @@ end
 do
 	local get_start <const> = essentials.get_position_of_previous_newline
 	local find <const> = string.find
-	local unicode_match <const> = essentials.unicode_match
-	local unicode_sub <const> = essentials.sub_unicode_byte_len
-	local unicode_match <const> = essentials.unicode_match
-	function essentials.get_all_matches(str, pattern, match_pattern_start, match_pattern_end) -- About 60% faster than using gmatch. Is mostly unicode friendly.
+	local match <const> = string.match
+	local sub <const> = string.sub
+
+	function essentials.get_all_matches(str, pattern, match_pattern) -- About 50% faster than using gmatch
+		essentials.assert(#pattern > 0, "Tried to get all matches with an empty pattern.")
 		local End, start = 1
 		local i = 1
 		local matches <const> = {}
@@ -1149,11 +1364,11 @@ do
 			start, End = find(str, pattern, End, true)
 			if start then
 				local str_pos <const> = get_start(str, start)
-				End = find(str, "\n", End, true) or #str + 1
-				matches[i] = unicode_sub(str, str_pos, End - 1)
+				End = find(str, "[\r\n]", End) or (#str + 1)
+				matches[i] = sub(str, str_pos, End - 1)
 				End = End + 1
-				if match_pattern_start or match_pattern_end then
-					matches[i] = unicode_match(matches[i], match_pattern_start, match_pattern_end)
+				if match_pattern then
+					matches[i] = match(matches[i], match_pattern)
 				end
 				i = i + 1
 			else
@@ -1260,7 +1475,7 @@ function essentials.invalid_pattern(...)
 	msg <const>,
 	warn <const> = ...
 	if warn then
-		if text:find("[%.%+%-%*%?%^%$]") and not text:find("%%[%.%+%-%*%?%^%$]") then
+		if text:find("[.+-*?^$]") and not text:find("%%[.+-*?^$]") then
 			essentials.msg(string.format("%s %s.\n%s", 
 				lang["Warning: missing \"%\" before any of these characters;"],
 				"\".\", \"+\", \"-\", \"*\", \"?\", \"^\", \"$\"",

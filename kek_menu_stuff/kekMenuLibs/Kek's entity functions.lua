@@ -29,9 +29,9 @@ kek_entity.entity_manager = {
 		[5] = "object"
 	},
 	flag_to_str = {
-		[1 << 10] = "vehicle",
-		[1 << 11] = "ped",
-		[1 << 12] = "object"
+		[1 << 6] = "vehicle",
+		[1 << 7] = "ped",
+		[1 << 8] = "object"
 	},
 	entity_type_to_return_type = setmetatable({
 		[3] = "is_vehicle_limit_not_breached",
@@ -46,21 +46,21 @@ kek_entity.entity_manager = {
 
 do
 	local update_buf <const> = {} -- Faster than creating a new table every time. This function is called tens of thousands of times.
-	function kek_entity.entity_manager:update()
+	function kek_entity.entity_manager:update() -- Weight can't be more than 31. Weight has 5 bits to work with.
 		for Entity, flags in pairs(self.entities) do
 			if not entity.is_an_entity(Entity) then
-				local weight <const> = ((flags & (flags ~ (1 << 10))) & (flags ~ (1 << 11))) & (flags ~ (1 << 12)) -- Clears entity type bits
-				flags = flags - weight
-				local type_string <const> = self.flag_to_str[flags]
+				local weight <const> = flags << 59 >> 59
+				local entity_type <const> = (flags << 55 >> 60) << 5
+				local type_string <const> = self.flag_to_str[entity_type]
 				self.counts[type_string] = self.counts[type_string] - weight
 				self.entities[Entity] = nil
 			end
 		end
 		update_buf.is_ped_limit_not_breached = self.counts.ped <= settings.valuei["Ped limit"].value and #memoize.get_all_peds() < 135.0
 
-		update_buf.is_object_limit_not_breached = self.counts.object < settings.valuei["Object limit"].value and #memoize.get_all_objects() < 850.0
+		update_buf.is_object_limit_not_breached = self.counts.object < settings.valuei["Object limit"].value
 
-		update_buf.is_vehicle_limit_not_breached = self.counts.vehicle < settings.valuei["Vehicle limit"].value and #memoize.get_all_vehicles() < 135.0
+		update_buf.is_vehicle_limit_not_breached = self.counts.vehicle < settings.valuei["Vehicle limit"].value
 
 		return update_buf
 	end
@@ -78,7 +78,8 @@ setmetatable(kek_entity.entity_manager, {
 				weight = 15
 			end
 			local type_string <const> = Table.entity_type_to_str[entity.get_entity_type(Entity)] or "object"
-			local flags = (0 | (1 << (7 + entity_type))) + weight
+			local flags <const> = weight | (1 << (3 + entity_type))
+
 			Table.entities[Entity] = flags
 			Table.counts[type_string] = Table.counts[type_string] + weight
 		end
@@ -163,17 +164,17 @@ do
 		give_godmode <const>, 
 		max_vehicle <const>, 
 		ped_type <const>, 
-		dont_disregard_hash_after_spawn <const>, 
 		weight <const>, 
-		not_networked <const> = ...
-		essentials.assert(streaming.is_model_valid(hash), "Tried to use an invalid model hash.", hash)
+		not_networked = ...
+		essentials.assert(hash and streaming.is_model_valid(hash), "Tried to use an invalid model hash.", hash)
 		essentials.assert(not streaming.is_model_an_object(hash), "Tried to spawn an object with wrong function.", hash)
+		essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a crash ped.")
 		while spawn_timer > utils.time_ms() and essentials.new_session_timer < utils.time_ms() do
 			system.yield(0)
 		end
 		local Entity = 0
 		if utils.time_ms() > essentials.new_session_timer then -- Clears spawn queue immediately if new session
-			local status <const>, had_to_request_hash <const> = kek_entity.request_model(hash)
+			local status <const> = kek_entity.request_model(hash)
 			if status then
 				spawn_timer = utils.time_ms() + 2500
 				local coords <const>, dir <const> = coords_and_heading()
@@ -181,24 +182,28 @@ do
 					Entity = vehicle.create_vehicle(hash, coords, dir, not_networked ~= true, not_networked == true, weight)
 					if max_vehicle then
 						kek_entity.max_car(Entity)
-					end	
+					end
 					decorator.decor_set_int(Entity, "MPBitset", 1 << 10) -- Stops the game from kicking people out of the vehicle
 				elseif streaming.is_model_a_ped(hash) then
-					essentials.assert(ped_type >= -1 and ped_type <= 29, "Invalid ped type.", ped_type, hash)
+					if not (ped_type >= -1 and ped_type <= 29) then
+						streaming.set_model_as_no_longer_needed(hash)
+						essentials.assert(false, "Invalid ped type.", ped_type, hash)
+					end
 					Entity = ped.create_ped(ped_type, hash, coords, dir, not_networked ~= true, not_networked == true, weight)
 					system.yield(0)
 					ped.clear_ped_tasks_immediately(Entity) -- Peds won't start animation & possibly other problems if not clearing tasks.
 				end
+				if not_networked then
+					entity.set_entity_as_mission_entity(Entity, true, true)
+				end 
 				if give_godmode then
 					entity.set_entity_god_mode(Entity, true)
-				end
-				if had_to_request_hash and not dont_disregard_hash_after_spawn then
-					streaming.set_model_as_no_longer_needed(hash)
 				end
 				system.yield(0)
 				spawn_timer = 0
 			end
 		end
+		streaming.set_model_as_no_longer_needed(hash) -- The game will crash if requesting many hashes and never setting as no longer needed
 		return Entity
 	end
 end
@@ -206,30 +211,39 @@ end
 function kek_entity.spawn_object(...)
 	local hash <const>,
 	coords <const>,
-	dont_disregard_hash_after_spawn <const>,
 	not_dynamic_object <const>,
-	not_networked <const>,
+	not_networked,
 	weight <const> = ...
 	essentials.assert(streaming.is_model_valid(hash), "Tried to use an invalid model hash.", hash)
+	local Object = 0
 	if utils.time_ms() > essentials.new_session_timer then
-		local status <const>, had_to_request_hash <const> = kek_entity.request_model(hash)
-		local Object = 0
+		local status <const> = kek_entity.request_model(hash)
 		if status then
 			local coords <const> = coords()
 			if streaming.is_model_a_world_object(hash) then
-				Object = object.create_world_object(hash, coords, not not_networked, not not_dynamic_object, weight)
+				Object = object.create_world_object(hash, coords, not_networked ~= true, not not_dynamic_object, weight)
 			elseif streaming.is_model_an_object(hash) then
-				Object = object.create_object(hash, coords, not not_networked, not not_dynamic_object, weight)
+				Object = object.create_object(hash, coords, not_networked ~= true, not not_dynamic_object, weight)
 			else
+				streaming.set_model_as_no_longer_needed(hash)
 				essentials.assert(false, "Tried to use a non-object hash in spawn_object function.", hash)
 			end
 		end
-		if had_to_request_hash and not dont_disregard_hash_after_spawn then
-			streaming.set_model_as_no_longer_needed(hash)
-		end
-		return Object
 	end
-	return 0
+	streaming.set_model_as_no_longer_needed(hash)
+	return Object
+end
+
+function kek_entity.correct_pitch(rot) -- Some menyoo maps needs this to get correct rotations
+	local pitch, roll, yaw = rot.x, rot.y, rot.z
+	if math.abs(roll) > 179 then
+		if pitch > 0 then
+			pitch = -pitch
+		else
+			pitch = math.abs(pitch)
+		end
+	end
+	return v3(pitch, roll, yaw)
 end
 
 function kek_entity.is_entity_valid(Entity)
@@ -312,7 +326,7 @@ function kek_entity.get_all_attached_entities(Entity, entities)
 	}) do
 		for i = 1, #all_entities do
 			if entity.get_entity_attached_to(all_entities[i]) == Entity and (not entity.is_entity_a_ped(all_entities[i]) or not ped.is_ped_a_player(all_entities[i])) then
-				entities[#entities + 1] = all_entities[i]
+				entities[all_entities[i]] = all_entities[i]
 				kek_entity.get_all_attached_entities(all_entities[i], entities)
 			end
 		end
@@ -345,18 +359,36 @@ function kek_entity.clear_entities(...)
 	for i2 = 1, 2 do
 		local count = 1
 		for Entity, i in essentials.entities(table_of_entities) do
+			Entity = math.tointeger(Entity) and entity.is_an_entity(Entity) and Entity or math.tointeger(i) or 0
 			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
-			if i2 == 1 and not network.has_control_of_entity(Entity) then 
-				network.request_control_of_entity(Entity)
-			end
-			if network.has_control_of_entity(Entity) then
-				if ui.get_blip_from_entity(Entity) ~= 0 then
-					ui.remove_blip(ui.get_blip_from_entity(Entity))
+			if entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)) then
+				if i2 == 1 and not network.has_control_of_entity(Entity) then 
+					network.request_control_of_entity(Entity)
 				end
-				entity.set_entity_as_mission_entity(Entity, false, true)
-				entity.delete_entity(Entity)
+				if network.has_control_of_entity(Entity) then
+					if ui.get_blip_from_entity(Entity) ~= 0 then
+						ui.remove_blip(ui.get_blip_from_entity(Entity))
+					end
+					if entity.is_entity_attached(Entity) then
+						entity.detach_entity(Entity)
+					end
+					if not entity.is_entity_attached(Entity) then
+						if entity.is_entity_a_vehicle(Entity) then
+							entity.set_entity_as_mission_entity(Entity, true, true)
+						elseif entity.is_entity_an_object(Entity) then
+							entity.set_entity_as_mission_entity(Entity, false, true)
+						elseif entity.is_entity_a_ped(Entity) then
+							entity.set_entity_as_mission_entity(Entity, false, false)
+						end
+						local hash <const> = entity.get_entity_model_hash(Entity)
+						entity.delete_entity(Entity)
+						table_of_entities[i] = nil
+						streaming.set_model_as_no_longer_needed(hash)
+					end
+					count = count + 1
+				end
+			else
 				table_of_entities[i] = nil
-				count = count + 1
 			end
 			if count % 10 == 0 then
 				system.yield(0)
@@ -412,7 +444,7 @@ function kek_entity.request_model(...)
 	essentials.assert(streaming.is_model_valid(model_hash), "Tried to request invalid model hash.", model_hash)
 	if is_hash_already_loaded then
 		streaming.request_model(model_hash)
-		local time <const> = utils.time_ms() + 450
+		local time <const> = utils.time_ms() + 1000
 		while not streaming.has_model_loaded(model_hash) and time > utils.time_ms() do
 			system.yield(0)
 		end
@@ -536,6 +568,49 @@ function kek_entity.clear_tasks_without_leaving_vehicle(...)
 	end
 end
 
+function kek_entity.add_rope_between_entities(Entity1, Entity2)
+	essentials.assert(entity.is_an_entity(Entity1) and entity.is_an_entity(Entity2), "Tried to attach entities that doesn't exist anymore to rope.")
+
+	local pos1 <const> = entity.get_entity_coords(Entity1)
+	local pos2 <const> = entity.get_entity_coords(Entity2)
+	local distance <const> = math.max(10, pos1:magnitude(pos2))
+	essentials.assert(distance < 600, "Tried to create a rope longer than 600 meters.")
+
+	if not rope.rope_are_textures_loaded() then
+		rope.rope_load_textures()
+		system.yield(0)
+	end
+	local rope_id <const> = rope.add_rope(
+		pos1, 			-- pos
+		memoize.v3(), 	-- Rot
+		distance, 		-- Max length
+		1, 				-- Rope type
+		distance, 		-- Init length
+		5, 				-- Min length
+		5, 				-- Change rate
+		false, 			-- Onlyppu
+		false, 			-- Collision
+		false, 			-- Lock from front
+		1.0, 			-- Physics multiplier 1.0 default
+		false 			-- Breakable
+	)
+	essentials.assert(rope.does_rope_exist(rope_id), "Failed to create rope")
+
+	rope.attach_entities_to_rope(
+		rope_id, 	-- Rope id 
+		Entity1,	-- Entity 1
+		Entity2, 	-- Entity 2
+		pos1, 		-- Entity pos 1
+		pos2, 		-- Entity pos 2
+		distance, 	-- Length
+		0, 			-- a7
+		0, 			-- a8
+		nil, 		-- Entity bone name 1
+		nil 		-- Entity bone name 2
+	)
+	return rope_id
+end
+
 function kek_entity.modify_entity_godmode(...)
 	local Entity <const>, toggle_on_god <const> = ...
 	if entity.is_an_entity(Entity) then
@@ -586,6 +661,10 @@ do
 		armor = 16
 	})
 
+	local function random_rgb()
+		return essentials.get_rgb(math.random(0, 255), math.random(0, 255), math.random(0, 255))
+	end
+
 	function kek_entity.max_car(...)
 		local Vehicle <const>,
 		only_performance_upgrades <const>,
@@ -600,61 +679,93 @@ do
 			if type(settings.in_use["Plate vehicle text"]) == "string" then -- Crashes if plate text is nil
 				vehicle.set_vehicle_number_plate_text(Vehicle, settings.in_use["Plate vehicle text"])
 			end
-			if settings.toggle["Always f1 wheels on #vehicle#"].on then
+			if settings.toggle["Always f1 wheels on #vehicle#"].on then 
+			--[[
+				Setting wheel type can cause crashes in certain cases. 
+				Death race - Buick riviera 2.xml caused this crash until applying wheel type before all other vehicle mods.
+			--]]
 				vehicle.set_vehicle_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
 			else
 				vehicle.set_vehicle_wheel_type(Vehicle, math.random(0, 12))
 			end
+			for i = 0, 75 do
+				if vehicle.get_num_vehicle_mods(Vehicle, i) > 0 then
+					vehicle.set_vehicle_mod(Vehicle, i, math.random(0, vehicle.get_num_vehicle_mods(Vehicle, i) - 1))
+				end
+			end
+			for _, mod in pairs(toggle_vehicle_mods) do -- This must go before set_vehicle_headlight_color. Xenon has to be enabled.
+				vehicle.toggle_vehicle_mod(Vehicle, mod, true)
+			end
+			vehicle.set_vehicle_headlight_color(Vehicle, math.random(-1, 12))
 			vehicle.set_vehicle_neon_light_enabled(Vehicle, math.random(-1, 4), true)
 			vehicle.set_vehicle_tire_smoke_color(Vehicle, math.random(0, 255), math.random(0, 255), math.random(0, 255))
 			vehicle.set_vehicle_number_plate_index(Vehicle, math.random(0, 3))
 			vehicle.set_vehicle_fullbeam(Vehicle, true)
-			vehicle.set_vehicle_custom_wheel_colour(Vehicle, math.random(10^8, 10^10))
-			vehicle.set_vehicle_neon_lights_color(Vehicle, math.random(10^8, 10^10))
-			vehicle.set_vehicle_custom_primary_colour(Vehicle, math.random(10^8, 10^10))
-			vehicle.set_vehicle_custom_secondary_colour(Vehicle, math.random(10^8, 10^10))
-			vehicle.set_vehicle_extra_colors(Vehicle, math.random(10^8, 10^10), math.random(10^8, 10^10))
+			vehicle.set_vehicle_custom_wheel_colour(Vehicle, random_rgb())
+			vehicle.set_vehicle_neon_lights_color(Vehicle, random_rgb())
+			vehicle.set_vehicle_extra_colors(Vehicle, math.random(0, 159), math.random(0, 159))
 			if math.random(1, 3) == 1 then
-				vehicle.set_vehicle_custom_pearlescent_colour(Vehicle, math.random(0, math.random(10^8, 10^10)))
+				vehicle.set_vehicle_custom_pearlescent_colour(Vehicle, random_rgb())
 			end
+			vehicle.set_vehicle_custom_primary_colour(Vehicle, random_rgb())
+			vehicle.set_vehicle_custom_secondary_colour(Vehicle, random_rgb())
 			if math.random(1, 10) == 1 then -- Set livery
-				if vehicle.get_num_vehicle_mods(Vehicle, 48) > 0 then
-					vehicle.set_vehicle_mod(Vehicle, 48, math.random(1, vehicle.get_num_vehicle_mods(Vehicle, 48) - 1))
-				end
-			end
-			for i = 0, 65 do
-				if vehicle.get_num_vehicle_mods(Vehicle, i) > 0 then
-					vehicle.set_vehicle_mod(Vehicle, i, math.random(0, vehicle.get_num_vehicle_mods(Vehicle, i) - 1))
+				if vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.VMT_LIVERY_MOD) > 0 then
+					vehicle.set_vehicle_mod(Vehicle, enums.vehicle_mods.VMT_LIVERY_MOD, math.random(1, vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.VMT_LIVERY_MOD) - 1))
 				end
 			end
 			if not streaming.is_model_a_heli(entity.get_entity_model_hash(Vehicle)) then -- Prevent removal of heli rotors
 				for i = 1, 9 do
 					if vehicle.does_extra_exist(Vehicle, i) then
-						vehicle.set_vehicle_extra(Vehicle, i, math.random(0, 1) == 1)
+						vehicle.set_vehicle_extra(Vehicle, i, math.random(0, 1) == 0)
 					end
 				end
-			end
-			for _, mod in pairs(toggle_vehicle_mods) do
-				vehicle.toggle_vehicle_mod(Vehicle, mod, true)
 			end
 		end
 		vehicle.set_vehicle_bulletproof_tires(Vehicle, true)
 		for _, mod in pairs(performance_mods) do
 			vehicle.set_vehicle_mod(Vehicle, mod, vehicle.get_num_vehicle_mods(Vehicle, mod) - 1)
 		end
-		if vehicle.get_num_vehicle_mods(Vehicle, 10) == 1 then
+		if vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.VMT_ROOF) == 1 then
 		--[[ 
 			Sets best vehicle weapon, not guaranteed to work for every vehicle. 
 			Main intention is for oppressor mk1 & mk2.
 		--]]
-			vehicle.set_vehicle_mod(Vehicle, 10, 0)
+			vehicle.set_vehicle_mod(Vehicle, enums.vehicle_mods.VMT_ROOF, 0)
 		else
-			vehicle.set_vehicle_mod(Vehicle, 10, 1)
+			vehicle.set_vehicle_mod(Vehicle, enums.vehicle_mods.VMT_ROOF, 1)
 		end
 		if preserve_velocity and velocity ~= memoize.v3() then
 			entity.set_entity_velocity(Vehicle, velocity)
 		end
 		return
+	end
+end
+
+--[[ https://docs.fivem.net/natives/?_0xA551BE18C11A476D
+	paintType:
+	0: Normal
+	1: Metallic
+	2: Pearl
+	3: Matte
+	4: Metal
+	5: Chrome
+]]
+function kek_entity.get_paint_type(Vehicle)
+	if entity.is_an_entity(Vehicle) then
+		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
+		local colour_name <const> = enums.vehicle_colors[vehicle.get_vehicle_mod(Vehicle, 66)] or ""
+		if colour_name:find("Metallic", 1, true) then
+			return 1
+		elseif colour_name:find("Matte", 1, true) then
+			return 3
+		elseif colour_name:find("Chrome", 1, true) then
+			return 5
+		elseif colour_name:find("Brushed", 1, true) or colour_name:find("Gold", 1, true) then
+			return 4
+		else
+			return 0
+		end
 	end
 end
 
@@ -852,17 +963,21 @@ local function get_prefered_vehicle_pos(...)
 	end
 end
 
+function kek_entity.clear_owned_vehicles()
+	for Vehicle in essentials.entities(essentials.deep_copy(kek_entity.user_vehicles)) do
+		kek_entity.user_vehicles[Vehicle] = nil
+		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected only vehicles in user_vehicles table.")
+		kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
+	end
+end
+
 function kek_entity.vehicle_preferences(...)
 	local Vehicle <const>, teleport <const> = ...
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		kek_entity.user_vehicles[player.get_player_vehicle(player.player_id())] = player.get_player_vehicle(player.player_id())
 		if settings.toggle["Delete old #vehicle#"].on then
-			for Vehicle in essentials.entities(essentials.deep_copy(kek_entity.user_vehicles)) do
-				kek_entity.user_vehicles[Vehicle] = nil
-				essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected only vehicles in user_vehicles table.")
-				kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
-			end
+			kek_entity.clear_owned_vehicles()
 		end
 		if entity.is_entity_a_vehicle(Vehicle) then
 			essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
@@ -919,11 +1034,7 @@ function kek_entity.spawn_car()
 		end
 		kek_entity.user_vehicles[player.get_player_vehicle(player.player_id())] = player.get_player_vehicle(player.player_id())
 		if settings.toggle["Delete old #vehicle#"].on then
-			for Vehicle in essentials.entities(essentials.deep_copy(kek_entity.user_vehicles)) do
-				kek_entity.user_vehicles[Vehicle] = nil
-				essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected only vehicles in user_vehicles table.")
-				kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
-			end
+			kek_entity.clear_owned_vehicles()
 		end
 		local velocity <const> = entity.get_entity_velocity(essentials.get_most_relevant_entity(player.player_id()))
 		local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function()

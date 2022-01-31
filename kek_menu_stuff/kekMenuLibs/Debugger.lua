@@ -425,8 +425,12 @@ do
 	entity.delete_entity = function(Entity)
 		if network.has_control_of_entity(Entity) then
 			assert(utils.time_ms() > (deleted_entities[Entity] or 0), "Tried to delete an entity that was already deleted.")
+			assert(not entity.is_entity_attached(Entity), "Tried to delete an attached entity.")
+			assert(network.has_control_of_entity(Entity), "Tried to delete an entity without having control over it.")
+			assert(entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)), "Tried to delete an entity attached to a player")
+			assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
 			local status <const> = originals.entity.delete_entity(Entity)
-			if status then
+			if status and not entity.is_an_entity(Entity) then
 				deleted_entities[Entity] = utils.time_ms() + 20000
 			end
 			return status
@@ -441,6 +445,24 @@ streaming.set_model_as_no_longer_needed = function(hash)
 	local status <const> = originals.streaming.set_model_as_no_longer_needed(hash)
 	assert(status, "Failed to set model as no longer needed.")
 	return status
+end
+
+function entity.attach_entity_to_entity(e1, e2, ...) -- Recursion loop if e1 == e2
+	assert(e1 ~= e2, "Attempted to attach entity to itself.")
+	return originals.entity.attach_entity_to_entity(e1, e2, ...)
+end
+
+function entity.detach_entity(Entity)
+	assert(entity.is_entity_attached(Entity), "Tried to detach an entity that isnt attached.")
+	assert(entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)), "Tried to detach an entity from a player.")
+	assert(network.has_control_of_entity(Entity), "Tried to detach an entity without having control over it.")
+	return originals.entity.detach_entity(Entity)
+end
+
+function entity.set_entity_collision(Entity, ...) -- Detaches entity
+	assert(not entity.is_entity_attached(Entity), "Tried to set collision for an attached entity.")
+	assert(network.has_control_of_entity(Entity), "Tried to set collision for an entity without having control over it.")
+	return originals.entity.set_entity_collision(Entity, ...)
 end
 
 -- Exceptions

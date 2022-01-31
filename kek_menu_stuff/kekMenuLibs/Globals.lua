@@ -215,11 +215,13 @@ for name, _ in pairs(script_event_hashes) do
 end
 
 function globals.get_global(global_name)
+	essentials.assert(player.player_count() > 0, "Tried to get a global in singleplayer.")
 	essentials.assert(globals.global_indices[global_name], "Invalid global name.", global_name)
 	return script.get_global_i(globals.global_indices[global_name])
 end
 
 function globals.get_player_global(global_name, pid, get_index)
+	essentials.assert(player.player_count() > 0, "Tried to get a player global in singleplayer.")
 	essentials.assert(globals.player_global_indices[global_name], "Invalid player global name.", global_name)
 	local pid_offset <const> = pid * globals.player_global_indices[global_name].pid_multiplier
 	if get_index == true then
@@ -253,6 +255,7 @@ end
 
 function globals.set_global_i(index, value)
 	essentials.assert(menu.is_trusted_mode_enabled(), "Expected trusted mode to be toggled on.")
+	essentials.assert(player.player_count() > 0, "Tried to set a global in singleplayer.")
 	essentials.assert(math.type(value) == "integer", "Expected an integer from value.", value)
 	essentials.assert(math.type(index) == "integer", "Expected an integer from index.", index)
 	essentials.assert(index >= 0, "Index is too small.", index)
@@ -262,6 +265,7 @@ end
 
 function globals.set_global_f(index, value)
 	essentials.assert(menu.is_trusted_mode_enabled(), "Expected trusted mode to be toggled on.")
+	essentials.assert(player.player_count() > 0, "Tried to set a player global in singleplayer.")
 	essentials.assert(math.type(value) == "float", "Expected an float from value.", value)
 	essentials.assert(math.type(index) == "integer", "Expected an integer from index.", index)
 	essentials.assert(index >= 0, "Index is too small.", index)
@@ -318,7 +322,8 @@ function globals.set_bounty(...)
 	local script_target <const>,
 	friend_relevant <const>,
 	anonymous = ...
-	if globals.get_player_global("bounty_status", script_target) == 0
+	if player.player_count() > 0
+	and globals.get_player_global("bounty_status", script_target) == 0
 	and player.player_id() ~= script.get_host_of_this_script()
 	and player.is_player_valid(script_target) 
 	and player.is_player_playing(script_target) 

@@ -72,10 +72,8 @@ function settings:initialize(...)
 	assert(file, debug.traceback("Failed to open settings file.", 2))
 	local str <const> = file:read("*a")
 	file:close()
-	local i = 1
 	local type <const>, tonumber <const> = type, tonumber
-	for name, setting in str:gmatch("([^\n]+)=([^\n]+)") do
-		if i == 1 then print(string.byte(name.."="..setting, 1, -1)) i = 100 end
+	for name, setting in str:gmatch("([^\n\r]+)=([^\n\r]+)") do
 		local num <const> = tonumber(setting)
 		local setting_type <const> = type(self.default[name])
 		if setting_type == "number" then
