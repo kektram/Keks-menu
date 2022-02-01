@@ -558,7 +558,6 @@ Menyoo maps §Menyoo 맵
 Type in name of menyoo map. §Menyoo 맵 이름을 입력하세요.
 Set where you spawn §소환 위치 설정
 Teleport to map spawn §맵 소환 위치로 순간 이동
-Found no spawn. §소환할 것을 찾지 못했습니다.
 Failed to load spawn coordinates. §소환할 좌표를 찾는데 실패했습니다.
 Unload §언로드
 Race ghosts §고스트 레이스
@@ -659,3 +658,10 @@ Failed to get control. If you're blocking "give control" in net event hooks, dis
 Expected Menyoo vehicle, got Menyoo map. Put Menyoo maps in Menyoo maps folder. §Menyoo 차량이 기대된다면, Menyoo 맵을 얻으세요. Menyoo 맵을 "Menyoo maps" 폴더 안에 넣으세요.
 Expected Menyoo map, got Menyoo vehicle. Put Menyoo vehicles in Menyoo vehicles folder. §Menyoo 맵이 기대된다면, Menyoo 차량을 얻으세요. Menyoo 차량을 "Menyoo vehicles" 폴더에 넣으세요.
 Failed to spawn driver vehicle for unknown reason. §알려지지 않은 이유로 드라이버 차량을 소환하는 것을 실패했습니다.
+Copied to clipboard. §클립보드에 복사되었습니다.
+Ini vehicles §Ini 차량
+This can't be used in singleplayer. §싱글 플레이에서 사용할 수 없는 것입니다.
+Tried to spawn a xml vehicle with ini spawner. §xml 차량을 ini 차량 소환기에 사용하려고 시도했었습니다.
+Failed to attach an entity. Check debug console for more details. §엔티티를 부착하는 것을 실패했습니다. 자세한 정보는 디버그 콘솔을 확인하세요.
+This file doesn't exist or has an invalid file name. §해당 파일이 존재하지 않거나 유효하지 않은 파일 이름을 가지고 있습니다.
+Failed to set coordinates. §좌표를 설정하는 것을 실패했습니다.
