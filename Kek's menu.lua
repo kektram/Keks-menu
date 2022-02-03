@@ -1,5 +1,5 @@
 -- Kek's menu version 0.4.6.0
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return

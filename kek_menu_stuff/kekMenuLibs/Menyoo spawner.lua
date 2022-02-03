@@ -1,4 +1,4 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
 local menyoo <const> = {version = "2.2.1"}
 

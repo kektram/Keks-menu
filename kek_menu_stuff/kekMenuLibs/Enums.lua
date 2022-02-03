@@ -1,4 +1,4 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
 return {
 	version = "1.0.2",

@@ -1,4 +1,4 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 --[[
 	This library aims to reduce garbage created by constructing expensive objects.
 	Certain functions, such as getting distance, is very wasteful in a loop.

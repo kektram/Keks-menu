@@ -1,4 +1,4 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 -- Version 1.0.0
 --[[
 	This tool will detect invalid use of 2take1 api functions.

@@ -1,4 +1,4 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
 local essentials <const> = require("Essentials")
 local memoize <const> = require("Memoize")

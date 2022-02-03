@@ -1,4 +1,4 @@
--- Copyright © 2020-2021 Kektram, Sainan
+-- Copyright © 2020-2022 Kektram, Sainan
 
 local globals <const> = {version = "1.3.0"}
 

@@ -1,4 +1,4 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
 local object_mapper <const> = {version = "1.2.6"}
 local essentials <const> = require("Essentials")

@@ -1,4 +1,4 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
 local custom_upgrades <const> = {version = "1.0.1"}
 

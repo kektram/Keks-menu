@@ -1,4 +1,4 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
 local vehicle_mapper <const> = {version = "1.3.5"}
 local essentials <const> = require("Essentials")
