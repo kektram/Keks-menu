@@ -1324,15 +1324,15 @@ end
 function essentials.search_for_match_and_get_line(...)
 	local file_path <const>,
 	search <const>,
-	exact <const> = ... -- Whether the existing text check must be identical to an entire line or a substring of a line.
+	exact <const> = ...
 	local str <const> = essentials.get_file_string(file_path)
 	for i = 1, #search do
 		local str_pos
 		if exact then
-			str_pos = str:find(string.format("\n%s\n", search[i]), 1, true) 
-			or str:find(string.format("^%s\n", search[i]), 1, true) 
-			or str:find(string.format("\n%s$", search[i]), 1, true)
-			or str:find(string.format("^%s$", search[i]), 1, true)
+			str_pos = str:find(string.format("[\r\n]%s[\r\n]", search[i]))
+			or str:find(string.format("^%s[\r\n]", search[i])) -- These 3 extra checks are super fast no matter size of string. Anchors make sure #search[i] is max number of characters searched.
+			or str:find(string.format("[\r\n]%s$", search[i]))
+			or str:find(string.format("^%s$", search[i]))
 		else
 			str_pos = str:find(search[i], 1, true)
 		end
@@ -1355,7 +1355,7 @@ do
 	local match <const> = string.match
 	local sub <const> = string.sub
 
-	function essentials.get_all_matches(str, pattern, match_pattern) -- About 50% faster than using gmatch
+	function essentials.get_all_matches(str, pattern, match_pattern)
 		essentials.assert(#pattern > 0, "Tried to get all matches with an empty pattern.")
 		local End, start = 1
 		local i = 1

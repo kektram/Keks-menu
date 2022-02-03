@@ -79,7 +79,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
 		["Menyoo spawner"] = "2.2.0",
-		["Kek's entity functions"] = "1.1.9",
+		["Kek's entity functions"] = "1.2.0",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.1",
 		["Admin mapper"] = "1.0.4",
@@ -2470,14 +2470,23 @@ menu.add_player_feature(lang["Crash"], "action", u.malicious_player_features, fu
 	end
 	local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.kek_menu_stuff.."kekMenuLibs\\data\\Truck.xml", player.player_id())
 	if entity.is_entity_a_vehicle(Vehicle) then
+		entity.set_entity_visible(Vehicle, false)
+		entity.set_entity_collision(Vehicle, false, false, false)
 		entity.freeze_entity(Vehicle, true)
-		local time <const> = utils.time_ms() + 3500
+		local time <const> = utils.time_ms() + 1500
 		while time > utils.time_ms() and entity.is_entity_a_vehicle(Vehicle) and player.is_player_valid(pid) do
-			kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(player.get_player_coords(pid)) + memoize.v3(0, 0, 5))
+			kek_entity.teleport(Vehicle, player.get_player_coords(pid))
 			system.yield(0)
+		end
+		if not entity.is_entity_a_vehicle(Vehicle) then
+			essentials.msg(lang["Crash entity went out of memory before it could be cleaned up."], "red", true, 6)
+			return
 		end
 		kek_entity.teleport(Vehicle, v3(math.random(20000, 24000), math.random(20000, 24000), math.random(-2400, 2400)))
 		kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
+		if entity.is_entity_a_vehicle(Vehicle) then
+			essentials.msg(lang["Failed to cleanup crash entity while it is still in memory."], "red", true, 6)
+		end
 	end
 end)
 
@@ -7750,12 +7759,12 @@ settings:initialize(paths.home.."scripts\\kek_menu_stuff\\keksettings.ini")
 essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", function()
 	kek_entity.entity_manager:update()
 	for _, Entity in essentials.entities(essentials.deep_copy(kek_entity.entity_manager.entities)) do
-		if Entity ~= player.get_player_vehicle(player.player_id()) then
+		if network.has_control_of_entity(Entity) and Entity ~= player.get_player_vehicle(player.player_id()) then
 			ui.remove_blip(ui.get_blip_from_entity(Entity))
 			if entity.is_entity_attached(Entity) then
 				entity.detach_entity(Entity)
 			end
-			if network.has_control_of_entity(Entity) and not entity.is_entity_attached(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
+			if not entity.is_entity_attached(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
 				entity.set_entity_as_mission_entity(Entity, false, true)
 				entity.delete_entity(Entity)
 			end

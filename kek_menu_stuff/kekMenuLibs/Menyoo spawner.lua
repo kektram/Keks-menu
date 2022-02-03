@@ -174,7 +174,7 @@ local function apply_ped_modifications(...)
 		ped.set_ped_prop_index(Entity, info.PedProperties["PedProps"]["_"..i][1], 1, info.PedProperties["PedProps"]["_"..i][2], 0)
 	end
 	for i = 0, 11 do
-		ped.set_ped_component_variation(Entity, info.PedProperties["PedComps"]["_"..i][1], 1, info.PedProperties["PedComps"]["_"..i][2], 1)
+		ped.set_ped_component_variation(Entity, i, info.PedProperties["PedComps"]["_"..i][1], info.PedProperties["PedComps"]["_"..i][2], 0)
 	end
 	if info.PedProperties.HairColor then
 		ped.set_ped_hair_colors(Entity, info.PedProperties.HairColor, info.PedProperties.HairHighlightColor)
@@ -227,9 +227,9 @@ end
 local function apply_entity_modifications(...) -- To be used with function spawn_entity. It doesnt freeze entities because that function does it.
 	local Entity <const>, info <const>, entities <const>, pid <const> = ...
 	if entity.is_an_entity(Entity) then
-		if entity.is_entity_a_vehicle(Entity) then
+		if entity.is_entity_a_vehicle(Entity) and info.VehicleProperties then
 			apply_vehicle_modifications(Entity, info)
-		elseif entity.is_entity_a_ped(Entity) then
+		elseif entity.is_entity_a_ped(Entity) and info.PedProperties then
 			apply_ped_modifications(Entity, info, entities)
 		end
 		if info.OpacityLevel then
@@ -1024,7 +1024,7 @@ local function spawn_entity_for_ini_vehicle(info, entities)
 	elseif streaming.is_model_a_ped(hash) then
 		Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
 			return pos, 0
-		end, false, false, enums.ped_types.civmale, 6)			
+		end, false, false, info.PedType or enums.ped_types.civmale, 6)			
 	elseif streaming.is_model_an_object(hash) then
 		Entity = kek_entity.spawn_object(hash, function()
 			return pos
@@ -1115,6 +1115,21 @@ local function spawn_type_2_ini(...)
 				end
 				if info.TyreBurst6MR then
 					vehicle.set_vehicle_tire_burst(Entity, 47, true, 1000.0)
+				end
+			elseif entity.is_entity_a_ped(Entity) then
+				if info.ScenarioPlaying and type(info.ScenarioName) == "string" then
+					ai.task_start_scenario_in_place(Entity, info.ScenarioName, 0, true)
+				end
+				for i = 0, 11 do
+					ped.set_ped_component_variation(Entity, i, info["Component"..i], info["Texture"..i], 0)
+				end
+				if info.BlockFleeing then
+					ped.set_ped_combat_attributes(Entity, enums.combat_attributes.CanFightArmedPedsWhenNotArmed, true)
+				end
+				for name, id in pairs(enums.prop_indices) do -- The list has more than what this ini supports
+					if info["Prop"..name] then
+						ped.set_ped_prop_index(Entity, id, info["Prop"..name], info["Texture"..name], 0)
+					end
 				end
 			end
 			if (info.IsAttached and entity.is_an_entity(Entity)) or (info.is_parent_vehicle and entity.is_entity_a_vehicle(Entity)) then

@@ -1179,5 +1179,12 @@ return {
 		_6 = 45,
 		_7 = 47,
 		_8 = 8
+	},
+	prop_indices = {
+		Hats = 0,
+		Glasses = 1,
+		Ears = 2,
+		Watches = 6,
+		Bracelets = 7
 	}
 }

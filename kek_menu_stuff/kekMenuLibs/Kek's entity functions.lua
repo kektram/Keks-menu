@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-local kek_entity <const> = {version = "1.1.9"}
+local kek_entity <const> = {version = "1.2.0"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -690,7 +690,11 @@ do
 			end
 			for i = 0, 75 do
 				if vehicle.get_num_vehicle_mods(Vehicle, i) > 0 then
-					vehicle.set_vehicle_mod(Vehicle, i, math.random(0, vehicle.get_num_vehicle_mods(Vehicle, i) - 1))
+					if i ~= enums.vehicle_mods.VMT_LIVERY_MOD or math.random(1, 3) == 1 then
+						vehicle.set_vehicle_mod(Vehicle, i, math.random(0, vehicle.get_num_vehicle_mods(Vehicle, i) - 1))
+					else
+						vehicle.set_vehicle_mod(Vehicle, i, -1)
+					end
 				end
 			end
 			for _, mod in pairs(toggle_vehicle_mods) do -- This must go before set_vehicle_headlight_color. Xenon has to be enabled.
@@ -709,11 +713,6 @@ do
 			end
 			vehicle.set_vehicle_custom_primary_colour(Vehicle, random_rgb())
 			vehicle.set_vehicle_custom_secondary_colour(Vehicle, random_rgb())
-			if math.random(1, 10) == 1 then -- Set livery
-				if vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.VMT_LIVERY_MOD) > 0 then
-					vehicle.set_vehicle_mod(Vehicle, enums.vehicle_mods.VMT_LIVERY_MOD, math.random(1, vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.VMT_LIVERY_MOD) - 1))
-				end
-			end
 			if not streaming.is_model_a_heli(entity.get_entity_model_hash(Vehicle)) then -- Prevent removal of heli rotors
 				for i = 1, 9 do
 					if vehicle.does_extra_exist(Vehicle, i) then
