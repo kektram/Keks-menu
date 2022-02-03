@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.1"}
+local essentials <const> = {version = "1.4.2"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -1420,11 +1420,10 @@ function essentials.log(...)
 			return str
 		end
 	end
-	local file <close> = io.open(file_path, "r+b")
+	local file <close> = io.open(file_path, "a+b")
 	file:seek("end", -1)
 	local last_char <const> = file:read("*L") -- *L keeps the newline char, unlike *l.
-	if last_char ~= "\n" and file:seek("end") ~= 0 then
-		file:seek("end")
+	if last_char ~= "\n" and last_char ~= "\r" and file:seek("end") ~= 0 then
 		file:write("\n")
 	end
 	file:seek("end")
