@@ -78,7 +78,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Location mapper"] = "1.0.1",
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
-		["Menyoo spawner"] = "2.2.0",
+		["Menyoo spawner"] = "2.2.1",
 		["Kek's entity functions"] = "1.2.0",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.1",

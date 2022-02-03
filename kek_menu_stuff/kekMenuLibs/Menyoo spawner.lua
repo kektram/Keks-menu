@@ -1,6 +1,6 @@
 -- Copyright © 2020-2021 Kektram
 
-local menyoo <const> = {version = "2.2.0"}
+local menyoo <const> = {version = "2.2.1"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -171,7 +171,7 @@ local function apply_ped_modifications(...)
 		kek_entity.set_combat_attributes(Entity, true, {})
 	end
 	for i = 0, 9 do
-		ped.set_ped_prop_index(Entity, info.PedProperties["PedProps"]["_"..i][1], 1, info.PedProperties["PedProps"]["_"..i][2], 0)
+		ped.set_ped_prop_index(Entity, i, info.PedProperties["PedProps"]["_"..i][1], info.PedProperties["PedProps"]["_"..i][2], 0)
 	end
 	for i = 0, 11 do
 		ped.set_ped_component_variation(Entity, i, info.PedProperties["PedComps"]["_"..i][1], info.PedProperties["PedComps"]["_"..i][2], 0)
