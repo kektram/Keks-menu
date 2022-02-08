@@ -549,7 +549,6 @@ Menyoo maps §Menyoo地图
 Type in name of menyoo map. §请输入Menyoo地图文件名称.
 Set where you spawn §设置当前位置为地图生成后的位置
 Teleport to map spawn §传送到地图生成后的位置
-Found no spawn. §没有找到生成的地图.
 Failed to load spawn coordinates. §无法加载生成坐标.
 Unload §取消加载
 Race ghosts §比赛幽灵
@@ -647,5 +646,12 @@ Don't reapply marks §不要重复标记
 Reapply marks §重复标记
 Failed to get control. If you're blocking "give control" in net event hooks, disable it. §未能获得控制权.如果你在网络事件中启用了阻止"给予控制",请关闭它.
 Failed to spawn driver vehicle for unknown reason. §因未知原因未能生成驾驶载具.
+Copied to clipboard. §已复制到剪贴板.
+Ini vehicles §Ini载具
+This can't be used in singleplayer. §这不能在故事模式中中使用.
+Tried to spawn a xml vehicle with ini spawner. §已尝试使用Ini载具生成xml载具.
+Failed to attach an entity. Check debug console for more details. §尝试附加一个实体时失败了. 检查调试控制台以获取更多详细信息.
+This file doesn't exist or has an invalid file name. §此文件不存在或文件名无效.
+Failed to set coordinates. §设置坐标失败.
 Failed to cleanup crash entity while it is still in memory. §清理崩溃实体失败,它仍在内存中.
 Crash entity went out of memory before it could be cleaned up. §崩溃实体在清理之前内存不足.
