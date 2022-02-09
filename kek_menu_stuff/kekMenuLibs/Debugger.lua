@@ -1,10 +1,16 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 -- Version 1.0.0
 --[[
 	This tool will detect invalid use of 2take1 api functions.
 	The invalid uses this tool raises errors for aren't by default.
 	Passing a ped to a vehicle function might cause a crash, might cause nothing to happen, you don't know.
 --]]
+
+setmetatable(_G, {
+	__newindex = function()
+		error("Tried to set a global variable.")
+	end
+})
 local function deep_copy(Table, keep_meta, seen)
 	local new_copy <const> = {}
 	seen = seen or {}
@@ -413,6 +419,51 @@ end
 		assert(utils.dir_exists(path), "Tried to get all files from a directory that doesn't exist.")
 		return originals.utils.get_all_files_in_directory(path, extension)
 	end
+
+do
+	local deleted_entities <const> = {}
+	entity.delete_entity = function(Entity)
+		if network.has_control_of_entity(Entity) then
+			assert(utils.time_ms() > (deleted_entities[Entity] or 0), "Tried to delete an entity that was already deleted.")
+			assert(not entity.is_entity_attached(Entity), "Tried to delete an attached entity.")
+			assert(network.has_control_of_entity(Entity), "Tried to delete an entity without having control over it.")
+			assert(entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)), "Tried to delete an entity attached to a player")
+			assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
+			local status <const> = originals.entity.delete_entity(Entity)
+			if status and not entity.is_an_entity(Entity) then
+				deleted_entities[Entity] = utils.time_ms() + 20000
+			end
+			return status
+		else
+			return false
+		end
+	end
+end
+
+streaming.set_model_as_no_longer_needed = function(hash)
+	assert(streaming.is_model_valid(hash), "Tried to set an invalid hash as no longer needed.")
+	local status <const> = originals.streaming.set_model_as_no_longer_needed(hash)
+	assert(status, "Failed to set model as no longer needed.")
+	return status
+end
+
+function entity.attach_entity_to_entity(e1, e2, ...) -- Recursion loop if e1 == e2
+	assert(e1 ~= e2, "Attempted to attach entity to itself.")
+	return originals.entity.attach_entity_to_entity(e1, e2, ...)
+end
+
+function entity.detach_entity(Entity)
+	assert(entity.is_entity_attached(Entity), "Tried to detach an entity that isnt attached.")
+	assert(entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)), "Tried to detach an entity from a player.")
+	assert(network.has_control_of_entity(Entity), "Tried to detach an entity without having control over it.")
+	return originals.entity.detach_entity(Entity)
+end
+
+function entity.set_entity_collision(Entity, ...) -- Detaches entity
+	assert(not entity.is_entity_attached(Entity), "Tried to set collision for an attached entity.")
+	assert(network.has_control_of_entity(Entity), "Tried to set collision for an entity without having control over it.")
+	return originals.entity.set_entity_collision(Entity, ...)
+end
 
 -- Exceptions
 	player.is_player_valid = originals.player.is_player_valid

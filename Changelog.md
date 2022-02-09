@@ -1,30 +1,56 @@
-**# Kek's menu 0.4.5.1**
+**# Kek's menu 0.4.6.0**
 
 **## Improvements**```md
-### Fixed bug where hotkeys assigned to d-pad controller keys & others wouldn't work
-### Fixed bug where anti-spam would fail to add to join timeout
-### Send clowns / army / kek chopper to single players is now a loop
-### Removed kick (2Take1's regular kick now insta kicks people)
-### Added many feedback messages to chat commands
-### Removed menyoo vehicle chat command
-### The script now tells you when spawning vehicles fails due to reaching entity limits
-### Fixed bug where translations in library files wasn't initialized properly
-### Fixed 30k ceo loop
-### Fixed glitch vehicle sometimes not working (ancient bug)
-### Fixed bug in ped mapper where getting random peds except animals didnt exclude animals but instead, random peds, causing certain features to have animals driving cars.
-### Chatbot settings now apply to "Log chat & use as chatbot" too.
-### Made hurricane a bit slower & 30% smaller. This feature is inherently unstable, but this should make it a bit better.
-### Fixed error that sometimes occur while spawning maps
-### Fixed bug where menyoo maps / vehicle features would get named incorrectly if attempting to save vehicle to a name of a feature that was deleted previously
-### Copying vehicle name to clipboard will no longer print nil as a replacement of brand if vehicle has no brand
-### Fixed bug where menyoo vehicle map spawner would stop working if having spawned menyoo vehicle
-### Fixed bug where menyoo vehicle spawner would stop working if having spawned menyoo map
+### Entity manager now displays if vehicle is player vehicle
+### Fixed set bounty on individual player
+### No objects are blacklisted from being spawned anymore
+### Removed chat judger "blame for killing session", revenge "kill session" & aim protection "Cage" reaction
+### Removed spawn menyoo vehicle in player features
+### Vehicle & weapon blacklist settings can now be saved to setting profiles
+### Bounties now work on yourself
+### Some features are now disabled in singleplayer
+### Fixed autoexec being overwritten if not using kek's menu script loader (on startup)
+### Fixed colored xenon lights always being white
+### Crash <** NOT A NEW CRASH, CALM DOWN CRASH ADDICTS **>
+> Fixed not working if player in vehicle (and far away), apartment or perico
+> Added feedback to tell if failing to clean up
+> More stealthy (invisible and no collision) & more likely to successfully clean up
 
-### Entity manager
-#### Fixed multiple rare bugs where toggles wasn't toggled off when they were supposed to
-#### Removed set on fire
-#### Removed save Menyoo vehicle
-#### Added toggle engine
+### Blacklist 
+> Now continuously updates as player gets marked for modder flags (unless custom reason is set)
+> Reapply or not reapply modder marks
+> Fixed bug where host spoofing session's name, scid or ip causing every player joining to be "recognized in blacklist"
+
+### Chat commands
+> !offtheradar & !neverwanted now has <on / off> parameter
+> New command !votekick
+> Send chat commands list to team / all
+
+### Menyoo
+> Full rework of menyoo spawner & parser
+> Fixed menyoo map & vehicle "refresh list"
+> Map saver can now save vehicles & peds
+> Tells you if spawns are stopped due to reaching entity limits & how many entities were spawned
+> Support for scenarios, animations, movement clipsets, clearing world, weather & loading / removing multiple ipls
+> Support for map editor maps & a new variation of menyoo maps
+> Fixed many things not being applied, like vehicle mods
+
+### Player history
+> Also known as - displays names the player has used. Shows what ip / rid was linked to their name
+> Times seen & also known as can be configured whether to check rid, name & ip
+> Shows blacklist reason of player & if they're added to join timeout
+> Scroll through chatlog -> Takes data from chat logger
+> Click on message to copy to clipboard
+> Click on "Scroll through messages" to copy the whole page
 ```
 
-# **UPDATED TO LATEST VERSION OF GTA 5**
+**## New features**```md
+### Send to eclipse
+### Reset settings to defaults
+### Ini vehicle spawner
+> Identical user interface to menyoo vehicle spawner except no save button
+> Supports 5 very different types & 5 additional types who're older / newer versons of aforementioned types
+
+### Mark as modder
+> Press mark again on same flag to unmark
+```
