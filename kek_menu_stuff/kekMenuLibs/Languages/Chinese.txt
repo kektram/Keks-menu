@@ -466,8 +466,6 @@ Unglitch §取消故障
 Block §阻止进入
 Unblock §取消阻止
 Type in what to spam in chat §请输入文本内容
-Xml file is empty. §Xml文件为空
-File name §文件名称
 Warning: missing "%" before any of these characters; §警告:在这些字符前面缺少 "%" .
 This is fine, just note that if you don't put the "%" before those characters, they mean something else. §这还好,但请注意,如果你不把 "%" 放在这些字符前,它们就意味着别的东西.
 Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §无效模式.很可能在某处缺少 “[” 、“]” 、“(” 、“)” 或 “%”.也可能是“[]”,有“[]”会导致错误
@@ -481,7 +479,6 @@ Vehicle name §载具名称
 Save to Menyoo vehicles §保存为模组载具
 Clone §复制
 Send Menyoo vehicle attacker §派出模组NPC攻击
-Spawn Menyoo vehicle §生成模组载具
 Menyoo vehicles §模组载具
 Type in name of menyoo vehicle. §请输入模组载具名称
 Create new judger profile §创建新的聊天审判配置文件
@@ -552,7 +549,6 @@ Menyoo maps §Menyoo地图
 Type in name of menyoo map. §请输入Menyoo地图文件名称.
 Set where you spawn §设置当前位置为地图生成后的位置
 Teleport to map spawn §传送到地图生成后的位置
-Found no spawn. §没有找到生成的地图.
 Failed to load spawn coordinates. §无法加载生成坐标.
 Unload §取消加载
 Race ghosts §比赛幽灵
@@ -623,13 +619,13 @@ Team §团队
 What ped to spawn §输入要生成的NPC
 Spawned §已生成
 invalid models §无效模型
-Reached ped spawn limit. Cancelling menyoo spawn. §已达到NPC数量生成限制.已取消menyoo生成.
-Reached vehicle spawn limit. Cancelling menyoo spawn. §已达到载具数量生成限制.已取消menyoo生成.
-Reached object spawn limit. Cancelling menyoo spawn. §已达到物体数量生成限制.已取消menyoo生成.
+Reached ped spawn limit. Cancelling menyoo spawn. §已达到NPC生成限制.已取消menyoo生成.
+Reached vehicle spawn limit. Cancelling menyoo spawn. §已达到载具生成限制.已取消menyoo生成.
+Reached object spawn limit. Cancelling menyoo spawn. §已达到物体生成限制.已取消menyoo生成.
 Object limit §物体限制
 Ped limit §NPC限制
 Vehicle limit §载具限制
-Draw entity limits §显示实体限制数量
+Draw entity limits §显示实体限制
 Reset settings to defaults §将设置重置为默认值
 search newest to oldest §从最新到最旧搜索
 search oldest to newest §从最旧到最新搜索
@@ -649,6 +645,13 @@ Mark as modder §标记为作弊者
 Don't reapply marks §不要重复标记
 Reapply marks §重复标记
 Failed to get control. If you're blocking "give control" in net event hooks, disable it. §未能获得控制权.如果你在网络事件中启用了阻止"给予控制",请关闭它.
-Expected Menyoo vehicle, got Menyoo map. Put Menyoo maps in Menyoo maps folder. §缺少Menyoo载具,获得Menyoo地图.将Menyoo地图放置到Menyoo Maps文件夹.
-Expected Menyoo map, got Menyoo vehicle. Put Menyoo vehicles in Menyoo vehicles folder. §缺少Menyoo地图,获得Menyoo地图.将Menyoo载具放置到Menyoo vehicles文件夹.
 Failed to spawn driver vehicle for unknown reason. §因未知原因未能生成驾驶载具.
+Copied to clipboard. §已复制到剪贴板.
+Ini vehicles §Ini载具
+This can't be used in singleplayer. §这不能在故事模式中中使用.
+Tried to spawn a xml vehicle with ini spawner. §已尝试使用Ini载具生成xml载具.
+Failed to attach an entity. Check debug console for more details. §尝试附加一个实体时失败了. 检查调试控制台以获取更多详细信息.
+This file doesn't exist or has an invalid file name. §此文件不存在或文件名无效.
+Failed to set coordinates. §设置坐标失败.
+Failed to cleanup crash entity while it is still in memory. §清理崩溃实体失败,它仍在内存中.
+Crash entity went out of memory before it could be cleaned up. §崩溃实体在清理之前内存不足.
