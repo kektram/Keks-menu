@@ -1670,7 +1670,7 @@ menu.add_feature("Benchmark function", "action", u.debug.id, function(f)
 	local time = utils.time_ms() + 1000
 	local func <const> = "Change this to your function"
 	if type(func) ~= "function" then
-		essentials.msg("Go to the source code and enter the function's name at line "..(debug.getinfo(1).currentline - 2).." in file "..debug.getinfo(1).short_src:match("\\/(.-)$"), "red", true, 6)
+		essentials.msg("Go to the source code and enter the function's name at line "..(debug.getinfo(1).currentline - 2).." in file "..(debug.getinfo(1).short_src:match("\\/(.-)$") or "Kek's menu.lua"), "red", true, 6)
 		return
 	end
 	while time > utils.time_ms() do
