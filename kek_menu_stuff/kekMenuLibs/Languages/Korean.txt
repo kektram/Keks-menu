@@ -474,8 +474,6 @@ Unglitch §차량 흔들지 않기
 Block §막기
 Unblock §막지 않음
 Type in what to spam in chat §채팅 도배할 문구를 입력하세요
-Xml file is empty. §XML 파일이 비어있습니다.
-File name §파일 이름
 Warning: missing "%" before any of these characters; §경고: 다음 글자 앞에 "%"가 없습니다;
 This is fine, just note that if you don't put the "%" before those characters, they mean something else. §"%"를 이 글자 앞에 붙이지 않으면 다른 의미가 된다는 점을 기억하세요.
 Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §잘못된 패턴입니다. "[", "]", "(", ")" 또는 "%"가 누락되어 있을 가능성이 높습니다. "[]"일 수도 있고, "[]"가 오류를 발생할 수 있습니다.
@@ -488,8 +486,7 @@ Type in name of vehicle §차량 이름을 입력하세요
 Vehicle name §차량 이름
 Save to Menyoo vehicles §Menyoo 차량으로 저장
 Clone §클론
-Send Menyoo vehicle attacker §차량 탑승한 Menyoo 공격자 보내기 
-Spawn Menyoo vehicle §Menyoo 차량 소환
+Send Menyoo vehicle attacker §차량 탑승한 Menyoo 공격자 보내기
 Menyoo vehicles §Menyoo 차량
 Create new judger profile §새로운 판단기 프로필 만들기
 Create new chatbot profile §새로운 채팅 봇 프로필 만들기
@@ -655,8 +652,6 @@ Mark as modder §모더로 마킹
 Don't reapply marks §모더 마킹 재 적용 X
 Reapply marks §모더 마킹 재 적용
 Failed to get control. If you're blocking "give control" in net event hooks, disable it. §컨트롤을 얻는 것을 실패했습니다. 만약 네트워크 이벤트 훅에서 "컨트롤 지급" 프로텍션을 활성화했다면, 비활성화하세요.
-Expected Menyoo vehicle, got Menyoo map. Put Menyoo maps in Menyoo maps folder. §Menyoo 차량이 기대된다면, Menyoo 맵을 얻으세요. Menyoo 맵을 "Menyoo maps" 폴더 안에 넣으세요.
-Expected Menyoo map, got Menyoo vehicle. Put Menyoo vehicles in Menyoo vehicles folder. §Menyoo 맵이 기대된다면, Menyoo 차량을 얻으세요. Menyoo 차량을 "Menyoo vehicles" 폴더에 넣으세요.
 Failed to spawn driver vehicle for unknown reason. §알려지지 않은 이유로 드라이버 차량을 소환하는 것을 실패했습니다.
 Copied to clipboard. §클립보드에 복사되었습니다.
 Ini vehicles §Ini 차량
@@ -665,3 +660,5 @@ Tried to spawn a xml vehicle with ini spawner. §xml 차량을 ini 차량 소환
 Failed to attach an entity. Check debug console for more details. §엔티티를 부착하는 것을 실패했습니다. 자세한 정보는 디버그 콘솔을 확인하세요.
 This file doesn't exist or has an invalid file name. §해당 파일이 존재하지 않거나 유효하지 않은 파일 이름을 가지고 있습니다.
 Failed to set coordinates. §좌표를 설정하는 것을 실패했습니다.
+Failed to cleanup crash entity while it is still in memory. §크래쉬 엔티티를 치우는 것을 실패했습니다: 해당 엔티티가 이미 메모리에 있기 때문입니다.
+Crash entity went out of memory before it could be cleaned up. §크래쉬 엔티티가 메모리 밖에 있습니다: 이미 해당 엔티티를 치울 수 있었기 때문입니다.
