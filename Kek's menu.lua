@@ -67,7 +67,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Language"] = "1.0.0",
 		["Settings"] = "1.0.1",
-		["Essentials"] = "1.4.2",
+		["Essentials"] = "1.4.3",
 		["Memoize"] = "1.0.0",
 		["Enums"] = "1.0.2",
 		["Vehicle mapper"] = "1.3.5", 
@@ -1665,6 +1665,76 @@ settings.toggle["Draw garbage collection"] = menu.add_feature(lang["Draw garbage
 	end
 end)
 
+menu.add_feature("Benchmark function", "action", u.debug.id, function(f)
+	local passes = 0
+	local time = utils.time_ms() + 1000
+	local func <const> = "Change this to your function"
+	if type(func) ~= "function" then
+		essentials.msg("Go to the source code and enter the function's name at line "..(debug.getinfo(1).currentline - 2).." in file "..debug.getinfo(1).short_src:match("\\/(.-)$"), "red", true, 6)
+		return
+	end
+	while time > utils.time_ms() do
+		for i = 1, 10000 do
+			func()
+		end
+		passes = passes + 1
+	end
+	essentials.msg((passes * 10).."k passes in 1 second.", "blue", true, 6)
+end)
+
+do
+	local object_testing_parent <const> = menu.add_feature("Object test", "parent", u.debug.id)
+	local feat = menu.add_feature("Spawn object & draw object properties", "toggle", object_testing_parent.id, function(f)
+		local model <const> = settings.user_entity_features.object.feats["Change object testing"]:get_str_data()[1]
+		f.data = kek_entity.spawn_object(object_mapper.get_hash_from_user_input(model), function()
+			return player.get_player_coords(player.player_id()) + 2
+		end)
+		entity.freeze_entity(f.data, true)
+		while f.on do
+			ui.set_text_color(255, 255, 255, 255)
+			ui.set_text_scale(0.5)
+			ui.set_text_font(1)
+			ui.set_text_outline(true)
+			ui.draw_text(string.format("%s", entity.get_entity_rotation(f.data)), 
+			memoize.v2(0.8, 0.6))
+			system.yield(0)
+			if model ~= settings.user_entity_features.object.feats["Change object testing"]:get_str_data()[1] then
+				kek_entity.clear_entities({f.data})
+				return HANDLER_CONTINUE
+			end
+		end
+		kek_entity.clear_entities({f.data})
+	end)
+
+	settings.user_entity_features.object.feats["Change object testing"] = menu.add_feature("Set new object", "action_value_str", object_testing_parent.id, function(f)
+		local input <const>, status <const> = keys_and_input.input_user_entity("object")
+		if status == 2 then
+			return
+		end
+		settings:update_user_entity(input, "object")
+	end)
+
+	local f1, f2, f3
+
+	f1 = menu.add_feature("X", "autoaction_value_i", object_testing_parent.id, function(f)
+		if entity.is_entity_an_object(feat.data) then
+			entity.set_entity_rotation(feat.data, v3(f1.value, f2.value, f3.value))
+		end
+	end) f1.min = -180 f1.max = 180 f1.mod = 5
+
+	f2 = menu.add_feature("X", "autoaction_value_i", object_testing_parent.id, function(f)
+		if entity.is_entity_an_object(feat.data) then
+			entity.set_entity_rotation(feat.data, v3(f1.value, f2.value, f3.value))
+		end
+	end) f2.min = -180 f2.max = 180 f2.mod = 5
+
+	f3 = menu.add_feature("X", "autoaction_value_i", object_testing_parent.id, function(f)
+		if entity.is_entity_an_object(feat.data) then
+			entity.set_entity_rotation(feat.data, v3(f1.value, f2.value, f3.value))
+		end
+	end) f3.min = -180 f3.max = 180 f3.mod = 5
+end
+
 local function vehicle_effect_standard(...)
 	local remove_players <const>, effect_callback <const>, dont_yield <const> = ...
 	local entities <const> = memoize.get_all_vehicles()
@@ -1954,9 +2024,9 @@ menu.add_feature(lang["Disable vehicles"], "toggle", u.session_malicious.id, fun
 	end
 end)
 
-local function disable_weapons(...)
-	local f <const>, pid <const> = ...
-	if #kek_entity.is_any_tasks_active(player.get_player_ped(pid), {
+local disable_weapons
+do
+	local disable_weapon_tasks <const> = {
 		enums.ctasks.AimGunOnFoot,
 		enums.ctasks.Weapon,
 		enums.ctasks.PlayerWeapon,
@@ -1975,31 +2045,40 @@ local function disable_weapons(...)
 		enums.ctasks.AimGunScripted,
 		enums.ctasks.ReloadGun,
 		enums.ctasks.VehicleGun, 
-		enums.ctasks.Bomb
-	}) > 0 then
-		if f.value == 0 then
-			ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
-		elseif f.value == 1 then
-			local time <const> = utils.time_ms() + 500
-			while time > utils.time_ms() do
-				gameplay.shoot_single_bullet_between_coords(
-					kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 0.3), 
-					select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f1, memoize.v3())), 
-					0, 
-					gameplay.get_hash_key("weapon_stungun"), 
-					player.get_player_ped(player.player_id()), 
-					true, 
-					false, 
-					1000
-				)
-				system.yield(0)
+		enums.ctasks.Bomb	
+	}
+	local tracker <const> = {}
+
+	disable_weapons = function(...)
+		local f <const>, pid <const> = ...
+		if utils.time_ms() > (tracker[pid] or 0) and #kek_entity.is_any_tasks_active(player.get_player_ped(pid), disable_weapon_tasks) > 0 then
+			if f.value == 0 then
+				ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
+			elseif f.value == 1 then
+				local time <const> = utils.time_ms() + 500
+				while time > utils.time_ms() do
+					gameplay.shoot_single_bullet_between_coords(
+						kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 0.3), 
+						select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f1, memoize.v3())), 
+						0, 
+						gameplay.get_hash_key("weapon_stungun"), 
+						player.get_player_ped(player.player_id()), 
+						true, 
+						false, 
+						1000
+					)
+					system.yield(0)
+				end
+				tracker[pid] = utils.time_ms() + 1000
+			elseif f.value == 2 then
+				ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
+				essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(pid), 29, true, false, 0, player.get_player_ped(pid))
+				tracker[pid] = utils.time_ms() + 1000
+			elseif f.value == 3 then
+				ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
+				essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(pid), 29, true, false, 0, player.get_player_ped(player.player_id()))
+				tracker[pid] = utils.time_ms() + 1000
 			end
-		elseif f.value == 2 then
-			ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
-			essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(pid), 29, true, false, 0, player.get_player_ped(pid))
-		elseif f.value == 3 then
-			ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
-			essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(pid), 29, true, false, 0, player.get_player_ped(player.player_id()))
 		end
 	end
 end

@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.2"}
+local essentials <const> = {version = "1.4.3"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
