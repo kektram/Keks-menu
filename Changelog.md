@@ -11,7 +11,7 @@
 ### Some features are now disabled in singleplayer
 ### Fixed autoexec being overwritten if not using kek's menu script loader (on startup)
 ### Fixed colored xenon lights always being white
-### Crash <** NOT A NEW CRASH, CALM DOWN CRASH ADDICTS **>
+### Crash
 > Fixed not working if player in vehicle (and far away), apartment or perico
 > Added feedback to tell if failing to clean up
 > More stealthy (invisible and no collision) & more likely to successfully clean up
