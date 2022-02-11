@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local kek_entity <const> = {version = "1.2.0"}
+local kek_entity <const> = {version = "1.2.1"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -326,7 +326,7 @@ function kek_entity.get_all_attached_entities(Entity, entities)
 	}) do
 		for i = 1, #all_entities do
 			if entity.get_entity_attached_to(all_entities[i]) == Entity and (not entity.is_entity_a_ped(all_entities[i]) or not ped.is_ped_a_player(all_entities[i])) then
-				entities[all_entities[i]] = all_entities[i]
+				entities[#entities + 1] = all_entities[i]
 				kek_entity.get_all_attached_entities(all_entities[i], entities)
 			end
 		end
@@ -444,7 +444,7 @@ function kek_entity.request_model(...)
 	essentials.assert(streaming.is_model_valid(model_hash), "Tried to request invalid model hash.", model_hash)
 	if is_hash_already_loaded then
 		streaming.request_model(model_hash)
-		local time <const> = utils.time_ms() + 1000
+		local time <const> = utils.time_ms() + 2000
 		while not streaming.has_model_loaded(model_hash) and time > utils.time_ms() do
 			system.yield(0)
 		end
@@ -624,6 +624,40 @@ function kek_entity.modify_entity_godmode(...)
 	end
 end
 
+local num_of_mods_to_wheel_type_map <const> = essentials.const({ -- Indices are number of mods at vehicle.get_num_vehicle_mods(Vehicle, 62)
+	[50] = enums.wheel_types.SPORT,
+	[36] = enums.wheel_types.MUSCLE,
+	[30] = enums.wheel_types.LOWRIDER,
+	[38] = enums.wheel_types.SUV,
+	[35] = enums.wheel_types.OFFROAD,
+	[72] = enums.wheel_types.BIKE,
+	[40] = enums.wheel_types.HIEND,
+	[140] = enums.wheel_types.f1_wheels,
+
+	-- These can't be differentiated because they have the same number of mods in its modtype index
+	[217] = {enums.wheel_types.bennys_bespoke, enums.wheel_types.bennys_original},
+	[210] = {enums.wheel_types.track, enums.wheel_types.street},
+	[48] = {bike = enums.wheel_types.BIKE, car = enums.wheel_types.TUNER}
+})
+
+function kek_entity.get_wheel_type(Vehicle) -- A man must do the ghetto ways in this lua api
+	if entity.is_an_entity(Vehicle) then
+		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
+		local num_of_mods <const> = vehicle.get_num_vehicle_mods(Vehicle, 62)
+		local Type <const> = num_of_mods_to_wheel_type_map[num_of_mods]
+		if num_of_mods == 48 then
+			local hash <const> = entity.get_entity_model_hash(Vehicle)
+			if streaming.is_model_a_bike(hash) then
+				return Type.bike
+			else
+				return Type.car
+			end
+		end
+		return type(Type) == "table" and Type[math.random(1, #Type)] or Type -- 50% chance of correct type if Type is a table.
+	end
+	return 0
+end
+
 function kek_entity.repair_car(...)
 	local Vehicle <const>, preserve_velocity <const> = ...
 	if entity.is_an_entity(Vehicle) then
@@ -653,6 +687,7 @@ do
 		tire_smoke = 20, 
 		xenon_lights = 22
 	})
+
 	local performance_mods <const> = essentials.const({
 		engine = 11,
 		brakes = 12,
@@ -660,6 +695,14 @@ do
 		suspension = 15,
 		armor = 16
 	})
+
+	local accepted_wheel_types <const> = {}
+	for i = 0, 5 do
+		accepted_wheel_types[#accepted_wheel_types + 1] = i
+	end
+	for i = 7, 12 do
+		accepted_wheel_types[#accepted_wheel_types + 1] = i
+	end
 
 	local function random_rgb()
 		return essentials.get_rgb(math.random(0, 255), math.random(0, 255), math.random(0, 255))
@@ -679,14 +722,17 @@ do
 			if type(settings.in_use["Plate vehicle text"]) == "string" then -- Crashes if plate text is nil
 				vehicle.set_vehicle_number_plate_text(Vehicle, settings.in_use["Plate vehicle text"])
 			end
-			if settings.toggle["Always f1 wheels on #vehicle#"].on then 
-			--[[
-				Setting wheel type can cause crashes in certain cases. 
-				Death race - Buick riviera 2.xml caused this crash until applying wheel type before all other vehicle mods.
-			--]]
-				vehicle.set_vehicle_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
-			else
-				vehicle.set_vehicle_wheel_type(Vehicle, math.random(0, 12))
+			if not streaming.is_model_a_bike(entity.get_entity_model_hash(Vehicle)) then
+				if settings.toggle["Always f1 wheels on #vehicle#"].on then 
+				--[[
+					Setting wheel type can cause crashes in certain cases. 
+					Death race - Buick riviera 2.xml caused this crash until applying wheel type before all other vehicle mods.
+				--]]
+					vehicle.set_vehicle_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
+				else
+
+					vehicle.set_vehicle_wheel_type(Vehicle, accepted_wheel_types[math.random(1, #accepted_wheel_types)])
+				end
 			end
 			for i = 0, 75 do
 				if vehicle.get_num_vehicle_mods(Vehicle, i) > 0 then

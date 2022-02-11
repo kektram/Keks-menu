@@ -5,6 +5,9 @@ local kek_entity <const> = require("Kek's entity functions")
 local enums <const> = require("Enums")
 local memoize <const> = require("Memoize")
 local settings <const> = require("settings")
+local language <const> = require("Language")
+local lang <const> = language.lang
+
 local menyoo_saver <const> = {version = "1.0.8"}
 
 local function get_properties(...)
@@ -49,14 +52,14 @@ local function get_properties(...)
 			info[is_attached_str] = essentials.const({})
 		end
 		local pos <const> = entity.get_entity_coords(Entity)
-		info.PositionRotation = essentials.const({
+		info.PositionRotation = {
 			X = pos.x,
 			Y = pos.y,
 			Z = pos.z,
 			Pitch = entity.get_entity_pitch(Entity),
 			Roll = entity.get_entity_roll(Entity),
 			Yaw = entity.get_entity_rotation(Entity).z
-		})
+		}
 	end
 	if entity.is_entity_a_ped(Entity) then
 		info.PedProperties = {
@@ -87,6 +90,9 @@ local function get_properties(...)
 		local neon_r <const>, neon_g <const>, neon_b <const> = essentials.rgb_to_bytes(vehicle.get_vehicle_neon_lights_color(Entity))
 		info.VehicleProperties = {
 			Colours = {
+				tyreSmoke_R = math.random(0, 255), 
+				tyreSmoke_G = math.random(0, 255), -- No function to get these values 
+				tyreSmoke_B = math.random(0, 255),
 				Primary = vehicle.get_vehicle_primary_color(Entity),
 				Secondary = vehicle.get_vehicle_secondary_color(Entity),
 				Pearl = vehicle.get_vehicle_pearlecent_color(Entity),
@@ -113,7 +119,7 @@ local function get_properties(...)
 			MaxGear = vehicle.get_vehicle_max_gear(Entity),
 			CurrentGear = vehicle.get_vehicle_current_gear(Entity),
 			WheelsCount = vehicle.get_vehicle_wheel_count(Entity),
-			WheelType = math.random(0, 11),
+			WheelType = kek_entity.get_wheel_type(Entity),
 			NumberPlateText = settings.in_use["Plate vehicle text"],
 			NumberPlateIndex = math.random(0, 3),
 			WindowTint = vehicle.get_vehicle_window_tint(Entity),
@@ -185,9 +191,11 @@ function menyoo_saver.save_vehicle(...)
 			essentials.table_to_xml(get_properties(Vehicle, true), 1, nil, {}, true)
 		}
 		if #attachments > 0 then
+			local is_attached_str <const> = string.format("Attachment isAttached=\"%s\"", true)
 			str[#str + 1] = "\9<SpoonerAttachments SetAttachmentsPersistentAndAddToSpoonerDatabase=\"false\">"
-			for i = 1, #attachments do
-				str[#str + 1] = essentials.table_to_xml({Attachment = get_properties(attachments[i])}, 2, nil, {}, true)
+			for Entity in essentials.entities(attachments) do
+				local info <const> = {Attachment = get_properties(Entity)}
+				str[#str + 1] = essentials.table_to_xml(info, 2, nil, {}, true)
 			end
 			str[#str + 1] = "\9</SpoonerAttachments>"
 		end
@@ -218,30 +226,27 @@ function menyoo_saver.save_map(...)
 			})
 		}, 1, nil, {}, true)
 	}
-	local count = 0
 	local is_attached_str <const> = string.format("Attachment isAttached=\"%s\"", true)
 	for _, entities in pairs({
 		ped.get_all_peds(),
 		vehicle.get_all_vehicles(),
 		object.get_all_objects()
 	}) do
-		for i = 1, #entities do
-			if entity.is_entity_visible(entities[i]) 
-			and not entity.is_entity_attached(entities[i])
-			and (not entity.is_entity_a_ped(entities[i]) or not ped.is_ped_a_player(entities[i])) then
-				local info <const> = {Placement = get_properties(entities[i])}
-				info.Placement.FrozenPos = entity.is_entity_an_object(entities[i])
+		for Entity in essentials.entities(entities) do
+			if entity.is_entity_visible(Entity) 
+			and not entity.is_entity_attached(Entity)
+			and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
+				local info <const> = {Placement = get_properties(Entity)}
+				info.Placement.FrozenPos = entity.is_entity_an_object(Entity)
 				xml_string[#xml_string + 1] = essentials.table_to_xml(info, 1, nil, {}, true)
-				local attached_entities <const> = kek_entity.get_all_attached_entities(entities[i])
-				count = count + #attached_entities + 1
-				for i = 1, #attached_entities do
-					if entity.is_entity_visible(attached_entities[i]) then
-						info[is_attached_str] = get_properties(attached_entities[i])
-						if entity.is_entity_an_object(entities[i]) then
-							info[is_attached_str].Pitch = 0
-							info[is_attached_str].Yaw = 0
-							info[is_attached_str].Roll = 0
-						end
+				local attached_entities <const> = kek_entity.get_all_attached_entities(Entity)
+				for attachment in essentials.entities(attached_entities) do
+					if entity.is_entity_visible(attachment) then
+						local info2 <const> = info
+						local info <const> = {Placement = get_properties(attachment)}
+						info.Placement[is_attached_str].Pitch = info.Placement[is_attached_str].Pitch - info2.Placement.PositionRotation.Pitch
+						info.Placement[is_attached_str].Roll = info.Placement[is_attached_str].Roll - info2.Placement.PositionRotation.Roll
+						info.Placement[is_attached_str].Yaw = info.Placement[is_attached_str].Yaw - info2.Placement.PositionRotation.Yaw
 						xml_string[#xml_string + 1] = essentials.table_to_xml(info, 1, nil, {}, true)
 					end
 				end
@@ -252,6 +257,7 @@ function menyoo_saver.save_map(...)
 	xml_string[#xml_string + 1] = ""
 	file:write(table.concat(xml_string, "\n"))
 	file:flush()
+	essentials.msg(lang["Saved map."], "green", true, 6)
 end
 
 return essentials.const_all(menyoo_saver)

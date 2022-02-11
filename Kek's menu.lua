@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.6.0
+-- Kek's menu version 0.4.6.1
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.6.0"
+__kek_menu_version = "0.4.6.1"
 
 local paths <const> = {
 	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
@@ -67,7 +67,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Language"] = "1.0.0",
 		["Settings"] = "1.0.1",
-		["Essentials"] = "1.4.3",
+		["Essentials"] = "1.4.4",
 		["Memoize"] = "1.0.0",
 		["Enums"] = "1.0.2",
 		["Vehicle mapper"] = "1.3.5", 
@@ -78,8 +78,8 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Location mapper"] = "1.0.1",
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
-		["Menyoo spawner"] = "2.2.1",
-		["Kek's entity functions"] = "1.2.0",
+		["Menyoo spawner"] = "2.2.2",
+		["Kek's entity functions"] = "1.2.1",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.1",
 		["Admin mapper"] = "1.0.4",
@@ -4350,7 +4350,11 @@ do
 				str = {}
 				str_len = 0
 			end
-			str[#str + 1] = "These commands can be used by everyone."
+			if settings.toggle["Only friends can use chat commands"].on then
+				str[#str + 1] = "These commands can only be used by my friends."
+			else
+				str[#str + 1] = "These commands can be used by everyone."
+			end
 			str[#str + 1] = "To show this again, do !help"
 			essentials.send_message(table.concat(str, "\n"), send_to_team)
 		end
@@ -5150,7 +5154,9 @@ for _, properties in pairs({
 	local feat_func_callback <const> = function(f)
 		if f.value == 0 then
 			local pos <const> = kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)
-			kek_entity.clear_owned_vehicles() -- Must clear before since it old vehicle might be huge & cause crash if next is huge too. Huge meaning many attachments.
+			if settings.toggle["Delete old #vehicle#"].on then
+				kek_entity.clear_owned_vehicles()
+			end
 			local Vehicle <const> = properties.func(properties.folder.."\\"..f.name.."."..properties.extension, player.player_id())
 			if entity.is_entity_a_vehicle(Vehicle) then
 				kek_entity.vehicle_preferences(Vehicle)

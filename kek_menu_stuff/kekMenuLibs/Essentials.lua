@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.3"}
+local essentials <const> = {version = "1.4.4"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -48,25 +48,24 @@ end
 
 function essentials.assert(bool, msg, ...)
 	if not bool then
-		local format_str <const> = {msg, ...}
-		for i = 1, #format_str do
-			format_str[i] = tostring(format_str[i])
-		end
-		msg = string.format(table.concat(format_str, ", "), ...)
+		local n_args <const> = select("#", ...)
+		msg = string.format(
+			(n_args > 0 and "%s\nExtra info:\n" or msg)..string.rep("%s\n", n_args), 
+			msg, ...
+		)
 		print(debug.traceback(msg, 2))
-		menu.notify(debug.traceback(msg, 2), "Error", 6, 0xff0000ff)
+		menu.notify(debug.traceback(msg, 2), "Error", 12, 0xff0000ff)
 		essentials.log_error(msg)
 		error(debug.traceback(msg, 2))
 	end
 end
 
 --[[
-	Why would you store numbers this way? [Refering to incoming functions]
+	Why would you store numbers this way?
 	It's far cheaper. A table with 3 (not enumerated) items will take up roughly 112 bytes. [https://wowwiki-archive.fandom.com/wiki/Lua_object_memory_sizes]
 	Packing numbers can save over 100 bytes per table. One 64 bit number takes up 8 bytes.
 	Now, accessing values from these packed numbers will be more expensive. 17x slower. However, we're talking 9 million accesses in 1 second vs 153 million.
 	The spared memory far outweighs the lost performance. The packing of numbers is about 60% slower than creating a table. [9.4 million in one sec vs 4.3 million]
-	Another use case is mapping multiple numbers to one index.
 --]]
 do 
 	local sign_bit_x <const> = 1 << 62
@@ -337,6 +336,7 @@ do
 	})
 	getmetatable(menu).__newindex = nil
 
+	local feat_err_msg <const> = "This error might be related to your script, not necessarily Kek's menu. Either the parent id or feature type specified is incorrect."
 	menu.add_feature = function(...)
 		local name <const>,
 		Type <const>,
@@ -355,7 +355,15 @@ do
 		else
 			feat = originals.add_feature(name, Type, parent)
 		end
-		essentials.assert(feat, "Failed to create feature:", name)
+		essentials.assert(
+			feat, "Failed to create feature:",
+			feat_err_msg,
+			"Feature name: ",
+			name, 
+			debug.getinfo(2, "S").source, 
+			"line:",
+			debug.getinfo(2, "l").currentline
+		)
 		essentials.feats[feat.id] = feat
 		return feat
 	end
@@ -377,7 +385,15 @@ do
 		else
 			feat = originals.add_player_feature(name, Type, parent)
 		end
-		essentials.assert(feat, "Failed to create player feature:", name)
+		essentials.assert(
+			feat, "Failed to create player feature:", 
+			feat_err_msg,
+			"Feature name: ",
+			name,
+			debug.getinfo(2, "S").source, 
+			"line:",
+			debug.getinfo(2, "l").currentline
+		)
 		essentials.player_feats[feat.id] = feat.id
 		return feat
 	end
@@ -428,8 +444,8 @@ do
 			local i <const> = #memoized
 			local func <const> = memoized[i]
 			table.remove(memoized, i)
-			essentials.assert(debug.getupvalue(func, 2) == "me" and debug.setupvalue(func, 2, me), "FAILED TO SET UPVALUE")
-			essentials.assert(debug.getupvalue(func, 1) == "pid" and debug.setupvalue(func, 1, -1), "FAILED TO SET UPVALUE")
+			essentials.assert(debug.getupvalue(func, 2) == "me" and debug.setupvalue(func, 2, me), "FAILED TO SET UPVALUE: me")
+			essentials.assert(debug.getupvalue(func, 1) == "pid" and debug.setupvalue(func, 1, -1), "FAILED TO SET UPVALUE: pid")
 			return func
 		end
 	end
@@ -465,7 +481,7 @@ do
 			local i <const> = #memoized
 			local func <const> = memoized[i]
 			table.remove(memoized, i)
-			essentials.assert(debug.getupvalue(func, 3) == "Table" and debug.setupvalue(func, 3, Table), "FAILED TO SET UPVALUE")
+			essentials.assert(debug.getupvalue(func, 3) == "Table" and debug.setupvalue(func, 3, Table), "FAILED TO SET UPVALUE: Table")
 			return func
 		end
 	end
@@ -531,58 +547,9 @@ function essentials.sub_unicode_byte_len(str, start, End)
 	return utf8.char(utf8.codepoint(str, start, End))
 end
 
-do -- Reasonable performance. 342k characters per millisecond. Garbage compared to regular string.find.
-	local codes <const> = utf8.codes
-	function essentials.unicode_find(str, pattern, type)
-		local pattern_bytes <const> = table.pack(utf8.codepoint(pattern, 1, #pattern))
-		local pos, i = 1, 1
-		local pattern_len <const> = #pattern_bytes	
-		if type == "from start" then
-			for byte_pos, char in codes(str) do
-				if pattern_bytes[i] ~= char then
-					return
-				else
-					if i == pattern_len then
-						return pos - i + 1, pos
-					end
-					i = i + 1
-				end
-				pos = pos + 1
-			end
-		elseif type == "from end" then
-			local when_to_start <const> = utf8.len(str) - pattern_len
-			for byte_pos, char in codes(str) do
-				if pos >= when_to_start then
-					if pattern_bytes[i] ~= char then
-						i = 1
-					else
-						if i == pattern_len then
-							return pos - i + 1, pos
-						end
-						i = i + 1
-					end
-				end
-				pos = pos + 1
-			end
-		else
-			for byte_pos, char in codes(str) do
-				if pattern_bytes[i] ~= char then
-					i = 1
-				else
-					if i == pattern_len then
-						return pos - i + 1, pos
-					end
-					i = i + 1
-				end
-				pos = pos + 1
-			end
-		end
-	end
-end
-
 do -- This function is making it so unicode character lead bytes aren't confused as regular characters.
 	local gsub <const> = string.gsub
-	local sub <const> = string.sub
+	local sub  <const> = string.sub
 	local byte <const> = string.byte
 	local char <const> = string.char
 	local find <const> = string.find
@@ -600,69 +567,6 @@ do -- This function is making it so unicode character lead bytes aren't confused
 			plain
 		)
 	end -- Converts lead bytes into characters that doesnt interfere with patterns
-end
-
-do
-	local memoized <const> = {} -- Expensive function.
-	local codes <const> = utf8.codes
-	function essentials.unicode_gsub(str, pattern, replacement)
-		local hash <const> = essentials.pack_2_positive_integers(gameplay.get_hash_key(pattern), gameplay.get_hash_key(replacement))
-		if not memoized[hash] then
-			replacement = table.pack(utf8.codepoint(replacement, 1, #replacement))
-			local pattern_bytes <const> = table.pack(utf8.codepoint(pattern, 1, #pattern))
-			local i = 1
-			local pattern_len = #pattern_bytes
-			local new_str <const> = {}
-			for _, char in codes(str) do
-				if pattern_bytes[i] ~= char then
-					new_str[#new_str + 1] = char
-					i = 1
-				else
-					if i == pattern_len then
-						for i = 1, #replacement do
-							new_str[#new_str + 1] = replacement[i]
-						end
-						i = 1
-					else
-						i = i + 1
-					end
-				end
-			end
-			memoized[hash] = utf8.char(table.unpack(new_str))
-		end
-		return memoized[hash]
-	end
-end
-
-do
-	local codes <const> = utf8.codes
-	function essentials.unicode_match(str, first, End)
-		first = table.pack(utf8.codepoint(first, 1, #first))
-		local first_len <const> = #first
-		if End then
-			End = utf8.codepoint(End, 1, #End)
-		end
-		local new_str <const> = {}
-		local add = false
-		local i = 1
-		for _, char in codes(str) do
-			if add and End == char then
-				break
-			end
-			if add then
-				new_str[#new_str + 1] = char
-			end
-			if char == first[i] then
-				i = i + 1
-			else
-				i = 1
-			end
-			if i > first_len then
-				add = true
-			end
-		end
-		return utf8.char(table.unpack(new_str))
-	end
 end
 
 function essentials.get_safe_feat_name(name) -- Checks if valid utf8 code, removes corrupted bytes if not

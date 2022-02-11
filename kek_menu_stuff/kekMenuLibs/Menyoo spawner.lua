@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local menyoo <const> = {version = "2.2.1"}
+local menyoo <const> = {version = "2.2.2"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -421,11 +421,11 @@ local function attach(...)
 		entity.attach_entity_to_entity(
 			Entity, 							 -- Entity to attach
 			entity_attached_to, 			 	 -- Entity to attach to
-			att_info and att_info.BoneIndex or info.Bone or info.bone or -1, -- Bone index
+			att_info and att_info.BoneIndex or info.Bone or info.bone or 0, -- Bone index
 			v3(offx, offy, offz), 				 -- Offset from entity
 			v3(pitch, roll, yaw), 				 -- Rotation
 			false, 								 -- Soft attach (can detach easily or not)
-			collision, -- Collision
+			collision, 							 -- Collision
 			entity.get_entity_type(Entity) == 4, -- Is entity to be attached a ped
 			0, 									 -- Vertex index
 			true 								 -- Fixed rotation
@@ -531,7 +531,7 @@ end
 
 local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow this format
 	local spooner <const> = info.SpoonerPlacements
-	if spooner.ClearWorld and spooner.ClearWorld > 0 then
+	if player.player_count() > 0 and spooner.ClearWorld and spooner.ClearWorld > 0 then
 		for _, entities in pairs(kek_entity.get_table_of_entities_with_respect_to_distance_and_set_limit({
 				vehicles = {
 					entities 			   = vehicle.get_all_vehicles(),
@@ -593,7 +593,7 @@ local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow 
 end
 
 local function spawn_xml_map_type_2(info, entities) -- Same as type_1, but missing many properties, such as vehicle mods
-	if info.SpoonerPlacements.ClearWorld then
+	if player.player_count() > 0 and info.SpoonerPlacements.ClearWorld then
 		kek_entity.clear_entities(kek_entity.remove_player_entities(vehicle.get_all_vehicles()))
 		kek_entity.clear_entities(kek_entity.remove_player_entities(ped.get_all_peds()))
 		kek_entity.clear_entities(object.get_all_objects())
@@ -651,7 +651,7 @@ end
 
 local function get_xml_map_type(info)
 	local spooner <const> = info.SpoonerPlacements
-	if spooner and ((spooner.Placement and spooner.AudioFile) or spooner.Attachment) then
+	if spooner and ((spooner.Placement and (info.prologue.kek_menu_version or spooner.AudioFile)) or spooner.Attachment) then
 		return "type_1"
 	elseif spooner and spooner.__attributes and spooner.__attributes["xmlns:xsi"] then
 		return "type_2"
