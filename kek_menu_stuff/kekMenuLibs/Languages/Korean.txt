@@ -7,7 +7,7 @@ Vehicle settings §차량 설정
 Vehicle blacklist §차량 블랙리스트
 Session malicious §모든 플레이어 설정
 Player history §플레이어 기록
-Scripts §스크립트
+Scripts §Lua Script
 Settings §프로필 설정
 Chat §채팅
 Custom chat judger §커스텀 채팅 판단기
@@ -17,32 +17,32 @@ Hotkey settings §핫키 설정
 Modder detection §모더 감지
 Protections §프로텍션
 Modder logging settings §모더 기록 설정
-Auto kick tag settings §자동 추방 사유 설정
+Auto kick tag settings §자동 킥 사유 설정
 Which modder detections are on §모더 감지 옵션 설정
 Weapons §무기
-Kek's utilities §Kek's 도구 모음
-Script loader §자동 스크립트 실행기
+Kek's utilities §Kek의 도구 모음
+Script loader §자동 Lua Script 실행기
 Language configuration §언어 설정
 Trolling §트롤링
 Malicious §악의적인 트롤링
 Scripts §기타 트롤링
 Set §언어
 as default language. §을/를 기본 언어로 설정
-Empty script loader file §자동 스크립트 실행기 파일 비우기
-Add script to auto loader §스크립트를 자동 스크립트 실행기에 추가
-Remove script from auto loader §스크립트를 자동 스크립트 실행기에서 제거
+Empty script loader file §자동 Lua Script 실행기 파일 비우기
+Add script to auto loader §자동 실행할 Lua Script 추가
+Remove script from auto loader §자동 실행할 Lua Script 제거
 Modded scid detection §스푸핑 SCID 감지
 Modded name detection §스푸핑 닉네임 감지
 Blacklist §블랙리스트
-Check people's stats automatically §플레이어들 통계 자동 확인
-Kick any vote kickers §추방 투표한 플레이어 추방
+Check people's stats automatically §플레이어 통계 자동 확인
+Kick any vote kickers §추방 투표한 플레이어 킥
 Add session §모든 플레이어 추가
 Remove session §모든 플레이어 제거
 Get host automatically §세션 진입 시 호스트 자동으로 얻기
 Log modders with selected tags to blacklist §모더 사유에 해당하는 모더를 블랙리스트에 기록
-Auto kicker §자동 추방기
-Ram everyone §모든 플레이어에게 충돌
-Vehicle fly nearby vehicles §근처 차량 공중에 띄우기
+Auto kicker §자동 킥
+Ram everyone §모든 플레이어에게 부딪치기
+Vehicle fly nearby vehicles §주변 차량 공중에 띄우기
 Disable vehicles §차량 고장
 Copy rid to clipboard §SCID 복사
 Copy ip to clipboard §IP 복사
@@ -51,13 +51,13 @@ Clear search list §검색 목록 비우기
 Search §검색
 Vehicle blacklist §차량 블랙리스트
 Spawn vehicle for everyone §모든 플레이어에게 차량 소환
-Max everyone's car §모든 플레이어의 차량 풀 업그레이드
-current position §현재 위치
+Max everyone's car §모든 플레이어 차량 풀 업그레이드
+current position §현재 좌표
 waypoint §목적지
 Get host §호스트 얻기
 Give session bounty §플레이어에게 현상금 걸기
 Never wanted §지명 수배 되지 않음
-off the radar §레이더 은신(OTR)
+off the radar §레이더 은신 (OTR)
 Reapply bounty §현상금 다시 걸기
 Send to random mission §랜덤 미션으로 보내기
 Perico island §페리코 섬
@@ -75,19 +75,18 @@ Echo chat §채팅 따라하기
 Answer delay chatbot §채팅 봇 답변 지연 시간 주기
 Chat bot §채팅 봇
 Max car §차량 풀 업그레이드
-Change default vehicle §기본 차량 변경
 Change backplate text §번호판 글씨 변경
-What vehicle to spawn §어떤 차량을 소환 할 것인가요?
+What vehicle to spawn §소환할 차량
 Spawn vehicle §차량 소환
-Vehicle fly speed, click to type §하늘을 나는 차량의 속도
+Vehicle fly speed, click to type §하늘을 나는 차량 속도
 Vehicle fly §하늘을 나는 차량
-Type in what object §물체의 이름을 입력하세요.
-Object gun §물체 총
+Type in what object §오브젝트 이름 입력
+Object gun §오브젝트 총
 Airstrike gun §공습 총
-What vehicle vehicle gun §무슨 차량으로 발사할 것인가요?
+What vehicle vehicle gun §발사할 차량 종류
 Vehicle gun §차량 총
 Clear entity type §엔티티 종류 삭제
-Shoot entity| get model name of entity §엔티티 쏘기| 엔티티의 이름 얻기
+Shoot entity| get model name of entity §엔티티 쏘기 | 엔티티 이름 얻기
 save to default §기본값으로 저장
 Script event crash §스크립트 이벤트 크래쉬
 Spawn a ped §NPC 소환
@@ -95,34 +94,33 @@ Car godmode §차량 무적
 Copy player's car §플레이어 차량 복사
 Vehicle fly player §차량이 플레이어 날리기
 Spastic car §차량 바퀴 터트리기
-What vehicle to spawn §어떤 차량을 소환할 것인가요?
-Off the radar §레이더 은신(OTR)
+What vehicle to spawn §소환할 차량
+Off the radar §레이더 은신 (OTR)
 apply bounty §현상금 저장
-Reapply bounty §현상금 재저장
+Reapply bounty §현상금 재 적용
 Perico island §페리코 섬 보내기
 Terminate CEO §CEO 해고
-Ram player with vehicle §플레이어가 차량과 충돌
+Ram player with vehicle §플레이어가 차량과 부딪치기
 Hurricane §차량 폭풍
 Delete gun §삭제 총
 Explosion gun §폭발 총
-was set as the default language. §가 기본 언어로 설정 되었습니다.
+was set as the default language. §이/가 기본 언어로 설정되었습니다.
 You're missing a file in kekMenuLibs. Please reinstall Kek's menu. §KekMenuLibs 에 있어야 할 파일이 없습니다. Kek's Menu를 재 다운로드 해주세요.
-There's a library file which is the wrong version, please reinstall kek's menu. §설치된 버전이 잘못 되었습니다. Kek's Menu를 재 다운로드 해주세요.
-Turned off script loader §자동 스크립트 실행기 끄기
-Turned on script loader §자동 스크립트 실행기 켜기
-Emptied script loader §빈 자동 스크립트 실행기
-Added §자동 스크립트 실행기:
-to script loader §을/를 자동 스크립트 실행기에 추가했습니다
-is already in the script loader §이미 자동 스크립트 실행기에 존재합니다
+There's a library file which is the wrong version, please reinstall kek's menu. §설치된 버전이 잘못되었습니다. Kek's Menu를 재 다운로드 해주세요.
+Turned off script loader §자동 Lua Script 실행기 끄기
+Turned on script loader §자동 Lua Script 실행기 켜기
+Emptied script loader §자동 Lua Script 실행기가 비어 있습니다.
+Added §자동 Lua Script 실행기:
+to script loader §을/를 자동 Lua Script 실행기에 추가했습니다.
+is already in the script loader §이미 자동 Lua Script 실행기에 존재합니다.
 Couldn't find file §파일을 찾을 수 없습니다
-Removed §자동 스크립트 실행기:
+Removed §자동 Lua Script 실행기:
 from script loader §을/를 지웠습니다.
-autoexec doesn't exist §Autoexec(자동 스크립트 실행기 파일)이 존재하지 않습니다.
-Chat judge:\nRamming §채팅 판단:\n충돌
+Chat judge:\nRamming §채팅 판단:\n부딪치기
 with explosive tankers §폭발 탱커와 함께
-Chat judge:\nKicking §채팅 판단:\n세션에서 추방 중
+Chat judge:\nKicking §채팅 판단:\n세션에서 킥 중
 Chat judge\nCrashing §채팅 판단:\n크래쉬 중
-sent vote kick. Kicking them... §추방 투표를 보냈습니다. 추방 하는 중...
+sent vote kick. Kicking them... §추방 투표를 보냈습니다. 킥 하는 중...
 has: §이/가
 has a modded scid. §스푸핑된 SCID
 has a modded name. §스푸핑된 닉네임
@@ -130,7 +128,7 @@ Recognized §인식 완료
 \nDetected: §\n감지:
 \nTags:\n §\n사유:\n
 Checked blacklist. §블랙리스트를 확인하였습니다.
-Changed the reason this person was added to the blacklist. §블랙리스트에 추가돼서 추가 된 사유가 변경되었습니다.
+Changed the reason this person was added to the blacklist. §블랙리스트에 추가되어 추가 된 사유가 변경되었습니다.
 Added to blacklist. §블랙리스트에 추가했습니다.
 Removed rid. §SCID를 지웠습니다.
 Couldn't find player. §플레이어를 찾을 수 없습니다.
@@ -141,91 +139,81 @@ Session is empty... §세션이 비어 있습니다...
 players to the blacklist.\nChanged reasons for §명의 플레이어를 블랙리스트에 추가합니다.\n변경된 사유:
 people already in the blacklist §플레이어가 이미 블랙리스트에 존재합니다.
 Removed session from the blacklist. §모든 플레이어를 블랙리스트에서 제거 했습니다.
-One of the people further in host queue is your friend! Cancelled. §호스트 순위에 있는 플레이어 중에 당신의 친구가 있군요! 취소되었습니다.
-Kicking §추방 중...
-, flags:\n §, flags:\n
+One of the people further in host queue is your friend! Cancelled. §호스트 순위에 있는 플레이어 중에 친구가 있기 때문에 취소되었습니다.
+Kicking §킥 중...
+, flags:\n §, 모더 감지 사유:\n
 Input too short. §입력한 값이 너무 짧습니다.
 Entry is too short. §항목이 너무 짧습니다.
 Invalid entry. §항목이 유효하지 않습니다.
 Couldn't find entry. §항목을 찾을 수 없습니다.
 Emptied vehicle blacklist. §차량 블랙리스트가 비어있습니다.
 Vehicle blacklist:\nEMP'd §차량 블랙리스트:\nEMP
-Vehicle blacklist:\nKicked §차량 블랙리스트:\n추방
+Vehicle blacklist:\nKicked §차량 블랙리스트:\n킥
 Vehicle blacklist:\nExploding §차량 블랙리스트:\n폭발
 out of their §out of their
-Vehicle blacklist:\nRamming §차량 블랙리스트:\n충돌
+Vehicle blacklist:\nRamming §차량 블랙리스트:\n부딪치기
 Vehicle blacklist:\nCrashed §차량 블랙리스트:\n크래쉬
 for using §쓰이는
 to clipboard. §클립보드에
-Cars spawned. §차량이 소환됨.
-Maxed everyone's cars. §모든 플레이어의 차량을 풀 업그레이드하였습니다.
+Cars spawned. §차량이 소환되었습니다.
+Maxed everyone's cars. §모든 플레이어 차량을 풀 업그레이드하였습니다.
 Please set a waypoint. §목적지를 설정해주세요.
 Entry is already in there! §항목이 이미 해당 위치에 존재합니다!
 Successfully added entry. §항목을 성공적으로 추가했습니다.
 Entry was already added. §항목이 이미 추가 되어있습니다.
 Removed entry. §항목을 제거했습니다.
 is not in a vehicle. §차량 안에 위치하지 않습니다.
-Changed default vehicle. §기본 차량이 변경됐습니다.
-Invalid input. Default value remains the same. §유효하지 않은 입력값. 기본 값이 같게 남도록 하세요.
-Invalid object. §유효하지 않은 물체.
 Hotkey:\nTurned on §핫키:\n꺼짐
 Hotkey:\nTurned off §핫키:\n켜짐
-Hotkey:\nMaxed vehicle. §핫키:\n차량 풀 업그레이드되었습니다
-Hotkey:\nSpawned vehicle. §핫키:\n차량이 소환되었습니다.
+Hotkey:\nMaxed vehicle. §핫키:\n차량 풀 업그레이드
+Hotkey:\nSpawned vehicle. §핫키:\n차량 소환
 Hotkey:\nRepaired vehicle. §Hotkey:\n차량을 수리했습니다.
 vehicle fly. §차량 날기.
 vehicle gun. §차량 총.
 Turned off the keybinding:\n\" §키 설정을 껐습니다:\n\"
 Keybinding not changed. Empty input or input is the same as existing keybinding. §키 설정이 변경되지 않았습니다. 입력이 비어있거나 이미 쓰인 키를 입력했습니다.
-Invalid keybinding.\nIt's case sensitive, get it right. §유효하지 않은 키 설정.\n그것은 민감해서, 올바르게 바꿔야합니다.
-Most of the keys like, left shift. are written in all caps. Example: LSHIFT. §left shift와 같은 대부분의 키들은 모두 대문자로 쓰여집니다. 예시: LSHIFT
+Invalid keybinding.\nIt's case sensitive, get it right. §유효하지 않은 키 설정입니다.\n민감하기 때문에 올바르게 바꿔야합니다.
+Most of the keys like, left shift. are written in all caps. Example: LSHIFT. §left shift와 같은 대부분 키는 모두 대문자로 쓰여집니다. 예시: LSHIFT
 Settings saved! §설정이 저장되었습니다!
 Successfully loaded §성공적으로 불러졌습니다.
 Saved §저장됨
-Saved profile name. §프로필의 이름이 저장됨.
+Saved profile name. §프로필 이름이 저장되었습니다.
 Successfully loaded Kek's menu. §Kek's Menu를 성공적으로 불러왔습니다.
-Type in what car to use §사용할 차량을 입력하세요
-Type in the name of the lua script to add. §추가할 Lua Script의 이름을 입력하세요
-Type in the lua script you want to remove. §삭제할 Lua Script의 이름을 입력하세요 
-Type in why you're adding this person. §이 플레이어을 추가하는 이유를 입력하세요.
+Type in the name of the lua script to add. §추가할 Lua Script 이름을 입력하세요.
+Type in the lua script you want to remove. §삭제할 Lua Script 이름을 입력하세요.
+Type in why you're adding this person. §이 플레이어을 추가하는 사유를 입력하세요.
 Type in social club ID, also known as: rid / scid. §SCID를 입력하세요.
 Type in ip. §IP를 입력하세요.
 Type in their name. §닉네임을 입력하세요.
-Type in the why you're adding everyone. §|모든 플레이어를 추가하는 이유를 입력하세요. 
+Type in the why you're adding everyone. §모든 플레이어를 추가하는 사유를 입력하세요.
 Type in what player you wanna search for. rid / name / ip §찾고 싶은 플레이어의 정보를 입력하세요. SCID / 닉네임 / IP
 Type in what to add. §추가하고 싶은 것을 입력하세요.
 Type in what to remove. §삭제하고 싶은 것을 입력하세요.
-Type in which car to spawn §소환할 차량을 입력하세요
+Type in which car to spawn §소환할 차량을 입력하세요.
 Type in echo delay. §채팅 따라하기 지연 시간을 입력하세요.
 Type in what the bot will react to. §봇이 반응할 채팅을 입력하세요.
 Type in what the bot will say to what you previously typed in. §이전에 입력한 채팅에 대해 봇이 반응할 채팅을 입력하세요.
-Type in what the text the bot reacts to in the entry you wish to remove. §봇이 반응할 채팅 중 삭제하고 싶은 채팅을 입력하세요. 
+Type in what the text the bot reacts to in the entry you wish to remove. §봇이 반응할 채팅 중 삭제하고 싶은 채팅을 입력하세요.
 Type in answer delay. §답변 지연 시간을 입력하세요.
-Type in the name of the ped you want to spawn. §소환하고 싶은 NPC의 이름을 입력하세요.
-Type in the vehicle you want to be default. §기본값으로 두길 원하는 차량을 입력하세요.
 Type in the text you want displayed on the backplate of your cars after maxing them. §번호판에 표시하고 싶은 글자를 입력하세요.
-Type in vehicle speed §차량 속도를 입력하세요
-Type in which car to ram with §부딪칠 차량을 입력하세요
-Type in what object to use. §사용할 오브젝트를 입력하세요
-Type in which car to use for vehicle stuff. §차량 Stuff로 사용할 차량을 입력하세요.
+Type in vehicle speed §차량 속도를 입력하세요.
+Type in which car to ram with §부딪칠 차량을 입력하세요.
 Type in what you want the keybinding to be. §키 설정을 하고 싶은 키를 입력하세요.
-Type in the name of the profile. §프로필의 이름을 입력하세요.
+Type in the name of the profile. §프로필 이름을 입력하세요.
 Log: §기록:
-Kick: §추방:
+Kick: §킥:
 Max vehicle §풀 업그레이드 차량
 Spawn vehicle §차량 소환
 Repair vehicle §차량 수리
 Vehicle fly §차량 날기
 Vehicle gun §차량 총
-Chat judge:\nBlaming §채팅 판단:\n누명킬
-for killing session. §플레이어 전체를 죽이기
 Glitch vehicle §차량 흔들기
 Vehicle blacklist:\nGlitching §차량 블랙리스트:\n차량 흔들기
 Taze player §플레이어 기절시키기
 Perma-cage §Perma-철창
-Exclude friends from attacks §공격에 친구를 포함시키기
+Exclude friends from attacks §공격에 친구 제외
 Self options §플레이어 옵션
-Max all weapons §모든 무기의 차량을 최대로 채우기
+Max all weapons §모든 무기 차량 최대로 채우기
 Randomize all weapons §모든 무기 스펙 랜덤 변경
 Give all weapons §모든 무기 주기
 Random weapon camo §무기 총알 종류 랜덤화
@@ -238,30 +226,30 @@ Has modded armor. §모드 메뉴를 사용한 방탄복을 가지고 있습니�
 Block areas §특정 구역 막기
 Los santos customs §로스 산토스 커스텀
 Ammu-Nations §아뮤네이션
-Casino §카지노 
-Found player you were trying to add in your session. Added all their info. §당신이 추가를 시도하는 세션 내의 플레이어를 찾았습니다. 그 플레이어의 정보를 추가합니다.
+Casino §카지노
+Found player you were trying to add in your session. Added all their info. §추가를 시도하는 세션 내의 플레이어를 찾았습니다. 해당 플레이어의 정보를 추가합니다.
 Rid §SCID
 IP §IP
 Name §닉네임
-Successfully gave §성공적으로 주어진
+Successfully gave §성공적으로 지급된
 vehicle §차량
 godmode. §무적.
-Failed to get control of §제어권 얻기 실패
+Failed to get control of §컨트롤 얻기 실패
 Press key to set to hotkey. §설정할 핫키를 누르세요.
 Turned off the hotkey:\n §핫키 끄기:\n
 Changed §핫키 변경:
 to §을/를 해당 키로:
 Turned off §비활성화
-Max kicks for auto host §호스트에 대한 최대 추방 횟수
+Max kicks for auto host §호스트를 얻기 위한 최대 킥 수
 Type in clear distance limit. §분명하게 보이는 거리 제한을 입력하세요.
 Vehicle clear distance §차량이 분명하게 보이는 거리
 Ped clear distance §NPC가 분명하게 보이는 거리
-Object clear distance §물체가 분명하게 보이는 거리
+Object clear distance §오브젝트가 분명하게 보이는 거리
 Pickup clear distance §주운 아이템이 보이는 거리
-Make nearby peds hostile §근처 NPC들을 적대로 변경
-Kick gun §추방 총
+Make nearby peds hostile §주변 NPC 적대로 변경
+Kick gun §킥 총
 Kidnap player §플레이어 납치
-Swap nearby cars §근처의 차변경
+Swap nearby cars §주변 차량 변경
 Notification spam §알림 도배
 Spawn vehicles maxed §풀 업그레이드 차량 소환
 Delete old vehicle §오래된 차량 삭제
@@ -273,16 +261,16 @@ Spawn vehicles in godmode §무적인 차량 소환
 Vehicle can't be locked on §차량을 잠글 수 없음
 Remove their vehicle §플레이어 차량 삭제
 Freeze session §모든 플레이어 얼리기
-Ai driving §AI 운전(자동 운전)
+Ai driving §AI 운전 (자동 운전)
 Stop before vehicles §차량 앞에 멈추기
 Stop before peds §NPC 앞에 멈추기
 Avoid vehicles §차량 피하기
 Avoid empty vehicles §사람이 타지 않은 차량 피하기
 Avoid peds §NPC 피하기
-Avoid objects §물체들 피하기
+Avoid objects §오브젝트 피하기
 Unknown §빈 칸
 Stop at traffic lights §신호등 신호 지키기
-Use blinkers §눈 먼 사람처럼 운전
+Use blinkers §맹인처럼 운전
 Allow going wrong way §잘못된 길로 가는 것을 허용
 Drive in reverse §반대 방향으로 운전
 Take shortest path §최단 거리 안내
@@ -291,66 +279,64 @@ Ignore roads §길 무시
 Ignore all pathing §모든 길 무시
 Avoid highways §고속도로 우회
 Follow player §플레이어 따라오기
-Wander §떠돌기
+Wander §주변을 돌기
 Drive speed §운전 속도
-Sort search from newest §가장 최근인 항목에서 검색
 Drive style §운전 스타일
-Max nearby cars §근처 차량 풀 업그레이드
-Repair nearby cars §근처 차량 수리
-Give nearby cars godmode §근처에 있는 차량에게 무적 주기
-Nearby cars have no collision §근처에 있는 차량은 충돌을 가지지 않기
+Max nearby cars §주변 차량 풀 업그레이드
+Repair nearby cars §주변 차량 수리
+Give nearby cars godmode §주변 차량에게 무적 주기
+Nearby cars have no collision §주변 차량은 충돌을 가지지 않기
 Clown vans §광대 밴
 Clear all owned entities §자신의 모든 엔티티 삭제
 Take revenge on death §죽음에 대한 복수
 Aim protection §에임 보호
-Nearby cars have zero gravity §근처 차량 무중력 상태로 변경
+Nearby cars have zero gravity §주변 차량 무중력 상태로 변경
 Entity manager §엔티티 관리자
 Entity manager §엔티티 관리자
-Vehicles §차량들
-Peds §NPC들
-Objects §물체들
-Unknown_name §빈_이름
+Vehicles §차량
+Peds §NPC
+Objects §오브젝트
+Unknown_name §알려지지 않은 이름
 Explode §폭발
 Delete §삭제
 Resurrect §부활
 Godmode §무적
-Zero gravity §무중력
+Zero gravity §무 중력
 Teleport in front of player §플레이어 앞으로 순간 이동
 Teleport to entity §엔티티로 순간 이동
 Follow entity §엔티티 따라가기
-Set yourself in seat §자신을 좌석에 앉도록 하기
-All entities of this type §그 종류의 모든 엔티티 
+Set yourself in seat §시트에 앉기
+All entities of this type §해당 종류의 모든 엔티티 
 Set speed §속도 설정
 Disable ped spawning §NPC 소환 비활성화
 Disable vehicle spawning §차량 소환 비활성화
 Cops clear distance §경찰이 분명하게 보이는 거리
 Clear ped tasks §소환한 NPC를 삭제
-kek's chopper §kek's chopper
+kek's chopper §kek의 헬리콥터
 Session trolling §모든 플레이어 트롤링
 Vehicles §차량
-Peds §NPC들
-Objects §물체들
-Pickups §주운 아이템들
-Peds & vehicles §NPC들 & 차량들
+Peds §NPC
+Objects §오브젝트
+Pickups §픽업
+Peds & vehicles §NPC & 차량
 All §모두
-Cops §경찰관들
+Cops §경찰관
 Kill player §플레이어 죽이기
 Send clown van §광대 밴 보내기
-Kick from session §세션에서 추방
+Kick from session §세션에서 킥
 Crash §크래쉬
-Blame for killing session §모든 플레이어 누명 킬
 Random §랜덤
-Ram §충돌
+Ram §부딪치기
 Kick from vehicle §차량에서 쫓아내기
 EMP §EMP
 Glitch their vehicle §플레이어 차량 흔들기
 Remove §삭제
-30k ceo loop §CEO 30K 돈 반복
-Chat logger §채팅 기록 남기기
-Type in chat spam speed §채팅 도배 속도를 입력하세요
+30k ceo loop §CEO $3만 돈 반복
+Chat logger §채팅 기록
+Type in chat spam speed §채팅 도배 속도를 입력하세요.
 Script quick access §빠른 스크립트 접근
 Cleared owned entities. §자신이 소유한 엔티티를 삭제했습니다.
-Exclude you from session trolling §모든 플레이어 트롤링에 자신을 포함
+Exclude you from session trolling §모든 플레이어 트롤링에 자신을 제외
 Spam text §글자 도배
 From clipboard §클립보드
 From clipboard & send each line §클립보드 & 각각의 줄
@@ -362,29 +348,27 @@ Chat commands §채팅 명령어
 Send command list every §명령어 목록 보낼 쿨타임
 Only friends can use commands §친구만 채팅 명령어 사용
 Teleport to §순간 이동
-This player can't use chat commands §이 플레이어를 채팅 명령어를 쓸 수 없도록 하기
+This player can't use chat commands §해당 플레이어 채팅 명령어 사용 불가
 Cage player §플레이어 철창에 가두기
-Kick §추방
+Kick §킥
 Send attack chopper §공격 헬기 보내기
-Float §플레이어 하늘 위로 띄우기    
-Type in name of menyoo vehicle. §싱글 트레이너 차량의 이름을 입력하세요.
+Float §플레이어 하늘 위로 띄우기
+Type in name of menyoo vehicle. §Menyoo 차량의 이름을 입력하세요.
 Godmode detection §무적 감지
 is in godmode. §이/가 무적인 상태입니다.
 Suspicious activity §수상한 활동
 bypassed max speed. §최고 속도 제한이 없어집니다.
 Kill §죽이기
-Clowns §광대
-Kill session §모든 플레이어 죽이기
 Revenge §죽인 사람에게 복수
 Horn boost §경적 부스트
 Notifications §알림
-Auto kicker notifications §자동 추방 알림
-Give nearby players horn boost §근처 플레이어에게 경적 부스트
+Auto kicker notifications §자동 킥 알림
+Give nearby players horn boost §주변 플레이어에게 경적 부스트
 Turn everything off §모든 옵션 비활성화
 First seen §처음으로 본 날짜와 시간
 Last seen §마지막으로 본 날짜와 시간
 Seen §플레이어를 본 횟수:
-times. §번. 
+times. §번
 Load §프로필 불러오기
 Save §프로필 저장
 Change name §프로필 이름 변경
@@ -392,51 +376,51 @@ keyboard §키보드
 controller §컨트롤러
 Hotkeys §핫키 모드
 Turn all on or off §모두 켜거나 끄기
-Type in bounty amount §현상금 양을 입력하세요
+Type in bounty amount §현상금 양을 입력하세요.
 Cage session §모든 플레이어 철창 씌우기
 Drive force multiplier §차량 운전 속도 강제 조정
-The hash was copied to your clipboard, more info in the debug console. §해쉬 값이 복사되었습니다. 더 많은 정보는 디버그 콘솔에서 확인하세요.
+The hash was copied to your clipboard, more info in the debug console. §Hash 값이 복사되었습니다. 더 많은 정보는 디버그 콘솔에서 확인하세요.
 Send command list §명령어 목록 보내기
 Friends can't be targeted §친구는 목표가 되지 않음
 You can't be targeted §자신이 목표가 되지 않음
-Number of responses §반응의 수
-Hotkey change timed out or failed. §핫키 변경 시간이 초과됐거나 변경 실패하였습니다.
+Number of responses §반응 수
+Hotkey change timed out or failed. §핫키 변경 시간이 초과됐거나 변경을 실패하였습니다.
 Turn off §끄기
-1 key §하나의 키
-2 keys §두 개의 키
-3 keys §세 개의 키
+1 key §한 개 키
+2 keys §두 개 키
+3 keys §세 개 키
 Clear entities §엔티티 삭제
 Set vehicle §차량 설정
 Tp personal vehicle §개인 차량으로 순간 이동
-Hotkey:\nTeleported into personal vehicle. §핫키:\n개인 차량 안으로 텔레포트가 완료 되었습니다.
+Hotkey:\nTeleported into personal vehicle. §핫키:\n개인 차량 안으로 텔레포트가 완료되었습니다.
 Auto tp to waypoint §목적지 자동 순간 이동
-Turn on script loader §자동 스크립트 불러오기 켜기
-Turn off script loader §자동 스크립트 불러오기 끄기
-With your name §자신의 닉네임
+Turn on script loader §자동 Lua Script 불러오기 켜기
+Turn off script loader §자동 Lua Script 불러오기 끄기
+With your name §자신 닉네임
 Anonymous §익명
 Change amount §현상금 액수 변경
-With random name §랜덤의 닉네임
+With random name §랜덤 닉네임
 Set bounty §현상금 설정
 Chat judge reaction §채팅 판단 반응
 Chat spammer §채팅 도배기
 Clear entities §엔티티 삭제
 Modify chatbot §채팅봇 수정
 Hotkey mode §핫키 모드
-Driver's seat §운전사의 자리
-Front passenger seat §앞의 탑승석
+Driver's seat §운전사 자리
+Front passenger seat §앞 탑승석
 Left backseat §좌측 뒷자리
 Right backseat §우측 뒷자리
 Extra seat §추가 자리
 Commands §명령어
 CEO §CEO
-Explode with blame §누명킬
+Explode with blame §누명 킬
 Taze §기절
 Invite to apartment §아파트로 초대
 Cage §케이지
 Give weapon §무기 주기
 Remove weapon §무기 지우기
-Send clipboard to chat §클립보드를 채팅으로 쓰고 보내기
-Clipboard to chat §클립보드를 채팅에 쓰기
+Send clipboard to chat §클립보드 내용을 채팅에 쓰고 보내기
+Clipboard to chat §클립보드 내용을 채팅에 쓰기
 Send to session §모든 플레이어에게 보내기
 Army §군대
 Teleport session §모든 플레이어 순간 이동
@@ -445,17 +429,17 @@ Force field radius §포스 필드 반지름
 Away from you §본인에서 떨어져서
 Towards you §본인을 향하여
 Entities §엔티티
-position §위치
-hash §해쉬
-pos without dec §dec가 없는 좌표값
+position §좌표
+hash §Hash
+pos without dec §소수점 값이 없는 좌표값
 Copy to clipboard §클립보드에 복사
 model name §모델 이름
 name §닉네임
-rid §RID
+rid §SCID
 ip §IP
 host token §호스트 토큰
 Add §추가
-Exclude §포함
+Exclude §제외
 players §플레이어
 friends §친구
 no one §아무도 포함 안함
@@ -467,21 +451,20 @@ Send §보내기
 Rid §SCID
 IP §IP
 Host token §호스트 토큰
-Position §위치
-Position without dec §dec가 없는 위치
+Position §좌표
+Position without dec §소수점 값이 없는 좌표
 Misc §기타
-Ped model §NPC 모델
 Spawn §소환
-Vehicle hash §차량 해쉬값
-Ped hash §NPC 해쉬값
+Vehicle hash §차량 Hash 값
+Ped hash §NPC Hash 값
 me §나에게
-far away §멀리
+far away §먼 곳
 Vehicle §차량
 Max §풀 업그레이드
 Repair §수리
 Xml vehicles §Xml 차량 목록
 Found no vehicle to save. §저장할 차량을 찾지 못했습니다.
-Existing file found. Please choose another name. §존재하는 이름의 파일을 찾았습니다. 다른 이름으로 지정하세요.
+Existing file found. Please choose another name. §이미 같은 이름인 파일이 존재합니다. 다른 이름으로 선택하세요.
 Illegal characters detected. Please try again. Illegal chars: §유효하지 않은 글자가 감지되었습니다. 다시 시도하세요. 유효하지 않은 글자:
 Refresh list §새로고침 목록
 Cancelled. §취소되었습니다.
@@ -491,58 +474,55 @@ Unglitch §차량 흔들지 않기
 Block §막기
 Unblock §막지 않음
 Type in what to spam in chat §채팅 도배할 문구를 입력하세요
-Xml file is empty. §XML 파일이 비어있습니다.
-File name §파일 이름
 Warning: missing "%" before any of these characters; §경고: 다음 글자 앞에 "%"가 없습니다;
 This is fine, just note that if you don't put the "%" before those characters, they mean something else. §"%"를 이 글자 앞에 붙이지 않으면 다른 의미가 된다는 점을 기억하세요.
 Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §잘못된 패턴입니다. "[", "]", "(", ")" 또는 "%"가 누락되어 있을 가능성이 높습니다. "[]"일 수도 있고, "[]"가 오류를 발생할 수 있습니다.
 Give §지급
-Attackers can't use planes. Cancelled. §공격자들이 비행기를 사용하지 못합니다. 취소되었습니다.
+Attackers can't use planes. Cancelled. §공격자가 비행기를 사용하지 못합니다. 취소되었습니다.
 Chance to reply §답할 기회
-Missing necessarry file. Please reinstall. Read the README that comes with the script for more information. §필수적인 파일이 없습니다. 다시 다운로드 받으세요. '사용 전 읽어주세요' 파일을 읽으면 Lua Script의 더 많은 정보에 대해 알게 될겁니다.
+Missing necessarry file. Please reinstall. Read the README that comes with the script for more information. §필수적인 파일이 없습니다. 다시 다운로드 받으세요. '사용 전 읽어주세요' 파일을 읽으면 Lua Script에 대한 더 많은 정보를 알게 될겁니다.
 New profile §새로운 프로필
-Type in name of vehicle §차량의 이름을 입력하세요
+Type in name of vehicle §차량 이름을 입력하세요
 Vehicle name §차량 이름
-Save to Menyoo vehicles §싱글 트레이너 차량으로 저장
+Save to Menyoo vehicles §Menyoo 차량으로 저장
 Clone §클론
-Send Menyoo vehicle attacker §차량 탑승한 싱글 트레이너 공격자 보내기 
-Spawn Menyoo vehicle §싱글 트레이너 차량 소환
-Menyoo vehicles §싱글 트레이너 차량
+Send Menyoo vehicle attacker §차량 탑승한 Menyoo 공격자 보내기
+Menyoo vehicles §Menyoo 차량
 Create new judger profile §새로운 판단기 프로필 만들기
 Create new chatbot profile §새로운 채팅 봇 프로필 만들기
 There can't be a ".." in the name. There also can't be a "." at the end of the name. §이름에 ".." 가 있을 수 없습니다. 이름 끝에 "." 도 있을 수 없습니다.
 Unsupported file format. §지원하지 않은 파일 형식입니다.
 How to use §사용 방법
 Part §파트
-Failed to load profile. Error at line §프로필 불러오기를 실패했습니다. 줄에 오류가 있음
-There are 2 special texts for the chat judger: [BLACKLIST] = Add people to the blacklist\n[JOIN TIMEOUT] = Add people to 2take1's join timeout. §채팅 판단기에 2개의 특이한 글자가 있습니다: [BLACKLIST] = 블랙리스트에 추가할 사람\n[JOIN TIMEOUT] = 2take1의 조인 타임아웃에 추가할 사람.
+Failed to load profile. Error at line §프로필 불러오기를 실패했습니다. 줄에 오류가 있습니다.
+There are 2 special texts for the chat judger: [BLACKLIST] = Add people to the blacklist\n[JOIN TIMEOUT] = Add people to 2take1's join timeout. §채팅 판단기에 2개의 특이한 글자가 있습니다: [BLACKLIST] = 블랙리스트에 추가할 사람\n[JOIN TIMEOUT] = 2Take1의 조인 타임아웃에 추가할 사람.
 Examples of how to use:\nmoney[BLACKLIST] -- This will add anyone saying the word money in a sentence to the blacklist §사용 방법의 예시:\n돈[BLACKLIST] -- 이렇게 하면 누구나 블랙리스트에 money 라는 단어를 추가할 수 있습니다.
 money[JOIN TIMEOUT][BLACKLIST] -- This will add anyone saying money to the timeout and blacklist. §돈[JOIN TIMEOUT][BLACKLIST] -- 이것은 누군가 money를 말한다면 타임아웃과 블랙리스트에 추가될 것입니다.
 There are 3 special texts for the chatbot:\n[PLAYER_NAME] -- This grabs the player sending the message's name. §채팅 봇에 3개의 특이한 글자가 있습니다:\n[PLAYER_NAME] -- 이것은 플레이어가 보내는 메시지의 이름을 캐치할 것입니다. 
 [MY_NAME] -- This gets your name\n[RANDOM_NAME] -- This gets a random player's name. §[MY_NAME] -- 당신의 이름을 얻을 수 있습니다\n[RANDOM_NAME] -- 이것은 랜덤 플레이어의 이름을 얻을 수 있습니다.
-When adding entries, it's important to know about patterns. A pattern could look like this: %s+money%s+. This would look for people using money in the middle of a sentence. §항목을 추가할 때는 패턴에 대해 아는 것이 중요합니다. 패턴은 다음과 같을 수 있습니다: %s+money%s+. 이것은 문장 중간에서 money 라는 단어를 사용하는 사람들을 찾을 것입니다.
+When adding entries, it's important to know about patterns. A pattern could look like this: %s+money%s+. This would look for people using money in the middle of a sentence. §항목을 추가할 때는 패턴에 대해 아는 것이 중요합니다. 패턴은 다음과 같을 수 있습니다: %s+money%s+. 이 기능은 문장 중간에서 money 라는 단어를 사용하는 플레이어를 찾을 것입니다.
 Note that these characters: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" have special meanings. Google "Lua magic characters" to find out what they mean. §문자 "*", "+", "-", "^", "$", "?", "?", "[]", "("&")"는 특별한 의미가 있습니다. 구글에 "Lua magic characters" 를 검색하면 찾을 수 있습니다.
-For further assistance, join the Kek's menu discord. An invite comes with the script. It is in a file called "Discord invite.txt". §도움이 필요하시면 Kek's menu 디스코드 서버에 참여하세요. 초대장은 Lua Script와 함께 제공됩니다. "Discord invest.txt" 라는 파일에 있습니다.
+For further assistance, join the Kek's menu discord. An invite comes with the script. It is in a file called "Discord invite.txt". §도움이 필요하시면 Kek's menu 디스코드 서버에 참여하세요. 초대장은 Lua Script와 함께 제공됩니다. "Discord invite.txt" 라는 파일에 있습니다.
 Get parachute §낙하산 얻기
-Anti stuck §Stuck 방지
+Anti stuck §갇힘 방지
 Entry already exists in this profile. §이 프로필에 항목이 이미 존재합니다.
-Clear tasks §작업 클리어
+Clear tasks §작업 초기화
 Disable weapons §무기 발사 불가
-Mad peds in their car §미친 NPC들 플레이어 차량에 
+Mad peds in their car §미친 NPC 플레이어 차량에 
 Fill §채우기
 Fill & steal §채우기 & 훔치기
 Fill, steal & run away §채우기, 훔치기 & 달아나기
 Display time §시간 표시
 Type in where horizontally the time is displayed. §시간을 가로로 표시할 위치를 입력하세요.
-Type in where vertically the time is displayed. §시간을 수직으로 표시할 위치를 입력하세요.
-Type in RGB §RGB를 입력하세요
+Type in where vertically the time is displayed. §시간을 세로로 표시할 위치를 입력하세요.
+Type in RGB §RGB를 입력하세요.
 Display time opacity §시간 표시 불투명도
 Opacity §불투명도
-Type in the size of the text. §글자의 크기를 입력하세요.
+Type in the size of the text. §글자 크기를 입력하세요.
 Size §크기
 Font §폰트
 time. §번.
-Outline § 글자 강조
+Outline §글자 강조
 Hotkey:\nTeleported forward. §핫키:\n앞으로 순간 이동되었습니다.
 Teleport forward §앞으로 순간 이동
 Vehicle blacklist:\nstealing §차량 블랙리스트:\n훔치기
@@ -571,17 +551,16 @@ Military §군용
 Commercial §산업용
 Trains §기차
 Open Wheel §오픈 휠
-Menyoo maps §싱글 맵
-Type in name of menyoo map. §싱글 맵의 이름을 입력하세요.
+Menyoo maps §Menyoo 맵
+Type in name of menyoo map. §Menyoo 맵 이름을 입력하세요.
 Set where you spawn §소환 위치 설정
 Teleport to map spawn §맵 소환 위치로 순간 이동
-Found no spawn. §소환할 것을 찾지 못했습니다.
 Failed to load spawn coordinates. §소환할 좌표를 찾는데 실패했습니다.
 Unload §언로드
 Race ghosts §고스트 레이스
 Record race §레이스 기록
-Type in name of race ghost. §고스트 레이스의 이름을 입력하세요.
-You must be in a vehicle in order to record. §
+Type in name of race ghost. §고스트 레이스 이름을 입력하세요.
+You must be in a vehicle in order to record. §기록하기 위해 차량에 있어야 합니다.
 Teleport to start §시작점으로 순간 이동
 has finished lap §랩이 끝남
 Failed to load file. §파일 불러오기를 실패했습니다.
@@ -597,8 +576,8 @@ Log to console §콘솔에 기록
 Still §Still
 Upwards §업워드
 Downwards §다운워드
-Stretch §스트레치
-Type in stretch §스트레치 값 입력
+Stretch §Stretch
+Type in stretch §Stretch 값 입력
 Atomize §아토마이저
 This feature doesn't work on yourself. §이 기능은 자신에게 작동하지 않습니다.
 minute §분
@@ -616,14 +595,14 @@ Toggle engine §엔진 켜놓기
 Show sphere §구 보이기
 Lock player inside §플레이어 차량 내부 잠금
 Anti chat spam §채팅 도배 방지
-kicked for spamming chat. §채팅 도배로 인해 추방했습니다.
-kicked for sending the same message 3 times in a row. §한 줄에 같은 메시지를 3회 이상 보내서 추방했습니다.
-Kick & add to timeout §추방 & 타임아웃에 추가
+kicked for spamming chat. §채팅 도배로 인해 킥했습니다.
+kicked for sending the same message 3 times in a row. §한 줄에 같은 메시지를 3회 이상 보내서 킥했습니다.
+Kick & add to timeout §킥 & 타임아웃에 추가
 Crash & add to timeout §크래쉬 & 타임아웃에 추가
-Type in name of a player or regular feature. §플레이어의 이름이나 일반적인 기능의 이름을 적으세요.
+Type in name of a player or regular feature. §플레이어 이름이나 일반적인 기능 이름을 입력하세요.
 Has modded weapons. §핵 사용 무기를 가지고 있습니다.
 This feature doesn't work on yourself. §이 기능은 자신에게는 작동하지 않습니다.
-Type in name of entity. §엔티티의 이름을 입력하세요.
+Type in name of entity. §엔티티 이름을 입력하세요.
 Kill engine §엔진 부수기
 Heal engine §엔진 복구
 Failed to spawn vehice. Driver vehicle was an invalid model hash. §차량 소환 실패, 운전자 차량은 유효하지 않은 모델입니다.
@@ -631,20 +610,56 @@ Failed to spawn vehicle. Invalid vehicle hash. §차량 소환 실패, 유효하
 Failed to spawn vehicle. Vehicle limit was reached §차량 소환 실패, 제한에 도달했습니다.
 Failed to spawn §차량 소환 실패
 Vehicle limit was reached. §차량 제한에 도달했습니다.
-Save settings and reset lua state to load in debug mode. §디버그 모드에선 설정 저장하고 Lua 재설정을 하세요. 
-All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §모든 Lua Script가 느리게 작동하고 렉이 걸릴 것입니다. 더 많은 오류가 발생할 것이고 특히, 다른 Lua Script를 작동 중이라면요.
+Save settings and reset lua state to load in debug mode. §디버그 모드에선 설정을 저장하고 Lua 재 설정을 하세요. 
+All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §모든 Lua Script가 느리게 작동하고 렉이 걸릴 것입니다. 특히, 다른 Lua Script를 작동 중이라면 더 많은 오류가 발생할 것입니다.
 Only use this mode if you intend to find bugs. §버그를 찾으려고 할 때만 이 기능을 사용하세요.
 Failed to find reference coordinates. §참고 좌표를 찾는 것을 실패했습니다.
 The player must be an associate of an organization to use this. They can't be the ceo. §플레이어가 이를 사용하려면 조직의 구성원이어야 합니다. ceo는 사용할 수 없습니다.
-The loop doesn't work on yourself. §이 반복은 자신에게는 작동하지 않습니다.
-This feature requires trusted mode to be toggled on. §이 기능은 Trusted Mode가 켜져 있어야 합니다.
-Perma BST §영구 불 샤크 테스테론
 Eclipse §이클립스
-Reset orbital cannon cooldown §오비탈 캐넌 쿨타임 초기화
-Reset Kosatka missile cooldown §코사트카 미사일 쿨타임 초기화
 Also known as §또한 알려져 있습니다:
-Check rid in also known as §알려진 RID 확인: 
-Check name in also known as §알려진 닉네임 확인:
-Check ip in also known as §알려진 IP 확인:
-What is known for §알려진 것:
+Check rid in also known as §알고 있는 SCID 확인 
+Check name in also known as §알고 있는 닉네임 확인
+Check ip in also known as §알고 있는 IP 확인
+What is known for §알고 있는 것:
 This player already have a bounty set on them. §이 플레이어는 이미 현상금이 걸려 있습니다.
+Team §팀
+What ped to spawn §소환할 NPC
+Spawned §소환됨
+invalid models §유효하지 않은 모델
+Reached ped spawn limit. Cancelling menyoo spawn. §NPC 소환 제한이 걸렸습니다. Menyoo 소환을 취소하는 중입니다.
+Reached vehicle spawn limit. Cancelling menyoo spawn. §차량 소환 제한이 걸렸습니다. Menyoo 소환을 취소하는 중입니다.
+Reached object spawn limit. Cancelling menyoo spawn. §오브젝트 소환 제한이 걸렸습니다. Menyoo 소환을 취소하는 중입니다.
+Object limit §오브젝트 제한
+Ped limit §NPC 제한
+Vehicle limit §차량 제한
+Draw entity limits §엔티티 제한 표시
+Reset settings to defaults §설정 기본값으로 초기화
+search newest to oldest §최신 순서부터 검색
+search oldest to newest §오래된 순서부터 검색
+Blacklist reason §블랙리스트 사유
+Is added to join timeout §조인 타임아웃에 추가되었는지
+isn't blacklisted §블랙리스트에 추가되지 않음
+Type in name of entity. §엔티티 이름을 입력하세요.
+Invalid model name. §유효하지 않은 모델 이름입니다.
+Vote kick §추방 투표
+Draw number of se sent §보낸 스크립트 이벤트 표시
+Number of script events sent §보낸 스크립트 이벤트 숫자
+You can't use this on yourself. §자신에게는 이 기능을 사용할 수 없습니다.
+The 30k loop for session is already toggled on. §CEO 3만$ 돈 반복이 이미 활성화되어있습니다.
+Scroll through messages §메시지 스크롤
+Chat log §채팅 기록
+Mark as modder §모더로 마킹
+Don't reapply marks §모더 마킹 재 적용 X
+Reapply marks §모더 마킹 재 적용
+Failed to get control. If you're blocking "give control" in net event hooks, disable it. §컨트롤을 얻는 것을 실패했습니다. 만약 네트워크 이벤트 훅에서 "컨트롤 지급" 프로텍션을 활성화했다면, 비활성화하세요.
+Failed to spawn driver vehicle for unknown reason. §알려지지 않은 이유로 드라이버 차량을 소환하는 것을 실패했습니다.
+Copied to clipboard. §클립보드에 복사되었습니다.
+Ini vehicles §Ini 차량
+This can't be used in singleplayer. §싱글 플레이에서 사용할 수 없는 것입니다.
+Tried to spawn a xml vehicle with ini spawner. §xml 차량을 ini 차량 소환기에 사용하려고 시도했었습니다.
+Failed to attach an entity. Check debug console for more details. §엔티티를 부착하는 것을 실패했습니다. 자세한 정보는 디버그 콘솔을 확인하세요.
+This file doesn't exist or has an invalid file name. §해당 파일이 존재하지 않거나 유효하지 않은 파일 이름을 가지고 있습니다.
+Failed to set coordinates. §좌표를 설정하는 것을 실패했습니다.
+Failed to cleanup crash entity while it is still in memory. §크래쉬 엔티티를 치우는 것을 실패했습니다: 해당 엔티티가 이미 메모리에 있기 때문입니다.
+Crash entity went out of memory before it could be cleaned up. §크래쉬 엔티티가 메모리 밖에 있습니다: 이미 해당 엔티티를 치울 수 있었기 때문입니다.
+Saved map. §저장된 맵입니다.
