@@ -76,7 +76,6 @@ Echo chat §启用复读机
 Answer delay chatbot §聊天信息回应发送延迟
 Chat bot §启用聊天机器人
 Max car §载具最大化升级
-Change default vehicle §更改默认载具
 Change backplate text §更改车牌文本
 Spawn vehicle §生成载具
 Vehicle fly speed, click to type §载具飞行速度
@@ -119,7 +118,6 @@ is already in the script loader §已在脚本加载器中
 Couldn't find file §找不到文件
 Removed §已取消.
 from script loader §脚本自动加载
-autoexec doesn't exist §autoexec不存在
 Chat judge:\nBounty set on §聊天审判: 启动
 Chat judge:\nRamming §聊天审判:\n载具撞击
 with explosive tankers §用油罐车
@@ -159,9 +157,6 @@ Please set a waypoint. §请先设置一个标记点.
 Successfully added entry. §成功添加条目
 Removed entry. §已删除条目
 is not in a vehicle. §不在载具内
-Changed default vehicle. §已更改默认载具
-Invalid input. Default value remains the same. §无效输入.默认值保持不变
-Invalid object. §无效的物体
 Hotkey:\nTurned on §快捷键:\n已开启
 Hotkey:\nTurned off §快捷键:\n已关闭
 Hotkey:\nMaxed vehicle. §快捷键:\n已最大化升级载具
@@ -178,7 +173,6 @@ Successfully loaded §成功加载
 Saved §已保存
 Saved profile name. §已保存配置名称.
 Successfully loaded Kek's menu. §成功加载Kek菜单.
-Type in what car to use §请输入要发射的载具名称.
 Type in the name of the lua script to add. §请输入你要添加的LUA脚本名称.
 Type in the lua script you want to remove. §请输入你要删除的LUA脚本名称.
 Type in why you're adding this person. §请输入添加原因.
@@ -195,13 +189,9 @@ Type in what the bot will react to. §请输入触发后输入的信息
 Type in what the bot will say to what you previously typed in. §请输入检测的内容
 Type in what the text the bot reacts to in the entry you wish to remove. §请输入要删除的条目
 Type in answer delay. §请输入应答延迟
-Type in the name of the ped you want to spawn. §请输入想要生成的NPC
-Type in the vehicle you want to be default. §请输入你想设置的默认载具
 Type in the text you want displayed on the backplate of your cars after maxing them. §请输入车牌的文本信息
 Type in vehicle speed §请输入载具速度
 Type in which car to ram with §请输入想要撞击的载具
-Type in what object to use. §请输入要发射的物体名称.
-Type in which car to use for vehicle stuff. §请输入要更改的默认载具.
 Type in what you want the keybinding to be. §请按下你想要绑定的按键
 Type in the name of the profile. §请输入配置文件名称
 Log: §记录
@@ -211,8 +201,6 @@ Spawn vehicle §生成载具
 Repair vehicle §修理载具
 Vehicle fly §载具飞行
 Vehicle gun §载具枪
-Chat judge:\nBlaming §聊天审判:\n正在栽赃
-for killing session. §击杀战局玩家
 Glitch vehicle §故障载具
 Vehicle blacklist:\nGlitching §载具黑名单:\n故障载具
 Taze player §电击玩家
@@ -285,7 +273,6 @@ waypoint §标记点
 Follow player §尾随他
 Wander §到处闲逛
 Drive speed §驾驶速度
-Sort search from newest §从最新排序搜索
 Drive style §驾驶风格
 Max nearby cars §最大化升级附近的载具
 Repair nearby cars §修理附近的载具
@@ -329,7 +316,6 @@ Kill player § 击杀玩家
 Send clown van § 发送攻击小丑
 Kick from session §踢出战局
 Crash §崩溃
-Blame for killing session §栽赃杀死战局所有人
 Random §随机
 Bounty §给予赏金
 Ram §撞击
@@ -359,13 +345,11 @@ Cage player §套笼子
 Kick §踢出战局
 Send attack chopper §派出攻击直升机
 Float §原地升天
-Type in name of menyoo vehicle.§请输入模组载具名称.
+Type in name of menyoo vehicle. §请输入模组载具名称.
 Crash §崩溃玩家
 Godmode detection §无敌检测
 is in godmode. §开了无敌
 Kill §击杀
-Clowns §小丑面包车
-Kill session §栽赃
 Revenge §复仇
 Turned off §关闭
 Horn boost §喇叭加速
@@ -463,7 +447,6 @@ Host token §主机令牌
 Position §位置
 Position without dec §带小数的位置信息
 Misc §其他
-Ped model §输入NPC
 Spawn §生成
 Vehicle hash §载具哈希
 Ped hash §NPC哈希
@@ -483,8 +466,6 @@ Unglitch §取消故障
 Block §阻止进入
 Unblock §取消阻止
 Type in what to spam in chat §请输入文本内容
-Xml file is empty. §Xml文件为空
-File name §文件名称
 Warning: missing "%" before any of these characters; §警告:在这些字符前面缺少 "%" .
 This is fine, just note that if you don't put the "%" before those characters, they mean something else. §这还好,但请注意,如果你不把 "%" 放在这些字符前,它们就意味着别的东西.
 Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §无效模式.很可能在某处缺少 “[” 、“]” 、“(” 、“)” 或 “%”.也可能是“[]”,有“[]”会导致错误
@@ -498,7 +479,6 @@ Vehicle name §载具名称
 Save to Menyoo vehicles §保存为模组载具
 Clone §复制
 Send Menyoo vehicle attacker §派出模组NPC攻击
-Spawn Menyoo vehicle §生成模组载具
 Menyoo vehicles §模组载具
 Type in name of menyoo vehicle. §请输入模组载具名称
 Create new judger profile §创建新的聊天审判配置文件
@@ -569,7 +549,6 @@ Menyoo maps §Menyoo地图
 Type in name of menyoo map. §请输入Menyoo地图文件名称.
 Set where you spawn §设置当前位置为地图生成后的位置
 Teleport to map spawn §传送到地图生成后的位置
-Found no spawn. §没有找到生成的地图.
 Failed to load spawn coordinates. §无法加载生成坐标.
 Unload §取消加载
 Race ghosts §比赛幽灵
@@ -628,3 +607,51 @@ Save settings and reset lua state to load in debug mode. §现在去保存脚本
 All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §所有脚本都会运行得更慢,并且可能会出现掉帧.会出现更多的错误,特别是当你一起运行其他脚本的时候.
 Only use this mode if you intend to find bugs. §只有在你想找BUG的时候才使用此模式.
 Failed to find reference coordinates. §查找参考坐标失败
+The player must be an associate of an organization to use this. They can't be the ceo. §该玩家必须组织成员才能对他使用.他不能是CEO.
+Eclipse §日蚀
+Also known as §是否遇见过
+Check rid in also known as §检查rid是否遇见过
+Check name in also known as §检查名称是否遇见过
+Check ip in also known as §检查ip是否遇见过
+What is known for §已知的内容有
+This player already have a bounty set on them. §该玩家已被设置了赏金.
+Team §团队
+What ped to spawn §输入要生成的NPC
+Spawned §已生成
+invalid models §无效模型
+Reached ped spawn limit. Cancelling menyoo spawn. §已达到NPC生成限制.已取消menyoo生成.
+Reached vehicle spawn limit. Cancelling menyoo spawn. §已达到载具生成限制.已取消menyoo生成.
+Reached object spawn limit. Cancelling menyoo spawn. §已达到物体生成限制.已取消menyoo生成.
+Object limit §物体限制
+Ped limit §NPC限制
+Vehicle limit §载具限制
+Draw entity limits §显示实体限制
+Reset settings to defaults §将设置重置为默认值
+search newest to oldest §从最新到最旧搜索
+search oldest to newest §从最旧到最新搜索
+Blacklist reason §黑名单原因
+Is added to join timeout §添加到加入超时中
+isn't blacklisted §未添加到黑名单
+Type in name of entity. §清输入实体名称.
+Invalid model name. §模型名称无效.
+Vote kick §投票踢
+Draw number of se sent §显示发送次数
+Number of script events sent §发送脚本事件次数
+You can't use this on yourself. §你不能对自己使用这个
+The 30k loop for session is already toggled on. §战局3万奖励金循环已打开.
+Scroll through messages §滚动信息
+Chat log §聊天日志
+Mark as modder §标记为作弊者
+Don't reapply marks §不要重复标记
+Reapply marks §重复标记
+Failed to get control. If you're blocking "give control" in net event hooks, disable it. §未能获得控制权.如果你在网络事件中启用了阻止"给予控制",请关闭它.
+Failed to spawn driver vehicle for unknown reason. §因未知原因未能生成驾驶载具.
+Copied to clipboard. §已复制到剪贴板.
+Ini vehicles §Ini载具
+This can't be used in singleplayer. §这不能在故事模式中中使用.
+Tried to spawn a xml vehicle with ini spawner. §已尝试使用Ini载具生成xml载具.
+Failed to attach an entity. Check debug console for more details. §尝试附加一个实体时失败了. 检查调试控制台以获取更多详细信息.
+This file doesn't exist or has an invalid file name. §此文件不存在或文件名无效.
+Failed to set coordinates. §设置坐标失败.
+Failed to cleanup crash entity while it is still in memory. §清理崩溃实体失败,它仍在内存中.
+Crash entity went out of memory before it could be cleaned up. §崩溃实体在清理之前内存不足.

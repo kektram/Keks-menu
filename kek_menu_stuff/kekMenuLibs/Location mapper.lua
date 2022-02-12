@@ -1,6 +1,7 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
 local essentials <const> = require("Essentials")
+local memoize <const> = require("Memoize")
 local enums <const> = require("Enums")
 
 local location_mapper <const> = {version = "1.0.1"}
@@ -7638,14 +7639,14 @@ end
 
 local function attempt_ground_z(...)
 	local pos = ...
-	if essentials.get_distance_between(essentials.get_ped_closest_to_your_pov(), pos) < 1100 then
-		local offset = v3()
+	if memoize.get_entity_coords(essentials.get_ped_closest_to_your_pov()):magnitude(pos) < 1100 then
+		local offset = memoize.v3()
 		for i = 1, 60, 3 do
 			local temp = 825
 			local Z = 825
 			local status
 			if i > 1 then
-				offset = v3(math.random(-4 - math.min(i, 21), 4 + math.min(i, 21)), math.random(-4 - math.min(i, 21), 4 + math.min(i, 21)), 0)
+				offset = memoize.v3(math.random(-4 - math.min(i, 21), 4 + math.min(i, 21)), math.random(-4 - math.min(i, 21), 4 + math.min(i, 21)), 0)
 			end
 			while temp == Z do
 				status, temp = gameplay.get_ground_z(v3(pos.x + offset.x, pos.y + offset.y, Z))
@@ -7674,17 +7675,17 @@ function location_mapper.get_set_of_vectors(...)
 	max_height <const> = ...
 	local coords <const> = {}
 	for i = 1, 50 do
-		local pos2 <const>, status <const> = attempt_ground_z(pos + essentials.get_random_offset(-max_distance, max_distance, min_distance, max_distance))
+		local pos2 <const>, status <const> = attempt_ground_z(pos + kek_entity.get_random_offset(-max_distance, max_distance, min_distance, max_distance))
 		if status 
 		and pos2.z < max_height 
 		and pos2.z > max_height - 13 
-		and essentials.get_distance_between(pos, pos2) >= min_distance then
+		and pos:magnitude(pos2) >= min_distance then
 			coords[#coords + 1] = pos2
 		end
 	end
 	if #coords == 0 then
 		for i = 1, #gta5_map do
-			local distance <const> = essentials.get_distance_between(pos, gta5_map[i])
+			local distance <const> = pos:magnitude(gta5_map[i])
 			if distance >= min_distance 
 			and distance <= max_distance 
 			and gta5_map[i].z < max_height 
@@ -7699,7 +7700,7 @@ end
 function location_mapper.get_closest_vector_to_pos(...)
 	local pos <const> = ...
 	local distance = 99999
-	local pos2 = v3()
+	local pos2 = memoize.v3()
 	for i = 1, #gta5_map, 4 do
 		local temp <const> = pos:magnitude(gta5_map[i])
 		if temp < distance then

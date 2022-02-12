@@ -1,4 +1,4 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
 local ped_mapper <const> = {version = "1.2.7"}
 local essentials <const> = require("Essentials")
@@ -989,6 +989,13 @@ local ped_models <const> = essentials.const({
 	-- Animals --
 })
 
+ped_mapper.BLACKLISTED_PEDS = essentials.const({ -- These will crash yours or other's game
+	[762327283] = "slod_small_quadped",
+	[1057201338] = "slod_human",
+	[-2056455422] = "slod_large_quadped",
+	[2238511874] = "slod_large_quadped" -- In case unsigned version is tried
+})
+
 ped_mapper.ANIMAL_HASHES = essentials.const({
 	3462393972,
 	1462895032,
@@ -1026,16 +1033,9 @@ ped_mapper.ANIMAL_HASHES = essentials.const({
 	[gameplay.get_hash_key("a_c_chop_02")] = "a_c_chop_02"
 })
 
-ped_mapper.BLACKLISTED_PEDS = essentials.const({ -- These will crash yours or other's game
-	[762327283] = "slod_small_quadped",
-	[1057201338] = "slod_human",
-	[-2056455422] = "slod_large_quadped",
-	[2238511874] = "slod_large_quadped" -- In case unsigned version is tried
-})
-
 ped_mapper.PED_HASHES = {}
 for hash, model in pairs(ped_models) do
-	essentials.assert(streaming.is_model_a_ped(hash), "Invalid ped in ped_models table: "..tostring(hash))
+	essentials.assert(streaming.is_model_a_ped(hash), "Invalid ped in ped_models table:", hash)
 	if not model:find("a_c", 1, true) then -- To make sure animal hashes are the 34 last in the array.
 		ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = hash
 	end
@@ -1087,18 +1087,18 @@ function ped_mapper.get_random_ped(Type)
 	elseif Type == "only animals" then
 		return ped_mapper.ANIMAL_HASHES[math.random(1, #ped_mapper.ANIMAL_HASHES)]
 	else
-		essentials.assert(false, "Invalid random ped type.")
+		essentials.assert(false, "Invalid random ped type.", Type)
 	end
 end
 
 function ped_mapper.get_model_from_hash(hash)
-	essentials.assert(streaming.is_model_a_ped(hash), "Expected a valid ped hash: "..hash)
-	essentials.assert(ped_models[hash], "Failed to get information about a valid, ped hash: "..hash)
+	essentials.assert(streaming.is_model_a_ped(hash), "Expected a valid ped hash:", hash)
+	essentials.assert(ped_models[hash], "Failed to get information about a valid, ped hash:", hash)
 	return ped_models[hash]
 end
 
 function ped_mapper.get_hash_from_model(model)
-	essentials.assert(model_to_hash[model], "Invalid ped model.")
+	essentials.assert(model_to_hash[model], "Invalid ped model.", model)
 	return model_to_hash[model]
 end
 

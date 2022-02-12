@@ -1,9 +1,12 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
 local enums <const> = require("Enums")
 local language <const> = require("Language")
 local lang <const> = language.lang
 local essentials <const> = require("Essentials")
+local vehicle_mapper <const> = require("Vehicle mapper")
+local object_mapper <const> = require("Object mapper")
+local ped_mapper <const> = require("Ped mapper")
 
 local keys_and_input <const> = {version = "1.0.7"}
 
@@ -214,8 +217,9 @@ function keys_and_input.get_input(...)
 	Type <const> = ...
 	essentials.assert(math.type(len) == "integer"
 	and math.type(Type) == "integer"
-	and type(title) == "string",
-		"Invalid arguments to get_input.")
+	and type(title) == "string"
+	and (type(default) == "string" or default == nil),
+		"Invalid arguments to get_input.", len, Type, title, default)
 	local Keys <const> = essentials.const(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect"))
 	keys_and_input.do_vk(10000, Keys)
 	local input_status, text = nil, ""
@@ -225,35 +229,75 @@ function keys_and_input.get_input(...)
 	until input_status ~= 1
 	keys_and_input.do_vk(10000, Keys)
 	if not text or input_status == 2 then
-		essentials.msg(lang["Cancelled. §"], 6, true)
+		essentials.msg(lang["Cancelled."], "blue", true)
 		return "", 2
 	else
 		return text, 0
 	end
 end
 
-function keys_and_input.input_value_i(...)
-	local feature,
-	input_title <const>,
-	input_type <const> = ...
-	local input <const>, status <const> = keys_and_input.get_input(input_title, "", #tostring(feature.max), input_type or 3)
-	if status == 2 then
-		return
+do
+	local get_info <const> = essentials.const({
+		vehicle = {
+			hash = vehicle_mapper.get_hash_from_user_input,
+			name = vehicle_mapper.GetNameFromHash
+		},
+		ped = {
+			hash = ped_mapper.get_hash_from_user_input,
+			name = ped_mapper.get_model_from_hash
+		},
+		object = {
+			hash = object_mapper.get_hash_from_user_input,
+			name = object_mapper.GetModelFromHash
+		}
+	})
+
+	function keys_and_input.input_user_entity(Type)
+		local input, status, default, hash
+		repeat
+			input, status = keys_and_input.get_input(lang["Type in name of entity."], default or "", 128, 0)
+			hash = get_info[Type].hash(input:lower())
+			if input ~= "?" and not streaming.is_model_valid(hash) then
+				default = input
+				essentials.msg(lang["Invalid model name."], "red", true, 6)
+			end
+		until status == 2 or streaming.is_model_valid(hash) or input == "?"
+		if status == 2 then -- Getting model from hash raises error if invalid hash.
+			return nil, status
+		elseif input ~= "?" then
+			return get_info[Type].name(hash):sub(1, 21), status
+		else
+			return input, status
+		end
 	end
-	local value <const> = tonumber(input)
-	essentials.assert(type(value) == "number", "Attempt to change value property to a non number value.")
-	if value <= feature.min then
-		feature.value = feature.min
-	elseif feature.max >= value then
-		feature.value = value
-	else
-		feature.value = feature.max
+end
+
+do
+	function keys_and_input.input_number_for_feat(...)
+		local feature <const>, input_title <const> = ...
+		local input_type = 3 -- Integer input type
+		if essentials.FEATURE_ID_MAP[feature.type]:find("_f", 1, true) 
+		or essentials.FEATURE_ID_MAP[feature.type]:find("slider", 1, true) then
+			input_type = 5 -- Float input type
+		end
+		local input <const>, status <const> = keys_and_input.get_input(input_title, "", #tostring(feature.max), input_type)
+		if status == 2 then
+			return
+		end
+		local value <const> = tonumber(input)
+		essentials.assert(type(value) == "number", "Attempt to change value property to a non number value.", value, type(value))
+		if value <= feature.min then
+			feature.value = feature.min
+		elseif feature.max >= value then
+			feature.value = value
+		else
+			feature.value = feature.max
+		end
 	end
 end
 
 function keys_and_input.is_table_of_virtual_keys_all_pressed(...)
 	local keys <const> = ...
-	essentials.assert(#keys > 0, "Tried to check if a table of zero virtual keys are pressed.")
 	for i = 1, #keys do
 		local Key <const> = MenuKey()
 		Key:push_vk(keys[i])
@@ -264,10 +308,7 @@ function keys_and_input.is_table_of_virtual_keys_all_pressed(...)
 	return true
 end
 
-function keys_and_input.is_table_of_gta_keys_all_pressed(...)
-	local keys <const>, controller_type <const> = ...
-	essentials.assert(#keys > 0, "Tried to check if a table of zero keys are pressed.")
-	essentials.assert(controller_type == 0 or controller_type == 2, debug.traceback("Invalid controller type.", 2))
+function keys_and_input.is_table_of_gta_keys_all_pressed(keys, controller_type)
 	for i = 1, #keys do
 		if not controls.is_disabled_control_pressed(controller_type, keys[i]) then
 			return false
@@ -280,8 +321,6 @@ function keys_and_input.do_table_of_gta_keys(...)
 	local keys <const>,
 	controller_type <const>,
 	time <const> = ...
-	essentials.assert(#keys > 0, "Tried to check if a table of zero keys are pressed.")
-	essentials.assert(controller_type == 0 or controller_type == 2, debug.traceback("Invalid controller type.", 2))
 	local time <const> = utils.time_ms() + time
 	while keys_and_input.is_table_of_gta_keys_all_pressed(keys, controller_type) and time > utils.time_ms() do
 		system.yield(0)
@@ -291,9 +330,9 @@ end
 function keys_and_input.get_virtual_key_of_2take1_bind(...)
 	local bind_name <const> = ...
 	local file <close> = io.open(utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\2Take1Menu.ini")
-	essentials.assert(io.type(file) == "file", debug.traceback("Failed to open 2Take1Menu.ini", 2))
+	essentials.assert(io.type(file) == "file", "Failed to open 2Take1Menu.ini")
 	local Key = file:read("*a")
-	essentials.assert(Key, debug.traceback("Failed to obtain virtual key from 2Take1Menu.ini.", 2))
+	essentials.assert(Key, "Failed to obtain virtual key from 2Take1Menu.ini.", Key)
 	Key = Key:match(bind_name.."=([%w_%+]+)\n")
 	local keys <const> = {}
 	for key in Key:gmatch("([_%w]+)%+?") do
@@ -309,7 +348,6 @@ end
 
 function keys_and_input.is_2take1_menu_hotkey_pressed(bind_name)
 	local keys <const> = keys_and_input.get_virtual_key_of_2take1_bind(bind_name)
-	essentials.assert(#keys > 0, "Tried to check if a table of zero keys are pressed.")
 	return keys_and_input.is_table_of_virtual_keys_all_pressed(keys)
 end
 
@@ -317,7 +355,6 @@ function keys_and_input.do_key(...)
 	local controller_type <const>,
 	key <const>,
 	t <const> = ...
-	essentials.assert(controller_type == 0 or controller_type == 2, debug.traceback("Invalid controller type.", 2))
 	local time <const> = utils.time_ms() + t
 	while controls.is_disabled_control_pressed(controller_type, key) and time > utils.time_ms() do
 		system.yield(0)
@@ -326,7 +363,6 @@ end
 
 function keys_and_input.do_vk(...)
 	local time, virtual_keys <const> = ...
-	essentials.assert(#virtual_keys > 0, debug.traceback("Table of keys is empty.", 2))
 	time = utils.time_ms() + time
 	while keys_and_input.is_table_of_virtual_keys_all_pressed(virtual_keys) and time > utils.time_ms() do
 		system.yield(0)
