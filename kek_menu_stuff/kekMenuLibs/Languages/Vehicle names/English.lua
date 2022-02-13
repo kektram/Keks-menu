@@ -739,5 +739,22 @@ return {
 	[1492612435] = "Benefactor BR8",
 	[340154634] = "Progen PR4",
 	[1181339704] = "Declasse DR1",
-	[2334210311] = "Ocelot R88"
+	[2334210311] = "Ocelot R88",
+    [2767531027] = "Lampadati Cinquemila",
+    [1532171089] = "Enus Deity",
+    [629969764] = "Pfister Astron",
+    [461465043] = "Enus Jubilee",
+    [359875117] = "Gallivanter Baller ST",
+    [4033620423] = "Declasse Granger 3600LX",
+    [662793086] = "Obey I-Wagen",
+    [3675036420] = "Bravado Buffalo STX",
+    [1141395928] = "Pfister Comet S2 Cabrio",
+    [655665811] = "Overflod Zeno",
+    [3379732821] = "Dewbauchee Champion",
+    [2850852987] = "Pegassi Ignus",
+    [1993851908] = "Western Reever",
+    [1353120668] = "Nagasaki Shinobi",
+    [3624880708] = "Mammoth Patriot Mil-Spec",
+    [1486521356] = "Vapid Youga Custom",
+    [1343932732] = "Maibatsu Mule"
 }

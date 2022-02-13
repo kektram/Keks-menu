@@ -1,19 +1,21 @@
--- Lib Location mapper version: 0.4.2
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
-local essentials = require("Essentials")
-local location_mapper = {}
+local essentials <const> = require("Essentials")
+local memoize <const> = require("Memoize")
+local enums <const> = require("Enums")
 
-local los_santos_customs = {
+local location_mapper <const> = {version = "1.0.1"}
+
+local los_santos_customs <const> = essentials.const_all({
 	{"Beeker's garage", v3(112, 6619, 31)},
 	{"Blaine county", v3(1178, 2647, 37)},
 	{"Near airport", v3(-1146, -1991, 13)},
 	{"East side", v3(722, -1090, 22)},
 	{"City center", v3(-357, -135, 38)},
 	{"Benny's workshop", v3(-208, -1310, 31)}
-}
+})
 
-local ammu_nations = {
+local ammu_nations <const> = essentials.const_all({
 	{"Blaine county center", v3(1699, 3752, 34)},
 	{"Blaine county west", v3(-1113, 2690, 18)},
 	{"Blaine county east", v3(2569, 303, 108)},
@@ -25,122 +27,107 @@ local ammu_nations = {
 	{"City center", v3(-664, -945, 21)},
 	{"With range city center", v3(17, -1117, 29)},
 	{"With range city south", v3(811, -2148, 29)}
-}
+})
 
-location_mapper.PARACHUTE_LOCATIONS = {
-	v3(2802.3637695312, 5995.4741210938, 353.3952331543),
-	v3(-149.02397155762, -960.99957275391, 269.13525390625),
-	v3(-1213.1457519531, 3848.4602050781, 490.45166015625),
-	v3(-1881.1986083984, 4650.9008789062, 57.043048858643),
-	v3(446.59735107422, 5571.8349609375, 781.19110107422),
-	v3(435.96484375, 5730.8032226562, 692.02276611328),
-	v3(134.23527526855, 5224.4018554688, 544.75457763672),
-	v3(131.09815979004, -636.89666748047, 262.85095214844),
-	v3(-176.69622802734, -735.56488037109, 221.50184631348),
-	v3(-63.084079742432, -813.35894775391, 321.27374267578),
-	v3(796.72125244141, -2626.3500976562, 87.944770812988)
-}
+local zones <const> = essentials.const_all({
+	{"AIRP", "Los Santos International Airport"},
+	{"ALAMO", "Alamo Sea"},
+	{"ALTA", "Alta"},
+	{"ARMYB", "Fort Zancudo"},
+	{"BANHAMC", "Banham Canyon Dr"},
+	{"BANNING", "Banning"},
+	{"BEACH", "Vespucci Beach"},
+	{"BHAMCA", "Banham Canyon"},
+	{"BRADP", "Braddock Pass"},
+	{"BRADT", "Braddock Tunnel"},
+	{"BURTON", "Burton"},
+	{"CALAFB", "Calafia Bridge"},
+	{"CANNY", "Raton Canyon"},
+	{"CCREAK", "Cassidy Creek"},
+	{"CHAMH", "Chamberlain Hills"},
+	{"CHIL", "Vinewood Hills"},
+	{"CHU", "Chumash"},
+	{"CMSW", "Chiliad Mountain State Wilderness"},
+	{"CYPRE", "Cypress Flats"},
+	{"DAVIS", "Davis"},
+	{"DELBE", "Del Perro Beach"},
+	{"DELPE", "Del Perro"},
+	{"DELSOL", "La Puerta"},
+	{"DESRT", "Grand Senora Desert"},
+	{"DOWNT", "Downtown"},
+	{"DTVINE", "Downtown Vinewood"},
+	{"EAST_V", "East Vinewood"},
+	{"EBURO", "El Burro Heights"},
+	{"ELGORL", "El Gordo Lighthouse"},
+	{"ELYSIAN", "Elysian Island"},
+	{"GALFISH", "Galilee"},
+	{"GOLF", "GWC and Golfing Society"},
+	{"GRAPES", "Grapeseed"},
+	{"GREATC", "Great Chaparral"},
+	{"HARMO", "Harmony"},
+	{"HAWICK", "Hawick"},
+	{"HORS", "Vinewood Racetrack"},
+	{"HUMLAB", "Humane Labs and Research"},
+	{"JAIL", "Bolingbroke Penitentiary"},
+	{"KOREAT", "Little Seoul"},
+	{"LACT", "Land Act Reservoir"},
+	{"LAGO", "Lago Zancudo"},
+	{"LDAM", "Land Act Dam"},
+	{"LEGSQU", "Legion Square"},
+	{"LMESA", "La Mesa"},
+	{"LOSPUER", "La Puerta"},
+	{"MIRR", "Mirror Park"},
+	{"MORN", "Morningwood"},
+	{"MOVIE", "Richards Majestic"},
+	{"MTCHIL", "Mount Chiliad"},
+	{"MTGORDO", "Mount Gordo"},
+	{"MTJOSE", "Mount Josiah"},
+	{"MURRI", "Murrieta Heights"},
+	{"NCHU", "North Chumash"},
+	{"NOOSE", "N.O.O.S.E"},
+	{"OCEANA", "Pacific Ocean"},
+	{"PALCOV", "Paleto Cove"},
+	{"PALETO", "Paleto Bay"},
+	{"PALFOR", "Paleto Forest"},
+	{"PALHIGH", "Palomino Highlands"},
+	{"PALMPOW", "Palmer-Taylor Power Station"},
+	{"PBLUFF", "Pacific Bluffs"},
+	{"PBOX", "Pillbox Hill"},
+	{"PROCOB", "Procopio Beach"},
+	{"RANCHO", "Rancho"},
+	{"RGLEN", "Richman Glen"},
+	{"RICHM", "Richman"},
+	{"ROCKF", "Rockford Hills"},
+	{"RTRAK", "Redwood Lights Track"},
+	{"SANCHIA", "San Chianski Mountain Range"},
+	{"SANDY", "Sandy Shores"},
+	{"SKID", "Mission Row"},
+	{"SLAB", "Stab City"},
+	{"STAD", "Maze Bank Arena"},
+	{"STRAW", "Strawberry"},
+	{"TATAMO", "Tataviam Mountains"},
+	{"TERMINA", "Terminal"},
+	{"TEXTI", "Textile City"},
+	{"TONGVAH", "Tongva Hills"},
+	{"TONGVAV", "Tongva Valley"},
+	{"VCANA", "Vespucci Canals"},
+	{"VESP", "Vespucci"},
+	{"VINE", "Vinewood"},
+	{"WINDF", "Ron Alternates Wind Farm"},
+	{"WVINE", "West Vinewood"},
+	{"ZANCUDO", "Zancudo River"},
+	{"ZP_ORT", "Port of South Los Santos"},
+	{"ZQ_UAR", "Davis Quartz"},
+	{"SANAND", "San Andreas"}
+})
 
-local zones = 
-	{
-		{"AIRP", "Los Santos International Airport"},
-		{"ALAMO", "Alamo Sea"},
-		{"ALTA", "Alta"},
-		{"ARMYB", "Fort Zancudo"},
-		{"BANHAMC", "Banham Canyon Dr"},
-		{"BANNING", "Banning"},
-		{"BEACH", "Vespucci Beach"},
-		{"BHAMCA", "Banham Canyon"},
-		{"BRADP", "Braddock Pass"},
-		{"BRADT", "Braddock Tunnel"},
-		{"BURTON", "Burton"},
-		{"CALAFB", "Calafia Bridge"},
-		{"CANNY", "Raton Canyon"},
-		{"CCREAK", "Cassidy Creek"},
-		{"CHAMH", "Chamberlain Hills"},
-		{"CHIL", "Vinewood Hills"},
-		{"CHU", "Chumash"},
-		{"CMSW", "Chiliad Mountain State Wilderness"},
-		{"CYPRE", "Cypress Flats"},
-		{"DAVIS", "Davis"},
-		{"DELBE", "Del Perro Beach"},
-		{"DELPE", "Del Perro"},
-		{"DELSOL", "La Puerta"},
-		{"DESRT", "Grand Senora Desert"},
-		{"DOWNT", "Downtown"},
-		{"DTVINE", "Downtown Vinewood"},
-		{"EAST_V", "East Vinewood"},
-		{"EBURO", "El Burro Heights"},
-		{"ELGORL", "El Gordo Lighthouse"},
-		{"ELYSIAN", "Elysian Island"},
-		{"GALFISH", "Galilee"},
-		{"GOLF", "GWC and Golfing Society"},
-		{"GRAPES", "Grapeseed"},
-		{"GREATC", "Great Chaparral"},
-		{"HARMO", "Harmony"},
-		{"HAWICK", "Hawick"},
-		{"HORS", "Vinewood Racetrack"},
-		{"HUMLAB", "Humane Labs and Research"},
-		{"JAIL", "Bolingbroke Penitentiary"},
-		{"KOREAT", "Little Seoul"},
-		{"LACT", "Land Act Reservoir"},
-		{"LAGO", "Lago Zancudo"},
-		{"LDAM", "Land Act Dam"},
-		{"LEGSQU", "Legion Square"},
-		{"LMESA", "La Mesa"},
-		{"LOSPUER", "La Puerta"},
-		{"MIRR", "Mirror Park"},
-		{"MORN", "Morningwood"},
-		{"MOVIE", "Richards Majestic"},
-		{"MTCHIL", "Mount Chiliad"},
-		{"MTGORDO", "Mount Gordo"},
-		{"MTJOSE", "Mount Josiah"},
-		{"MURRI", "Murrieta Heights"},
-		{"NCHU", "North Chumash"},
-		{"NOOSE", "N.O.O.S.E"},
-		{"OCEANA", "Pacific Ocean"},
-		{"PALCOV", "Paleto Cove"},
-		{"PALETO", "Paleto Bay"},
-		{"PALFOR", "Paleto Forest"},
-		{"PALHIGH", "Palomino Highlands"},
-		{"PALMPOW", "Palmer-Taylor Power Station"},
-		{"PBLUFF", "Pacific Bluffs"},
-		{"PBOX", "Pillbox Hill"},
-		{"PROCOB", "Procopio Beach"},
-		{"RANCHO", "Rancho"},
-		{"RGLEN", "Richman Glen"},
-		{"RICHM", "Richman"},
-		{"ROCKF", "Rockford Hills"},
-		{"RTRAK", "Redwood Lights Track"},
-		{"SANCHIA", "San Chianski Mountain Range"},
-		{"SANDY", "Sandy Shores"},
-		{"SKID", "Mission Row"},
-		{"SLAB", "Stab City"},
-		{"STAD", "Maze Bank Arena"},
-		{"STRAW", "Strawberry"},
-		{"TATAMO", "Tataviam Mountains"},
-		{"TERMINA", "Terminal"},
-		{"TEXTI", "Textile City"},
-		{"TONGVAH", "Tongva Hills"},
-		{"TONGVAV", "Tongva Valley"},
-		{"VCANA", "Vespucci Canals"},
-		{"VESP", "Vespucci"},
-		{"VINE", "Vinewood"},
-		{"WINDF", "Ron Alternates Wind Farm"},
-		{"WVINE", "West Vinewood"},
-		{"ZANCUDO", "Zancudo River"},
-		{"ZP_ORT", "Port of South Los Santos"},
-		{"ZQ_UAR", "Davis Quartz"},
-		{"SANAND", "San Andreas"}
-	}
-
-local casino_locations = {
+local casino_locations <const> = essentials.const_all({
 	{"Casino main entrance", v3(921, 42, 80)},
 	{"Casino garage", v3(936, 0, 79)},
 	{"Casino music locker", v3(988, 80, 81)}
-}
+})
 
-location_mapper.GENERAL_POSITIONS = {
+location_mapper.GENERAL_POSITIONS = essentials.const({
 	["Beach"] = v3(-1480.0867919922, -1249.8076171875, 1.7118327617645),
 	["Beeker's garage"] = v3(113.18008422852, 6608.1157226562, 31.126474380493),
 	["lsc near Blaine county"] = v3(1179.6661376953, 2663.5729980469, 37.182151794434),
@@ -205,17 +192,17 @@ location_mapper.GENERAL_POSITIONS = {
 	["Grapeseed"] = v3(2551.98046875, 4672.8598632812, 33.974056243896),
 	["Grapeseed 2"] = v3(1669.8518066406, 4769.6420898438, 41.85277557373),
 	["West Vinewood"] = v3(1.1384910345078, 31.003908157349, 71.069595336914),
-	["West Vinewood 2"] = v3(11.519178390503, 87.537254333496, 78.398086547852),
+	["West Vinewood 9"] = v3(11.519178390503, 87.537254333496, 78.398086547852),
 	["West Vinewood 3"] = v3(-512.44268798828, 115.72742462158, 63.315162658691),
 	["West Vinewood 4"] = v3(-199.31295776367, 95.202644348145, 69.530326843262),
 	["West Vinewood 5"] = v3(-633.30316162109, 169.21343994141, 61.21223449707),
 	["West Vinewood 6"] = v3(-206.57997131348, 184.62852478027, 80.322662353516),
 	["Vespucci Canals"] = v3(-814.94494628906, -985.64196777344, 13.944014549255),
-	["West Vinewood"] = v3(-618.50714111328, 31.774396896362, 43.530242919922),
+	["West Vinewood 7"] = v3(-618.50714111328, 31.774396896362, 43.530242919922),
 	["Ron Alternates Wind Farm"] = v3(2467.8786621094, 1589.9990234375, 32.720291137695),
 	["Zancudo River"] = v3(-1132.0476074219, 2696.0075683594, 18.800401687622),
 	["Strawberry"] = v3(-8.4986581802368, -1642.8865966797, 29.168998718262),
-	["West Vinewood"] = v3(-618.51159667969, 31.772859573364, 43.530242919922),
+	["West Vinewood 8"] = v3(-618.51159667969, 31.772859573364, 43.530242919922),
 	["Sandy Shores"] = v3(1904.5463867188, 3783.9182128906, 32.809673309326),
 	["Hawick"] = v3(278.39898681641, -158.70204162598, 63.622375488281),
 	["La Puerta"] = v3(-976.40704345703, -1433.9505615234, 7.6791663169861),
@@ -239,21 +226,27 @@ location_mapper.GENERAL_POSITIONS = {
 	["North Chumash"] = v3(-2206.3103027344, 4248.8217773438, 47.538906097412),
 	["Harmony"] = v3(216.47438049316, 2607.8110351562, 46.273460388184),
 	["Grand Senora Desert"] = v3(193.08575439453, 2787.7536621094, 45.655193328857),
-	["Harmony"] = v3(641.1142578125, 2777.2834472656, 41.95166015625),
+	["Harmony 2"] = v3(641.1142578125, 2777.2834472656, 41.95166015625),
 	["Cypress Flats"] = v3(1029.1507568359, -2399.4174804688, 29.751884460449),
 	["Cypress Flats 2"] = v3(868.85723876953, -2236.5600585938, 30.542938232422),
 	["Los Santos International Airport"] = v3(-668.75109863281, -2377.9194335938, 13.838815689087),
-	["Los Santos International Airport"] = v3(-1085.3282470703, -2230.7758789062, 13.240743637085),
-	["La Puerta"] = v3(-337.60162353516, -1464.9465332031, 30.563171386719),
+	["Los Santos International Airport 2"] = v3(-1085.3282470703, -2230.7758789062, 13.240743637085),
+	["La Puerta 2"] = v3(-337.60162353516, -1464.9465332031, 30.563171386719),
 	["East Vinewood"] = v3(902.02032470703, -142.54748535156, 76.650444030762),
 	["Pillbox Hill 2"] = v3(-52.446479797363, -583.78283691406, 36.853244781494),
 	["El Burro Heights"] = v3(1340.2352294922, -1583.8933105469, 54.067855834961),
-	["Paleto Bay"] = v3(-106.56526184082, 6535.458984375, 29.809148788452),
+	["Paleto Bay 5"] = v3(-106.56526184082, 6535.458984375, 29.809148788452),
 	["Paleto Bay 3"] = v3(-306.98236083984, 6333.0219726562, 32.180763244629),
 	["Paleto Bay 4"] = v3(-8.2490711212158, 6559.8842773438, 31.970911026001)
-}
+})
 
-local gta5_map = {
+--[[
+	Positions from all across the gta map.
+	Used when we couldn't find a position's correct z property.
+	A quite common example of unknown z property is when a player is in a vehicle and is far away from you.
+	Their z coordinate will always be -50.
+--]]
+local gta5_map <const> = essentials.const({
 	v3(-178.0245513916, -407.62139892578, 32.9674949646),
 	v3(-123.78118133545, -407.53591918945, 34.061668395996),
 	v3(-112.1798324585, -401.09378051758, 35.142150878906),
@@ -7633,41 +7626,27 @@ local gta5_map = {
 	v3(14.891045570374, 7630.0112304688, 12.069850921631),
 	v3(21.540128707886, 7640.26171875, 16.660110473633),
 	v3(22.129667282104, 7640.9047851562, 17.001989364624)
-}
+})
 
-local function get_vectors(location_info_table)
-	local vectors = {}
+local function get_vectors(...) -- Converts multi-dimensional table into an array of vectors
+	local location_info_table <const> = ...
+	local vectors <const> = {}
 	for i, location in pairs(location_info_table) do
-		vectors[#vectors + 1] = location[2]
+		vectors[i] = location[2]
 	end
 	return vectors
 end
 
-local function remove_occupied_vectors(Table)
-	local vehicles = vehicle.get_all_vehicles()
-	local temp = {}
-	for i = 1, #Table do
-		for i2 = 1, #vehicles do
-			if essentials.get_distance_between(entity.get_entity_coords(vehicles[i2]), Table[i]) < 10 then
-				break
-			end
-			if i2 == #vehicles then
-				temp[#temp + 1] = Table[i]
-			end
-		end
-	end
-	return temp
-end
-
-local function attempt_ground_z(pos)
-	if essentials.get_distance_between(essentials.get_ped_closest_to_your_pov(), pos) < 1100 then
-		local offset = v3()
+local function attempt_ground_z(...)
+	local pos = ...
+	if memoize.get_entity_coords(essentials.get_ped_closest_to_your_pov()):magnitude(pos) < 1100 then
+		local offset = memoize.v3()
 		for i = 1, 60, 3 do
 			local temp = 825
 			local Z = 825
 			local status
 			if i > 1 then
-				offset = v3(math.random(-4 - math.min(i, 21), 4 + math.min(i, 21)), math.random(-4 - math.min(i, 21), 4 + math.min(i, 21)), 0)
+				offset = memoize.v3(math.random(-4 - math.min(i, 21), 4 + math.min(i, 21)), math.random(-4 - math.min(i, 21), 4 + math.min(i, 21)), 0)
 			end
 			while temp == Z do
 				status, temp = gameplay.get_ground_z(v3(pos.x + offset.x, pos.y + offset.y, Z))
@@ -7689,18 +7668,28 @@ local function attempt_ground_z(pos)
 	return pos, false
 end
 
-function location_mapper.get_set_of_vectors(pos, min_distance, max_distance, max_height)
-	local coords = {}
-	for i = 1, 40 do
-		local pos2, status = attempt_ground_z(pos + essentials.get_offset(pos, -max_distance, max_distance, min_distance, max_distance))
-		if status and pos2.z < max_height and pos2.z > max_height - 13 and essentials.get_distance_between(pos, pos2) >= min_distance then
+function location_mapper.get_set_of_vectors(...)
+	local pos <const>,
+	min_distance <const>,
+	max_distance <const>,
+	max_height <const> = ...
+	local coords <const> = {}
+	for i = 1, 50 do
+		local pos2 <const>, status <const> = attempt_ground_z(pos + kek_entity.get_random_offset(-max_distance, max_distance, min_distance, max_distance))
+		if status 
+		and pos2.z < max_height 
+		and pos2.z > max_height - 13 
+		and pos:magnitude(pos2) >= min_distance then
 			coords[#coords + 1] = pos2
 		end
 	end
 	if #coords == 0 then
 		for i = 1, #gta5_map do
-			local distance = essentials.get_distance_between(pos, gta5_map[i])
-			if distance >= min_distance and distance <= max_distance and gta5_map[i].z < max_height and gta5_map[i].z > max_height - 13 then
+			local distance <const> = pos:magnitude(gta5_map[i])
+			if distance >= min_distance 
+			and distance <= max_distance 
+			and gta5_map[i].z < max_height 
+			and gta5_map[i].z > max_height - 13 then
 				coords[#coords + 1] = gta5_map[i]
 			end
 		end
@@ -7708,11 +7697,12 @@ function location_mapper.get_set_of_vectors(pos, min_distance, max_distance, max
 	return coords
 end
 
-function location_mapper.get_closest_vector_to_pos(pos)
+function location_mapper.get_closest_vector_to_pos(...)
+	local pos <const> = ...
 	local distance = 99999
-	local pos2 = v3()
+	local pos2 = memoize.v3()
 	for i = 1, #gta5_map, 4 do
-		local temp = pos:magnitude(gta5_map[i])
+		local temp <const> = pos:magnitude(gta5_map[i])
 		if temp < distance then
 			pos2 = gta5_map[i]
 			distance = temp
@@ -7721,12 +7711,13 @@ function location_mapper.get_closest_vector_to_pos(pos)
 	return pos2
 end
 
-location_mapper.CASINO_POSITIONS = get_vectors(casino_locations)
-location_mapper.LSC_POSITIONS = get_vectors(los_santos_customs)
-location_mapper.AMMU_NATION_POSITIONS = get_vectors(ammu_nations)
+location_mapper.CASINO_POSITIONS = essentials.const(get_vectors(casino_locations))
+location_mapper.LSC_POSITIONS = essentials.const(get_vectors(los_santos_customs))
+location_mapper.AMMU_NATION_POSITIONS = essentials.const(get_vectors(ammu_nations))
 
-function location_mapper.get_zone_entity_is_in(Entity)
-	for i, zone in pairs(zones) do
+function location_mapper.get_zone_entity_is_in(...) -- Zones do overlap each other, beware.
+	local Entity <const> = ...
+	for _, zone in pairs(zones) do
 		if entity.is_entity_in_zone(Entity, zone[1]) then
 			return zone[2]
 		end
@@ -7734,39 +7725,33 @@ function location_mapper.get_zone_entity_is_in(Entity)
 	return "UNKNOWN_ZONE"
 end
 
-function location_mapper.get_most_accurate_position(pos, always)
-	if type(pos) == "userdata" then
-		if not always and pos.z > -10 then
+function location_mapper.get_most_accurate_position(...)
+	local pos, always <const> = ...
+	if not always and pos.z > -10 then
+		return pos
+	end
+	local pos2 <const>, status <const> = attempt_ground_z(pos)
+	if status then
+		return pos2
+	else
+		local pos2 <const> = location_mapper.get_closest_vector_to_pos(pos)
+		if math.abs((pos.z) - (pos2.z)) < 5 then
+			pos.z = pos2.z
 			return pos
-		end
-		local pos2, status = attempt_ground_z(pos)
-		if status then
-			return pos2
-		else
-			local pos2 = location_mapper.get_closest_vector_to_pos(pos)
-			if math.abs((pos.z) - (pos2.z)) < 5 then
-				pos.z = pos2.z
-				return pos
-			else
-				return pos2
-			end
-		end
-	else
-		return v3()
-	end
-end
-
-function location_mapper.get_ground_z(pos)
-	if type(pos) == "userdata" then
-		local pos2, status = attempt_ground_z(pos)
-		if not status then
-			return v3(pos.x, pos.y, location_mapper.get_closest_vector_to_pos(pos).z)
 		else
 			return pos2
 		end
-	else
-		return v3()
 	end
 end
 
-return location_mapper
+function location_mapper.get_ground_z(...)
+	local pos <const> = ...
+	local pos2 <const>, status <const> = attempt_ground_z(pos)
+	if not status then
+		return v3(pos.x, pos.y, location_mapper.get_closest_vector_to_pos(pos).z)
+	else
+		return pos2
+	end
+end
+
+return essentials.const_all(location_mapper)
