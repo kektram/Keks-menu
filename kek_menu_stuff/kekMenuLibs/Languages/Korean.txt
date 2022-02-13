@@ -662,3 +662,4 @@ This file doesn't exist or has an invalid file name. §해당 파일이 존재�
 Failed to set coordinates. §좌표를 설정하는 것을 실패했습니다.
 Failed to cleanup crash entity while it is still in memory. §크래쉬 엔티티를 치우는 것을 실패했습니다: 해당 엔티티가 이미 메모리에 있기 때문입니다.
 Crash entity went out of memory before it could be cleaned up. §크래쉬 엔티티가 메모리 밖에 있습니다: 이미 해당 엔티티를 치울 수 있었기 때문입니다.
+Saved map. §저장된 맵입니다.
