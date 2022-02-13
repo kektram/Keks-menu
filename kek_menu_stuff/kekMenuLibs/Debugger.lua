@@ -465,6 +465,13 @@ function entity.set_entity_collision(Entity, ...) -- Detaches entity
 	return originals.entity.set_entity_collision(Entity, ...)
 end
 
+function network.force_remove_player(pid)
+	assert(pid >= 0 and pid <= 31, "Invalid pid.")
+	assert(player.is_player_valid(pid), "Tried to use breakup kick on an invalid player.")
+	assert(pid ~= player.player_id(), "Tried to use breakup kick on yourself.")
+	return originals.network.force_remove_player(pid)
+end
+
 -- Exceptions
 	player.is_player_valid = originals.player.is_player_valid
 

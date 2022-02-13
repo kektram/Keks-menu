@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram, Sainan
 
-local globals <const> = {version = "1.3.0"}
+local globals <const> = {version = "1.3.1"}
 
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
@@ -132,20 +132,6 @@ globals.player_global_indices = essentials.const({
 
 
 local script_event_hashes <const> = essentials.const({
-	["Netbail kick"] = 						1228916411,
-
-	["Kick 1"] = 							1246667869,
-
-	["Kick 2"] = 							1757755807,
-
-	["Kick 3"] = 							-1125867895,
-
-	["Kick 4"] = 							-1991317864,
-
-	["Kick 5"] = 							-614457627,
-
-	["Kick 6"] = 							603406648,
-
 	["Crash 1"] = 							962740265,
 
 	["Crash 2"] = 							-1386010354,
@@ -345,49 +331,6 @@ function globals.disable_vehicle(...)
 	if memoize.get_player_coords(pid).z == -50 or player.is_player_in_any_vehicle(pid) then
 		globals.send_script_event("Destroy personal vehicle", pid, {pid, pid}, friend_condition)
 		globals.send_script_event("Kick out of vehicle", pid, {pid, 0, 0, 0, 0, 1, pid, math.min(2147483647, gameplay.get_frame_count())}, friend_condition)
-	end
-end
-
-function globals.kick(...)
-	local pid <const> = ...
-	if player.is_player_valid(pid) and player.player_id() ~= pid then
-		if network.network_is_host() then
-			network.network_session_kick_player(pid)
-			return
-		end
-		local args <const> = {pid, math.random(-2147483647, -1)}
-		for i = 3, 39 do
-			args[#args + 1] = math.random(-2147483647, 2147483647)
-		end
-		args[24] = globals.get_player_global("generic", pid)
-		globals.send_script_event("Kick 1", pid, args)
-		globals.send_script_event("Kick 2", pid, {pid, math.random(-2147483647, 2147483647), pid})
-		globals.send_script_event("Kick 3", pid, {pid, math.random(-2147483647, 2147483647)})
-		globals.send_script_event("Kick 4", pid, {pid, -1, -1, -1, -1})
-		local parameters <const> = {
-			pid
-		}
-		for i = 2, 23 do
-			parameters[#parameters + 1] = math.random(-2147483647, -10)
-		end
-		globals.send_script_event("Kick 5", pid, parameters)
-		for arg, hash in pairs({1880156910, -890479893, 155406806, 1059917272}) do
-			globals.send_script_event("Kick 6", pid, {
-				pid, 
-				hash, 
-				arg, 
-				1,
-				math.random(-2147483647, -10),
-				math.random(-2147483647, -10),
-				math.random(-2147483647, -10),
-				math.random(-2147483647, -10),
-				math.random(-2147483647, -10),
-				pid,
-				math.random(-2147483647, -10),
-				math.random(-2147483647, -10),
-				math.random(-2147483647, -10)
-			})
-		end
 	end
 end
 

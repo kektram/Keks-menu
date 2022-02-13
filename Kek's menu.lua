@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.6.1
+-- Kek's menu version 0.4.6.2
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.6.1"
+__kek_menu_version = "0.4.6.2"
 
 local paths <const> = {
 	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
@@ -73,7 +73,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Vehicle mapper"] = "1.3.5", 
 		["Ped mapper"] = "1.2.7",
 		["Object mapper"] = "1.2.6", 
-		["Globals"] = "1.3.0",
+		["Globals"] = "1.3.1",
 		["Weapon mapper"] = "1.0.5",
 		["Location mapper"] = "1.0.1",
 		["Keys and input"] = "1.0.7",
@@ -1298,14 +1298,7 @@ settings.toggle["Kick any vote kickers"] = menu.add_feature(lang["Kick any vote 
 				local player_name <const> = player.get_player_name(pid) -- Player is most likely gone after kick
 				local scid <const> = player.get_player_scid(pid)
 				f.data[scid] = f.data[scid] or 1
-				local status = false
-				if network.network_is_host() then
-					network.network_session_kick_player(pid)
-					status = true
-				else
-					status = globals.send_script_event("Netbail kick", pid, {pid, globals.get_player_global("generic", pid)}, false, false, true)
-				end
-				if status then -- SE queue is busy? Try the kick again later.
+				if essentials.kick_player(pid) then
 					essentials.msg(string.format("%s %s", player_name, lang["sent vote kick. Kicking them..."]), "orange", true)
 					f.data[scid] = f.data[scid] | 2
 				end
@@ -1329,7 +1322,7 @@ settings.toggle["Revenge"] = menu.add_feature(lang["Revenge"], "value_str", u.pr
 					elseif f.value == 1 then
 						troll_entity.send_clown_van(pid)
 					elseif f.value == 2 then
-						globals.kick(pid)
+						essentials.kick_player(pid)
 					elseif f.value == 3 then
 						globals.script_event_crash(pid)
 					end
@@ -1480,7 +1473,7 @@ do
 					if player.is_player_valid(pid) and f.on and is_flag_enabled(pid, "Kick people with ") then
 						local modder_flags <const> = essentials.modder_flags_to_text(player.get_player_modder_flags(pid))
 						essentials.msg(string.format("%s %s%s%s", lang["Kicking"], player.get_player_name(pid), lang[", flags:\n"], modder_flags), "red", settings.in_use["Auto kicker #notifications#"])
-						globals.kick(pid)
+						essentials.kick_player(pid)
 						f.data[scid] = true
 					end
 				end
@@ -2759,7 +2752,7 @@ do
 									menu.get_player_feature(player_feat_ids["Mad peds"]).feats[pid].on = true
 								elseif setting == "Kick from session" then
 									essentials.msg(string.format("%s %s %s %s.", lang["Vehicle blacklist:\nKicked"], name, lang["for using"], veh_name), "orange", notif_on)
-									globals.kick(pid)
+									essentials.kick_player(pid)
 								elseif setting == "Crash" then
 									essentials.msg(string.format("%s %s %s %s.", lang["Vehicle blacklist:\nCrashed"], name, lang["for using"], veh_name), "orange", notif_on)
 									globals.script_event_crash(pid)
@@ -2982,13 +2975,14 @@ do
 		local hosts <const>, friends <const> = {}, {}
 		local player_host_priority <const> = player.get_player_host_priority(player.player_id())
 		for pid in essentials.players() do
-			if player.get_player_host_priority(pid) <= player_host_priority or player.is_player_host(pid) then
+			if player.get_player_host_priority(pid) <= player_host_priority and not player.is_player_host(pid) then
 				hosts[#hosts + 1] = pid
 				if network.is_scid_friend(player.get_player_scid(pid)) then
 					friends[#friends + 1] = pid
 				end
 			end
 		end
+		hosts[#hosts + 1] = player.get_host() ~= player.player_id() and player.get_host() or nil
 		return hosts, friends
 	end
 
@@ -2998,7 +2992,8 @@ do
 			essentials.msg(lang["One of the people further in host queue is your friend! Cancelled."], "red", true)
 		elseif hosts then
 			for _, pid in pairs(hosts) do
-				globals.send_script_event("Netbail kick", pid, {pid, globals.get_player_global("generic", pid)})
+				essentials.kick_player(pid)
+				system.yield(0)
 			end
 		end
 	end
@@ -3014,6 +3009,7 @@ do
 			if players_in_queue and (not settings.toggle["Exclude friends from attacks"].on or #friends_in_queue == 0)
 			and #players_in_queue <= settings.valuei["Max number of people to kick in force host"].value then
 				get_host()
+				system.yield(500)
 			end
 		end
 	end)
@@ -3401,11 +3397,7 @@ settings.toggle["Anti chat spam"] = menu.add_feature(lang["Anti chat spam"], "va
 						essentials.add_to_timeout(event.player)
 					end
 					if f.value == 0 or f.value == 1 then
-						if network.network_is_host() then
-							network.network_session_kick_player(event.player)
-						else
-							globals.send_script_event("Netbail kick", event.player, {event.player, globals.get_player_global("generic", event.player)})
-						end
+						essentials.kick_player(event.player)
 					elseif f.value == 2 or f.value == 3 then
 						globals.script_event_crash(event.player)
 					end
@@ -3744,8 +3736,7 @@ do
 								kek_entity.ram_player(event.player)
 							elseif f.value == 1 then
 								essentials.msg(string.format("%s %s [%s]", lang["Chat judge:\nKicking"], player_name, entry), "orange", settings.in_use["Chat judge #notifications#"])
-								globals.send_script_event("Netbail kick", event.player, {event.player, globals.get_player_global("generic", event.player)})
-								globals.kick(event.player)
+								essentials.kick_player(event.player)
 							elseif f.value == 2 then
 								essentials.msg(string.format("%s %s [%s]", lang["Chat judge\nCrashing"], player_name, entry), "orange", settings.in_use["Chat judge #notifications#"])
 								globals.script_event_crash(event.player)
@@ -4078,9 +4069,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							end
 						elseif settings.in_use["Kick #chat command#"] and str:find("^%pkick$") then
 							if pid ~= player.player_id() and (pid ~= event.player or found_player_pid) and not network.is_scid_friend(player.get_player_scid(pid)) then
-								menu.create_thread(function()
-									globals.kick(pid)
-								end, nil)
+								essentials.kick_player(pid)
 							end
 						elseif settings.in_use["Crash #chat command#"] and str:find("^%pcrash$") then
 							if pid ~= player.player_id() and (pid ~= event.player or found_player_pid) and not network.is_scid_friend(player.get_player_scid(pid)) then
@@ -4216,7 +4205,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							if count < 3 then
 								essentials.send_message(string.format("[Chat commands]: %i / 3 votes needed to kick %s.", count, name))
 							else
-								globals.kick(pid)
+								essentials.kick_player(pid)
 								essentials.send_message(string.format("[Chat commands, vote kicker]: Kicked %s out of the session.", name))
 								t[scid] = nil
 							end
@@ -6594,7 +6583,7 @@ menu.add_player_feature(lang["Kick gun"], "toggle", u.pWeapons, function(f, pid)
 		if entity.is_entity_a_ped(Ped) and ped.is_ped_a_player(Ped) then
 			local target_pid <const> = player.get_player_from_ped(Ped)
 			if ped.is_ped_shooting(player.get_player_ped(pid)) and essentials.is_not_friend(target_pid) then
-				globals.kick(target_pid)
+				essentials.kick_player(target_pid)
 			end
 		end
 	end
