@@ -655,3 +655,4 @@ This file doesn't exist or has an invalid file name. §此文件不存在或文�
 Failed to set coordinates. §设置坐标失败.
 Failed to cleanup crash entity while it is still in memory. §清理崩溃实体失败,它仍在内存中.
 Crash entity went out of memory before it could be cleaned up. §崩溃实体在清理之前内存不足.
+Saved map. §已保存地图.
