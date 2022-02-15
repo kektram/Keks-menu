@@ -1,45 +1,56 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
-kek_menu.lib_versions["Drive style mapper"] = "1.0.2"
-local essentials = kek_menu.require("Essentials")
+local essentials <const> = require("Essentials")
+local enums <const> = require("Enums")
 
-local drive_style_mapper = {}
+local drive_style_mapper <const> = {version = "1.0.4"}
 
-drive_style_mapper.DRIVE_STYLE_FLAGS = {
-	{"Stop before vehicles", 1 << 0},
-	{"Stop before peds", 1 << 1},
-	{"Avoid vehicles", 1 << 2},
-	{"Avoid empty vehicles", 1 << 3},
-	{"Avoid peds", 1 << 4},
-	{"Avoid objects", 1 << 5},
-	{"Stop at traffic lights", 1 << 7},
-	{"Use blinkers", 1 << 8},
-	{"Allow going wrong way", 1 << 9},
-	{"Drive in reverse", 1 << 10},
-	{"Take shortest path", 1 << 18},
-	{"Allow overtaking vehicles", 1 << 19},
-	{"Ignore roads", 1 << 22},
-	{"Ignore all pathing", 1 << 24},
-	{"Avoid highways", 1 << 29}
-}
-setmetatable(drive_style_mapper.DRIVE_STYLE_FLAGS, essentials.get_read_only_meta())
+drive_style_mapper.DRIVE_STYLE_FLAGS = essentials.const_all({ -- Entries are tables to get consistent order of indices
+	{name = "Stop before vehicles", flag = 1 << 0},
+	{name = "Stop before peds", flag = 1 << 1},
+	{name = "Avoid vehicles", flag = 1 << 2},
+	{name = "Avoid empty vehicles", flag = 1 << 3},
+	{name = "Avoid peds", flag = 1 << 4},
+	{name = "Avoid objects", flag = 1 << 5},
+	{name = "Stop at traffic lights", flag = 1 << 7},
+	{name = "Use blinkers", flag = 1 << 8},
+	{name = "Allow going wrong way", flag = 1 << 9},
+	{name = "Drive in reverse", flag = 1 << 10},
+	{name = "Take shortest path", flag = 1 << 18},
+	{name = "Allow overtaking vehicles", flag = 1 << 19},
+	{name = "Ignore roads", flag = 1 << 22},
+	{name = "Ignore all pathing", flag = 1 << 24},
+	{name = "Avoid highways", flag = 1 << 29}
+})
 
 function drive_style_mapper.get_drive_style_property_from_name(...)
 	local name <const> = ...
-	for i, drive_style_property in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
-		if drive_style_property[1] == name then
-			return drive_style_property[2]
+	for _, properties in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
+		if properties.name == name then
+			return properties.flag
 		end
 	end
+	essentials.assert(false, "Failed to get drive style flag from name.")
 end
 
 function drive_style_mapper.get_drive_style_property_name_from_int(...)
 	local int <const> = ...
-	for i, drive_style_property in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
-		if drive_style_property[2] == int then
-			return drive_style_property[1]
+	for _, properties in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
+		if properties.flag == int then
+			return properties.name
 		end
 	end
+	essentials.assert(false, "Failed to get drive style name from flag.")
 end
 
-return drive_style_mapper
+function drive_style_mapper.get_drive_style_from_list(list)
+	local drive_style = 0
+	for _, drive_style_property in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
+		if list[drive_style_property.name] then
+			drive_style = drive_style ~ drive_style_property.flag
+		end
+	end
+	return drive_style
+end
+
+return essentials.const_all(drive_style_mapper)

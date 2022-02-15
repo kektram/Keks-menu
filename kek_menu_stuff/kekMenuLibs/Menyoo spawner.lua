@@ -1,618 +1,1436 @@
--- Copyright © 2020-2021 Kektram
+-- Copyright © 2020-2022 Kektram
 
-kek_menu.lib_versions["Menyoo spawner"] = "2.0.1"
+local menyoo <const> = {version = "2.2.2"}
 
-local xml_end = {
-	"^%s*</Attachment>$",
-	"^%s*</Placement>$"
-}
+local language <const> = require("Language")
+local lang <const> = language.lang
+local essentials <const> = require("Essentials")
+local kek_entity <const> = require("Kek's entity functions")
+local custom_upgrades <const> = require("Custom upgrades")
+local location_mapper <const> = require("Location mapper")
+local weapon_mapper <const> = require("Weapon mapper")
+local menyoo_saver <const> = require("Menyoo saver")
+local enums <const> = require("Enums")
+local settings <const> = require("Settings")
+local memoize <const> = require("Memoize")
 
-local xml_start = {
-	"^%s*<Attachment>$",
-	"^%s*<Placement>$"
-}
+local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
+paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
 
-local menyoo = {}
-local home <const> = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
+local function apply_vehicle_modifications(...)
+	local Entity <const>, info <const> = ...
 
-local essentials = kek_menu.require("Essentials")
-local kek_entity = kek_menu.require("Kek's entity functions")
-local custom_upgrades = kek_menu.require("Custom upgrades")
-local location_mapper = kek_menu.require("Location mapper")
-local weapon_mapper = kek_menu.require("Weapon mapper")
-local vehicle_saver = kek_menu.require("Vehicle saver")
+	local hash <const> = info.ModelHash
+	local info <const> = info.VehicleProperties
+	local colours <const> = info.Colours
+	local doors_open <const> = info.DoorsOpen
+	local tyres_bursted <const> = info.TyresBursted
 
-local lang = kek_menu.lang
-
--- Utilities
-	local function new_attachment_check(...)
-		local str,
-		End <const>,
-		initial <const> = ...
-		str = str or ""
-		if initial then
-			return str:find(initial, 1, true)
-		elseif End then
-			return str:find(xml_end[1]) or str:find(xml_end[2])
-		else
-			return str:find(xml_start[1]) or str:find(xml_start[2])
+	vehicle.set_vehicle_mod_kit_type(Entity, 0)
+	if info.Mods._48[1] == -1 or info.Livery ~= -1 then
+		vehicle.set_vehicle_livery(Entity, info.Livery)
+	end
+	vehicle.set_vehicle_wheel_type(Entity, info.WheelType) -- Wheel type must go first. Has caused a crash earlier.
+	vehicle.set_vehicle_bulletproof_tires(Entity, info.BulletProofTyres == true)
+	for i = 0, 75 do -- setting[2] is mod variation. Verified in menyoo source code.
+		local setting <const> = info.Mods["_"..i]
+		if type(setting) == "table" then
+			vehicle.set_vehicle_mod(Entity, i, setting[1], i == 23 or i == 24)
+		elseif type(setting) == "boolean" then
+			vehicle.toggle_vehicle_mod(Entity, i, setting)
 		end
 	end
-
-	local function extract_info(...)
-		local file <const>, initial <const> = ...
-		local str = ""
-		local info = {}
-		local tree_parent = ""
-		while str and not new_attachment_check(str, true, initial) do
-			if str:find("<Attachment%s*isAttached=[%w%p]+/*>") then
-				info[str:match("%s*([%w%p]+)=")] = str:match("<Attachment%s*isAttached=(.+)/*>") == "\"true\""
-			else
-				local property <const> = str:match("<.+>(.*)<.+>")
-				if property and not new_attachment_check(str, true, initial) then
-					local str_casted_to_right_type = property
-					if str_casted_to_right_type == "false" then
-						str_casted_to_right_type = false
-					elseif str_casted_to_right_type == "true" then
-						str_casted_to_right_type = true
-					elseif tonumber(str_casted_to_right_type) then
-						str_casted_to_right_type = tonumber(str_casted_to_right_type)
-					elseif str_casted_to_right_type:find("[%d%-]+,%s*[%d%-]+") then
-						str_casted_to_right_type = {tonumber(str_casted_to_right_type:match("([%d%-]+),%s*[%d%-]+")), tonumber(str_casted_to_right_type:match("[%d%-]+,%s*([%d%-]+)"))}
-					end
-					info[tree_parent..str:match("^%s*<(.+)>.*<.+>%s*$")] = str_casted_to_right_type
-				end
-				if not str:find("=", 1, true)
-				and not str:match("^%s*<(.+)>.*<.+>%s*$") 
-				and str:match("^%s*<([%p%w%c]+)>%s*$")  
-				and not new_attachment_check(str, true, initial) then
-					tree_parent = str:match("^%s*<([%p%w%c]+)>%s*$")
-				end
-				if str:match("^%s*</(.+)>%s*$") then
-					tree_parent = ""
-				end
-			end
-			str = essentials.file(file, "read", "*l")
-			essentials.random_wait(2500)
-		end
-		return info
-	end
-
-	local function apply_entity_modifications(...)
-		local Entity <const>,
-		info <const>, 
-		entities <const>,
-		pid <const> = ...
-		if entity.is_an_entity(Entity or 0) then
-			if streaming.is_model_a_vehicle(entity.get_entity_model_hash(Entity)) then
-				vehicle.set_vehicle_mod_kit_type(Entity, 0)
-				for i = 0, 48 do
-					local setting = info["Mods_"..i]
-					if type(setting) == "table" then
-						setting = setting[1]
-					elseif type(setting) == "boolean" then
-						vehicle.toggle_vehicle_mod(Entity, i, setting)
-					end
-				end
-				if type(info["TorqueMultiplier"]) == "number" and info["TorqueMultiplier"] ~= 1 then
-					custom_upgrades.torque_modifier(Entity, info["TorqueMultiplier"])
-				end
-				if type(info["RpmMultiplier"]) == "number" and info["RpmMultiplier"] ~= 1 then
-					vehicle.modify_vehicle_top_speed(Entity, info["RpmMultiplier"] * 100)
-					entity.set_entity_max_speed(Entity, 540 * info["RpmMultiplier"])
-				end
-				if math.type(info["ColoursPearl"]) == "integer" and math.type(info["ColoursRim"]) == "integer" then
-					vehicle.set_vehicle_extra_colors(Entity, info["ColoursPearl"], info["ColoursRim"])
-				end
-				if math.type(info["ColoursPrimary"]) == "integer" and math.type(info["ColoursSecondary"]) == "integer" then
-					vehicle.set_vehicle_colors(Entity, info["ColoursPrimary"], info["ColoursSecondary"])
-					if info["ColoursIsPrimaryColourCustom"] then
-						vehicle.set_vehicle_custom_primary_colour(Entity, info["ColoursPrimary"])
-						vehicle.set_vehicle_custom_pearlescent_colour(Entity, info["ColoursPearl"])
-					end
-					if info["ColoursIsSecondaryColourCustom"] then
-						vehicle.set_vehicle_custom_secondary_colour(Entity, info["ColoursSecondary"])
-					end
-				end
-				if math.type(info["ColourstyreSmoke_R"]) == "integer" 
-				and math.type(info["ColourstyreSmoke_G"]) == "integer" 
-				and math.type(info["ColourstyreSmoke_B"]) == "integer" then
-					vehicle.set_vehicle_tire_smoke_color(Entity, info["ColourstyreSmoke_R"], info["ColourstyreSmoke_G"], info["ColourstyreSmoke_B"])
-				end
-				if type(info["NumberPlateText"]) == "string" then
-					vehicle.set_vehicle_number_plate_text(Entity, info["NumberPlateText"])
-				end
-				if math.type(info["NumberPlateIndex"]) == "integer" then
-					vehicle.set_vehicle_number_plate_index(Entity, info["NumberPlateIndex"])
-				end
-				if math.type(info["WheelType"]) == "integer" then
-					vehicle.set_vehicle_wheel_type(Entity, info["WheelType"])
-				end
-				if math.type(info["WindowTint"]) == "integer" then
-					vehicle.set_vehicle_window_tint(Entity, info["WindowTint"])
-				end
-				vehicle.set_vehicle_bulletproof_tires(Entity, info["BulletProofTyres"] == true)
-				vehicle.set_vehicle_engine_on(Entity, info["EngineOn"] == true, true, false)
-				if type(info["EngineHealth"]) == "number" then
-					vehicle.set_vehicle_engine_health(Entity, info["EngineHealth"])
-				end
-				vehicle.set_vehicle_neon_light_enabled(Entity, 0, info["NeonsLeft"] == true)
-				vehicle.set_vehicle_neon_light_enabled(Entity, 1, info["NeonsRight"] == true)
-				vehicle.set_vehicle_neon_light_enabled(Entity, 2, info["NeonsFront"] == true)
-				vehicle.set_vehicle_neon_light_enabled(Entity, 3, info["NeonsBack"] == true)
-				if math.type(info["NeonsR"]) == "integer" 
-				and math.type(info["NeonsG"]) == "integer" 
-				and math.type(info["NeonsB"]) == "integer" then
-					vehicle.set_vehicle_neon_lights_color(Entity, info["NeonsR"] * info["NeonsG"] * info["NeonsB"])
-				end
-				if math.type(info["Livery"]) == "integer" and info["Livery"] ~= -1 then
-					vehicle.set_vehicle_livery(Entity, info["Livery"])
-				end
-				if type(info["DoorsOpenFrontLeftDoor"]) == true then
-					vehicle.set_vehicle_door_open(Entity, 0, info["DoorsOpenFrontLeftDoor"], info["DoorsOpenFrontLeftDoor"])
-				end
-				if type(info["DoorsOpenFrontRightDoor"]) == true then
-					vehicle.set_vehicle_door_open(Entity, 1, info["DoorsOpenFrontRightDoor"], info["DoorsOpenFrontRightDoor"])
-				end
-				if type(info["DoorsOpenBackLeftDoor"]) == true then
-					vehicle.set_vehicle_door_open(Entity, 2, info["DoorsOpenBackLeftDoor"], info["DoorsOpenBackLeftDoor"])
-				end
-				if type(info["DoorsOpenBackRightDoor"]) == true then
-					vehicle.set_vehicle_door_open(Entity, 3, info["DoorsOpenBackRightDoor"], info["DoorsOpenBackRightDoor"])
-				end
-				if type(info["DoorsOpenHood"]) == true then
-					vehicle.set_vehicle_door_open(Entity, 4, info["DoorsOpenHood"], info["DoorsOpenHood"])
-				end
-				if type(info["DoorsOpenTrunk"]) == true then
-					vehicle.set_vehicle_door_open(Entity, 5, info["DoorsOpenTrunk"], info["DoorsOpenTrunk"])
-				end
-				if type(info["DoorsOpenTrunk2"]) == true then
-					vehicle.set_vehicle_door_open(Entity, 6, info["DoorsOpenTrunk2"], info["DoorsOpenTrunk2"])
-				end
-				if info["TyresBurstedFrontLeft"] == true then
-					vehicle.set_vehicle_tire_burst(Entity, 0, true, 1000)
-				end
-				if info["TyresBurstedFrontRight"] == true then
-					vehicle.set_vehicle_tire_burst(Entity, 1, true, 1000)
-				end
-				if info["TyresBursted_2"] == true then
-					vehicle.set_vehicle_tire_burst(Entity, 2, true, 1000)
-				end
-				if info["TyresBursted_3"] == true then
-					vehicle.set_vehicle_tire_burst(Entity, 3, true, 1000)
-				end
-				if info["TyresBurstedBackLeft"] == true then
-					vehicle.set_vehicle_tire_burst(Entity, 4, true, 1000)
-				end
-				if info["TyresBurstedBackRight"] == true then
-					vehicle.set_vehicle_tire_burst(Entity, 5, true, 1000)
-				end
-				if info["TyresBursted_6"] == true then
-					vehicle.set_vehicle_tire_burst(Entity, 45, true, 1000)
-				end
-				if info["TyresBursted_7"] == true then
-					vehicle.set_vehicle_tire_burst(Entity, 47, true, 1000)
-				end
-				if info["TyresBursted_8"] == true then
-					vehicle.set_vehicle_tire_burst(Entity, 8, true, 1000)
-				end
-				if type(info["WheelsRenderSize"]) == "number" then
-					vehicle.set_vehicle_wheel_render_size(Entity, info["WheelsRenderSize"])
-				end
-				if type(info["WheelsRenderWidth"]) == "number" then
-					vehicle.set_vehicle_wheel_render_width(Entity, info["WheelsRenderWidth"])
-				end
-				if math.type(info["LandingGearState"]) == "integer" then
-					vehicle.control_landing_gear(Entity, info["LandingGearState"])
-				end
-				if info["ReducedGrip"] == true then
-					vehicle.set_vehicle_reduce_grip(Entity, true)
-				end
-				if math.type(info["MaxGear"]) == "integer" then
-					vehicle.set_vehicle_max_gear(Entity, info["MaxGear"])
-				end
-				if math.type(info["CurrentGear"]) == "integer" then
-					vehicle.set_vehicle_current_gear(Entity, info["CurrentGear"])
-				end
-				if math.type(info["WheelsCount"]) == "integer" then
-					for i = 0, info["WheelsCount"] - 1 do
-						if type(info["Wheel_"..i.."TireRadius"]) == "number" then
-							vehicle.set_vehicle_wheel_tire_radius(Entity, i, info["Wheel_"..i.."TireRadius"])
-						end
-						if type(info["Wheel_"..i.."RimRadius"]) == "number" then
-							vehicle.set_vehicle_wheel_rim_radius(Entity, i, info["Wheel_"..i.."RimRadius"])
-						end
-						if type(info["Wheel_"..i.."TireWidth"]) == "number" then
-							vehicle.set_vehicle_wheel_tire_width(Entity, i, info["Wheel_"..i.."TireWidth"])
-						end
-						if type(info["Wheel_"..i.."RotationSpeed"]) == "number" then
-							vehicle.set_vehicle_wheel_rotation_speed(Entity, i, info["Wheel_"..i.."RotationSpeed"])
-						end
-						if type(info["Wheel_"..i.."Power"]) == "number" then
-							vehicle.set_vehicle_wheel_power(Entity, i, info["Wheel_"..i.."Power"])
-							if info["Wheel_"..i.."Power"] > 0 then
-								vehicle.set_vehicle_wheel_is_powered(Entity, i, true)
-							end
-						end
-						if type(info["Wheel_"..i.."Health"]) == "number" then
-							vehicle.set_vehicle_wheel_health(Entity, i, info["Wheel_"..i.."Health"])
-						end
-						if type(info["Wheel_"..i.."BrakePressure"]) == "number" then
-							vehicle.set_vehicle_wheel_brake_pressure(Entity, i, info["Wheel_"..i.."BrakePressure"])
-						end
-						if type(info["Wheel_"..i.."TractionVectorLength"]) == "number" then
-							vehicle.set_vehicle_wheel_traction_vector_length(Entity, i, info["Wheel_"..i.."TractionVectorLength"])
-						end
-						if type(info["Wheel_"..i.."xOffset"]) == "number" then
-							vehicle.set_vehicle_wheel_x_offset(Entity, i, info["Wheel_"..i.."xOffset"])
-						end
-						if type(info["Wheel_"..i.."yRotation"]) == "number" then
-							vehicle.set_vehicle_wheel_y_rotation(Entity, i, info["Wheel_"..i.."yRotation"])
-						end
-						if math.type(info["Wheel_"..i.."Flags"]) == "integer" then
-							vehicle.set_vehicle_wheel_flags(Entity, i, info["Wheel_"..i.."Flags"])
-						end
-					end
-				end
-			elseif streaming.is_model_a_ped(entity.get_entity_model_hash(Entity)) then
-				local t = 0
-				if info["IsStill"] == true then
-					t = 1
-				end
-				ped.set_ped_config_flag(Entity, 301, t)
-				local t = 1
-				if info["CanRagdoll"] == true then
-					t = 0
-				end
-				ped.set_ped_config_flag(Entity, 104, t)
-				if math.type(info["CurrentWeapon"]) == "integer" and info["CurrentWeapon"] ~= 2725352035 then
-					weapon.give_delayed_weapon_to_ped(Entity, info["CurrentWeapon"], 0, 1)
-					weapon_mapper.set_ped_weapon_attachments(Entity, true, info["CurrentWeapon"])
-					kek_entity.set_combat_attributes(Entity, false, true)
-				end
-				for i = 0, 9 do
-					if type(info["PedProps_"..i]) == "table" then
-						ped.set_ped_prop_index(Entity, info["PedProps_"..i][1], 1, info["PedProps_"..i][2], 0)
-					end
-				end
-				for i = 0, 11 do
-					if type(info["PedComps_"..i]) == "table" then
-						ped.set_ped_component_variation(Entity, info["PedComps_"..i][1], 1, info["PedComps_"..i][2], 1)
-					end
-				end
-				if math.type(info["HairColor"]) == "integer" and math.type(info["HairHighlightColor"]) == "integer" then
-					ped.set_ped_hair_colors(Entity, info["HairColor"], info["HairHighlightColor"])
-				end
-				if math.type(info["EyeColor"]) == "integer" then
-					ped.set_ped_eye_color(Entity, info["EyeColor"])
-				end
-				if math.type(info["BlendDatashape_first"]) == "integer"
-				and math.type(info["BlendDatashape_second"]) == "integer"
-				and math.type(info["BlendDatashape_third"]) == "integer"
-				and math.type(info["BlendDataskin_first"]) == "integer"
-				and math.type(info["BlendDataskin_second"]) == "integer"
-				and math.type(info["BlendDataskin_third"]) == "integer"
-				and type(info["BlendDatamix_shape"]) == "number"
-				and type(info["BlendDatamix_skin"]) == "number"
-				and type(info["BlendDatamix_third"]) == "number" then
-					ped.set_ped_head_blend_data(Entity, 
-						info["BlendDatashape_first"], 
-						info["BlendDatashape_second"],
-						info["BlendDatashape_third"],
-						info["BlendDataskin_first"],
-						info["BlendDataskin_second"],
-						info["BlendDataskin_third"],
-						info["BlendDatamix_shape"],
-						info["BlendDatamix_skin"],
-						info["BlendDatamix_third"]
-					)
-				end
-				for i = 0, 11 do
-					if type(info["HeadOverlay_"..i.."Value"]) == "number" and type(info["HeadOverlay_"..i.."Opacity"]) == "number" then
-						ped.set_ped_head_overlay(Entity, i, info["HeadOverlay_"..i.."Value"], info["HeadOverlay_"..i.."Opacity"])
-					end
-					if math.type(info["HeadOverlay_"..i.."ColorType"]) == "integer" 
-					and math.type(info["HeadOverlay_"..i.."Color"]) == "integer" 
-					and math.type(info["HeadOverlay_"..i.."highlightColor"]) == "integer" then
-						ped.set_ped_head_overlay_color(Entity, i, info["HeadOverlay_"..i.."ColorType"], info["HeadOverlay_"..i.."Color"], info["HeadOverlay_"..i.."highlightColor"])
-					end
-				end
-				for i = 0, 19 do
-					if math.type(info["FacialFeatures"..i]) == "integer" then
-						ped.set_ped_face_feature(Entity, i, info["FacialFeatures"..i])
-					end
-				end
-				if type(info["RelationshipGroupAltered"]) == true and math.type(info["RelationshipGroup"]) == "integer" then
-					ped.set_ped_relationship_group_hash(Entity, info["RelationshipGroup"])
-				end
-				if type(info["MaxHealth"]) == "number" then
-					ped.set_ped_max_health(Entity, info["MaxHealth"])
-				end
-				if type(info["Health"]) == "number" then
-					ped.set_ped_health(Entity, info["Health"])
-				end
-				if math.type(info["PedVehicleSeat"]) == "integer"
-				and info["PedVehicleSeat"] ~= -2
-				and math.type(entities[info["AttachedTo"]]) == "integer" 
-				and entity.is_an_entity(entities[info["AttachedTo"]]) then
-					ped.set_ped_into_vehicle(Entity, entities[info["AttachedTo"]], info["PedVehicleSeat"])
-					if info["Seat"] == -1 then
-						ai.task_vehicle_drive_wander(Entity, entities[info["AttachedTo"]], 150, kek_menu.settings["Drive style"])
-					end
-				end
-			elseif pid == player.player_id() 
-				and entity.get_entity_model_hash(Entity) == 3084738513 
-				and info["isAttached"] 
-				and entities[info["AttachedTo"]] then
-					local offset = v3()
-				if type(info["X"]) == "number" then
-					offset.x = info["X"]
-				end
-				if type(info["Y"]) == "number" then
-					offset.y = info["Y"]
-				end
-				if type(info["Z"]) == "number" then
-					offset.z = info["Z"]
-				end
-				custom_upgrades.vehicle_turret(entities[info["AttachedTo"]], Entity, offset)
-			end
-			if info["IsFireProof"] == true then
-				custom_upgrades.immune_to_fire(Entity)
-			end
-			if type(info["OpacityLevel"]) == "number" then
-				entity.set_entity_alpha(Entity, info["OpacityLevel"], 1)
-			end
-			if info["IsVisible"] == false then
-				entity.set_entity_visible(Entity, false)
-			end
-			if info["HasGravity"] == false then
-				entity.set_entity_gravity(Entity, false)
-			end
-			if info["IsOnFire"] then
-				fire.start_entity_fire(Entity)
-			end
-			entity.set_entity_god_mode(Entity, info["IsInvincible"] == true)
-			entity.freeze_entity(Entity, info["FrozenPos"] == true)
+	if info.ModExtras then
+		for i, value in pairs(info.ModExtras) do
+			vehicle.set_vehicle_extra(Entity, tonumber((i:gsub("_", ""))), value)
 		end
 	end
-
-	local function attach(...)
-		local Entity <const>,
-		info <const>,
-		entities <const> = ...
-		if info["isAttached"] and (math.type(info["PedVehicleSeat"]) ~= "integer" or info["PedVehicleSeat"] == -2) and entity.is_an_entity(Entity or 0) and entity.is_an_entity(entities[info["AttachedTo"]] or 0) then
-			local rot = v3()
-			local offset = v3()
-			if type(info["X"]) == "number" then
-				offset.x = info["X"]
+	if info.TorqueMultiplier and info.TorqueMultiplier ~= 1 then
+		custom_upgrades.torque_modifier(Entity, info.TorqueMultiplier)
+	end
+	if info.RpmMultiplier and info.RpmMultiplier ~= 1 then
+		vehicle.modify_vehicle_top_speed(Entity, info.RpmMultiplier * 100)
+		entity.set_entity_max_speed(Entity, 540 * info.RpmMultiplier)
+	end
+	vehicle.set_vehicle_colors(Entity, colours.Primary, colours.Secondary)
+	vehicle.set_vehicle_extra_colors(Entity, colours.Pearl, colours.Rim)
+	if colours.tyreSmoke_R then
+		vehicle.set_vehicle_tire_smoke_color(Entity, colours.tyreSmoke_R, colours.tyreSmoke_G, colours.tyreSmoke_B)
+	end
+	vehicle.set_vehicle_number_plate_text(Entity, type(info.NumberPlateText) == "string" and info.NumberPlateText or "kektram")
+	if type(colours.LrXenonHeadlights) == "number" then -- Not all xmls supports this
+		vehicle.set_vehicle_headlight_color(Entity, colours.LrXenonHeadlights)
+	end
+	if colours.IsPrimaryColourCustom then
+		vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(colours.Cust1_R, colours.Cust1_G, colours.Cust1_B))
+	end
+	if colours.IsSecondaryColourCustom then
+		vehicle.set_vehicle_custom_secondary_colour(Entity, essentials.get_rgb(colours.Cust2_R, colours.Cust2_G, colours.Cust2_B))
+	end
+	if colours.IsPearlColourCustom then
+		vehicle.set_vehicle_custom_pearlescent_colour(Entity, colours.PearlCustom)
+	end
+	vehicle.set_vehicle_number_plate_index(Entity, info.NumberPlateIndex)
+	vehicle.set_vehicle_window_tint(Entity, info.WindowTint)
+	vehicle.set_vehicle_engine_on(Entity, info.EngineOn == true, true, false)
+	vehicle.set_vehicle_neon_light_enabled(Entity, 0, info.Neons.Left == true)
+	vehicle.set_vehicle_neon_light_enabled(Entity, 1, info.Neons.Right == true)
+	vehicle.set_vehicle_neon_light_enabled(Entity, 2, info.Neons.Front == true)
+	vehicle.set_vehicle_neon_light_enabled(Entity, 3, info.Neons.Back == true)
+	vehicle.set_vehicle_neon_lights_color(Entity, essentials.get_rgb(info.Neons.R, info.Neons.G, info.Neons.B))
+	if info.LandingGearState and (streaming.is_model_a_plane(hash) or streaming.is_model_a_heli(hash)) then
+		vehicle.control_landing_gear(Entity, info.LandingGearState)
+	end
+	if info.EngineHealth then
+		vehicle.set_vehicle_engine_health(Entity, info.EngineHealth)
+	end
+	if doors_open then
+		for i, setting in pairs(doors_open) do
+			if setting == true then
+				vehicle.set_vehicle_door_open(Entity, enums.vehicle_door_indices[i], false, true)
 			end
-			if type(info["Y"]) == "number" then
-				offset.y = info["Y"]
-			end
-			if type(info["Z"]) == "number" then
-				offset.z = info["Z"]
-			end
-			if type(info["Pitch"]) == "number" then
-				rot.x = info["Pitch"]
-			end
-			if type(info["Roll"]) == "number" then
-				rot.y = info["Roll"]
-			end
-			if type(info["Yaw"]) == "number" then
-				rot.z = info["Yaw"]
-			end
-			if math.type(info["BoneIndex"]) ~= "integer" then
-				info["BoneIndex"] = 0
-			end
-			entity.attach_entity_to_entity(Entity, entities[info["AttachedTo"]], info["BoneIndex"], offset, rot, false, info["IsCollisionProof"] == false, info["Type"] == 1, 0, true)
 		end
 	end
-
-	local function spawn_vehicle(...)
-		local file <const>,
-		entities <const>,
-		pid <const>,
-		parent_entity <const> = ...
-		local info <const> = extract_info(file)
-		local hash <const> = info["ModelHash"]
-		local Entity <const> = kek_menu.spawn_entity(hash, function()
-			return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), 0
-		end, false, false, false, 4, true, nil, info["Dynamic"] == false)
-		if not entity.is_an_entity(Entity) then
-			return entities, hash
-		end
-		if math.type(info["AttachedTo"]) ~= "integer" then
-			info["AttachedTo"] = parent_entity
-			entities[info["AttachedTo"]] = parent_entity
-		end
-		entities[info["InitialHandle"]] = Entity
-		apply_entity_modifications(Entity, info, entities, pid)
-		if info["isAttached"] then
-			attach(Entity, info, entities)
-		end
-		return entities, hash
-	end
-	
-	local function spawn_map_object(...)
-		local file <const>,
-		entities <const>,
-		pid <const> = ...
-		local info <const> = extract_info(file)
-		local hash <const> = info["ModelHash"]
-		if type(info["PositionRotationX"]) == "number" and type(info["PositionRotationY"]) == "number" and type(info["PositionRotationZ"]) == "number" then
-			local Entity <const> = kek_menu.spawn_entity(hash, function()
-				return player.get_player_coords(player.player_id()) + v3(0, 0, 50), 0
-			end, false, true, false, 4, true, 0.5, info["Dynamic"] == false, true)
-			entities[info["InitialHandle"]] = Entity
-			apply_entity_modifications(Entity, info, entities, pid)
-			if info["isAttached"] then
-				attach(Entity, info, entities)
-			elseif type(info["PositionRotationPitch"]) == "number" and type(info["PositionRotationRoll"]) == "number" and type(info["PositionRotationYaw"]) == "number" then
-				entity.set_entity_rotation(Entity, v3(info["PositionRotationPitch"], info["PositionRotationRoll"], info["PositionRotationYaw"]))
-				entity.set_entity_coords_no_offset(Entity, v3(info["PositionRotationX"], info["PositionRotationY"], info["PositionRotationZ"]))
+	if tyres_bursted then
+		for i, setting in pairs(tyres_bursted) do
+			if setting == true then
+				vehicle.set_vehicle_tire_burst(Entity, enums.vehicle_tyre_indices[i], true, 1000)
 			end
 		end
-		return entities, hash
 	end
-
-function menyoo.spawn_custom_vehicle(...)
-	local file_path <const>,
-	pid <const>,
-	teleport <const> = ...
-	if not player.is_player_valid(pid) then
-		return 0, {}
+	if info.ReducedGrip == true then
+		vehicle.set_vehicle_reduce_grip(Entity, true)
 	end
-	if not file_path:find("%.xml$") then
-		essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%..+$")).."]: "..lang["Wrong file extension. §"], 6, true, 8)
-		return 0, {}
-	end
-	local parent_entity, entities, file = 0, {}
-	local hashes = {}
-	local info = {}
-	if utils.file_exists(file_path) then
-		file = io.open(file_path)
-		local str2 <const> = essentials.file(file, "read", "*l")
-		local str = essentials.file(file, "read", "*l")
-		if not str or str == "" then
-			essentials.file(file, "close")
-			essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%.xml$")).."]: "..lang["Xml file is empty. §"], 6, true, 8)
-			return 0, {}
+	if info.WheelsCount then -- Any checks below is because the functions gathering these properties may return nil
+		if info.WheelsRenderSize then
+			vehicle.set_vehicle_wheel_render_size(Entity, info.WheelsRenderSize)
 		end
-		if not str2:lower():find("?xml version=\"1.0\"", 1, true) or str:lower():find("map", 1, true) then
-			essentials.msg(lang["Unsupported file format. §"], 6, true)
-			essentials.file(file, "close")
-			return 0, {}
+		if info.WheelsRenderWidth then
+			vehicle.set_vehicle_wheel_render_width(Entity, info.WheelsRenderWidth)
 		end
-		info = extract_info(file, "SpoonerAttachments")
-		parent_entity = kek_menu.spawn_entity(info["ModelHash"] or 0, function()
-			return player.get_player_coords(player.player_id()) + v3(-50, 0, 30), player.get_player_heading(pid)
-		end, false, false, false, 4, true, nil, info["Dynamic"] == false)
-		kek_entity.max_car(parent_entity, true)
-		if entity.is_an_entity(parent_entity) then
-			hashes[#hashes + 1] = info["ModelHash"]
-			entities[info["InitialHandle"] or 0] = parent_entity
-			apply_entity_modifications(parent_entity, info, entities, pid)
-			entity.freeze_entity(parent_entity, true)
-		else
-			return 0, {}
+		if info.MaxGear then
+			vehicle.set_vehicle_max_gear(Entity, info.MaxGear)
 		end
-		str = ""
-		while str do
-			essentials.random_wait(2500)
-			if new_attachment_check(str) then
-				local tabs <const> = str:match("^(%s*)[%w%p]+")
-				xml_end = {
-					"^"..tabs.."</Attachment>$",
-					"^"..tabs.."</Placement>$"
-				}
-				xml_start = {
-					"^"..tabs.."<Attachment>$",
-					"^"..tabs.."<Placement>$"
-				}
-				entities, hashes[#hashes + 1] = spawn_vehicle(file, entities, pid, parent_entity)
+		if info.CurrentGear then
+			vehicle.set_vehicle_current_gear(Entity, info.CurrentGear)
+		end
+		for i = 0, info.WheelsCount - 1 do
+			if info["Wheel_"..i]["TireRadius"] then
+				vehicle.set_vehicle_wheel_tire_radius(Entity, i, info["Wheel_"..i]["TireRadius"])
 			end
-			str = essentials.file(file, "read", "*l")
+			if info["Wheel_"..i]["RimRadius"] then
+				vehicle.set_vehicle_wheel_rim_radius(Entity, i, info["Wheel_"..i]["RimRadius"])
+			end
+			if info["Wheel_"..i]["TireWidth"] then
+				vehicle.set_vehicle_wheel_tire_width(Entity, i, info["Wheel_"..i]["TireWidth"])
+			end
+			if info["Wheel_"..i]["RotationSpeed"] then
+				vehicle.set_vehicle_wheel_rotation_speed(Entity, i, info["Wheel_"..i]["RotationSpeed"])
+			end
+			if info["Wheel_"..i]["Power"] then
+				vehicle.set_vehicle_wheel_power(Entity, i, info["Wheel_"..i]["Power"])
+			end
+			if info["Wheel_"..i]["Health"] then
+				vehicle.set_vehicle_wheel_health(Entity, i, info["Wheel_"..i]["Health"])
+			end
+			if info["Wheel_"..i]["BrakePressure"] then
+				vehicle.set_vehicle_wheel_brake_pressure(Entity, i, info["Wheel_"..i]["BrakePressure"])
+			end
+			if info["Wheel_"..i]["TractionVectorLength"] then
+				vehicle.set_vehicle_wheel_traction_vector_length(Entity, i, info["Wheel_"..i]["TractionVectorLength"])
+			end
+			if info["Wheel_"..i]["xOffset"] then
+				vehicle.set_vehicle_wheel_x_offset(Entity, i, info["Wheel_"..i]["xOffset"])
+			end
+			if info["Wheel_"..i]["yRotation"] then
+				vehicle.set_vehicle_wheel_y_rotation(Entity, i, info["Wheel_"..i]["yRotation"])
+			end
+			if info["Wheel_"..i]["Flags"] then
+				vehicle.set_vehicle_wheel_flags(Entity, i, info["Wheel_"..i]["Flags"])
+			end
+			if info["Wheel_"..i]["Power"] > 0 then
+				vehicle.set_vehicle_wheel_is_powered(Entity, i, true)
+			end
 		end
-		entity.freeze_entity(parent_entity, info["FrozenPos"] == true)
-		for i, hash in pairs(hashes) do
-			streaming.set_model_as_no_longer_needed(hash)
-		end
-		essentials.file(file, "close")
-		if teleport then
-			kek_entity.teleport(parent_entity, location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 8)))
-		end
-	else
-		essentials.msg(lang["Couldn't find file §"], 6, true)
 	end
-	return parent_entity, entities
 end
 
-function menyoo.spawn_map(...)
-	local file_path <const>,
-	pid <const>,
-	teleport_to_map <const> = ...
-	if not player.is_player_valid(pid) then
-		return 0, {}
+local function apply_ped_modifications(...)
+	local Entity <const>, info <const>, entities <const> = ...
+	if info.PedProperties.IsStill == true then
+		ped.set_ped_config_flag(Entity, enums.ped_config_flags.DisablePedConstraints, 1)
 	end
-	if not file_path:find("%.xml$") then
-		essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%..+$")).."]: "..lang["Wrong file extension. §"], 6, true, 8)
-		return 0, {}
+	if info.PedProperties.CanRagdoll == true then
+		ped.set_ped_config_flag(Entity, enums.ped_config_flags.cantRagdoll, 0)
 	end
-	local entities = {}
-	if utils.file_exists(file_path) then
-		local hashes = {}
-		local file <close> = io.open(file_path)
-		local str = essentials.file(file, "read", "*l")
-		if not str or str == "" then
-			essentials.msg("["..lang["File name §"]..": "..tostring(file_path:match("\\.+\\(.-)%.xml$")).."]: "..lang["Xml file is empty. §"], 6, true, 8)
-			return 0, {}
+	if info.PedProperties.CurrentWeapon 
+	and info.PedProperties.CurrentWeapon ~= gameplay.get_hash_key("weapon_unarmed") 
+	and streaming.is_model_valid(weapon.get_weapon_model(info.PedProperties.CurrentWeapon)) then -- Currentweapon isn't obtained by menyoo saver
+		weapon.give_delayed_weapon_to_ped(Entity, info.PedProperties.CurrentWeapon, 0, 1)
+		weapon_mapper.set_ped_weapon_attachments(Entity, true, info.PedProperties.CurrentWeapon)
+		kek_entity.set_combat_attributes(Entity, true, {})
+	end
+	for i = 0, 9 do
+		ped.set_ped_prop_index(Entity, i, info.PedProperties["PedProps"]["_"..i][1], info.PedProperties["PedProps"]["_"..i][2], 0)
+	end
+	for i = 0, 11 do
+		ped.set_ped_component_variation(Entity, i, info.PedProperties["PedComps"]["_"..i][1], info.PedProperties["PedComps"]["_"..i][2], 0)
+	end
+	if info.PedProperties.HairColor then
+		ped.set_ped_hair_colors(Entity, info.PedProperties.HairColor, info.PedProperties.HairHighlightColor)
+		ped.set_ped_eye_color(Entity, info.PedProperties.EyeColor)
+		if info.PedProperties.BlendData.mix_third then
+			ped.set_ped_head_blend_data(Entity, 
+				info.PedProperties.BlendData.shape_first, 
+				info.PedProperties.BlendData.shape_second,
+				info.PedProperties.BlendData.shape_third,
+				info.PedProperties.BlendData.skin_first,
+				info.PedProperties.BlendData.skin_second,
+				info.PedProperties.BlendData.skin_third,
+				info.PedProperties.BlendData.mix_shape,
+				info.PedProperties.BlendData.mix_skin,
+				info.PedProperties.BlendData.mix_third
+			)
 		end
-		if not str:lower():find("?xml version=\"1.0\"", 1, true) then
-			essentials.msg(lang["Unsupported file format. §"], 6, true)
-			return 0, {}
+		for i = 0, 19 do
+			ped.set_ped_face_feature(Entity, i, info["FacialFeatures"][tostring(i)])
 		end
-		local reference_pos
-		repeat
-			if str:find("<ReferenceCoords>", 1, true) then
-				local x <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-				local y <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-				local z <const> = tonumber((essentials.file(file, "read", "*l") or ""):match(">(.-)<"))
-				essentials.file(file, "read", "*l")
-				str = essentials.file(file, "read", "*l")
-				if type(x) == "number" and type(y) == "number" and type(z) == "number" then
-					reference_pos = v3(x, y, z)
-				end
-			end
-			str = essentials.file(file, "read", "*l")
-		until new_attachment_check(str)
-		while str do
-			essentials.random_wait(2500)
-			if new_attachment_check(str) then
-				local tabs <const> = str:match("^(%s*)[%w%p]+")
-				xml_end = {
-					"^"..tabs.."</Attachment>$",
-					"^"..tabs.."</Placement>$"
-				}
-				xml_start = {
-					"^"..tabs.."<Attachment>$",
-					"^"..tabs.."<Placement>$"
-				}
-				entities, hashes[#hashes + 1] = spawn_map_object(file, entities, pid)
-			end
-			str = essentials.file(file, "read", "*l")
+	end
+	if type(info.PedProperties.RelationshipGroupAltered) == true then
+		ped.set_ped_relationship_group_hash(Entity, info.PedProperties.RelationshipGroup)
+	end
+	if info.MaxHealth then
+		ped.set_ped_max_health(Entity, info.MaxHealth)
+	end
+	ped.set_ped_health(Entity, info.Health)
+	if info.PedProperties.PedVehicleSeat
+	and info.PedProperties.PedVehicleSeat ~= -2
+	and info.Attachment
+	and entity.is_entity_a_ped(entities[info.Attachment.AttachedTo]) then
+		ped.set_ped_into_vehicle(Entity, entities[info.Attachment.AttachedTo], info.PedProperties.PedVehicleSeat)
+		ai.task_vehicle_drive_wander(Entity, entities[info.Attachment.AttachedTo], 150, settings.in_use["Drive style"])
+		info.Attachment.__attributes.isAttached = false
+	end
+	if info.PedProperties.ScenarioActive == true then
+		ai.task_start_scenario_in_place(Entity, info.PedProperties.ScenarioName, 0, true)
+	end
+	if info.PedProperties.AnimActive == true and essentials.request_anim_dict(info.PedProperties.AnimDict) then
+		ai.task_play_anim(Entity, info.PedProperties.AnimDict, info.PedProperties.AnimName, 8.0, 1.0, -1, 1, 1.0, false, false, false)
+		streaming.remove_anim_dict(info.PedProperties.AnimDict)
+	end
+	if info.PedProperties.MovementGroupName and essentials.request_anim_set(info.PedProperties.MovementGroupName) then
+		ped.set_ped_movement_clipset(Entity, info.PedProperties.MovementGroupName)
+		streaming.remove_anim_set(info.PedProperties.MovementGroupName)
+	end
+end
+
+local function apply_entity_modifications(...) -- To be used with function spawn_entity. It doesnt freeze entities because that function does it.
+	local Entity <const>, info <const>, entities <const>, pid <const> = ...
+	if entity.is_an_entity(Entity) then
+		if entity.is_entity_a_vehicle(Entity) and info.VehicleProperties then
+			apply_vehicle_modifications(Entity, info)
+		elseif entity.is_entity_a_ped(Entity) and info.PedProperties then
+			apply_ped_modifications(Entity, info, entities)
 		end
-		for i, hash in pairs(hashes) do
-			streaming.set_model_as_no_longer_needed(hash)
+		if info.OpacityLevel then
+			entity.set_entity_alpha(Entity, info.OpacityLevel, 1)
 		end
-		if teleport_to_map then
-			if reference_pos then
-				kek_entity.teleport(essentials.get_most_relevant_entity(pid), reference_pos)
-			else
-				for handle, Entity in pairs(entities) do
-					if entity.is_an_entity(Entity) then
-						kek_entity.teleport(essentials.get_most_relevant_entity(pid), entity.get_entity_coords(Entity))
-						break
-					end
-				end
-			end
+		if type(info.LightsOn) == "boolean" then
+			entity.set_entity_lights(Entity, info.LightsOn)
+		end
+		if type(info.HasGravity) == "boolean" then
+			entity.set_entity_gravity(Entity, info.HasGravity)
+		end
+		if type(info.IsVisible) == "boolean" then
+			entity.set_entity_visible(Entity, info.IsVisible)
+		end
+		if info.IsOnFire == true then
+			fire.start_entity_fire(Entity)
+		end
+		entity.set_entity_god_mode(Entity, info.IsInvincible == true)
+		if pid == player.player_id()
+		and info.ModelHash == gameplay.get_hash_key("p_rcss_folded") -- Is object turret? 
+		and info.Attachment
+		and info.Attachment.__attributes.isAttached
+		and entities[info.Attachment.AttachedTo] 
+		and entity.is_entity_a_vehicle(entities[info.Attachment.AttachedTo])
+		then
+			custom_upgrades.vehicle_turret(
+				entities[info.Attachment.AttachedTo], 
+				Entity, 
+				v3(info.Attachment.X, info.Attachment.Y, info.Attachment.Z)
+			)
+			info.Attachment.__attributes.isAttached = false
+		end
+	end
+end
+
+local function update_spawn_counter(entities, hash, Entity)
+	if streaming.is_model_an_object(hash) then
+		if entity.is_entity_an_object(Entity) then
+			entities.objects.successful_spawns = entities.objects.successful_spawns + 1
+		else
+			entities.objects.failed_spawns = entities.objects.failed_spawns + 1
+		end
+	elseif streaming.is_model_a_ped(hash) then
+		if entity.is_entity_a_ped(Entity) then
+			entities.peds.successful_spawns = entities.peds.successful_spawns + 1
+		else
+			entities.peds.failed_spawns = entities.peds.failed_spawns + 1
+		end
+	elseif streaming.is_model_a_vehicle(hash) then
+		if entity.is_entity_a_vehicle(Entity) then
+			entities.vehicles.successful_spawns = entities.vehicles.successful_spawns + 1
+		else
+			entities.vehicles.failed_spawns = entities.vehicles.failed_spawns + 1
 		end
 	else
-		essentials.msg(lang["Couldn't find file §"], 6, true)
+		entities.invalid = entities.invalid + 1
 	end
-	return entities
+end
+
+local function send_spawn_counter_msg(entities)
+	essentials.msg(string.format("%s:\n%i/%i %s\n%i/%i %s\n%i/%i %s\n%i %s", 
+		lang["Spawned"], 
+		entities.peds.successful_spawns,
+		entities.peds.successful_spawns + entities.peds.failed_spawns,
+		lang["Peds"]:lower(),
+		entities.vehicles.successful_spawns,
+		entities.vehicles.successful_spawns + entities.vehicles.failed_spawns,
+		lang["Vehicles"]:lower(),
+		entities.objects.successful_spawns,
+		entities.objects.successful_spawns + entities.objects.failed_spawns,
+		lang["Objects"]:lower(),
+		entities.invalid,
+		lang["invalid models"]),
+		"green", 
+		true,
+		6
+	)
+end
+
+local function spawn_entity(info, entities, is_not_networked)
+	if not streaming.is_model_valid(info.ModelHash) then
+		update_spawn_counter(entities, 0, 0)
+		return 0
+	end
+	local Entity
+	if streaming.is_model_an_object(info.ModelHash) then
+		Entity = kek_entity.spawn_object(info.ModelHash, function()
+			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40)
+		end, info.Dynamic == false, is_not_networked, 6)
+	else
+		Entity = kek_entity.spawn_ped_or_vehicle(info.ModelHash, function()
+			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
+		end, false, false, enums.ped_types.civmale, 6, is_not_networked)
+	end
+	if entity.is_an_entity(Entity) then
+		entity.freeze_entity(Entity, true)
+	end
+	update_spawn_counter(entities, info.ModelHash, Entity)
+	return Entity
+end
+
+local function get_info_containers()
+	kek_entity.entity_manager:update()
+	return
+		{ -- entities
+			peds = {
+				failed_spawns = 0, 
+				successful_spawns = 0
+			},
+			vehicles = {
+				failed_spawns = 0, 
+				successful_spawns = 0
+			},
+			objects = {
+				failed_spawns = 0, 
+				successful_spawns = 0
+			},
+			invalid = 0
+		}
+end
+
+local function check_entity_limits(entities, hash)
+	if streaming.is_model_a_ped(hash) and kek_entity.entity_manager.counts.ped >= settings.valuei["Ped limit"].value then
+		kek_entity.clear_entities(entities)
+		essentials.msg(lang["Reached ped spawn limit. Cancelling menyoo spawn."], "red", true, 6)
+		return true
+	end
+	if streaming.is_model_a_vehicle(hash) and kek_entity.entity_manager.counts.vehicle >= settings.valuei["Vehicle limit"].value then
+		kek_entity.clear_entities(entities)
+		essentials.msg(lang["Reached vehicle spawn limit. Cancelling menyoo spawn."], "red", true, 6)
+		return true
+	end
+	if streaming.is_model_an_object(hash) and kek_entity.entity_manager.counts.object >= settings.valuei["Object limit"].value then
+		kek_entity.clear_entities(entities)
+		essentials.msg(lang["Reached object spawn limit. Cancelling menyoo spawn."], "red", true, 6)
+		return true
+	end
+	return false
+end
+
+local function decrement_counter(Entity, entities)
+	if entity.is_entity_a_ped(Entity) then
+		entities.peds.successful_spawns = entities.peds.successful_spawns - 1
+		entities.peds.failed_spawns = entities.peds.failed_spawns + 1
+	elseif entity.is_entity_a_vehicle(Entity) then
+		entities.vehicles.successful_spawns = entities.vehicles.successful_spawns - 1
+		entities.vehicles.failed_spawns = entities.vehicles.failed_spawns + 1
+	else
+		entities.objects.successful_spawns = entities.objects.successful_spawns - 1
+		entities.objects.failed_spawns = entities.objects.failed_spawns + 1
+	end
+end
+
+local function attach(...)
+	local Entity <const>,
+	info <const>,
+	entities <const> = ...
+	local att_info = info.Attachment or info.Placement -- Maps use Placement, vehicles use Attachment
+
+	local offx  <const> = info.X 	 or info.x 	   or info.xt   or info.OffsetX or info["x offset"] or att_info and att_info.X     or 0
+	local offy  <const> = info.Y 	 or info.y 	   or info.yt   or info.OffsetY or info["y offset"] or att_info and att_info.Y     or 0
+	local offz  <const> = info.Z 	 or info.z 	   or info.zt   or info.OffsetZ or info["z offset"] or att_info and att_info.Z 	   or 0
+	local pitch <const> = info.Pitch or info.pitch or info.RotX or info.Rotx 	or 				       att_info and att_info.Pitch or 0
+	local roll  <const> = info.Roll  or info.roll  or info.RotY or info.Roty 	or 					   att_info and att_info.Roll  or 0
+	local yaw   <const> = info.Yaw   or info.yaw   or info.RotZ or info.Rotz 	or 					   att_info and att_info.Yaw   or 0
+
+	local entity_attached_to <const> = entities[info.AttachNumeration] or att_info and entities[att_info.AttachedTo] or entities["parent_entity"] or 0
+	local is_attached <const> = info.isAttached or info.IsAttached or att_info and att_info.__attributes.isAttached
+	
+	local collision = (info.collision or info.Collision) ~= false
+	if type(info.IsCollisionProof) == "boolean" then
+		collision = info.IsCollisionProof == false
+	elseif type(info.collision) == "number" or type(info.Collision) == "number" then
+		collision = (info.collision or info.Collision) ~= 0
+	end
+
+	if (is_attached)
+	and (math.type(info.PedVehicleSeat) ~= "integer" or info.PedVehicleSeat == -2)
+	and entity.is_an_entity(Entity or 0) 
+	and entity.is_an_entity(entity_attached_to)
+	and type(offx)  == "number"
+	and type(offy)  == "number"
+	and type(offz)  == "number"
+	and type(pitch) == "number"
+	and type(roll)  == "number"
+	and type(yaw)   == "number"
+	and Entity ~= entity_attached_to then
+		entity.set_entity_collision(Entity, collision, collision, collision)
+		entity.attach_entity_to_entity(
+			Entity, 							 -- Entity to attach
+			entity_attached_to, 			 	 -- Entity to attach to
+			att_info and att_info.BoneIndex or info.Bone or info.bone or 0, -- Bone index
+			v3(offx, offy, offz), 				 -- Offset from entity
+			v3(pitch, roll, yaw), 				 -- Rotation
+			false, 								 -- Soft attach (can detach easily or not)
+			collision, 							 -- Collision
+			entity.get_entity_type(Entity) == 4, -- Is entity to be attached a ped
+			0, 									 -- Vertex index
+			true 								 -- Fixed rotation
+		)
+		if not entity.is_entity_attached(Entity) or entity.get_entity_attached_to(Entity) ~= entity_attached_to then -- Some objects are impossible to attach without attach_physically, which the api doesn't have.
+			decrement_counter(Entity, entities)
+			kek_entity.clear_entities({Entity})
+		end
+	else
+		essentials.msg(lang["Failed to attach an entity. Check debug console for more details."], "blue", true, 6)
+		print(string.format(([[
+
+			VALUES:
+			Model name: %s (%s)
+			Hash: %s (%s)
+			x: %s (%s)
+			y: %s (%s)
+			z: %s (%s)
+			pitch: %s (%s)
+			roll: %s (%s)
+			yaw: %s (%s)
+			Entity id: %s (%s)
+			is Entity an entity: %s
+			is attached to, an entity: %s
+			is attached bool from file: %s
+			Tried to attach to itself? %s
+			]]):gsub("\t", ""),
+			info["model name"] or info["HashName"], type(info["model name"] or info["HashName"]),
+			info.hash or info.Hash or info.model or info.Model or info.ModelHash, type(info.hash or info.Hash or info.model or info.Model or info.ModelHash),
+			offx, type(offx), 
+			offy, type(offy),
+			offz, type(offz),
+			pitch, type(pitch),
+			roll, type(roll),
+			yaw, type(yaw),
+			Entity, type(Entity),
+			entity.is_an_entity(Entity), 
+			entity.is_an_entity(entity_attached_to), 
+			is_attached,
+			Entity == entity_attached_to
+		))
+		decrement_counter(Entity, entities)
+		kek_entity.clear_entities({Entity})
+	end
+end
+
+local function is_table_logic(Table)
+	if not Table.__is_table then
+		return {Table}
+	else
+		return Table
+	end
+end
+
+function menyoo.spawn_xml_vehicle(...)
+	local file_path <const>, pid <const> = ...
+	if not utils.file_exists(file_path) then
+		essentials.msg(lang["This file doesn't exist or has an invalid file name."], "red", true, 6)
+		return 0
+	end
+	local info <const> = essentials.parse_xml(essentials.get_file_string(file_path)).Vehicle
+	local spooner <const> = info and info.SpoonerAttachments or nil
+
+	if not info then
+		essentials.msg(lang["Unsupported file format."], "red", true)
+		return 0
+	end
+	local entities <const> = get_info_containers()
+	local parent_entity <const> = spawn_entity(info, entities)
+	if streaming.is_model_valid(info.ModelHash) then
+		if entity.is_entity_a_vehicle(parent_entity) then
+			entity.freeze_entity(parent_entity, true)
+			entities[info.InitialHandle or "VEHICLE"] = parent_entity
+			apply_entity_modifications(parent_entity, info, entities, pid)
+		else
+			essentials.msg(lang["Failed to spawn driver vehicle for unknown reason."], "red", true, 6)
+			return 0
+		end
+	else
+		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+		return 0
+	end
+	if spooner and (spooner.Attachment or spooner.Placement) then -- Does it have attachments?
+		for _, info in pairs(is_table_logic(spooner.Attachment or spooner.Placement)) do
+			local Entity <const> = spawn_entity(info, entities)
+			if entity.is_an_entity(Entity) then
+				entities[info.InitialHandle] = Entity
+				apply_entity_modifications(Entity, info, entities, pid)
+				if info.Attachment and info.Attachment.__attributes.isAttached then
+					attach(Entity, info, entities)
+				end
+				if check_entity_limits(entities, info.ModelHash) then
+					return 0
+				end
+			end
+		end
+	end
+	entity.freeze_entity(parent_entity, info.FrozenPos == true)
+	entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
+	send_spawn_counter_msg(entities)
+	return parent_entity
+end
+
+local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow this format
+	local spooner <const> = info.SpoonerPlacements
+	if player.player_count() > 0 and spooner.ClearWorld and spooner.ClearWorld > 0 then
+		for _, entities in pairs(kek_entity.get_table_of_entities_with_respect_to_distance_and_set_limit({
+				vehicles = {
+					entities 			   = vehicle.get_all_vehicles(),
+					max_number_of_entities = nil,
+					remove_player_entities = true,
+					max_range			   = spooner.ClearWorld,
+					sort_by_closest 	   = false
+				},
+				peds = {
+					entities 			   = ped.get_all_peds(),
+					max_number_of_entities = nil,
+					remove_player_entities = true,
+					max_range			   = spooner.ClearWorld,
+					sort_by_closest 	   = false
+				},
+				objects = {
+					entities 			   = object.get_all_objects(),
+					max_number_of_entities = nil,
+					remove_player_entities = false,
+					max_range			   = spooner.ClearWorld,
+					sort_by_closest 	   = false
+				}
+			},
+			player.get_player_ped(player.player_id())
+		)) do
+			kek_entity.clear_entities(entities)
+		end
+	end
+	if spooner.WeatherToSet and enums.weather[spooner.WeatherToSet] then
+		gameplay.set_override_weather(enums.weather[spooner.WeatherToSet])
+	end
+	if spooner.IPLsToRemove then
+		if type(spooner.IPLsToRemove.IPL) ~= "table" then
+			spooner.IPLsToRemove.IPL = {spooner.IPLsToRemove.IPL}
+		end
+		for _, ipl in pairs(spooner.IPLsToRemove.IPL) do
+			streaming.remove_ipl(ipl)
+		end
+	end
+	for _, info in pairs(is_table_logic(spooner.Placement or spooner.Attachment)) do
+		local Entity <const> = spawn_entity(info, entities, true)
+		local is_frozen <const> = info.FrozenPos
+		info.FrozenPos = true
+		if entity.is_an_entity(Entity) then
+			entities[info.InitialHandle] = Entity
+			apply_entity_modifications(Entity, info, entities)
+			if info.Attachment and info.Attachment.__attributes.isAttached then
+				attach(Entity, info, entities)
+			else
+				essentials.assert(entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
+				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
+				entity.freeze_entity(Entity, is_frozen)
+			end
+			if check_entity_limits(entities, info.ModelHash) then
+				return "failed"
+			end
+		end
+	end
+end
+
+local function spawn_xml_map_type_2(info, entities) -- Same as type_1, but missing many properties, such as vehicle mods
+	if player.player_count() > 0 and info.SpoonerPlacements.ClearWorld then
+		kek_entity.clear_entities(kek_entity.remove_player_entities(vehicle.get_all_vehicles()))
+		kek_entity.clear_entities(kek_entity.remove_player_entities(ped.get_all_peds()))
+		kek_entity.clear_entities(object.get_all_objects())
+	end
+	for _, info in pairs(is_table_logic(info.SpoonerPlacements.Placement)) do
+		local Entity <const> = spawn_entity(info, entities, true)
+		if entity.is_an_entity(Entity) then
+			entities[info.InitialHandle] = Entity
+			entity.set_entity_alpha(Entity, info.OpacityLevel, 1)
+			entity.set_entity_visible(Entity, info.IsVisible)
+			if info.IsOnFire == true then
+				fire.start_entity_fire(Entity)
+			end
+			if info.Attachment and info.Attachment.__attributes.isAttached then
+				attach(Entity, info, entities)
+			else
+				essentials.assert(entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
+				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
+				entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
+			end
+			if check_entity_limits(entities, info.ModelHash) then
+				return "failed"
+			end
+		end
+	end
+end
+
+local function spawn_xml_map_type_3(info, entities) -- LSCdamwithpeds&vehicles.xml
+	for _, info in pairs(is_table_logic(info.Map.Objects.MapObject)) do
+		info.ModelHash = info.Hash
+		local Entity <const> = spawn_entity(info, entities, true)
+		if entity.is_an_entity(Entity) then
+			entities[Entity] = Entity
+			local rot <const> = info.Rotation
+			local pos <const> = info.Position
+			essentials.assert(
+				entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(rot.X, rot.Y, rot.Z))), 
+				"Failed to set entity rotation."
+			)
+			essentials.assert(
+				entity.set_entity_coords_no_offset(Entity, v3(pos.X, pos.Y, pos.Z)), 
+				"Failed to set entity position."
+			)
+			entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
+			if info.Type == "Ped" then
+				weapon.give_delayed_weapon_to_ped(Entity, gameplay.get_hash_key("weapon_"..info.Weapon:lower()), 0, 1)
+				ped.set_ped_relationship_group_hash(Entity, gameplay.get_hash_key(info.Relationship:upper()))
+			end
+			if check_entity_limits(entities, info.ModelHash) then
+				return "failed"
+			end
+		end
+	end
+end
+
+local function get_xml_map_type(info)
+	local spooner <const> = info.SpoonerPlacements
+	if spooner and ((spooner.Placement and (info.prologue.kek_menu_version or spooner.AudioFile)) or spooner.Attachment) then
+		return "type_1"
+	elseif spooner and spooner.__attributes and spooner.__attributes["xmlns:xsi"] then
+		return "type_2"
+	elseif info.Map and info.Map.Objects then
+		return "type_3"
+	end
+end
+
+function menyoo.spawn_xml_map(...)
+	local file_path <const>, teleport_to_map <const> = ...
+	if not utils.file_exists(file_path) then
+		essentials.msg(lang["This file doesn't exist or has an invalid file name."], "red", true, 6)
+		return
+	end
+	local info <const> = essentials.parse_xml(essentials.get_file_string(file_path))
+	local spooner <const> = info.SpoonerPlacements or info.Map
+
+	if not info.Map and not spooner then
+		essentials.msg(lang["Unsupported file format."], "red", true)
+		return
+	end
+
+	local tp_state, tp_err
+	local frozen_vehicle <const> = player.get_player_vehicle(player.player_id())
+	if teleport_to_map then
+		if spooner and spooner.ReferenceCoords then
+			entity.freeze_entity(player.get_player_ped(player.player_id()), true)
+			entity.freeze_entity(frozen_vehicle, true)
+			tp_state, tp_err = pcall(function() -- There has to be zero chance of user being frozen forever.
+				kek_entity.teleport(
+					essentials.get_most_relevant_entity(player.player_id()), 
+					v3(
+						spooner.ReferenceCoords.X, 
+						spooner.ReferenceCoords.Y, 
+						spooner.ReferenceCoords.Z
+					)
+				)
+			end)
+		elseif info.Map and info.Map.Objects and info.Map.Objects.MapObject then -- This type has no reference coords
+			local t = info.Map.Objects.MapObject
+			t = t.__is_table and t[1] or t
+			local pos <const> = info.Map.Objects.ReferenceCoords or t.Position
+			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), v3(pos.X, pos.Y, pos.Z))
+		else
+			essentials.msg(lang["Failed to find reference coordinates."], "red", true, 6)
+		end
+	end
+
+	local entities, map_type, status
+	local state <const>, err <const> = pcall(function() -- Must unfreeze user entities no matter what.
+		entities = get_info_containers()
+		map_type = get_xml_map_type(info)
+
+		if map_type == "type_1" then
+			status = spawn_xml_map_type_1(info, entities)
+		elseif map_type == "type_2" then
+			status = spawn_xml_map_type_2(info, entities)
+		elseif map_type == "type_3" then
+			status = spawn_xml_map_type_3(info, entities)
+		else
+			status = "failed"
+			essentials.msg(lang["Unsupported file format."], "red", true)
+		end
+	end)
+	entity.freeze_entity(player.get_player_ped(player.player_id()), false)
+	entity.freeze_entity(frozen_vehicle, false)
+	essentials.assert(tp_state == nil or tp_state, tp_err)
+	essentials.assert(state, err)
+
+	if status == "failed" then
+		return
+	end
+
+	local ipls <const> = spooner.IPLsToLoad
+	if spooner and ipls and ipls.IPL then
+		local Entity
+		for Entity_2 in essentials.entities(entities) do
+			Entity = Entity_2
+			break
+		end
+		if type(ipls.IPL) ~= "table" then
+			ipls.IPL = {ipls.IPL}
+		end
+		for _, ipl in pairs(ipls.IPL) do
+			streaming.request_ipl(ipl)
+		end
+		menu.create_thread(function()
+			while entity.is_an_entity(Entity) do
+				system.yield(0)
+			end
+			for _, ipl in pairs(ipls.IPL) do
+				streaming.remove_ipl(ipl)
+			end
+		end, nil)
+	end
+	send_spawn_counter_msg(entities)
 end
 
 function menyoo.clone_vehicle(...)
-	local Vehicle = ...
+	local Vehicle, pos <const> = ...
 	if entity.is_an_entity(Vehicle) then
 		Vehicle = kek_entity.get_parent_of_attachment(Vehicle)
-		local num <const> = math.random(-10^10, 10^10)
-		vehicle_saver.save_vehicle(Vehicle, home.."scripts\\kek_menu_stuff\\kekMenuData\\temp_vehicle"..num..".xml")
-		local car <const> = menyoo.spawn_custom_vehicle(home.."scripts\\kek_menu_stuff\\kekMenuData\\temp_vehicle"..num..".xml", player.player_id(), true)
-		io.remove(home.."scripts\\kek_menu_stuff\\kekMenuData\\temp_vehicle"..num..".xml")
+		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		local num <const> = math.random(1, math.maxinteger)
+		local tmp_path <const> = paths.kek_menu_stuff.."kekMenuData\\temp_vehicle"..num..".xml"
+		local car
+		local status <const>, err <const> = pcall(function() -- So that file is removed even in case of errors
+			menyoo_saver.save_vehicle(Vehicle, tmp_path)
+			car = menyoo.spawn_xml_vehicle(tmp_path, player.player_id())
+			entity.set_entity_heading(car, entity.get_entity_heading(Vehicle))
+		end)
+		io.remove(tmp_path)
+		essentials.assert(status, err)
+		if pos and entity.is_entity_a_vehicle(car) then
+			kek_entity.teleport(car, pos)
+		end
 		return car
+	else
+		return 0
 	end
-	return 0
 end
 
-return menyoo
+
+------------------------------------------------------------------------ INI FILES ------------------------------------------------------------------------
+
+local function get_ini_type(str)
+	if str:find("^%[VEHICLE%]") or (str:find("License Plate Text Index", 1, true) and str:find("Tire Smoke Green", 1, true)) then
+		return "type_1"
+	elseif str:find("T%d+\32?=") and str:find("M%d+\32?=") then
+		if str:find("[AllObjects]", 1, true) and str:find("ScorchedRender = ", 1, true) then
+			return "type_2a"
+		else
+			return "type_2b"
+		end
+	elseif str:find("[Vehicle]", 1, true) and str:find("model=", 1, true) and str:find("%d%d=[-%d]+") then
+		return "type_3"
+	elseif (str:find("NeonEnabled", 1, true) or str:find("Radio=", 1, true)) and (str:find("TOGGLE_", 1, true) or str:find("Froozen=", 1, true)) and str:find("[Vehicle]", 1, true) then
+		return "type_4"
+	elseif str:find("[0]", 1, true) and not str:find("%[%a+%d*%]") then
+		return "type_5"
+	elseif str:find("^%[Vehicle%][\n\r]+Model=[%x-]+[\n\r]+%[0%]") then
+		return "type_6"
+	end
+end
+
+local gsub_map <const> = {
+	["\32"] = "",
+	["\9"] = "",
+	[","] = ".",
+	["_"] = ""
+}
+
+local gsub_map_2 <const> = {
+	["tb"] = ""
+}
+
+local memoized <const> = setmetatable({}, {__mode = "vk"}) -- Makes parsing 2x faster. Stays in memory temporarily. Objects will be resurrected, but is eventually collected. Big files will leave memory immediately.
+local function parse_ini(...)
+	local str <const>, only_one_main <const> = ...
+	if memoized[str] then -- Skips parsing entirely if memoized recently
+		return memoized[str]
+	else
+		memoized[str] = {}
+	end
+
+	local find <const> = string.find
+	local match <const> = string.match
+	local gsub <const> = string.gsub
+	local tonumber <const> = tonumber
+	local remove_special <const> = essentials.remove_special
+
+	local info <const>, current_name, current_table = memoized[str], "\xFF" -- \xFF will never get a match because gmatch ignores this character
+	local current_pattern = "\xFF"
+
+	local memoized <const> = {}
+
+	if only_one_main then
+		current_table = {is_parent_vehicle = true}
+		current_pattern = "^%[.+%]$"
+		current_name = "%["
+		info[#info + 1] = current_table
+	end
+
+	local is_parent_entity_found = false
+
+	for line in str:gmatch("[^\n\r\x80-\xFF]+") do
+		if not memoized[line] then
+			memoized[line] = {line = true, new_parent_find = true, equal_find = true, nested_parent_find = true} -- These filler entries is twice as fast due to not having to rehash
+			memoized[line].line = (find(line, "^[#;]") or find(line, "[^\\][#;]")) and gsub(line, match(line, "[#;]\32?.+$") or "", "") or line -- Removes comments. Partial support for escape sequences. Won't work if comment & escape sequence in same line.
+			memoized[line].new_parent_find = find(line, "^%[.+%]$")
+			memoized[line].equal_find = find(line, "=", 1, true)
+			memoized[line].nested_parent_find = find(line, current_pattern)
+		end
+
+		local memoized <const> = memoized[line]
+		line = memoized.line
+
+		if memoized.nested_parent_find then
+			current_table = {}
+			memoized.nested_parent = memoized.nested_parent or match(line, "^"..current_name.."%s*(.-)%]")
+			info[#info][memoized.nested_parent] = current_table
+		elseif not only_one_main and memoized.new_parent_find then
+			current_table = {}
+			info[#info + 1] = current_table
+			memoized.current_name = memoized.current_name or remove_special(match(line, "^(%[.+)%]$"))
+			current_name = memoized.current_name
+			current_pattern = "^"..current_name..".+%]$"
+			memoized.name_num_brackets_find = memoized.name_num_brackets_find or find(current_name, "^%%%[%d+$")
+			memoized.Attached_find = memoized.Attached_find or find(current_name, "^%%%[Attached")
+			if line == "[Vehicle]" or (#info == 1 and memoized.name_num_brackets_find) then
+				info[#info].is_parent_vehicle = true
+				essentials.assert(not is_parent_entity_found, "Attempted to set more than one parent entity.")
+				is_parent_entity_found = true
+			elseif memoized.Attached_find or memoized.name_num_brackets_find then
+				info[#info].IsAttached = true
+			end
+		elseif memoized.equal_find then
+			if memoized.index ~= "" then
+				memoized.stupid_format_equal_last_char = memoized.stupid_format_equal_last_char or find(line, "=", -1, true)
+				if memoized.stupid_format_equal_last_char then
+					line = line:sub(1, -2)
+				end
+				local value <const> = match(line, "^.+\32*=\32*(.-)$") or "" -- Some formats puts nothing after =.
+				memoized.index = match(line, "^(.-)\32*=\32*") or ""
+				memoized.value = 
+					   tonumber((gsub(value, ".", gsub_map)))
+					or tonumber((gsub(value, "..", gsub_map_2)))
+					or essentials.cast_value(value, "ini") -- extra () to only fetch first return value of gsub.
+			end
+			if memoized.index ~= "" then -- In case some format has no name for the value
+				current_table[memoized.index] = memoized.value
+			end
+			if memoized.value == false and (memoized.index == "IsAttached" or memoized.index == "isAttached") then
+				info[#info].is_parent_vehicle = true
+			end
+		else
+			memoized.stupid_format_index = memoized.stupid_format_index or match(line, "^([x-z])[%d.-]+$")
+			if not current_table[memoized.stupid_format_index] then
+				memoized.stupid_format_value = memoized.stupid_format_value or tonumber(match(line, "^[x-z]([%d.-]+)$"))
+				if memoized.stupid_format_index and memoized.stupid_format_value then
+					current_table[memoized.stupid_format_index] = memoized.stupid_format_value -- Some formats are missing "=" on some of their values.
+				end
+			end
+		end
+	end
+	return info
+end
+--[[
+	Supports 2 types of inis
+	2take1 inis
+	Example of other type: Speedy.ini
+	Any keys info["key"] is the other type
+	Any keys info.key is 2take1.
+--]]
+local function spawn_type_1_ini(info)
+	info = info[1]
+	local entities <const> = get_info_containers()
+	local hash <const> = info["Vehicle"] and info["Vehicle"]["Model"] or info.VEHICLE and info.VEHICLE.hash
+	if not streaming.is_model_a_vehicle(hash) then
+		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+		return -1
+	end
+	local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+		return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8), player.get_player_heading(player.player_id())
+	end)
+	update_spawn_counter(entities, hash, Vehicle)
+	if entity.is_entity_a_vehicle(Vehicle) then
+		vehicle.set_vehicle_bulletproof_tires(Vehicle, is_bulletproof)
+		vehicle.set_vehicle_wheel_type(
+			Vehicle, 
+			info.VEHICLE and info.VEHICLE.wheelType or info["Vehicle"]["Wheel Type"]
+		)
+		vehicle.set_vehicle_mod_kit_type(Vehicle, 0)
+		for i = 0, 48 do
+			if i >= 17 and i <= 22 then
+				local mod = info.MODS and info.MODS["mod"..i] == 1
+				if mod == nil then
+					mod = info["Vehicle"] and info["Vehicle"][tostring(i)] == 1
+				end
+				vehicle.toggle_vehicle_mod(
+					Vehicle, 
+					i, 
+					mod
+				)
+			else
+				vehicle.set_vehicle_mod(
+					Vehicle, 
+					i, 
+					info.MODS and info.MODS["mod"..i] or info["Vehicle"][tostring(i)], 
+					i == 23 or i == 24
+				)
+			end
+		end
+		vehicle.set_vehicle_number_plate_index(
+			Vehicle, 
+			info.VEHICLE and info.VEHICLE.plateIndex or info["Vehicle"]["License Plate Text Index"]
+		)
+
+		local plate_text <const> = info.VEHICLE and info.VEHICLE.plate or info["Vehicle"]["License Plate Text"]
+		vehicle.set_vehicle_number_plate_text(
+			Vehicle, 
+			type(plate_text) == "string" and plate_text or "kektram"
+		)
+		local is_bulletproof = info.VEHICLE and info.VEHICLE.bulletproof == 1
+		if is_bulletproof == nil then
+			is_bulletproof = info["Vehicle"]["Bullet Proof Tires"]
+		end
+		vehicle.set_vehicle_extra_colors(
+			Vehicle, 
+			info.VEHICLE and info.VEHICLE.pearl or info["Vehicle"]["Pearlescent"], 
+			info.VEHICLE and info.VEHICLE.wheel or info["Vehicle"]["Wheel Color"]
+		)
+		vehicle.set_vehicle_tire_smoke_color(
+			Vehicle, 
+			info.VEHICLE and info.VEHICLE.tyressmoke_r or info["Vehicle"]["Tire Smoke Red"], 
+			info.VEHICLE and info.VEHICLE.tyressmoke_g or info["Vehicle"]["Tire Smoke Green"], 
+			info.VEHICLE and info.VEHICLE.tyressmoke_b or info["Vehicle"]["Tire Smoke Blue"]
+		)
+		vehicle.set_vehicle_window_tint(
+			Vehicle, 
+			info.VEHICLE and info.VEHICLE.windowTint or info["Vehicle"]["Window Tint"]
+		)
+
+		if info.VEHICLE then
+			local extras <const> = info.EXTRAS
+			local info <const> = info.VEHICLE
+			if info.spawnInVehicle == 1 then
+				ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), Vehicle, -1)
+			end
+			vehicle.set_vehicle_colors(Vehicle, info.primaryIndex, info.secondaryIndex)
+			if info.isPrimaryColorCostum then
+				vehicle.set_vehicle_custom_primary_colour(Vehicle, essentials.get_rgb(info.primary_r, info.primary_g, info.primary_b))
+			end
+			if info.isSecondaryColorCostum then
+				vehicle.set_vehicle_custom_secondary_colour(Vehicle, essentials.get_rgb(info.secondary_r, info.secondary_g, info.secondary_b))
+			end
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 0, info.neonsLeft == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 1, info.neonsRight == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 2, info.neonsFront == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 3, info.neonsBack == 1)
+			vehicle.set_vehicle_neon_lights_color(Vehicle, essentials.get_rgb(info.neon_r, info.neon_g, info.neon_b))
+			vehicle.set_vehicle_headlight_color(Vehicle, info.headlightColor)
+			local i = 1
+			for _, value in pairs(extras) do
+				vehicle.set_vehicle_extra(Vehicle, i, value == 0)
+				i = i + 1
+			end
+		else
+			local info <const> = info["Vehicle"]
+			if info["Primary Red"] ~= 0 or info["Primary Green"] ~= 0 or info["Primary Blue"] ~= 0 then
+				vehicle.set_vehicle_custom_primary_colour(Vehicle, essentials.get_rgb(info["Primary Red"], info["Primary Green"], info["Primary Blue"]))
+			end
+			if info["Secondary Red"] ~= 0 or info["Secondary Green"] ~= 0 or info["Secondary Blue"] ~= 0 then
+				vehicle.set_vehicle_custom_secondary_colour(Vehicle, essentials.get_rgb(info["Secondary Red"], info["Secondary Green"], info["Secondary Blue"]))
+			end
+		end
+	end
+	send_spawn_counter_msg(entities)
+	return Vehicle
+end
+
+local function spawn_entity_for_ini_vehicle(info, entities)
+	local pos <const> = memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40)
+	local hash <const> = type(info.Model) == "table" and info.Model.Hash or info.Model or info.model or info.hash or info.Hash
+	local Entity
+	if streaming.is_model_a_vehicle(hash) then
+		Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
+			return pos, 0
+		end, false, false, nil, 6)
+	elseif streaming.is_model_a_ped(hash) then
+		Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
+			return pos, 0
+		end, false, false, info.PedType or enums.ped_types.civmale, 6)			
+	elseif streaming.is_model_an_object(hash) then
+		Entity = kek_entity.spawn_object(hash, function()
+			return pos
+		end, info.Dynamic == false, false, 6)
+	end
+	update_spawn_counter(entities, hash, Entity or 0)
+	return Entity or 0
+end
+
+
+--[[
+	Supports 1 type of ini.
+	Example: Kiborg.ini
+	For some reason this type of ini sometimes use "," instead of "." for its numbers.
+--]]
+local function spawn_type_2_ini(...)
+	local info <const> = ...
+	local attached_entities <const> = {}
+	local entities <const> = get_info_containers()
+	local parent_entity
+	for _, info in pairs(info) do
+		local hash <const> = info.Hash or info.hash or type(info.Model) == "table" and info.Model.Hash
+		if hash then
+			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
+			if entity.is_entity_a_vehicle(Entity) then
+				vehicle.set_vehicle_wheel_type(Entity, info.WheelType.Index)
+				vehicle.set_vehicle_mod_kit_type(Entity, 0)
+				for i = 0, 49 do
+					if i >= 17 and i <= 22 then
+						if info.Toggles["T"..i] then
+							vehicle.toggle_vehicle_mod(Entity, i, info.Toggles["T"..i] == 1)
+						end
+					else
+						if info.Mods["M"..i] then
+							vehicle.set_vehicle_mod(Entity, i, info.Mods["M"..i], i == 23 or i == 24)
+						end
+					end
+				end
+				for i = 0, 15 do
+					if info.Extras["E"..i] then
+						vehicle.set_vehicle_extra(Entity, i, info.Extras["E"..i])
+					end
+				end
+				vehicle.set_vehicle_tire_smoke_color(Entity, info.TireSmoke.R, info.TireSmoke.G, info.TireSmoke.B)
+				vehicle.set_vehicle_neon_light_enabled(Entity, 0, info.Neon.Enabled0)
+				vehicle.set_vehicle_neon_light_enabled(Entity, 1, info.Neon.Enabled1)
+				vehicle.set_vehicle_neon_light_enabled(Entity, 2, info.Neon.Enabled2)
+				vehicle.set_vehicle_neon_light_enabled(Entity, 3, info.Neon.Enabled3)
+				vehicle.set_vehicle_neon_light_enabled(Entity, 4, info.Neon.Enabled4)
+				vehicle.set_vehicle_neon_lights_color(Entity, essentials.get_rgb(info.NeonColor.R, info.NeonColor.G, info.NeonColor.B))
+				vehicle.set_vehicle_colors(Entity, info.VehicleColors.Primary, info.VehicleColors.Secondary)
+				vehicle.set_vehicle_extra_colors(Entity, info.ExtraColors.Pearl, info.ExtraColors.Wheel)
+				vehicle.set_vehicle_brake_lights(Entity, info.BrakeLights)
+				vehicle.set_vehicle_indicator_lights(Entity, 0, info.IndicatorRight)
+				vehicle.set_vehicle_indicator_lights(Entity, 1, info.IndicatorLeft)
+				vehicle.set_vehicle_number_plate_index(Entity, info.Numberplate.Index)
+				vehicle.set_vehicle_number_plate_text(Entity, type(info.Numberplate.Text) == "string" and info.Numberplate.Text or "kektram")
+				vehicle.set_vehicle_window_tint(Entity, info.WindowTint.Index)
+				if info.IsCustomPrimary.bool then
+					vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(info.CustomPrimaryColor.R, info.CustomPrimaryColor.G, info.CustomPrimaryColor.B))
+				end
+				if info.IsCustomSecondary.bool then
+					vehicle.set_vehicle_custom_secondary_colour(Entity, essentials.get_rgb(info.CustomSecondaryColor.R, info.CustomSecondaryColor.G, info.CustomSecondaryColor.B))
+				end
+				if info.IsEngineOn then
+					vehicle.set_vehicle_engine_on(Entity, true, true, false)
+				end
+				if info.TyreBurstLF then
+					vehicle.set_vehicle_tire_burst(Entity, 0, true, 1000.0)
+				end
+				if info.TyreBurstRF then
+					vehicle.set_vehicle_tire_burst(Entity, 1, true, 1000.0)
+				end
+				if info.TyreBurstLM then
+					vehicle.set_vehicle_tire_burst(Entity, 2, true, 1000.0)
+				end
+				if info.TyreBurstRM then
+					vehicle.set_vehicle_tire_burst(Entity, 3, true, 1000.0)
+				end
+				if info.TyreBurstLR then
+					vehicle.set_vehicle_tire_burst(Entity, 4, true, 1000.0)
+				end
+				if info.TyreBurstRR then
+					vehicle.set_vehicle_tire_burst(Entity, 5, true, 1000.0)
+				end
+				if info.TyreBurst6ML then
+					vehicle.set_vehicle_tire_burst(Entity, 45, true, 1000.0)
+				end
+				if info.TyreBurst6MR then
+					vehicle.set_vehicle_tire_burst(Entity, 47, true, 1000.0)
+				end
+			elseif entity.is_entity_a_ped(Entity) then
+				if info.ScenarioPlaying and type(info.ScenarioName) == "string" then
+					ai.task_start_scenario_in_place(Entity, info.ScenarioName, 0, true)
+				end
+				for i = 0, 11 do
+					ped.set_ped_component_variation(Entity, i, info["Component"..i], info["Texture"..i], 0)
+				end
+				if info.BlockFleeing then
+					ped.set_ped_combat_attributes(Entity, enums.combat_attributes.CanFightArmedPedsWhenNotArmed, true)
+				end
+				for name, id in pairs(enums.prop_indices) do -- The list has more than what this ini supports
+					if info["Prop"..name] then
+						ped.set_ped_prop_index(Entity, id, info["Prop"..name], info["Texture"..name], 0)
+					end
+				end
+			end
+			if (info.IsAttached and entity.is_an_entity(Entity)) or (info.is_parent_vehicle and entity.is_entity_a_vehicle(Entity)) then
+				entities[info.SelfNumeration or Entity] = Entity
+				if info.IsAttached then
+					entity.set_entity_collision(Entity, false, false, false)
+					entity.freeze_entity(Entity, true)
+					attached_entities[Entity] = info
+				end
+				if streaming.is_model_a_ped(hash) or streaming.is_model_a_vehicle(hash) then
+					entity.set_entity_god_mode(Entity, info.Invincible)
+				end
+				if type(info.Visible) == "boolean" then
+					entity.set_entity_visible(Entity, info.Visible)
+				end
+				if info.Alpha then
+					entity.set_entity_alpha(Entity, info.Alpha, true)
+				end
+				if info.Gravity == false then
+					entity.set_entity_gravity(Entity, false)
+				end
+				if info.is_parent_vehicle then
+					essentials.assert(not entities.is_parent_vehicle, "Tried to set multiple parent vehicles.")
+					parent_entity = Entity
+					entities.parent_entity = Entity
+					if not streaming.is_model_a_vehicle(hash) then
+						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+						kek_entity.clear_entities(entities)
+						return -1
+					end
+				end
+			elseif info.is_parent_vehicle then
+				kek_entity.clear_entities(entities)
+				return 0
+			end		
+		end
+	end
+	for Entity, info in pairs(attached_entities) do
+		attach(Entity, info, entities)
+	end
+	send_spawn_counter_msg(entities)
+	return parent_entity
+end
+
+
+--[[
+	Supports 2 very similar ini types.
+	Example 1: Mr. Roboto  - By JamezModz.ini
+	Example 2: -JamezModz- Mr. Roboto v2.0.ini
+--]]
+local function spawn_type_3_ini(...)
+	local info <const> = ...
+	local attached_entities <const> = {}
+	local entities <const> = get_info_containers()
+	for _, info in pairs(info) do
+		if info.Model or info.model then
+			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
+			if entity.is_entity_a_vehicle(Entity) and info["tyre smoke red"] then -- info["tyre smoke red"] One of the types doesnt apply any mods to vehicles.
+				vehicle.set_vehicle_wheel_type(Entity, info["wheel type"])
+				vehicle.set_vehicle_mod_kit_type(Entity, 0)
+				for i = 0, 48 do
+					if i >= 17 and i <= 22 then
+						local mod = info.Toggles and info.Toggles[tostring(i)]
+						if mod == nil then
+							mod = info["toggle "..i]
+						end
+						if mod ~= nil then
+							vehicle.toggle_vehicle_mod(Entity, i, mod == 1)
+						end
+					else
+						local mod <const> = info.Mods and info.Mods[tostring(i)] or info["mod "..i]
+						if mod ~= nil then
+							vehicle.set_vehicle_mod(Entity, i, mod, i == 23 or i == 24)
+						end
+					end
+				end
+				for i = 1, 11 do
+					local extra = info.Extras and info.Extras[tostring(i)]
+					if extra == nil then
+						extra = info["extra "..i]
+					end
+					if extra ~= nil then
+						vehicle.set_vehicle_extra(Entity, i, extra == 0)
+					end
+				end
+				vehicle.set_vehicle_tire_smoke_color(Entity, info["tyre smoke red"], info["tyre smoke green"], info["tyre smoke blue"])
+				vehicle.set_vehicle_neon_light_enabled(Entity, 0, info["neon 0"] == 1)
+				vehicle.set_vehicle_neon_light_enabled(Entity, 1, info["neon 1"] == 1)
+				vehicle.set_vehicle_neon_light_enabled(Entity, 2, info["neon 2"] == 1)
+				vehicle.set_vehicle_neon_light_enabled(Entity, 3, info["neon 3"] == 1)
+				vehicle.set_vehicle_neon_lights_color(Entity, essentials.get_rgb(info["neon red"], info["neon green"], info["neon blue"]))
+				vehicle.set_vehicle_colors(Entity, info["primary paint"], info["secondary paint"])
+				vehicle.set_vehicle_extra_colors(Entity, info["pearlescent colour"], info["wheel colour"])
+				vehicle.set_vehicle_number_plate_index(Entity, info["plate index"])
+				vehicle.set_vehicle_number_plate_text(Entity, type(info["plate text"]) == "string" and info["plate text"] or "kektram")
+				vehicle.set_vehicle_window_tint(Entity, info["window tint"])
+				vehicle.set_vehicle_bulletproof_tires(Entity, info["bulletproof tyres"] == 1)
+				if info["custom primary colour"] and info["custom primary colour"] ~= 0 then
+					vehicle.set_vehicle_custom_primary_colour(Entity, info["custom primary colour"])
+				elseif info["primary red"] and (info["primary red"] ~= 0 or info["primary green"] ~= 0 or  info["primary blue"] ~= 0) then
+					vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(info["primary red"], info["primary green"], info["primary blue"]))
+				end
+
+				if info["custom secondary colour"] and info["custom secondary colour"] ~= 0 then
+					vehicle.set_vehicle_custom_secondary_colour(Entity, info["custom secondary colour"])
+				elseif info["secondary red"] and (info["secondary red"] ~= 0 or info["secondary green"] ~= 0 or info["secondary blue"] ~= 0) then
+					vehicle.set_vehicle_custom_secondary_colour(Entity, essentials.get_rgb(info["secondary red"], info["secondary green"], info["secondary blue"]))
+				end
+
+			end
+			if (not info.is_parent_vehicle and entity.is_an_entity(Entity)) or (info.is_parent_vehicle and entity.is_entity_a_vehicle(Entity)) then
+				if info.IsAttached then
+					entity.set_entity_collision(Entity, false, false, false)
+					entity.freeze_entity(Entity, true)
+					attached_entities[Entity] = info
+				elseif info.is_parent_vehicle then
+					essentials.assert(not entities.is_parent_vehicle, "Tried to set multiple parent vehicles.")
+					entities.parent_entity = Entity
+					if not streaming.is_model_a_vehicle(info.Model or info.model) then
+						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+						kek_entity.clear_entities(entities)
+						return -1
+					end
+				end
+				entities[Entity] = Entity
+			elseif info.is_parent_vehicle then
+				kek_entity.clear_entities(entities)
+				return 0
+			end		
+		end
+	end
+	for Entity, info in pairs(attached_entities) do
+		attach(Entity, info, entities)
+	end
+	send_spawn_counter_msg(entities)
+	return entities.parent_entity
+end
+
+
+--[[
+	Supports 2 types of ini.
+	Example 1: AircraftCarrierByEinar.ini 
+	Example 2: 420car.ini
+--]]
+local function spawn_type_4_ini(...)
+	local info <const> = ...
+	local attached_entities <const> = {}
+	local entities <const> = get_info_containers()
+	for _, info in pairs(info) do
+		if info.Model or info.model then
+			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
+			if entity.is_entity_a_vehicle(Entity) then
+				if not info.IsAttached then -- Mods are only set for parent vehicle
+					vehicle.set_vehicle_wheel_type(Entity, info.WheelsType or info.Wheels)
+					vehicle.set_vehicle_mod_kit_type(Entity, 0)
+					for i = 0, 45 do
+						if not (i >= 17 and i <= 22) and info[tostring(i)] then -- The file doesnt use every index from 0 to 45.
+							if info[tostring(i)] then							
+								vehicle.set_vehicle_mod(Entity, i, info[tostring(i)], i == 23 or i == 24)
+							end
+						end
+					end
+					for i = 17, 22 do
+						if info["TOGGLE_"..i] ~= nil then
+							vehicle.toggle_vehicle_mod(Entity, i, info["TOGGLE_"..i] == 1)
+						end
+					end
+					for i = 1, 11 do
+						if info["Extra_"..i] ~= nil then
+							vehicle.set_vehicle_extra(Entity, i, info["Extra_"..i] == 0) -- Extras want 0 for true for some reason
+						end
+					end
+					vehicle.set_vehicle_tire_smoke_color(Entity, info.SmokeR, info.SmokeG, info.SmokeB)
+					if info.NeonEnabled then
+						for i = 0, 3 do
+							vehicle.set_vehicle_neon_light_enabled(Entity, i, true)
+						end
+					else
+						for i = 1, 4 do 
+							vehicle.set_vehicle_neon_light_enabled(Entity, i - 1, info["Neon"..i] == 1)
+						end
+					end
+					vehicle.set_vehicle_neon_lights_color(Entity, essentials.get_rgb(info.NeonR, info.NeonG, info.NeonB))
+					vehicle.set_vehicle_colors(Entity, info.PrimaryPaint or info.Primary, info.SecondaryPaint or info.Secondary)
+					vehicle.set_vehicle_extra_colors(Entity, info.Pearlescent or info.Pearl, info.WheelsColor or info.WheelColor)
+					vehicle.set_vehicle_number_plate_index(Entity, info.PlateIndex or info.Plate or 0) -- Some files don't have this for some reason [or 0]
+					vehicle.set_vehicle_number_plate_text(Entity, type(info.PlateText) == "string" and info.PlateText or "kektram")
+					vehicle.set_vehicle_window_tint(Entity, info.WindowTint or info.Tint)
+					vehicle.set_vehicle_bulletproof_tires(Entity, (info.Bulletproof or info.BulletproofTires) == 1)
+					if info.PrimaryPaintT == 1 then
+						vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(info.PrimaryR, info.PrimaryG, info.PrimaryB))
+					end
+					if info.SecondaryPaintT == 1 then
+						vehicle.set_vehicle_custom_secondary_colour(Entity, essentials.get_rgb(info.SecondaryR, info.SecondaryG, info.SecondaryB))
+					end
+				end
+			end
+			if (not info.is_parent_vehicle and entity.is_an_entity(Entity)) or (info.is_parent_vehicle and entity.is_entity_a_vehicle(Entity)) then
+				if info.IsAttached then
+					entity.set_entity_collision(Entity, false, false, false)
+					entity.freeze_entity(Entity, true)
+					attached_entities[Entity] = info
+				end
+
+				if info.is_parent_vehicle then
+					essentials.assert(not entities.is_parent_vehicle, "Tried to set multiple parent vehicles.")
+					entities.parent_entity = Entity
+					if not streaming.is_model_a_vehicle(info.Model or info.model) then
+						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+						kek_entity.clear_entities(entities)
+						return -1
+					end
+				end
+				entities[Entity] = Entity
+			elseif info.is_parent_vehicle then
+				kek_entity.clear_entities(entities)
+				return 0
+			end		
+		end
+	end
+	for Entity, info in pairs(attached_entities) do
+		attach(Entity, info, entities)
+	end
+	send_spawn_counter_msg(entities)
+	return entities.parent_entity
+end
+
+
+--[[
+	Supports 1 type of ini.
+	Example: DeLoreanByEinar.ini
+--]]
+local function spawn_type_5_ini(...)
+	local info <const> = ...
+	local attached_entities <const> = {}
+	local entities <const> = get_info_containers()
+	for _, info in pairs(info) do
+		if info.Model or info.model then
+			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
+			if (not info.is_parent_vehicle and entity.is_an_entity(Entity)) or (info.is_parent_vehicle and entity.is_entity_a_vehicle(Entity)) then
+				if info.IsAttached then
+					entity.set_entity_collision(Entity, false, false, false)
+					entity.freeze_entity(Entity, true)
+					info.X = info.X - entities.parent_entity_info.X
+					info.Y = info.Y - entities.parent_entity_info.Y
+					info.Z = info.Z - entities.parent_entity_info.Z
+					attached_entities[Entity] = info
+				end
+				if info.is_parent_vehicle then
+					essentials.assert(not entities.is_parent_vehicle, "Tried to set multiple parent vehicles.")
+					entities.parent_entity = Entity
+					entities.parent_entity_info = info
+					if not streaming.is_model_a_vehicle(info.Model or info.model) then
+						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+						kek_entity.clear_entities(entities)
+						return -1
+					end
+				end
+				entities[Entity] = Entity
+			elseif info.is_parent_vehicle then
+				kek_entity.clear_entities(entities)
+				return 0
+			end				
+		end
+	end
+	for Entity, info in pairs(attached_entities) do
+		attach(Entity, info, entities)
+	end
+	send_spawn_counter_msg(entities)
+	return entities.parent_entity
+end
+
+function menyoo.spawn_ini_vehicle(...)
+	local file_path <const> = ...
+	local str <const> = essentials.get_file_string(file_path)
+	if str:find("?xml", 1, true) and str:find("Spooner", 1, true) then
+		essentials.msg(lang["Tried to spawn a xml vehicle with ini spawner."], "red", true, 6)
+		return 0
+	end
+	local parent_entity
+	local ini_type <const> = get_ini_type(str)
+	if ini_type == "type_1" then
+		parent_entity = spawn_type_1_ini(parse_ini(str, true))
+	elseif ini_type == "type_2a" or ini_type == "type_2b" then
+		parent_entity = spawn_type_2_ini(parse_ini(str, ini_type == "type_2b"))
+	elseif ini_type == "type_3" or ini_type == "type_6" then
+		parent_entity = spawn_type_3_ini(parse_ini(str))
+	elseif ini_type == "type_4" then
+		parent_entity = spawn_type_4_ini(parse_ini(str))
+	elseif ini_type == "type_5" then
+		parent_entity = spawn_type_5_ini(parse_ini(str))
+	else
+		essentials.msg(lang["Unsupported file format."], "red", true)
+		return 0
+	end
+	if parent_entity and entity.is_entity_a_vehicle(parent_entity) then
+		entity.set_entity_rotation(parent_entity, memoize.v3())
+		entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
+	elseif parent_entity ~= -1 then
+		essentials.msg(lang["Failed to spawn driver vehicle for unknown reason."], "red", true, 6)
+	end
+	return parent_entity or 0
+end
+return essentials.const_all(menyoo)

@@ -1,79 +1,12 @@
-**# Kek's menu 0.4.4.1**
+**# Kek's menu 0.4.6.3
 
-**## Removed features**```md
-### Chaos mode
-### Teleport nearby personal vehicles
-### Backwards traffic
-### Vehicle storm
-### Atomize
-### Remove wanted level chat command
-### locationlist chat command
-### Vehicle gun hotkey
-### Decrease & increase vehicle fly speed hotkey
-### Disable notifications
-### Show who was last host
+## **Improvements**```md
+### Colored names no longer change the color in display 2take1 notifications
+### Explosion types are now named instead of id in entity manager
+### Reorganized submenues to make most used features more accessible
+### Fixed kick gun raising error if they shoot you with it
+### !votekick chat command will no longer work on you
+### Fixed chat judger using empty lines, causing every message to trigger it
+### Fixed bug where features writing / reading files creates an additional newline for every line
 ```
-**## Improvements**```md
-### Tons of obscure & rare bugs fixed
-### Fixed modded stat detection
-### Vehicle fly auto repairs if vehicle is damaged
-### Modify top speed rework & renamed to "Drive force multiplier"
-### Adding to join timeout adds them hidden
-### Added "Fill, steal & run away" to vehicle blacklist reactions
-### Translated vehicle names to Chinese, German, Spanish, French & Korean
-### Fixed bug where menyoo / regular vehicles would spawn mid-air
-### Added support for more xml formats in the Menyoo spawner
-```
-**## New features**
-
-**### Time text outline**
-
-**### Teleport forward hotkey**
-
-**### Auto tp to players you spectate**
-
-**### Give flamethrower to other player's vehicles**
-
-**### Teleport to mount chiliad then kill**
-
-**### Print 2take1 notifications in console**
-
-**### Log chat & use as chatbot**
-
-**### Personal vehicle**```md
-#### Saves your vehicle as an xml
-#### Order personal vehicle
-#### Hotkey
-#### Spawn close / in front / spawn inside
-```
-**### Display log of 2take1 notifications in-game**```md
-#### Customize colours, font, opacity, outline, size, position
-#### Set number of notifications to show [1 - 100]
-#### Togglable filter to remove most useless information
-```
-**### Race ghosts**```md
-#### Won't be seen by others
-#### Record a race
-#### Teleport to where the ghost starts
-#### Loops until unloaded
-```
-**### Menyoo map loader**```md
-#### Won't be seen by others
-#### Save map function
-#### Set where to teleport you after the map loaded
-#### Teleport to spawn
-```
-**##Hotfix 0.4.4.1**
-
-**### Display log of 2take1 notifications**```md
-#### Added stretch adjuster
-#### Fixed change y position
-#### Improved default settings
-```
-**### Added back Atomize & reworked it**
-
-**### Reduced constraints on ptfx features**
-
-**### Disable weapons now blocks melee, throwables & more**
-
-**### Vehicle fly no longer auto repairs car**
+It doesn't matter if you download via the green button or in releases, they're identical.
