@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.4"}
+local essentials <const> = {version = "1.4.5"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -31,6 +31,7 @@ essentials.listeners = {
 essentials.nethooks = {}
 essentials.feats = {}
 essentials.player_feats = {}
+essentials.number_of_explosion_types = 83
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
@@ -588,7 +589,7 @@ function essentials.rename_file(...)
 	essentials.assert(not new_file_name:find("[<>:\"/\\|%?%*]"), "Tried to rename file to a name containing illegal characters:", new_file_name)
 	essentials.assert(utils.file_exists(original_file_path), "Tried to rename a file that doesn't exist.", original_file_path)
 	essentials.assert(not utils.file_exists(new_file_path), "Tried to overwrite an existing file while attempting to rename a file.", original_file_path, new_file_path)
-	local file_string <const> = essentials.get_file_string(original_file_path)
+	local file_string <const> = essentials.get_file_string(original_file_path, "rb"):gsub("\r", "")
 	io.remove(original_file_path)
 	local file <close> = io.open(new_file_path, "w+")
 	file:write(file_string)
@@ -1078,8 +1079,8 @@ do
 	end
 end
 
-function essentials.get_file_string(file_path)
-	local file <close> = io.open(file_path, "rb")
+function essentials.get_file_string(file_path, mode)
+	local file <close> = io.open(file_path, mode or "r")
 	if file and io.type(file) == "file" then
 		return file:read("*a") or ""
 	else
@@ -1239,7 +1240,7 @@ function essentials.search_for_match_and_get_line(...)
 	local file_path <const>,
 	search <const>,
 	exact <const> = ...
-	local str <const> = essentials.get_file_string(file_path)
+	local str <const> = essentials.get_file_string(file_path, "rb")
 	for i = 1, #search do
 		local str_pos
 		if exact then

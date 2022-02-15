@@ -11,16 +11,19 @@ setmetatable(_G, {
 		error("Tried to set a global variable.")
 	end
 })
+
+local essentials <const> = require("Essentials")
+
 local function deep_copy(Table, keep_meta, seen)
 	local new_copy <const> = {}
 	seen = seen or {}
 	for key, value in pairs(Table) do
 		if type(value) == "table" then
-			assert(not seen[value], "Tried to deep copy a table with a reference to itself.")
+			essentials.assert(not seen[value], "Tried to deep copy a table with a reference to itself.")
 			seen[value] = true
 			new_copy[key] = deep_copy(value, keep_meta, seen)
 			if keep_meta and type(getmetatable(value)) == "table" then
-				assert(not seen[getmetatable(value)], "Tried to deep copy a table with a reference to one of its own member's metatable.")
+				essentials.assert(not seen[getmetatable(value)], "Tried to deep copy a table with a reference to one of its own member's metatable.")
 				seen[getmetatable(value)] = true
 				setmetatable(new_copy[key], deep_copy(getmetatable(value), true, seen))
 			end
@@ -29,7 +32,7 @@ local function deep_copy(Table, keep_meta, seen)
 		end
 	end
 	if keep_meta and type(getmetatable(Table)) == "table" then
-		assert(not seen[getmetatable(Table)], "Tried to deep copy a table with a reference to its own metatable.")
+		essentials.assert(not seen[getmetatable(Table)], "Tried to deep copy a table with a reference to its own metatable.")
 		seen[getmetatable(Table)] = true
 		setmetatable(new_copy, deep_copy(getmetatable(Table), true, seen))
 	end
@@ -90,7 +93,7 @@ end
 -- Event functions
 do
 	function event.add_event_listener(eventName, id)
-		assert(eventName == "chat" 
+		essentials.assert(eventName == "chat" 
 		or eventName == "exit"
 		or eventName == "player_leave"
 		or eventName == "player_join"
@@ -99,7 +102,7 @@ do
 	end
 
 	function event.remove_event_listener(eventName, id)
-		assert(eventName == "chat" 
+		essentials.assert(eventName == "chat" 
 		or eventName == "exit"
 		or eventName == "player_leave"
 		or eventName == "player_join"
@@ -113,7 +116,7 @@ do
 	for name, func in pairs(player) do
 		player[name] = function(...)
 			local pid <const> = ...
-			assert(pid >= 0 and pid <= 31, "Invalid pid.")
+			essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 			return originals.player[name](...)
 		end
 	end
@@ -135,17 +138,17 @@ do
 	end
 
 	function player.set_player_model(hash)
-		assert(streaming.is_model_valid(hash), "Tried to set player model to invalid hash.")
+		essentials.assert(streaming.is_model_valid(hash), "Tried to set player model to invalid hash.")
 		originals.player.set_player_model(hash)
 	end
 
 	function player.get_player_from_ped(Ped)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
 		return originals.player.get_player_from_ped(Ped)
 	end
 
 	function script.trigger_script_event(eventId, pid, params)
-		assert(pid >= 0 and pid <= 31, "Invalid pid.")
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		originals.script.trigger_script_event(eventId, pid, params)
 	end
 end
@@ -155,7 +158,7 @@ do
 	for name, func in pairs(ped) do
 		ped[name] = function(...)
 			local Ped <const> = ...
-			assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+			essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
 			return originals.ped[name](...)
 		end
 	end
@@ -182,21 +185,21 @@ do
 	end
 
 	function ped.set_ped_into_vehicle(Ped, Vehicle, seat)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected ped from argument Ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected vehicle from argument Vehicle.")
-		assert(seat >= -2, seat <= vehicle.get_vehicle_max_number_of_passengers(Vehicle) - 2, "Invalid seat.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected ped from argument Ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected vehicle from argument Vehicle.")
+		essentials.assert(seat >= -2, seat <= vehicle.get_vehicle_max_number_of_passengers(Vehicle) - 2, "Invalid seat.")
 		return originals.ped.set_ped_into_vehicle(Ped, Vehicle, seat)
 	end
 
 	function ped.is_ped_in_vehicle(Ped, Vehicle)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected ped from argument Ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected vehicle from argument Vehicle.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected ped from argument Ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected vehicle from argument Vehicle.")
 		return originals.ped.is_ped_in_vehicle(Ped, Vehicle)
 	end
 
 	function ped.create_ped(type, model, pos, heading, isNetworked, unk1)
-		assert(type >= -1 and type <= 29, "Invalid ped type.")
-		assert(streaming.is_model_a_ped(model), "Tried to spawn ped with invalid hash.")
+		essentials.assert(type >= -1 and type <= 29, "Invalid ped type.")
+		essentials.assert(streaming.is_model_a_ped(model), "Tried to spawn ped with invalid hash.")
 		return originals.ped.create_ped(type, model, pos, heading, isNetworked, unk1)
 	end
 end
@@ -206,7 +209,7 @@ do
 	for name, func in pairs(vehicle) do
 		vehicle[name] = function(...)
 			local Vehicle <const> = ...
-			assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+			essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
 			return originals.vehicle[name](...)
 		end
 	end
@@ -227,18 +230,18 @@ do
 	end
 
 	function vehicle.create_vehicle(model, pos, heading, networked, alwaysFalse)
-		assert(streaming.is_model_a_vehicle(model), "Invalid hash for creating a vehicle.")
+		essentials.assert(streaming.is_model_a_vehicle(model), "Invalid hash for creating a vehicle.")
 		return originals.vehicle.create_vehicle(model, pos, heading, networked, alwaysFalse)
 	end
 
 	function vehicle.get_vehicle_model_number_of_seats(modelHash)
-		assert(streaming.is_model_a_vehicle(modelHash), "Expected a vehicle & valid model hash.")
+		essentials.assert(streaming.is_model_a_vehicle(modelHash), "Expected a vehicle & valid model hash.")
 		return originals.vehicle.get_vehicle_model_number_of_seats(modelHash)
 	end
 
 	function vehicle.set_vehicle_timed_explosion(Vehicle, Ped, toggle)
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
 		originals.vehicle.set_vehicle_timed_explosion(Vehicle, Ped, toggle)
 	end
 end
@@ -264,7 +267,7 @@ do
 	for _, func_name in pairs(function_names) do
 		weapon[func_name] = function(...)
 			local Ped <const> = ...
-			assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+			essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
 			return originals.weapon[func_name](...)
 		end
 	end
@@ -273,13 +276,13 @@ end
 -- Fire functions
 do
 	function fire.add_explosion(pos, type, isAudible, isInvis, fCamShake, Ped)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(type >= 0 and type <= 83, "Invalid explosion type.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(type >= 0 and type <= essentials.number_of_explosion_types, "Invalid explosion type.")
 		return originals.fire.add_explosion(pos, type, isAudible, isInvis, fCamShake, Ped)
 	end
 
 	function gameplay.shoot_single_bullet_between_coords(start, End, damage, weapon, Ped, audible, invisible, speed)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
 		return originals.gameplay.shoot_single_bullet_between_coords(start, End, damage, weapon, Ped, audible, invisible, speed)
 	end
 end
@@ -287,21 +290,21 @@ end
 -- Network functions
 do
 	function network.network_session_kick_player(pid)
-		assert(pid >= 0 and pid <= 31, "Invalid pid.")
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		originals.network.network_session_kick_player(pid)
 	end
 	function network.network_hash_from_player(pid)
-		assert(pid >= 0 and pid <= 31, "Invalid pid.")
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return originals.network.network_hash_from_player(pid)
 	end
 
 	function network.get_entity_player_is_spectating(pid)
-		assert(pid >= 0 and pid <= 31, "Invalid pid.")
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return originals.network.get_entity_player_is_spectating(pid)
 	end
 
 	function network.get_player_player_is_spectating(pid)
-		assert(pid >= 0 and pid <= 31, "Invalid pid.")
+		essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
 		return originals.network.get_player_player_is_spectating(pid)
 	end
 end
@@ -311,7 +314,7 @@ do
 	for name, func in pairs(ai) do
 		ai[name] = function(...)
 			local Ped <const> = ...
-			assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+			essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
 			return originals.ai[name](...)
 		end
 	end
@@ -335,88 +338,88 @@ do
 	end
 
 	function ai.task_vehicle_follow(Ped, Vehicle, Entity, speed, int, minDistance)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
-		assert(minDistance > 0, "Minimum distance must be more than 0.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		essentials.assert(minDistance > 0, "Minimum distance must be more than 0.")
 		originals.ai.task_vehicle_follow(Ped, Vehicle, Entity, speed, int, minDistance)
 	end
 
 	function ai.task_vehicle_drive_wander(Ped, Vehicle, speed, driveStyle)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
 		originals.ai.task_vehicle_drive_wander(Ped, Vehicle, speed, driveStyle)
 	end
 
 	function ai.task_vehicle_shoot_at_ped(Ped1, Ped2, a3)
-		assert(not entity.is_an_entity(Ped1) or entity.is_entity_a_ped(Ped1), "Expected ped from argument Ped1.")
-		assert(not entity.is_an_entity(Ped2) or entity.is_entity_a_ped(Ped2), "Expected ped from argument Ped2.")
+		essentials.assert(not entity.is_an_entity(Ped1) or entity.is_entity_a_ped(Ped1), "Expected ped from argument Ped1.")
+		essentials.assert(not entity.is_an_entity(Ped2) or entity.is_entity_a_ped(Ped2), "Expected ped from argument Ped2.")
 		originals.ai.task_vehicle_shoot_at_ped(Ped1, Ped2, a3)
 	end
 
 	function ai.task_vehicle_aim_at_ped(Ped1, Ped2) 
-		assert(not entity.is_an_entity(Ped1) or entity.is_entity_a_ped(Ped1), "Expected ped from argument Ped1.")
-		assert(not entity.is_an_entity(Ped2) or entity.is_entity_a_ped(Ped2), "Expected ped from argument Ped2.")
+		essentials.assert(not entity.is_an_entity(Ped1) or entity.is_entity_a_ped(Ped1), "Expected ped from argument Ped1.")
+		essentials.assert(not entity.is_an_entity(Ped2) or entity.is_entity_a_ped(Ped2), "Expected ped from argument Ped2.")
 		originals.ai.task_vehicle_aim_at_ped(Ped1, Ped2)
 	end
 
 	function ai.task_vehicle_drive_to_coord_longrange(Ped, Vehicle, pos, speed, mode, stopRange)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
 		originals.ai.task_vehicle_drive_to_coord_longrange(Ped, Vehicle, pos, speed, mode, stopRange)
 	end
 
 	function ai.task_vehicle_escort(Ped, Vehicle, Vehicle2, mode, speed, drivingStyle, minDistance, a8, noRoadsDistance)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
-		assert(not entity.is_an_entity(Vehicle2) or entity.is_entity_a_vehicle(Vehicle2), "Expected a vehicle.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		essentials.assert(not entity.is_an_entity(Vehicle2) or entity.is_entity_a_vehicle(Vehicle2), "Expected a vehicle.")
 		originals.ai.task_vehicle_escort(Ped, Vehicle, Vehicle2, mode, speed, drivingStyle, minDistance, a8, noRoadsDistance)
 	end
 
 	function ai.task_vehicle_follow(Ped, Vehicle, targetEntity, speed, drivingStyle, minDistance)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
 		originals.ai.task_vehicle_follow(Ped, Vehicle, targetEntity, speed, drivingStyle, minDistance)
 	end
 
 	function ai.task_vehicle_drive_to_coord(Ped, Vehicle, coord, speed, a5, vehicleModel, driveMode, stopRange, a9)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
-		assert(streaming.is_model_a_vehicle(vehicleModel), "Expected a valid vehicle model.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		essentials.assert(streaming.is_model_a_vehicle(vehicleModel), "Expected a valid vehicle model.")
 		originals.ai.task_vehicle_drive_to_coord(Ped, Vehicle, coord, speed, a5, vehicleModel, driveMode, stopRange, a9)
 	end
 
 	function ai.task_open_vehicle_door(Ped, Vehicle, timeOut, doorIndex, speed)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
 		originals.ai.task_open_vehicle_door(Ped, Vehicle, timeOut, doorIndex, speed)
 	end
 
 	function ai.task_enter_vehicle(Ped, Vehicle, timeout, seat, speed, flag, p6)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
 		originals.ai.task_enter_vehicle(Ped, Vehicle, timeout, seat, speed, flag, p6)
 	end
 
 	function ai.task_leave_vehicle(Ped, Vehicle, flag)
-		assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
-		assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
+		essentials.assert(not entity.is_an_entity(Ped) or entity.is_entity_a_ped(Ped), "Expected a ped.")
+		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
 		originals.ai.task_leave_vehicle(Ped, Vehicle, flag)
 	end
 end
 
 -- Misc functions
 	function system.yield(ms)
-		assert(math.type(ms) == "integer", "Expected integer.")
+		essentials.assert(math.type(ms) == "integer", "Expected integer.")
 		originals.system.yield(ms)
 	end
 
 	function system.wait(ms)
-		assert(math.type(ms) == "integer", "Expected integer.")
+		essentials.assert(math.type(ms) == "integer", "Expected integer.")
 		originals.system.wait(ms)
 	end
 
 	function utils.get_all_files_in_directory(path, extension)
-		assert(utils.dir_exists(path), "Tried to get all files from a directory that doesn't exist.")
+		essentials.assert(utils.dir_exists(path), "Tried to get all files from a directory that doesn't exist.")
 		return originals.utils.get_all_files_in_directory(path, extension)
 	end
 
@@ -424,11 +427,11 @@ do
 	local deleted_entities <const> = {}
 	entity.delete_entity = function(Entity)
 		if network.has_control_of_entity(Entity) then
-			assert(utils.time_ms() > (deleted_entities[Entity] or 0), "Tried to delete an entity that was already deleted.")
-			assert(not entity.is_entity_attached(Entity), "Tried to delete an attached entity.")
-			assert(network.has_control_of_entity(Entity), "Tried to delete an entity without having control over it.")
-			assert(entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)), "Tried to delete an entity attached to a player")
-			assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
+			essentials.assert(utils.time_ms() > (deleted_entities[Entity] or 0), "Tried to delete an entity that was already deleted.")
+			essentials.assert(not entity.is_entity_attached(Entity), "Tried to delete an attached entity.")
+			essentials.assert(network.has_control_of_entity(Entity), "Tried to delete an entity without having control over it.")
+			essentials.assert(entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)), "Tried to delete an entity attached to a player")
+			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
 			local status <const> = originals.entity.delete_entity(Entity)
 			if status and not entity.is_an_entity(Entity) then
 				deleted_entities[Entity] = utils.time_ms() + 20000
@@ -441,34 +444,34 @@ do
 end
 
 streaming.set_model_as_no_longer_needed = function(hash)
-	assert(streaming.is_model_valid(hash), "Tried to set an invalid hash as no longer needed.")
+	essentials.assert(streaming.is_model_valid(hash), "Tried to set an invalid hash as no longer needed.")
 	local status <const> = originals.streaming.set_model_as_no_longer_needed(hash)
-	assert(status, "Failed to set model as no longer needed.")
+	essentials.assert(status, "Failed to set model as no longer needed.")
 	return status
 end
 
 function entity.attach_entity_to_entity(e1, e2, ...) -- Recursion loop if e1 == e2
-	assert(e1 ~= e2, "Attempted to attach entity to itself.")
+	essentials.assert(e1 ~= e2, "Attempted to attach entity to itself.")
 	return originals.entity.attach_entity_to_entity(e1, e2, ...)
 end
 
 function entity.detach_entity(Entity)
-	assert(entity.is_entity_attached(Entity), "Tried to detach an entity that isnt attached.")
-	assert(entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)), "Tried to detach an entity from a player.")
-	assert(network.has_control_of_entity(Entity), "Tried to detach an entity without having control over it.")
+	essentials.assert(entity.is_entity_attached(Entity), "Tried to detach an entity that isnt attached.")
+	essentials.assert(entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)), "Tried to detach an entity from a player.")
+	essentials.assert(network.has_control_of_entity(Entity), "Tried to detach an entity without having control over it.")
 	return originals.entity.detach_entity(Entity)
 end
 
 function entity.set_entity_collision(Entity, ...) -- Detaches entity
-	assert(not entity.is_entity_attached(Entity), "Tried to set collision for an attached entity.")
-	assert(network.has_control_of_entity(Entity), "Tried to set collision for an entity without having control over it.")
+	essentials.assert(not entity.is_entity_attached(Entity), "Tried to set collision for an attached entity.")
+	essentials.assert(network.has_control_of_entity(Entity), "Tried to set collision for an entity without having control over it.")
 	return originals.entity.set_entity_collision(Entity, ...)
 end
 
 function network.force_remove_player(pid)
-	assert(pid >= 0 and pid <= 31, "Invalid pid.")
-	assert(player.is_player_valid(pid), "Tried to use breakup kick on an invalid player.")
-	assert(pid ~= player.player_id(), "Tried to use breakup kick on yourself.")
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.")
+	essentials.assert(player.is_player_valid(pid), "Tried to use breakup kick on an invalid player.")
+	essentials.assert(pid ~= player.player_id(), "Tried to use breakup kick on yourself.")
 	return originals.network.force_remove_player(pid)
 end
 

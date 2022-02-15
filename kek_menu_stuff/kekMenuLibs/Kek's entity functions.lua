@@ -633,14 +633,12 @@ local num_of_mods_to_wheel_type_map <const> = essentials.const({ -- Indices are 
 	[72] = enums.wheel_types.BIKE,
 	[40] = enums.wheel_types.HIEND,
 	[140] = enums.wheel_types.f1_wheels,
-
-	-- These can't be differentiated because they have the same number of mods in its modtype index
-	[217] = {enums.wheel_types.bennys_bespoke, enums.wheel_types.bennys_original},
-	[210] = {enums.wheel_types.track, enums.wheel_types.street},
+	[217] = enums.wheel_types.bennys_original,  -- enums.wheel_types.bennys_bespoke Also has this number of mods
+	[210] = enums.wheel_types.street, 			-- enums.wheel_types.track also has this number of mods.
 	[48] = {bike = enums.wheel_types.BIKE, car = enums.wheel_types.TUNER}
 })
 
-function kek_entity.get_wheel_type(Vehicle) -- A man must do the ghetto ways in this lua api
+function kek_entity.get_wheel_type(Vehicle)
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		local num_of_mods <const> = vehicle.get_num_vehicle_mods(Vehicle, 62)
@@ -653,7 +651,7 @@ function kek_entity.get_wheel_type(Vehicle) -- A man must do the ghetto ways in 
 				return Type.car
 			end
 		end
-		return type(Type) == "table" and Type[math.random(1, #Type)] or Type -- 50% chance of correct type if Type is a table.
+		return Type
 	end
 	return 0
 end
