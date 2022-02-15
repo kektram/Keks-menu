@@ -363,7 +363,6 @@ Revenge §죽인 사람에게 복수
 Horn boost §경적 부스트
 Notifications §알림
 Auto kicker notifications §자동 킥 알림
-Give nearby players horn boost §주변 플레이어에게 경적 부스트
 Turn everything off §모든 옵션 비활성화
 First seen §처음으로 본 날짜와 시간
 Last seen §마지막으로 본 날짜와 시간
@@ -663,3 +662,10 @@ Failed to set coordinates. §좌표를 설정하는 것을 실패했습니다.
 Failed to cleanup crash entity while it is still in memory. §크래쉬 엔티티를 치우는 것을 실패했습니다: 해당 엔티티가 이미 메모리에 있기 때문입니다.
 Crash entity went out of memory before it could be cleaned up. §크래쉬 엔티티가 메모리 밖에 있습니다: 이미 해당 엔티티를 치울 수 있었기 때문입니다.
 Saved map. §저장된 맵입니다.
+Session peaceful §평화로운 세션
+Peaceful §평화로운
+Add entry §Entry 추가
+Remove entry §Entry 제거
+Delete profile §프로필 제거
+Search features from all luas loaded §불러와진 모든 Lua 중에서 기능 검색
+For chat to show here, chat logger must be on. You can find chat logger in script features > Chat §채팅을 여기에 보여주기 위해서는 채팅 기록이 켜져 있어야만 합니다.
