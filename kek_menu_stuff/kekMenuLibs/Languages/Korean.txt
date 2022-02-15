@@ -668,3 +668,4 @@ Add entry §Entry 추가
 Remove entry §Entry 제거
 Delete profile §프로필 제거
 Search features from all luas loaded §불러와진 모든 Lua 중에서 기능 검색
+For chat to show here, chat logger must be on. You can find chat logger in script features > Chat §채팅을 여기에 보여주기 위해서는 채팅 기록이 켜져 있어야만 합니다.
