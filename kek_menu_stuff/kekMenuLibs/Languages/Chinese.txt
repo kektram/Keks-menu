@@ -355,7 +355,6 @@ Turned off §关闭
 Horn boost §喇叭加速
 Notifications §通知
 Auto kicker notifications §自动踢时通知
-Give nearby players horn boost §给附近的玩家喇叭加速
 Turn everything off §关闭所有
 First seen §首次遇见
 Last seen §最后遇见
@@ -656,3 +655,9 @@ Failed to set coordinates. §设置坐标失败.
 Failed to cleanup crash entity while it is still in memory. §清理崩溃实体失败,它仍在内存中.
 Crash entity went out of memory before it could be cleaned up. §崩溃实体在清理之前内存不足.
 Saved map. §已保存地图.
+Session peaceful §战局友好
+Peaceful §友好
+Add entry §添加条目
+Remove entry §删除条目
+Delete profile §删除配置
+Search features from all luas loaded §从所有已加载的lua中搜索功能
