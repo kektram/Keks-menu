@@ -31,7 +31,7 @@ essentials.listeners = {
 essentials.nethooks = {}
 essentials.feats = {}
 essentials.player_feats = {}
-essentials.number_of_explosion_types = 83
+essentials.number_of_explosion_types = 82
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
