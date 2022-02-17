@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.6.3
+-- Kek's menu version 0.4.6.4
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.6.3"
+__kek_menu_version = "0.4.6.4"
 
 local paths <const> = {
 	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
@@ -46,6 +46,14 @@ math.randomseed(math.floor(os.clock()) + os.time())
 
 local u <const> = {}
 local player_feat_ids <const> = {}
+local player_history <const> = {
+	year_parents = {},
+	month_parents = {},
+	day_parents = {},
+	hour_parents = {},
+	searched_players = {},
+	players_added_to_history = {}
+}
 
 do -- Makes sure each library is loaded once and that every time one is required, has the same environment as the others
 	local original_require <const> = require
@@ -1641,13 +1649,13 @@ do
 			system.yield(0)
 			for pid in essentials.players() do
 				local scid <const> = player.get_player_scid(pid)
-				if not f.data[scid]
+				if utils.time_ms() > (f.data[scid] or 0)
 				and player.is_player_modder(pid, -1) 
 				and essentials.is_not_friend(pid)
 				and is_flag_enabled(pid, "Kick people with ") then
 					if settings.toggle["Log modders"].on and is_flag_enabled(pid, "Log people with ") then
 						local time <const> = utils.time_ms() + 1500
-						while f.on and player.is_player_valid(pid) and time > utils.time_ms() and not settings.toggle["Log modders"].data[scid] do
+						while f.on and player.is_player_valid(pid) and time > utils.time_ms() and (not settings.toggle["Log modders"].data[scid] or not player_history.players_added_to_history[player.get_player_name(pid)]) do
 							system.yield(0)
 						end
 					end
@@ -1655,7 +1663,7 @@ do
 						local modder_flags <const> = essentials.modder_flags_to_text(player.get_player_modder_flags(pid))
 						essentials.msg(string.format("%s %s%s%s", lang["Kicking"], player.get_player_name(pid), lang[", flags:\n"], modder_flags), "red", settings.in_use["Auto kicker #notifications#"])
 						essentials.kick_player(pid)
-						f.data[scid] = true
+						f.data[scid] = utils.time_ms() + 20000
 					end
 				end
 			end
@@ -2337,15 +2345,6 @@ do
 		end
 	end
 end
-
-local player_history <const> = {
-	year_parents = {},
-	month_parents = {},
-	day_parents = {},
-	hour_parents = {},
-	searched_players = {},
-	players_added_to_history = {}
-}
 
 function player_history.sort_numbers(t)
 	table.sort(t, function(a, b) return (tonumber(a:match("[%d]+")) or 0) > (tonumber(b:match("[%d]+")) or 0) end)
@@ -6233,7 +6232,9 @@ menu.get_player_feature(player_feat_ids["Player horn boost"]).value = 25
 
 do
 	local feat = menu.add_player_feature(lang["Flamethrower"], "action_value_str", u.player_peaceful, function(f, pid)
-		if entity.is_entity_a_vehicle(player.get_player_vehicle(pid)) then
+		local initial_pos <const> = player.get_player_coords(player.player_id())
+		local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
+		if status then
 			if f.value == 0 then
 				if not f.data.ptfx_in_use[player.get_player_vehicle(pid)] and kek_entity.get_control_of_entity(player.get_player_vehicle(pid), nil, nil, true) and essentials.request_ptfx("weap_xs_vehicle_weapons") then
 					f.data.ptfx_in_use[player.get_player_vehicle(pid)] = essentials.use_ptfx_function(graphics.start_networked_ptfx_looped_on_entity, f.data.ptfx_names[math.random(1, #f.data.ptfx_names)], player.get_player_vehicle(pid), memoize.v3(0, 3, 0), memoize.v3(), essentials.random_real(1, 3))
@@ -6243,6 +6244,9 @@ do
 			elseif f.value == 1 and f.data.ptfx_in_use[player.get_player_vehicle(pid)] and kek_entity.get_control_of_entity(player.get_player_vehicle(pid), nil, nil, true) then
 				graphics.remove_particle_fx(f.data.ptfx_in_use[player.get_player_vehicle(pid)], false)
 				f.data.ptfx_in_use[player.get_player_vehicle(pid)] = nil
+			end
+			if had_to_teleport then
+				kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
 			end
 		end
 	end)
@@ -6262,9 +6266,14 @@ do
 end
 
 player_feat_ids["Drive force multiplier"] = menu.add_player_feature(lang["Drive force multiplier"], "action_value_f", u.player_vehicle_features, function(f, pid)
-	if kek_entity.get_control_of_entity(player.get_player_vehicle(pid), nil, nil, true) then
+	local initial_pos <const> = player.get_player_coords(player.player_id())
+	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
+	if status and kek_entity.get_control_of_entity(player.get_player_vehicle(pid), nil, nil, true) then
 		entity.set_entity_max_speed(player.get_player_vehicle(pid), 45000)
 		vehicle.modify_vehicle_top_speed(player.get_player_vehicle(pid), (f.value - 1) * 100)
+	end
+	if had_to_teleport then
+		kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
 end).id
 menu.get_player_feature(player_feat_ids["Drive force multiplier"]).max = 20.0
@@ -6283,8 +6292,13 @@ end):set_str_data({
 })
 
 menu.add_player_feature(lang["Vehicle can't be locked on"], "action_value_str", u.player_peaceful, function(f, pid)
-	if kek_entity.get_control_of_entity(player.get_player_vehicle(pid), nil, nil, true) then
+	local initial_pos <const> = player.get_player_coords(player.player_id())
+	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
+	if status and kek_entity.get_control_of_entity(player.get_player_vehicle(pid), nil, nil, true) then
 		vehicle.set_vehicle_can_be_locked_on(player.get_player_vehicle(pid), f.value == 1, true)
+	end
+	if had_to_teleport then
+		kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
 end):set_str_data({
 	lang["Give"],

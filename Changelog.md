@@ -1,12 +1,8 @@
-**# Kek's menu 0.4.6.3
+**# Kek's menu 0.4.6.4
 
 ## **Improvements**```md
-### Colored names no longer change the color in display 2take1 notifications
-### Explosion types are now named instead of id in entity manager
-### Reorganized submenues to make most used features more accessible
-### Fixed kick gun raising error if they shoot you with it
-### !votekick chat command will no longer work on you
-### Fixed chat judger using empty lines, causing every message to trigger it
-### Fixed bug where features writing / reading files creates an additional newline for every line
+### Fixed auto kicker not being able to kick a person if they rejoin
+### Fixed auto kicker kicking people before player history could log them
+### "Give flamethrower", "Drive force multiplier" & "vehicle can't be locked on" now teleports to target if necessary.
 ```
 It doesn't matter if you download via the green button or in releases, they're identical.
