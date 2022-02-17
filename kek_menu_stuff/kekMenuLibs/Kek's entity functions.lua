@@ -494,7 +494,7 @@ function kek_entity.get_vector_relative_to_entity(...)
 		if get_z_axis then
 			rot = entity.get_entity_rotation(Entity)
 			rot.z = kek_entity.get_rotated_heading(Entity, angle or 0, nil, rot.z)
-	        rot:transformRotToDir()
+			rot:transformRotToDir()
 			pos = pos + (rot * distance_from_entity)
 		else
 			heading = math.rad((heading - 180) * -1)
@@ -510,7 +510,7 @@ end
 function kek_entity.get_vector_in_front_of_me(...)
 	local Entity <const>, distance_from_entity <const> = ...
 	local rot = cam.get_gameplay_cam_rot()
-    rot:transformRotToDir()
+	rot:transformRotToDir()
 	return cam.get_gameplay_cam_pos() + (rot * distance_from_entity)
 end
 
@@ -816,9 +816,9 @@ end
 function kek_entity.get_collision_vector(...)
 	local pid <const> = ...
 	local rot = cam.get_gameplay_cam_rot()
-    rot:transformRotToDir()
-    local hit_pos <const> = select(2, worldprobe.raycast(player.get_player_coords(pid), rot * 1000 + cam.get_gameplay_cam_pos(), -1, player.get_player_ped(pid)))
-    return hit_pos
+	rot:transformRotToDir()
+	local hit_pos <const> = select(2, worldprobe.raycast(player.get_player_coords(pid), rot * 1000 + cam.get_gameplay_cam_pos(), -1, player.get_player_ped(pid)))
+	return hit_pos
 end
 
 --[[

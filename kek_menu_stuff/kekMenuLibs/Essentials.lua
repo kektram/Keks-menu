@@ -1347,6 +1347,7 @@ function essentials.log(...)
 end
 
 function essentials.add_to_timeout(pid)
+	essentials.assert(pid ~= player.player_id(), "Tried to add yourself to join timeout.")
 	essentials.log(paths.home.."cfg\\scid.cfg", 
 		string.format("%s:%x:c", player.get_player_name(pid), player.get_player_scid(pid)), 
 		{string.format("%x", player.get_player_scid(pid)), player.get_player_name(pid)})

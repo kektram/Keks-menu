@@ -33,28 +33,28 @@ do
 		x = x or 0
 		y = y or 0
 		z = z or 0
-        local xi = x * 100 // 1
-        local yi = y * 100 // 1
-        local zi = z * 100 // 1
+		local xi = x * 100 // 1
+		local yi = y * 100 // 1
+		local zi = z * 100 // 1
 		if xi >= -max_20_bit_num 
 		and xi <= max_20_bit_num 
 		and yi >= -max_20_bit_num 
 		and yi <= max_20_bit_num 
 		and zi >= -max_20_bit_num
 		and zi <= max_20_bit_num then
-		    local signs = 0
-		    if xi < 0 then
-		        xi = xi * -1
-		        signs = signs | sign_bit_x
-		    end
-		    if yi < 0 then
-		        yi = yi * -1
-		        signs = signs | sign_bit_y
-		    end
-		    if zi < 0 then
-		        zi = zi * -1
-		        signs = signs | sign_bit_z
-		    end
+			local signs = 0
+			if xi < 0 then
+				xi = xi * -1
+				signs = signs | sign_bit_x
+			end
+			if yi < 0 then
+				yi = yi * -1
+				signs = signs | sign_bit_y
+			end
+			if zi < 0 then
+				zi = zi * -1
+				signs = signs | sign_bit_z
+			end
 			local hash <const> = signs | xi << 40 | yi << 20 | zi
 			memoized[hash] = memoized[hash] or v3(x, y, z)
 			return memoized[hash]
@@ -73,22 +73,22 @@ do
 	function memoize.v2(x, y)
 		x = x or 0
 		y = y or 0
-        local xi = x * 1000 // 1
-        local yi = y * 1000 // 1
+		local xi = x * 1000 // 1
+		local yi = y * 1000 // 1
 		if xi >= -max_30_bit_num 
 		and xi <= max_30_bit_num 
 		and yi >= -max_30_bit_num 
 		and yi <= max_30_bit_num then
-		    local signs = 0
-		    if xi < 0 then
-		        xi = xi * -1
-		        signs = signs | sign_bit_x
-		    end
-		    if yi < 0 then
-		        yi = yi * -1
-		        signs = signs | sign_bit_y
-		    end
-		    local hash <const> = signs | xi << 30 | yi
+			local signs = 0
+			if xi < 0 then
+				xi = xi * -1
+				signs = signs | sign_bit_x
+			end
+			if yi < 0 then
+				yi = yi * -1
+				signs = signs | sign_bit_y
+			end
+			local hash <const> = signs | xi << 30 | yi
 			memoized[hash] = memoized[hash] or v2(x, y)
 			return memoized[hash]
 		else
