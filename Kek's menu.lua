@@ -1655,7 +1655,7 @@ do
 				and is_flag_enabled(pid, "Kick people with ") then
 					if settings.toggle["Log modders"].on and is_flag_enabled(pid, "Log people with ") then
 						local time <const> = utils.time_ms() + 1500
-						while f.on and player.is_player_valid(pid) and time > utils.time_ms() and (not settings.toggle["Log modders"].data[scid] or not player_history.players_added_to_history[player.get_player_name(pid)]) do
+						while f.on and player.is_player_valid(pid) and time > utils.time_ms() and ((settings.toggle["Log modders"].on and not settings.toggle["Log modders"].data[scid]) or (settings.toggle["Player history"].on and not player_history.players_added_to_history[player.get_player_name(pid)])) do
 							system.yield(0)
 						end
 					end
