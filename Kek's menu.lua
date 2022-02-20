@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.6.5
+-- Kek's menu version 0.4.6.6
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.6.5"
+__kek_menu_version = "0.4.6.6"
 
 local paths <const> = {
 	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
@@ -86,7 +86,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Location mapper"] = "1.0.1",
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
-		["Menyoo spawner"] = "2.2.2",
+		["Menyoo spawner"] = "2.2.3",
 		["Kek's entity functions"] = "1.2.1",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.1",
@@ -2438,7 +2438,7 @@ function player_history.add_features(main_parent, rid, ip, name)
 				end
 				local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log", "rb")
 				local name <const> = main_parent.name:sub(1, 16)
-				local spaces <const> = string.rep("\32", 16 - utf8.len(name))
+				local spaces <const> = string.rep("\32", 16 - (utf8.len(name) or #name))
 				parent.data = essentials.get_all_matches(str, "["..name..spaces.."]", "%]:\32(.+)")
 				if parent.child_count == 0 then
 					local feats <const> = {}
@@ -3553,7 +3553,7 @@ settings.toggle["Chat logger"] = menu.add_feature(lang["Chat logger"], "toggle",
 		essentials.listeners["chat"]["logger"] = event.add_event_listener("chat", function(event)
 			if player.is_player_valid(event.player)
 			and (not f.data[player.get_player_scid(event.player)] or utils.time_ms() + 10000 > f.data[player.get_player_scid(event.player)]) then
-				local name <const> = player.get_player_name(event.player)..string.rep("\32", 16 - utf8.len(player.get_player_name(event.player):sub(1, 16)))
+				local name <const> = player.get_player_name(event.player)..string.rep("\32", 16 - (utf8.len(player.get_player_name(event.player):sub(1, 16)) or #player.get_player_name(event.player):sub(1, 16)))
 				local str <const> = {}
 				for line in event.body:gmatch("[^\n\r]+") do
 					str[#str + 1] = string.format("[%s][%s]: %s\n", name, os.date(), line)
@@ -3583,8 +3583,8 @@ settings.toggle["Anti chat spam"] = menu.add_feature(lang["Anti chat spam"], "va
 		essentials.listeners["chat"]["anti spam"] = event.add_event_listener("chat", function(event)
 			local scid <const> = player.get_player_scid(event.player)
 			if event.player ~= player.player_id() and essentials.is_not_friend(event.player) then
-				local msg_increment 	 <const> = utf8.len(event.body) + 85
-				local in_a_row_increment <const> = utf8.len(event.body) >= 10 and 1.0 or 0.7
+				local msg_increment 	 <const> = (utf8.len(event.body) or #event.body) + 85 -- People may send a message that contains invalid utf8 seq, causing utf8.len to return nil.
+				local in_a_row_increment <const> = (utf8.len(event.body) or #event.body) >= 10 and 1.0 or 0.7
 				
 				if not tracker[scid] then
 					tracker[scid] = {

@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local menyoo <const> = {version = "2.2.2"}
+local menyoo <const> = {version = "2.2.3"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -318,11 +318,11 @@ local function spawn_entity(info, entities, is_not_networked)
 	if streaming.is_model_an_object(info.ModelHash) then
 		Entity = kek_entity.spawn_object(info.ModelHash, function()
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40)
-		end, info.Dynamic == false, is_not_networked, 6)
+		end, info.Dynamic == false, is_not_networked, 5)
 	else
 		Entity = kek_entity.spawn_ped_or_vehicle(info.ModelHash, function()
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
-		end, false, false, enums.ped_types.civmale, 6, is_not_networked)
+		end, false, false, enums.ped_types.civmale, 5, is_not_networked)
 	end
 	if entity.is_an_entity(Entity) then
 		entity.freeze_entity(Entity, true)
@@ -1020,11 +1020,11 @@ local function spawn_entity_for_ini_vehicle(info, entities)
 	if streaming.is_model_a_vehicle(hash) then
 		Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
 			return pos, 0
-		end, false, false, nil, 6)
+		end, false, false, nil, 5)
 	elseif streaming.is_model_a_ped(hash) then
 		Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
 			return pos, 0
-		end, false, false, info.PedType or enums.ped_types.civmale, 6)			
+		end, false, false, info.PedType or enums.ped_types.civmale, 5)			
 	elseif streaming.is_model_an_object(hash) then
 		Entity = kek_entity.spawn_object(hash, function()
 			return pos
