@@ -355,7 +355,9 @@ function kek_entity.hard_remove_entity_and_its_attachments(...)
 end
 
 function kek_entity.clear_entities(...)
-	local table_of_entities <const> = ...
+	local table_of_entities <const>, time_to_wait_for_control = ...
+	time_to_wait_for_control = time_to_wait_for_control or 350
+	local timeout <const> = utils.time_ms() + 10000 -- Worst case scenario: modder making control impossible, causing every request to take 250ms. Timeout will set req timer to 0ms.
 	for i2 = 1, 2 do
 		local count = 1
 		for Entity, i in essentials.entities(table_of_entities) do
@@ -363,7 +365,7 @@ function kek_entity.clear_entities(...)
 			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
 			if entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)) then
 				if i2 == 1 and not network.has_control_of_entity(Entity) then 
-					network.request_control_of_entity(Entity)
+					kek_entity.get_control_of_entity(Entity, timeout > utils.time_ms() and time_to_wait_for_control or 0)
 				end
 				if network.has_control_of_entity(Entity) then
 					if ui.get_blip_from_entity(Entity) ~= 0 then
@@ -507,8 +509,36 @@ function kek_entity.get_vector_relative_to_entity(...)
 	end
 end
 
+function kek_entity.get_longest_dimension(...)
+	local hash <const> = ...
+	local min <const>, max <const> = vehicle_mapper.get_dimensions(hash)
+	return essentials.get_max_variadic(
+		math.abs(min.y), 
+		math.abs(max.y),
+		math.abs(min.x),
+		math.abs(max.x)
+	)
+end
+
+function kek_entity.vehicle_get_vec_rel_to_dims(...)
+	local hash <const>, Entity <const>, extra_offset <const> = ...
+	if entity.is_an_entity(Entity) and hash ~= 0 then
+		essentials.assert(streaming.is_model_a_vehicle(hash), "Tried to get dimensions from a non vehicle hash.", hash)
+		local additional_offset
+		if entity.is_entity_a_ped(Entity) and ped.is_ped_in_any_vehicle(Entity) then
+			local Entity <const> = ped.get_vehicle_ped_is_using(Entity)
+			additional_offset = kek_entity.get_longest_dimension(entity.get_entity_model_hash(Entity)) / 3
+		end
+		return kek_entity.get_vector_relative_to_entity(Entity,
+			kek_entity.get_longest_dimension(hash) + (extra_offset or 3) + (additional_offset or 0)
+		)
+	else
+		return v3()
+	end
+end
+
 function kek_entity.get_vector_in_front_of_me(...)
-	local Entity <const>, distance_from_entity <const> = ...
+	local distance_from_entity <const> = ...
 	local rot = cam.get_gameplay_cam_rot()
 	rot:transformRotToDir()
 	return cam.get_gameplay_cam_pos() + (rot * distance_from_entity)
@@ -956,6 +986,7 @@ function kek_entity.set_combat_attributes(...)
 		ped.set_ped_combat_ability(Ped, 100)
 		ped.set_ped_combat_range(Ped, enums.combat_range.CR_Far)
 		ped.set_ped_combat_movement(Ped, enums.combat_movement.offensive)
+		ped.set_ped_can_switch_weapons(Ped, true)
 		ped.set_ped_relationship_group_hash(Ped, gameplay.get_hash_key("HATES_PLAYER"))
 	end
 end
@@ -996,13 +1027,14 @@ end
 
 local function get_prefered_vehicle_pos(...)
 	local hash <const> = ...
+	local pos <const> = kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(player.player_id()))
 	essentials.assert(streaming.is_model_a_vehicle(hash), "Expected a valid vehicle hash.", hash)
 	if settings.toggle["Air #vehicle# spawn mid-air"].on and settings.toggle["Spawn inside of spawned #vehicle#"].on and streaming.is_model_a_heli(hash) then
-		return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 10), true) + v3(0, 0, 100 - kek_entity.get_entity_altitude(essentials.get_most_relevant_entity(player.player_id())))
+		return location_mapper.get_most_accurate_position(pos, true) + v3(0, 0, 100 - kek_entity.get_entity_altitude(essentials.get_most_relevant_entity(player.player_id())))
 	elseif settings.toggle["Air #vehicle# spawn mid-air"].on and settings.toggle["Spawn inside of spawned #vehicle#"].on and streaming.is_model_a_plane(hash) then
-		return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 25), true) + v3(0, 0, 250 - kek_entity.get_entity_altitude(essentials.get_most_relevant_entity(player.player_id())))
+		return location_mapper.get_most_accurate_position(pos, true) + v3(0, 0, 250 - kek_entity.get_entity_altitude(essentials.get_most_relevant_entity(player.player_id())))
 	else
-		return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8), true)
+		return location_mapper.get_most_accurate_position(pos, true)
 	end
 end
 

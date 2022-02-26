@@ -4,7 +4,7 @@ local essentials <const> = require("Essentials")
 local memoize <const> = require("Memoize")
 local enums <const> = require("Enums")
 
-local location_mapper <const> = {version = "1.0.1"}
+local location_mapper <const> = {version = "1.0.2"}
 
 local los_santos_customs <const> = essentials.const_all({
 	{"Beeker's garage", v3(112, 6619, 31)},
@@ -7638,7 +7638,7 @@ local function get_vectors(...) -- Converts multi-dimensional table into an arra
 end
 
 local function attempt_ground_z(...)
-	local pos = ...
+	local pos <const> = ...
 	if memoize.get_entity_coords(essentials.get_ped_closest_to_your_pov()):magnitude(pos) < 1100 then
 		local offset = memoize.v3()
 		for i = 1, 60, 3 do
@@ -7666,35 +7666,6 @@ local function attempt_ground_z(...)
 		end
 	end
 	return pos, false
-end
-
-function location_mapper.get_set_of_vectors(...)
-	local pos <const>,
-	min_distance <const>,
-	max_distance <const>,
-	max_height <const> = ...
-	local coords <const> = {}
-	for i = 1, 50 do
-		local pos2 <const>, status <const> = attempt_ground_z(pos + kek_entity.get_random_offset(-max_distance, max_distance, min_distance, max_distance))
-		if status 
-		and pos2.z < max_height 
-		and pos2.z > max_height - 13 
-		and pos:magnitude(pos2) >= min_distance then
-			coords[#coords + 1] = pos2
-		end
-	end
-	if #coords == 0 then
-		for i = 1, #gta5_map do
-			local distance <const> = pos:magnitude(gta5_map[i])
-			if distance >= min_distance 
-			and distance <= max_distance 
-			and gta5_map[i].z < max_height 
-			and gta5_map[i].z > max_height - 13 then
-				coords[#coords + 1] = gta5_map[i]
-			end
-		end
-	end
-	return coords
 end
 
 function location_mapper.get_closest_vector_to_pos(...)
@@ -7733,14 +7704,19 @@ function location_mapper.get_most_accurate_position(...)
 	local pos2 <const>, status <const> = attempt_ground_z(pos)
 	if status then
 		return pos2
-	else
-		local pos2 <const> = location_mapper.get_closest_vector_to_pos(pos)
-		if math.abs((pos.z) - (pos2.z)) < 5 then
-			pos.z = pos2.z
-			return pos
-		else
-			return pos2
+	end
+	for i = -180, 180, 45 do -- Has been confirmed to make it work more than if I just set it to v3()
+		local status <const>, pos3 <const> = gameplay.find_spawn_point_in_direction(pos, memoize.v3(0, 0, i), 8)
+		if status and pos3:magnitude(pos) < 45 then
+			return pos3
 		end
+	end
+	local pos2 <const> = location_mapper.get_closest_vector_to_pos(pos)
+	if math.abs((pos.z) - (pos2.z)) < 5 then
+		pos.z = pos2.z
+		return pos
+	else
+		return pos2
 	end
 end
 

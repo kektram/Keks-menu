@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local custom_upgrades <const> = {version = "1.0.1"}
+local custom_upgrades <const> = {version = "1.0.2"}
 
 local essentials <const> = require("Essentials")
 local kek_entity <const> = require("Kek's entity functions")
@@ -36,13 +36,13 @@ function custom_upgrades.vehicle_turret(...)
 				if player.get_player_vehicle(player.player_id()) == Vehicle and player.is_player_in_any_vehicle(player.player_id()) then
 					entity.attach_entity_to_entity(turret, Vehicle, 0, offset, cam.get_gameplay_cam_rot() + v3(cam.get_gameplay_cam_rot().x * -2, 0, 180), false, true, false, 0, false)
 					if controls.is_disabled_control_pressed(0, enums.inputs["RIGHT MOUSE BUTTON A"]) then
-						gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_in_front_of_me(turret, 0.5), kek_entity.get_vector_in_front_of_me(turret, 2000), 100, gameplay.get_hash_key("weapon_heavysniper_mk2"), player.get_player_ped(player.player_id()), true, false, 3000)
+						gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_in_front_of_me(0.5), kek_entity.get_vector_in_front_of_me(2000), 100, gameplay.get_hash_key("weapon_heavysniper_mk2"), player.get_player_ped(player.player_id()), true, false, 3000)
 					end
 					if controls.is_disabled_control_pressed(0, enums.inputs["LEFT MOUSE BUTTON RT"]) then
 						essentials.use_ptfx_function(
 							gameplay.shoot_single_bullet_between_coords, 
-							kek_entity.get_vector_in_front_of_me(turret, 8), 
-							kek_entity.get_vector_in_front_of_me(turret, 2000), 
+							kek_entity.get_vector_in_front_of_me(8), 
+							kek_entity.get_vector_in_front_of_me(2000), 
 							100, 
 							gameplay.get_hash_key("weapon_airstrike_rocket"), 
 							player.get_player_ped(player.player_id()), 

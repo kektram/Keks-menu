@@ -524,6 +524,9 @@ function menyoo.spawn_xml_vehicle(...)
 		end
 	end
 	entity.freeze_entity(parent_entity, info.FrozenPos == true)
+	if not info.FrozenPos == true then
+		rope.activate_physics(parent_entity)
+	end
 	entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
 	send_spawn_counter_msg(entities)
 	return parent_entity
@@ -584,6 +587,9 @@ local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow 
 				essentials.assert(entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
 				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
 				entity.freeze_entity(Entity, is_frozen)
+				if not is_frozen then
+					rope.activate_physics(Entity)
+				end
 			end
 			if check_entity_limits(entities, info.ModelHash) then
 				return "failed"
@@ -613,6 +619,9 @@ local function spawn_xml_map_type_2(info, entities) -- Same as type_1, but missi
 				essentials.assert(entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
 				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
 				entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
+				if not entity.is_entity_an_object(Entity) then
+					rope.activate_physics(Entity)
+				end
 			end
 			if check_entity_limits(entities, info.ModelHash) then
 				return "failed"
@@ -638,6 +647,9 @@ local function spawn_xml_map_type_3(info, entities) -- LSCdamwithpeds&vehicles.x
 				"Failed to set entity position."
 			)
 			entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
+			if not entity.is_entity_an_object(Entity) then
+				rope.activate_physics(Entity)
+			end
 			if info.Type == "Ped" then
 				weapon.give_delayed_weapon_to_ped(Entity, gameplay.get_hash_key("weapon_"..info.Weapon:lower()), 0, 1)
 				ped.set_ped_relationship_group_hash(Entity, gameplay.get_hash_key(info.Relationship:upper()))
@@ -717,7 +729,9 @@ function menyoo.spawn_xml_map(...)
 		end
 	end)
 	entity.freeze_entity(player.get_player_ped(player.player_id()), false)
+	rope.activate_physics(player.get_player_ped(player.player_id()))
 	entity.freeze_entity(frozen_vehicle, false)
+	rope.activate_physics(frozen_vehicle)
 	essentials.assert(tp_state == nil or tp_state, tp_err)
 	essentials.assert(state, err)
 
@@ -988,10 +1002,10 @@ local function spawn_type_1_ini(info)
 			if info.isSecondaryColorCostum then
 				vehicle.set_vehicle_custom_secondary_colour(Vehicle, essentials.get_rgb(info.secondary_r, info.secondary_g, info.secondary_b))
 			end
-			vehicle.set_vehicle_neon_light_enabled(Vehicle, 0, info.neonsLeft == 1)
-			vehicle.set_vehicle_neon_light_enabled(Vehicle, 1, info.neonsRight == 1)
-			vehicle.set_vehicle_neon_light_enabled(Vehicle, 2, info.neonsFront == 1)
-			vehicle.set_vehicle_neon_light_enabled(Vehicle, 3, info.neonsBack == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 0, info.neonsLeft == 1 or info.neonLeft == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 1, info.neonsRight == 1 or info.neonRight == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 2, info.neonsFront == 1 or info.neonFront == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 3, info.neonsBack == 1 or info.neonBack == 1)
 			vehicle.set_vehicle_neon_lights_color(Vehicle, essentials.get_rgb(info.neon_r, info.neon_g, info.neon_b))
 			vehicle.set_vehicle_headlight_color(Vehicle, info.headlightColor)
 			local i = 1

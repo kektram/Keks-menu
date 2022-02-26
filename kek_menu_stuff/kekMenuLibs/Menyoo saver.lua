@@ -204,6 +204,7 @@ function menyoo_saver.save_vehicle(...)
 		file:write(table.concat(str, "\n"))
 		file:flush()
 		entity.freeze_entity(Vehicle, false)
+		rope.activate_physics(Vehicle)
 		if entity.is_entity_a_vehicle(Vehicle) and clear_tasks and #attachments > 0 then
 			ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), Vehicle, -1)
 		end

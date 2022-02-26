@@ -177,7 +177,10 @@ do
 		"set_create_random_cops",
 		"can_create_random_cops",
 		"clear_relationship_between_groups",
-		"set_relationship_between_groups"
+		"set_relationship_between_groups",
+		"add_relationship_group",
+		"does_relationship_group_exist",
+		"remove_relationship_group"
 	}
 	
 	for _, func_name in pairs(function_names) do

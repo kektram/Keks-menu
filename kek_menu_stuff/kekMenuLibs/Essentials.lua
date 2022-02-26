@@ -150,6 +150,15 @@ function essentials.rgb_to_bytes(uint32_rgb)
 		(uint32_rgb >> 16)
 end
 
+function essentials.get_max_variadic(...)
+	local max = math.mininteger
+	local t <const> = table.pack(...)
+	for i = 1, #t do
+		max = t[i] > max and t[i] or max
+	end
+	return max
+end
+
 function essentials.unpack_3_nums(packed_num)
 	local sign_bit_1, sign_bit_2, sign_bit_3 = 1, 1, 1
 	if packed_num & 1 << 60 ~= 0 then sign_bit_1 = -1 end
