@@ -1,5 +1,4 @@
 ﻿Kek's menu §Kek's menu
-General settings §메뉴 설정
 Vehicle §차량
 Self §플레이어 옵션
 Vehicle peaceful §차량 설정 옵션
@@ -290,7 +289,6 @@ Clown vans §광대 밴
 Clear all owned entities §자신의 모든 엔티티 삭제
 Take revenge on death §죽음에 대한 복수
 Aim protection §에임 보호
-Nearby cars have zero gravity §주변 차량 무중력 상태로 변경
 Entity manager §엔티티 관리자
 Entity manager §엔티티 관리자
 Vehicles §차량
@@ -301,7 +299,6 @@ Explode §폭발
 Delete §삭제
 Resurrect §부활
 Godmode §무적
-Zero gravity §무 중력
 Teleport in front of player §플레이어 앞으로 순간 이동
 Teleport to entity §엔티티로 순간 이동
 Follow entity §엔티티 따라가기
@@ -595,9 +592,7 @@ Show sphere §구 보이기
 Lock player inside §플레이어 차량 내부 잠금
 Anti chat spam §채팅 도배 방지
 kicked for spamming chat. §채팅 도배로 인해 킥했습니다.
-kicked for sending the same message 3 times in a row. §한 줄에 같은 메시지를 3회 이상 보내서 킥했습니다.
 Kick & add to timeout §킥 & 타임아웃에 추가
-Crash & add to timeout §크래쉬 & 타임아웃에 추가
 Type in name of a player or regular feature. §플레이어 이름이나 일반적인 기능 이름을 입력하세요.
 Has modded weapons. §핵 사용 무기를 가지고 있습니다.
 This feature doesn't work on yourself. §이 기능은 자신에게는 작동하지 않습니다.
@@ -669,3 +664,6 @@ Remove entry §Entry 제거
 Delete profile §프로필 제거
 Search features from all luas loaded §불러와진 모든 Lua 중에서 기능 검색
 For chat to show here, chat logger must be on. You can find chat logger in script features > Chat §채팅을 여기에 보여주기 위해서는 채팅 기록이 켜져 있어야만 합니다.
+Gravity §중력
+Swap nearby vehicles to police §근처 차량들을 경찰에게 스왑
+If the search doesn't find the features you expect, make sure you load all scripts before you load Kek's menu. §자신이 찾고자 했던 기능이 검색되지 않는다면, Kek's menu를 불러오기 전에 모든 Lua Script들을 불러왔는지 확인하세요.
