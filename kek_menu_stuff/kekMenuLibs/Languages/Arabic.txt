@@ -1,5 +1,4 @@
 Kek's menu §Kek's menu
-General settings §ﺔﻣﺎﻌﻟﺍ ﺕﺍﺩﺍﺪﻋﻻﺍ
 Vehicle §ﺕﺎﺒﻛﺮﻤﻟﺍ
 Self §ﻲﺴﻔﻧ
 Vehicle peaceful §ﺕﺎﺒﻛﺮﻤﻠﻟ ﺔﻤﻟﺎﺴﻣ ﺕﺍﺭﺎﻴﺧ
@@ -78,7 +77,6 @@ Echo chat §ﺕﺎﺸﻟﺍ ﻯﺪﺻ
 Answer delay chatbot §ﺕﻮﺑ ﺕﺎﺸﻟﺍ ﺔﺑﺎﺟﺍ ﺮﻴﺧﺄﺗ
 Chat bot §ﺕﻮﺑ ﺕﺎﺸﻟﺍ
 Max car §ﺲﻛﺎﻤﻟﺍ ﻰﻟﺍ ﺓﺭﺎﻴﺴﻟﺍ ﻞﻳﺪﻌﺗ
-Change default vehicle §ﺔﻴﺳﺎﺳﻻﺍ ﺔﺒﻛﺮﻤﻟﺍ ﺮﻴﻴﻐﺗ
 Change backplate text §ﺔﺣﻮﻠﻟﺍ ﻢﻗﺭ ﺮﻴﻴﻐﺗ
 What vehicle to spawn §ﻥﻭﺎﺒﺴﻠﻟ ﺔﺒﻛﺮﻣ ﻱﺍ
 Spawn vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ
@@ -119,7 +117,6 @@ is already in the script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻲﻓ ﺩ�
 Couldn't find file §ﻒﻠﻤﻟﺍ ﺪﺟﻮﻳ ﻢﻟ
 Removed §ﺔﻟﺍﺯﻻﺍ ﺖﻤﺗ
 from script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻦﻣ
-autoexec doesn't exist §autoexec ﺪﺟﻮﻳ ﻢﻟ
 Chat judge:\nRamming §:ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\nﻡﺪﺻ ﻱﺭﺎﺟ
 with explosive tankers §ﺓﺮﺠﻔﺘﻣ ﺕﺎﻧﺍﺰﺧ ﻊﻣ
 Chat judge:\nKicking §ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\n:ﺩﺮﻃ ﻱﺭﺎﺟ
@@ -158,9 +155,6 @@ Please set a waypoint. §.ﺖﻨﻳﻮﺑ ﻱﺍﻮﻟﺍ ﻊﺿﻭ ﺀﺎﺟﺮ
 Successfully added entry. §.ﺡﺎﺠﻨﺑ ﻞﺧﺪﻤﻟﺍ ﺔﻓﺎﺿﺍ ﻢﺗ
 Removed entry. §.ﻞﺧﺪﻤﻟﺍ ﺔﻟﺍﺯﺍ ﻢﺗ
 is not in a vehicle. §.ﺔﺒﻛﺮﻣ ﻲﻓ ﺲﻴﻟ
-Changed default vehicle. §.ﺔﻴﺳﺎﺳﻻﺍ ﺔﺒﻛﺮﻤﻟﺍ ﺮﻴﻴﻐﺗ ﻢﺗ
-Invalid input. Default value remains the same. §.ﺮﻴﻐﺘﺗ ﻢﻟ ﺔﻴﺳﺎﺳﻻﺍ ﺔﻤﻴﻘﻟﺍ .ﺢﻴﺤﺻ ﺮﻴﻏ ﻞﺧﺪﻤﻟﺍ
-Invalid object. §.ﺢﻴﺤﺻ ﺮﻴﻏ object
 Hotkey:\nTurned on §:ﺭﺎﺼﺘﺧﺍ\nﻞﻴﻌﻔﺘﻟﺍ ﻢﺗ
 Hotkey:\nTurned off §:ﺭﺎﺼﺘﺧﺍ\nﺀﺎﻔﻃﻻﺍ ﻢﺗ
 Hotkey:\nMaxed vehicle. §:ﺭﺎﺼﺘﺧﺍ\nﺲﻛﺎﻤﻟﺍ ﻰﻟﺍ ﻞﻳﺪﻌﺘﻟﺍ ﻢﺗ
@@ -177,7 +171,6 @@ Successfully loaded §ﺡﺎﺠﻨﺑ ﻞﻴﻤﺤﺘﻟﺍ ﻢﺗ
 Saved §ﻆﻔﺤﻟﺍ ﻢﺗ
 Saved profile name. §.ﻢﺳﻻﺍ ﻆﻔﺣ ﻢﺗ
 Successfully loaded Kek's menu. §.ﺡﺎﺠﻨﺑ Kek's menuﻞﻴﻐﺸﺗ ﻢﺗ
-Type in what car to use §ﻡﺍﺪﺨﺘﺳﻼﻟ ﺓﺭﺎﻴﺳ ﻱﺍ ﺐﺘﻛﺍ
 Type in the name of the lua script to add. §.ﺔﻔﻴﻀﺗ ﻲﺒﺗ ﻲﻠﻟﺍ lua ﻝﺍ ﺐﺘﻛﺍ
 Type in the lua script you want to remove. §.ﺔﻓﺬﺤﺗ ﻲﺒﺗ ﻲﻠﻟﺍ lua ﻝﺍ ﺐﺘﻛﺍ
 Type in why you're adding this person. §.ﺺﺨﺸﻟﺍ ﺍﺬﻫ ﺔﻓﺎﺿﺍ ﺐﺒﺳ ﺐﺘﻛﺍ
@@ -195,13 +188,9 @@ Type in what the bot will react to. §aktb ma al bot sof yrd 3lyh
 Type in what the bot will say to what you previously typed in. §aktb al rd 3la ma ktbta mn 8bl
 Type in what the text the bot reacts to in the entry you wish to remove. §aktb rdh al f3l al4y trydha
 Type in answer delay. §aktb ta5yr al ajabh
-Type in the name of the ped you want to spawn. §aktb asm al ped al4y tryd an tsoy spawn lh
-Type in the vehicle you want to be default. §aktb ma al mrkbh al4y tryd an tkon al assasyh
 Type in the text you want displayed on the backplate of your cars after maxing them. §ﺔﺣﻮﻠﻟﺍ ﻰﻠﻋ ﻊﻠﻄﻳ ﻲﺒﺗ ﺵﻭ ﺐﺘﻛﺍ
 Type in vehicle speed §aktb sr3h al mrkbh
 Type in which car to ram with §aktb ma al mrkbh alty tryd an t9dm alla3b bha
-Type in what object to use. §aktb ma al object al4y tryd an tst5dm
-Type in which car to use for vehicle stuff. §aktb ma al syarh alty tryd an tst5dmha la vehicle stuff
 Type in what you want the keybinding to be. §aktb ma tryd al a5t9ar an ykon
 Type in the name of the profile. §aktb asm al mlf 78 al a3dadat
 Log: §:ﻞﺠﺳ
@@ -213,8 +202,6 @@ Vehicle fly §ﺔﺒﻛﺮﻤﻟﺍ ﻥﺍﺮﻴﻃ
 Vehicle gun §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺡﻼﺳ
 Glitch vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﺶﺘﻠﻗ
 Vehicle blacklist:\nGlitching §blacklist almrkbat:\nGlitch
-Chat judge:\nBlaming §:ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\nﻡﻮﻟ
-for killing session. §ﻦﺸﻴﺴﻟﺍ ﻞﺘﻘﻟ
 Lag session §ﻦﺸﻴﺴﻠﻟ ﻕﻻ
 Taze player §ﺐﻋﻼﻟﺍ ﺏﺮﻬﻛ
 Perma-cage §ﻢﺋﺍﺩ ﺺﻔﻗ
@@ -284,7 +271,6 @@ waypoint §ﺖﻨﻳﻮﺑ ﻱﺍﻭ
 Follow player §ﺐﻋﻼﻟﺍ ﻖﺤﻟﺍ
 Wander §ﻝﻮﺠﺗ
 Drive speed §ﺓﺩﺎﻴﻘﻟﺍ ﺔﻋﺮﺳ
-Sort search from newest §ﺩﺪﺟﻻﺍ ﻦﻣ ﺚﺤﺒﻟﺍ ﻒﻴﻨﺼﺗ
 Drive style §ﺓﺩﺎﻴﻘﻟﺍ ﺏﻮﻠﺳﺍ
 Max nearby cars §ﺲﻛﺎﻤﻠﻟ ﺔﺒﻳﺮﻘﻟﺍ ﺕﺍﺭﺎﻴﺴﻟﺍ ﻞﻳﺪﻌﺗ
 Repair nearby cars §ﺔﺒﻳﺮﻘﻟﺍ ﺕﺍﺭﺎﻴﺴﻟﺍ ﺢﻴﻠﺼﺗ
@@ -293,7 +279,6 @@ Nearby cars have no collision §ﻦﺸﻴﻟﻮﻛ ﻼﺑ ﺔﺒﻳﺮﻘﻟﺍ 
 Clown vans §ﻦﻴﺟﺮﻬﻤﻟﺍ ﺕﺎﻧﺎﻓ
 Clear all owned entities §ﺎﻬﻜﻠﻤﺗ ﻲﺘﻠﻟﺍ ﺕﺎﻨﺋﺎﻜﻟﺍ ﻊﻴﻤﺟ ﻑﺬﺣ
 Aim protection §ﻢﻳﻻﺍ ﻦﻣ ﺔﻳﺎﻤﺣ
-Nearby cars have zero gravity §ﺔﺒﻳﺮﻘﻟﺍ ﺕﺍﺭﺎﻴﺴﻠﻟ ﺔﻴﺑﺫﺎﺠﻟﺍ ﺔﻟﺍﺯﺍ
 Entity manager §ﺕﺎﻨﺋﺎﻜﻟﺍ ﺓﺭﺍﺩﺍ
 Entity manager §ﺕﺎﻨﺋﺎﻜﻟﺍ ﺓﺭﺍﺩﺍ
 Vehicles §ﺕﺎﺒﻛﺮﻣ
@@ -304,7 +289,6 @@ Explode §ﺮﺠﻓ
 Delete §ﻑﺬﺣ
 Resurrect §ﻩﺎﻴﺤﻟﺍ ﻩﺩﺎﻋﺍ
 Godmode §ﺩﻮﻣ ﺩﻮﻗ
-Zero gravity §ﺔﻴﺑﺫﺎﺟ ﻼﺑ
 Teleport in front of player §ﺐﻋﻼﻟﺍ ﻡﺍﺪﻗ ﺕﺭﻮﺒﻴﻠﻴﺗ
 Teleport to entity §ﻦﺋﺎﻜﻠﻟ ﺕﺭﻮﺒﻴﻠﻴﺗ
 Follow entity §ﻦﺋﺎﻜﻟﺍ ﻊﺒﺘﺗ
@@ -328,7 +312,6 @@ Kill player §ﺐﻋﻼﻟﺍ ﻞﺘﻗﺍ
 Send clown van §ﺝﺮﻬﻤﻟﺍ ﻥﺎﻓ ﻞﺳﺭﺍ
 Kick from session §ﻦﺸﻴﺴﻟﺍ ﻦﻣ ﺩﺮﻃﺍ
 Crash §ﺵﺍﺮﻛ
-Blame for killing session §ﻦﺸﻴﺴﻟﺍ ﻞﺘﻗ ﻡﻮﻟ
 Random §ﻲﺋﺍﻮﺸﻋ
 Ram §ﻡﺪﺻ
 Kick from vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﻦﻣ ﺩﺮﻃ
@@ -362,14 +345,11 @@ Type in name of menyoo vehicle. §aktb asm mrkbh menyoo.
 Godmode detection §ﺩﻮﻣ ﺩﻮﻘﻟﺍ ﻑﺎﺸﺘﻛﺍ
 is in godmode. §ﺩﻮﻣ ﺩﻮﻗ ﻮﻫ.
 Kill §ﻞﺘﻗﺍ
-Clowns §ﻦﻴﺟﺮﻬﻣ
-Kill session §ﻦﺸﻴﺴﻟﺍ ﻞﺘﻗﺍ
 Revenge §ﻡﺎﻘﺘﻧﺍ
 Turned off §ﺄﻔﻄﻣ
 Horn boost §ﺖﺳﻮﺒﻟﺍ ﻱﺭﻮﺑ
 Notifications §ﺕﺍﺭﺎﻌﺷﺍ
 Auto kicker notifications §ﻲﺋﺎﻘﻠﺘﻟﺍ ﺩﺮﻄﻟﺍ ﺕﺍﺭﺎﻌﺷﺍ
-Give nearby players horn boost §ﻱﺭﻮﺑﻟﺍ ﺖﺳﻭﺑ ﻦﻴﺒﻳﺮﻘﻟﺍ ﻦﻴﺒﻋﻼﻟﺍ ﺀﺎﻄﻋﺍ
 Turn everything off §ﺀﻲﺷ ﻞﻛ ﺀﺎﻔﻃﺍ
 First seen §ﺔﻳﺅﺭ ﻝﻭﺍ
 Last seen §ﺔﻳﺅﺭ ﺮﺧﺍ
@@ -461,7 +441,6 @@ Host token §ﺖﺳﻮﻬﻟﺍ ﺰﻣﺭ
 Position §ﻥﺎﻜﻣ
 Position without dec §ﺔﻳﺮﺸﻋ ﻡﺎﻗﺭﺍ ﻥﻭﺪﺑ ﻥﺎﻜﻤﻟﺍ
 Misc §ﻉﻮﻨﺘﻣ
-Ped model §ﺪﻴﺒﻟﺍ ﻝﺩﻮﻣ
 Spawn §ﻥﻭﺎﺒﺳ
 Vehicle hash §ﺔﺒﻛﺮﻤﻟﺍ ﺵﺎﻫ
 Ped hash §ﺪﻴﺒﻟﺍ ﺵﺎﻫ
@@ -482,8 +461,6 @@ Unglitch §ﺶﺘﻠﻘﻟﺍ ﺔﻟﺍﺯﺍ
 Block §ﺮﺠﺣ
 Unblock §ﺮﺠﺤﻟﺍ ﺔﻟﺍﺯﺍ
 Type in what to spam in chat §ﺕﺎﺸﻟﺍ ﻲﻓ ﻪﺑ ﻡﺎﺒﺳ ﻱﻮﺴﺗ ﻲﺒﺗ ﺵﻭ ﺐﺘﻛﺍ
-Xml file is empty. §ﻍﺭﺎﻓ ﻝﺍ ﻡﺍ ﺲﻛﺍ ﻒﻠﻣ
-File name §ﻒﻠﻤﻟﺍ ﻢﺳﺍ
 Warning: missing "%" before any of these characters; §ﻱﺫﺎﻫ ﻑﺮﺣﻻﺍ ﻞﺒﻗ ﺓﺩﻮﺟﻮﻣ ﺮﻴﻏ "%" ﺔﻣﻼﻋ :ﺮﻳﺬﺤﺗ
 This is fine, just note that if you don't put the "%" before those characters, they mean something else. §.ﺮﺧﺍ ﻰﻨﻌﻣ ﺎﻬﻟ ﻥﻮﻜﻴﺳ ﻑﻭﺮﺤﻟﺍ ﻚﻠﺗ ﻞﺒﻗ "%" ﺔﻣﻼﻌﻟﺍ ﻊﻀﺗ ﻢﻟ ﺍﺫﺍ ﻦﻛﻻ ﺔﻠﻜﺸﻣ ﺔﻴﻓﺎﻣ
 Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §nm6 3'yr 97y7. 3la ala3'lb a7d al3lamat ha4y "[", "]", "(", ")" ao "%" mf8odh. 8d ykon "[]" mojod lanh y5rb alnm6.
@@ -497,7 +474,6 @@ Vehicle name §ﺔﺒﻛﺮﻤﻟﺍ ﻢﺳﺍ
 Save to Menyoo vehicles §ﻭﻮﻴﻨﻣ ﺔﻜﺑﺮﻣ ﻰﻟﺍ ﻆﻔﺣﺍ
 Clone §ﺦﺴﻧ
 Send Menyoo vehicle attacker §ﻭﻮﻴﻨﻣ ﺔﺒﻛﺮﻣ ﻦﻴﻤﺟﺎﻬﻣ ﻞﺳﺭﺍ
-Spawn Menyoo vehicle §ﻭﻮﻴﻨﻣ ﺔﺒﻛﺮﻣ ﻥﻭﺎﺒﺳ
 Menyoo vehicles §ﻭﻮﻴﻨﻣ ﺕﺎﺒﻛﺮﻣ
 Create new judger profile §ﻲﺿﺎﻘﻠﻟ ﺪﻳﺪﺟ ﻞﻳﺎﻓﻭﺮﺑ ﺀﺎﺸﻧﺍ
 Create new chatbot profile §ﺕﻮﺑ ﺕﺎﺸﻠﻟ ﺪﻳﺪﺟ ﻞﻳﺎﻓﻭﺮﺑ ﺀﺎﺸﻧﺍ
@@ -566,7 +542,6 @@ Menyoo maps §Menyoo ﺕﺎﺑﺎﻣ
 Type in name of menyoo map. §Menyoo ﺏﺎﻣ ﻢﺳﺍ ﺐﺘﻛﺍ
 Set where you spawn §ﻥﻭﺎﺒﺴﻟﺍ ﻥﺎﻜﻣ ﻊﺿﻭ
 Teleport to map spawn §ﺏﺎﻤﻟﺍ ﻥﻭﺎﺒﺳ ﻥﺎﻜﻤﻟ ﺕﺭﻮﺒﻴﻠﻴﺗ
-Found no spawn. §ﻥﻭﺎﺒﺳ ﺪﺟﻮﻳ ﻢﻟ
 Failed to load spawn coordinates. §ﻥﻭﺎﺒﺴﻟﺍ ﺕﺎﻴﺛﺍﺪﺣﺍ ﻞﻴﻤﺤﺗ ﻲﻓ ﻞﺸﻓ
 Unload §ﻞﻴﻤﺤﺘﻟﺍ ﺀﺎﻐﻟﺍ
 Race ghosts §ﻕﺎﺒﺴﻟﺍ ﺢﺒﺷ
@@ -608,9 +583,7 @@ Show sphere §ﺓﺭﻮﻜﻟﺍ ﺭﺎﻬﺿﺍ
 Lock player inside §ﺎﻬﻠﺧﺍﺩ ﺐﻋﻼﻟﺍ ﺲﺒﺣ
 Anti chat spam §ﻡﺎﺒﺳ ﺕﺎﺸﻟﺍ ﻦﻣ ﺔﻳﺎﻤﺣ
 kicked for spamming chat. §.ﻡﺎﺒﺳ ﺕﺎﺸﻠﻟ ﺩﺮﻃ
-kicked for sending the same message 3 times in a row. §.ﺕﺍﺮﻣ 3 ﺔﻟﺎﺳﺮﻟﺍ ﺲﻔﻧ ﻞﺳﺭﺍ ﻪﻧﻻ ﺩﺮﻃ
 Kick & add to timeout §timeout ﻰﻟﺍ ﺔﻓﺎﺿﺍ & ﺩﺮﻃ
-Crash & add to timeout §timeout ﻰﻟﺍ ﺔﻓﺎﺿﺍ & ﺵﺍﺮﻛ
 Type in name of a player or regular feature. §.ﺔﻳﺩﺎﻋ ﺔﻴﺻﺎﺧ ﻭﺍ ﺐﻋﻻ ﻢﺳﺍ ﺐﺘﻛﺍ
 Has modded weapons. §.ﺪﻳﺩﺩﻮﻣ ﻪﺤﻠﺳﺍ ﺔﻳﺪﻟ
 Type in name of entity. §.ﻦﺋﺎﻜﻟﺍ ﻢﺳﺍ ﺐﺘﻛﺍ
@@ -625,3 +598,62 @@ All scripts will run slower and might lag. More errors will occur, especially if
 Only use this mode if you intend to find bugs. §.ﻁﻼﻏﺍ ﻰﻘﻠﺗ ﺖﻴﻐﺑ ﺍﺫﺍ ﻊﺿﻮﻟﺍ ﺍﺬﻫ ﻡﺪﺨﺘﺳﺍ ﻂﻘﻓ
 Kill engine §ﺔﻨﻴﻜﻤﻟﺍ ﺮﻣﺩ
 Heal engine §ﺔﻨﻴﻜﻤﻟﺍ ﺢﻠﺻ
+The player must be an associate of an organization to use this. They can't be the ceo. §.CEOﻝﺍ ﻰﻠﻋ ﻞﻐﺘﺸﻳﺎﻣ .ﺍﺬﻫ ﻡﺪﺨﺘﺴﺗ ﻥﺎﺸﻋ (organization) ﺔﻤﻈﻨﻣ ﻲﻓ ﻞﺧﺍﺩ ﻥﻮﻜﻳ ﻡﺯﻻ ﺐﻋﻼﻟﺍ
+Eclipse §ﻑﻮﺴﻛ
+Also known as §ﺑ ﺎﻀﻳﺃ ﻑﻭﺮﻌﻣ
+Check rid in also known as §ﺑ ﺎﻀﻳﺃ ﻑﻭﺮﻌﻣ ﻲﻓ RIDﻝﺍ ﻦﻣ ﻖﻘﺤﺗ
+Check name in also known as §ﺑ ﺎﻀﻳﺃ ﻑﻭﺮﻌﻣ ﻲﻓ ﻢﺳﻻﺍ ﻦﻣ ﻖﻘﺤﺗ
+Check ip in also known as §ﺑ ﺎﻀﻳﺃ ﻑﻭﺮﻌﻣ ﻲﻓ IPﻝﺍ ﻦﻣ ﻖﻘﺤﺗ
+What is known for §ﻪﻴﻓ ﻑﻭﺮﻌﻣ ﺵﻭ
+This player already have a bounty set on them. §.ﻞﺒﻗ ﻦﻣ bounty ﻪﻴﻠﻋ ﺐﻋﻼﻟﺍ ﺍﺬﻫ
+Team §ﻖﻳﺮﻓ
+What ped to spawn §ﻥﻭﺎﺒﺴﻠﻟ ped ﻱﺍ
+Spawned §ﻥﻭﺎﺒﺴﻟﺍ ﻢﺗ
+invalid models §ﻪﺤﻴﺤﺻ ﺮﻴﻏ ﺕﻼﻳﺩﻮﻣ
+Reached ped spawn limit. Cancelling menyoo spawn. §.ﻭﻮﻴﻨﻤﻟﺍ ﻥﻭﺎﺒﺳ ﻑﺎﻘﻳﺍ .Pedsﻠﻟ ﻥﻭﺎﺒﺳ ﺪﺣ ﻰﻟﺍ ﻝﻮﺻﻮﻟﺍ ﻢﺗ
+Reached vehicle spawn limit. Cancelling menyoo spawn. §.ﻭﻮﻴﻨﻤﻟﺍ ﻥﻭﺎﺒﺳ ﻑﺎﻘﻳﺍ .ﺕﺎﺒﻛﺮﻤﻠﻟ ﻥﻭﺎﺒﺳ ﺪﺣ ﻰﻟﺍ ﻝﻮﺻﻮﻟﺍ ﻢﺗ
+Reached object spawn limit. Cancelling menyoo spawn. §.ﻭﻮﻴﻨﻤﻟﺍ ﻥﻭﺎﺒﺳ ﻑﺎﻘﻳﺍ .Objectsﻠﻟ ﻥﻭﺎﺒﺳ ﺪﺣ ﻰﻟﺍ ﻝﻮﺻﻮﻟﺍ ﻢﺗ
+Object limit §Objectsﻟﺍ ﺪﺣ
+Ped limit §Pedsﻟﺍ ﺪﺣ
+Vehicle limit §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺪﺣ
+Draw entity limits §ﺕﺎﻨﺋﺎﻜﻟﺍ ﻢﺳﺭ ﺪﺣ
+Reset settings to defaults §ﺔﻴﺳﺎﺳﻻﺍ ﺕﺍﺩﺍﺪﻋﻻﺍ ﻰﻠﻟﺍ ﺕﺍﺩﺍﺪﻋﻻﺍ ﺓﺩﺎﻋﺍ
+search newest to oldest §ﻡﺪﻗﻻﺍ ﻰﻟﺍ ﺩﺪﺟﻻﺍ ﻦﻣ ﺚﺤﺒﻟﺍ
+search oldest to newest §ﺩﺪﺟﻻﺍ ﻰﻟﺍ ﻡﺪﻗﻻﺍ ﻦﻣ ﺚﺤﺒﻟﺍ
+Blacklist reason §ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﺐﺒﺳ
+Is added to join timeout §join timeout ﻰﻟﺍ ﻑﺎﻀﻣ
+isn't blacklisted §ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻲﻓ ﺲﻴﻟ
+Type in name of entity. §.ﻦﺋﺎﻜﻟﺍ ﻢﺳﺍ ﺐﺘﻛﺍ
+Invalid model name. §.ﺢﻴﺤﺻ ﺮﻴﻏ ﻝﺩﻮﻤﻟﺍ ﻢﺳﺍ
+Vote kick §ﺖﻳﻮﺼﺘﻟﺍ ﺩﺮﻃ
+Draw number of se sent §ﺔﻠﺳﺮﻤﻟﺍ ﺲﺘﻨﻴﻔﻳﺍ ﺖﺑﺮﻜﺴﻟﺍ ﻢﺳﺭ ﺩﺪﻋ
+Number of script events sent §ﺔﻠﺳﺮﻤﻟﺍ ﺲﺘﻨﻴﻔﻳﺍ ﺖﺑﺮﻜﺴﻟﺍ ﺩﺪﻋ
+You can't use this on yourself. §.ﻚﺴﻔﻧ ﻰﻠﻋ ﺍﺬﻫ ﻡﺍﺪﺨﺘﺳﺍ ﻚﻨﻜﻤﻳ ﻻ
+The 30k loop for session is already toggled on. §.ﻞﺒﻗ ﻦﻣ ﺔﻠﻌﻔﻣ ﻦﺸﻴﺴﻠﻟ ﻒﻟﺍ ﻦﻴﺛﻼﺜﻟﺍ ﺏﻭﻮﻟ
+Scroll through messages §ﻞﺋﺎﺳﺮﻟﺍ ﺢﻔﺼﺗ
+Chat log §ﺕﺎﺸﻟﺍ ﻞﺠﺳ
+Mark as modder §ﺭﺩﻮﻣ ﺎﻛ ﺪﻳﺪﺤﺗ
+Don't reapply marks §ﺪﻳﺪﺤﺘﻟﺍ ﻊﺿﻭ ﺪﻴﻌﺗ ﻻ
+Reapply marks §ﺪﻳﺪﺤﺘﻟﺍ ﻊﺿﻭ ﺓﺩﺎﻋﺍ
+Failed to get control. If you're blocking "give control" in net event hooks, disable it. §.ﻪﺌﻔﻃﺍ ,(net event hooks) ﻲﻓ (give control) ﻢﻜﺤﺘﻟﺍ ﺀﺎﻄﻋﺍ ﻊﻨﻤﺗ ﺖﻧﺍ ﺍﺫﺍ .ﻢﻜﺤﺘﻟﺍ ﻰﻠﻋ ﻝﻮﺼﺤﻟﺍ ﻲﻓ ﻞﺸﻓ
+Failed to spawn driver vehicle for unknown reason. §.ﻪﻓﻭﺮﻌﻣ ﺮﻴﻏ ﺏﺎﺒﺳﻻ ﺔﺒﻛﺮﻤﻟﺍ ﻖﺋﺎﺳ ﻥﻭﺎﺒﺳ ﻲﻓ ﻞﺸﻓ
+Copied to clipboard. §.ﺦﺴﻨﻟﺍ ﻢﺗ
+Ini vehicles §iniﻟﺍ ﺕﺎﺒﻛﺮﻣ
+This can't be used in singleplayer. §.ﻦﻳﻼﻓﻭﻻﺍ ﻲﻓ ﺍﺬﻫ ﻡﺍﺪﺨﺘﺳﺍ ﻦﻜﻤﻳ ﻻ
+Tried to spawn a xml vehicle with ini spawner. §.ini ﺮﻧﻭﺎﺒﺳ ﻊﻣ xml ﻒﻠﻣ ﻥﻭﺎﺒﺳ ﻪﻟﻭﺎﺤﻣ
+Failed to attach an entity. Check debug console for more details. §.ﺕﺎﻣﻮﻠﻌﻤﻟﺍ ﻦﻣ ﺪﻳﺰﻤﻠﻟ debug consoleﻝﺍ ﻰﻟﺍ ﺐﻫﺫﺍ .ﻦﺋﺎﻛ ﻂﺑﺭ ﻞﺸﻓ
+This file doesn't exist or has an invalid file name. §.ﺢﻴﺤﺻ ﺮﻴﻏ ﻢﺳﺍ ﻪﻳﺪﻟ ﻭﺍ ﺪﺟﻮﻳ ﻢﻟ ﻒﻠﻤﻟﺍ
+Failed to set coordinates. §.ﺕﺎﻴﺛﺍﺪﺣﻻﺍ ﻊﺿﻭ ﻲﻓ ﻞﺸﻓ
+Failed to cleanup crash entity while it is still in memory. §.ﺓﺮﻛﺍﺬﻟﺍ ﻲﻓ ﻪﻧﻮﻛ ﺀﺎﻨﺛﺍ ﻲﻓ ﺵﺍﺮﻜﻟﺍ ﻦﺋﺎﻛ ﻑﺬﺣ ﻲﻓ ﻞﺸﻓ
+Crash entity went out of memory before it could be cleaned up. §كائن الكراش خرج من الذاكرة قبل ان يتم حذفة.
+Saved map. §.ﺏﺎﻤﻟﺍ ﻆﻔﺣ ﻢﺗ
+Session peaceful §ﻢﻟﺎﺴﻣ ﻦﺸﻴﺳ
+Peaceful §ﻢﻟﺎﺴﻣ
+Add entry §ﻝﺎﺧﺩﺍ ﺔﻓﺎﺿﺍ
+Remove entry §ﻝﺎﺧﺩﺍ ﺔﻟﺍﺯﺍ
+Delete profile §ﻞﻳﺎﻓﻭﺮﺒﻟﺍ ﻑﺬﺣ
+Search features from all luas loaded §ﺔﻠﻤﺤﻤﻟﺍ ﺕﺎﺘﺑﺮﻜﺴﻟﺍ ﻊﻴﻤﺟ ﺕﺍﺭﺎﻴﺧ ﻲﻓ ﺚﺤﺒﻟﺍ
+For chat to show here, chat logger must be on. You can find chat logger in script features > Chat §ﺕﺎﺸﻟﺍ < Kek's menu ﻲﻓ ﺕﺎﺸﻟﺍ ﻞﺠﺳ ﺪﺠﺗ ﻥﺍ ﻚﻨﻜﻤﻳ .ﻞﻌﻔﻣ ﺕﺎﺸﻟﺍ ﻞﺠﺳ ﻥﻮﻜﻳ ﻥﺍ ﺐﺠﻳ ﺎﻨﻫ ﺕﺎﺸﻟﺍ ﺮﻬﻀﺗ ﻥﺍ ﻞﺟﺍ ﻦﻣ
+Gravity §ﺔﻴﺑﺫﺎﺟ
+Swap nearby vehicles to police §ﺔﻃﺮﺸﻟﺍ ﺕﺍﺭﺎﻴﺳ ﻰﻟﺍ ﺔﺒﻳﺮﻘﻟﺍ ﺕﺍﺭﺎﻴﺴﻟﺍ ﻞﻳﺪﺒﺗ
+If the search doesn't find the features you expect, make sure you load all scripts before you load Kek's menu. §.Kek's menu ﻞﺒﻗ ﺕﺎﺘﺑﺮﻜﺴﻟﺍ ﻊﻴﻤﺟ ﺖﻠﻌﻓ ﻚﻧﺍ ﺪﻛﺎﺗ ﺎﻫﺪﻳﺮﺗ ﻱﺬﻟﺍ ﺕﺍﺭﺎﻴﺨﻟﺍ ﺪﺠﻳ ﻢﻟ ﺚﺤﺒﻟﺍ ﺍﺫﺍ
