@@ -1,5 +1,4 @@
 ﻿Kek's menu §Kek菜单
-General settings §通用设置
 Vehicle §载具选项
 Self §自我
 Vehicle peaceful §战局载具
@@ -50,7 +49,7 @@ Copy ip to clipboard §复制IP到剪贴板
 Player history §历史玩家
 Clear search list §清空搜索列表
 Search §搜索
-Vehicle blacklist §启用载具黑名单
+Vehicle blacklist §载具黑名单
 Spawn vehicle for everyone §给战局所有人生成默认载具
 Max everyone's car §最大化升级战局所有人的载具
 Current position §当前位置
@@ -74,16 +73,16 @@ Random text from file §从文件中获取随机文本
 Echo delay, click to type §复读机延迟
 Echo chat §启用复读机
 Answer delay chatbot §聊天信息回应发送延迟
-Chat bot §启用聊天机器人
+Chat bot §聊天机器人
 Max car §载具最大化升级
 Change backplate text §更改车牌文本
 Spawn vehicle §生成载具
 Vehicle fly speed, click to type §载具飞行速度
 Vehicle fly §载具飞行模式
-Type in what object §发射什么物体?点击输入物体名称
+Type in what object §发射什么物体?输入物体名称
 Object gun §物体枪
 Airstrike gun §空袭枪
-What vehicle vehicle gun §发射什么载具?点击输入载具英文名
+What vehicle vehicle gun §发射什么载具?输入载具名称
 Vehicle gun §载具枪
 Clear entity type §清除选择的对应实体类型
 Shoot entity| get model name of entity §实体信息枪(瞄准或射击实体)
@@ -281,7 +280,6 @@ Nearby cars have no collision §附近的载具无碰撞
 Clown vans §小丑面包车
 Clear all owned entities §清除所有拥有的实体
 Aim protection §瞄准保护
-Nearby cars have zero gravity §附近的载具零重力
 Entity manager §实体管理
 Entity manager §实体管理
 Vehicles §载具
@@ -292,7 +290,6 @@ Explode §爆炸
 Delete §删除
 Resurrect §复活
 Godmode §无敌
-Zero gravity §零重力
 Teleport in front of player §传送到玩家面前
 Teleport to entity §传送到实体
 Follow entity §尾随实体
@@ -345,7 +342,7 @@ Cage player §套笼子
 Kick §踢出战局
 Send attack chopper §派出攻击直升机
 Float §原地升天
-Type in name of menyoo vehicle. §请输入模组载具名称.
+Type in name of menyoo vehicle. §请输入Menyoo载具名称.
 Crash §崩溃玩家
 Godmode detection §无敌检测
 is in godmode. §开了无敌
@@ -355,7 +352,6 @@ Turned off §关闭
 Horn boost §喇叭加速
 Notifications §通知
 Auto kicker notifications §自动踢时通知
-Give nearby players horn boost §给附近的玩家喇叭加速
 Turn everything off §关闭所有
 First seen §首次遇见
 Last seen §最后遇见
@@ -476,11 +472,11 @@ Missing necessarry file. Please reinstall. Read the README that comes with the s
 New profile §创建配置文件
 Type in name of vehicle §输入载具名称
 Vehicle name §载具名称
-Save to Menyoo vehicles §保存为模组载具
+Save to Menyoo vehicles §保存为Menyoo载具
 Clone §复制
 Send Menyoo vehicle attacker §派出模组NPC攻击
-Menyoo vehicles §模组载具
-Type in name of menyoo vehicle. §请输入模组载具名称
+Menyoo vehicles §Menyoo载具
+Type in name of menyoo vehicle. §请输入Menyoo载具名称
 Create new judger profile §创建新的聊天审判配置文件
 Warning notifications §显示警告通知
 Create new chatbot profile §创建新的聊天机器人配置文件
@@ -588,11 +584,9 @@ Miscellaneous §其他
 Toggle engine §开关引擎
 Show sphere §显示球面
 Lock player inside §将玩家锁在里面
-Anti chat spam §反聊天轰炸
+Anti chat spam §反聊天刷屏
 kicked for spamming chat. §因聊天轰炸已踢出战局.
-kicked for sending the same message 3 times in a row. §因连续发送3条相同的信息已踢出战局.
 Kick & add to timeout §踢出并添加到加入超时
-Crash & add to timeout §崩溃并添加到加入超时
 Type in name of a player or regular feature. §输入玩家或通用功能的名称
 Has modded weapons. §拥有作弊者武器.
 Type in name of entity. §请输入实体名称.
@@ -632,7 +626,7 @@ search oldest to newest §从最旧到最新搜索
 Blacklist reason §黑名单原因
 Is added to join timeout §添加到加入超时中
 isn't blacklisted §未添加到黑名单
-Type in name of entity. §清输入实体名称.
+Type in name of entity. §请输入实体名称.
 Invalid model name. §模型名称无效.
 Vote kick §投票踢
 Draw number of se sent §显示发送次数
@@ -656,3 +650,13 @@ Failed to set coordinates. §设置坐标失败.
 Failed to cleanup crash entity while it is still in memory. §清理崩溃实体失败,它仍在内存中.
 Crash entity went out of memory before it could be cleaned up. §崩溃实体在清理之前内存不足.
 Saved map. §已保存地图.
+Session peaceful §战局友好
+Peaceful §友好
+Add entry §添加条目
+Remove entry §删除条目
+Delete profile §删除配置
+Search features from all luas loaded §从所有已加载的lua中搜索功能
+For chat to show here, chat logger must be on. You can find chat logger in script features > Chat §要在此处显示聊天信息,必须打开聊天记录器.你可以在 脚本功能 > 聊天选项 中找到记录聊天信息到日志
+Gravity §重力
+Swap nearby vehicles to police §将附近的载具变成警车并为警察驾驶
+If the search doesn't find the features you expect, make sure you load all scripts before you load Kek's menu. §如果搜索结果中没有找到你期望寻找的功能,请确保在加载Kek菜单之前已加载所有脚本.

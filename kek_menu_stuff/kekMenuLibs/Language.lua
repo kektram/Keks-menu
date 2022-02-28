@@ -33,7 +33,7 @@ end
 language.lang = {}
 
 local function sub_unicode(str, start, End)
-    return str:sub(utf8.offset(str, start), utf8.offset(str, End + 1) - 1)
+	return str:sub(utf8.offset(str, start), utf8.offset(str, End + 1) - 1)
 end
 
 if language.what_language ~= "English.txt" and utils.file_exists(paths.what_language) then

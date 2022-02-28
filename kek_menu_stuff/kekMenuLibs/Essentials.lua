@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.4"}
+local essentials <const> = {version = "1.4.5"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -31,6 +31,7 @@ essentials.listeners = {
 essentials.nethooks = {}
 essentials.feats = {}
 essentials.player_feats = {}
+essentials.number_of_explosion_types = 82
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
@@ -147,6 +148,15 @@ function essentials.rgb_to_bytes(uint32_rgb)
 		(uint32_rgb << 56 >> 56),
 		(uint32_rgb << 48 >> 56),
 		(uint32_rgb >> 16)
+end
+
+function essentials.get_max_variadic(...)
+	local max = math.mininteger
+	local t <const> = table.pack(...)
+	for i = 1, #t do
+		max = t[i] > max and t[i] or max
+	end
+	return max
 end
 
 function essentials.unpack_3_nums(packed_num)
@@ -588,7 +598,7 @@ function essentials.rename_file(...)
 	essentials.assert(not new_file_name:find("[<>:\"/\\|%?%*]"), "Tried to rename file to a name containing illegal characters:", new_file_name)
 	essentials.assert(utils.file_exists(original_file_path), "Tried to rename a file that doesn't exist.", original_file_path)
 	essentials.assert(not utils.file_exists(new_file_path), "Tried to overwrite an existing file while attempting to rename a file.", original_file_path, new_file_path)
-	local file_string <const> = essentials.get_file_string(original_file_path)
+	local file_string <const> = essentials.get_file_string(original_file_path, "rb"):gsub("\r", "")
 	io.remove(original_file_path)
 	local file <close> = io.open(new_file_path, "w+")
 	file:write(file_string)
@@ -971,6 +981,16 @@ function essentials.is_not_friend(pid)
 	return not settings.toggle["Exclude friends from attacks"].on or not network.is_scid_friend(player.get_player_scid(pid))
 end
 
+function essentials.kick_player(pid)
+	essentials.assert(pid ~= player.player_id(), "Tried to kick yourself.")
+	if network.network_is_host() then
+		network.network_session_kick_player(pid) -- Is a void function
+		return true
+	else
+		return network.force_remove_player(pid)
+	end
+end
+
 function essentials.get_most_relevant_entity(...)
 	local pid <const> = ...
 	if player.is_player_in_any_vehicle(pid) then
@@ -1068,8 +1088,8 @@ do
 	end
 end
 
-function essentials.get_file_string(file_path)
-	local file <close> = io.open(file_path, "rb")
+function essentials.get_file_string(file_path, mode)
+	local file <close> = io.open(file_path, mode or "r")
 	if file and io.type(file) == "file" then
 		return file:read("*a") or ""
 	else
@@ -1229,7 +1249,7 @@ function essentials.search_for_match_and_get_line(...)
 	local file_path <const>,
 	search <const>,
 	exact <const> = ...
-	local str <const> = essentials.get_file_string(file_path)
+	local str <const> = essentials.get_file_string(file_path, "rb")
 	for i = 1, #search do
 		local str_pos
 		if exact then
@@ -1336,6 +1356,7 @@ function essentials.log(...)
 end
 
 function essentials.add_to_timeout(pid)
+	essentials.assert(pid ~= player.player_id(), "Tried to add yourself to join timeout.")
 	essentials.log(paths.home.."cfg\\scid.cfg", 
 		string.format("%s:%x:c", player.get_player_name(pid), player.get_player_scid(pid)), 
 		{string.format("%x", player.get_player_scid(pid)), player.get_player_name(pid)})
