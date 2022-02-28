@@ -87,7 +87,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
 		["Menyoo spawner"] = "2.2.3",
-		["Kek's entity functions"] = "1.2.1",
+		["Kek's entity functions"] = "1.2.2",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.2",
 		["Admin mapper"] = "1.0.4",
@@ -7639,12 +7639,7 @@ local hotkey_setting_properties <const> = {
 		setting_name = "Clear owned entities #keybinding#", 
 		setting = "off",
 		func = function()
-			kek_entity.entity_manager:update()
-			for _, Entity in essentials.entities(essentials.deep_copy(kek_entity.entity_manager.entities)) do
-				if Entity ~= player.get_player_vehicle(player.player_id()) and kek_entity.get_control_of_entity(Entity, 200) then
-					kek_entity.hard_remove_entity_and_its_attachments(Entity)
-				end
-			end
+			u.clear_owned_entities.on = true
 		end,
 		feature_name = lang["Clear entities"]
 	},
