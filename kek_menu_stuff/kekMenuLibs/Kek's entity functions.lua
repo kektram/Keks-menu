@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local kek_entity <const> = {version = "1.2.1"}
+local kek_entity <const> = {version = "1.2.2"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -151,7 +151,7 @@ function kek_entity.get_control_of_entity(...)
 		end
 	end
 	if send_msg and not network.has_control_of_entity(Entity) then
-		essentials.msg(lang["Failed to get control. If you're blocking \"give control\" in net event hooks, disable it."], "red", true, 6)
+		essentials.msg(lang["Failed to get control. If you're blocking \"give control\" in net event hooks, disable it."], "blue", true, 6)
 	end
 	return network.has_control_of_entity(Entity)
 end

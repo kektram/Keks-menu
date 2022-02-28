@@ -14,32 +14,7 @@ setmetatable(_G, {
 
 local essentials <const> = require("Essentials")
 
-local function deep_copy(Table, keep_meta, seen)
-	local new_copy <const> = {}
-	seen = seen or {}
-	for key, value in pairs(Table) do
-		if type(value) == "table" then
-			essentials.assert(not seen[value], "Tried to deep copy a table with a reference to itself.")
-			seen[value] = true
-			new_copy[key] = deep_copy(value, keep_meta, seen)
-			if keep_meta and type(getmetatable(value)) == "table" then
-				essentials.assert(not seen[getmetatable(value)], "Tried to deep copy a table with a reference to one of its own member's metatable.")
-				seen[getmetatable(value)] = true
-				setmetatable(new_copy[key], deep_copy(getmetatable(value), true, seen))
-			end
-		else
-			new_copy[key] = value
-		end
-	end
-	if keep_meta and type(getmetatable(Table)) == "table" then
-		essentials.assert(not seen[getmetatable(Table)], "Tried to deep copy a table with a reference to its own metatable.")
-		seen[getmetatable(Table)] = true
-		setmetatable(new_copy, deep_copy(getmetatable(Table), true, seen))
-	end
-	return new_copy
-end
-
-local originals_newindexes <const> = {
+local originals_newindexes <const> = essentials.const({
 	menu = getmetatable(menu).__newindex,
 	event = getmetatable(event).__newindex,
 	input = getmetatable(input).__newindex,
@@ -59,9 +34,9 @@ local originals_newindexes <const> = {
 	decorator = getmetatable(decorator).__newindex,
 	script = getmetatable(script).__newindex,
 	utils = getmetatable(utils).__newindex
-}
+})
 
-local originals <const> = deep_copy({
+local originals <const> = essentials.const(essentials.deep_copy({
 	menu = menu,
 	event = event,
 	input = input,
@@ -82,7 +57,7 @@ local originals <const> = deep_copy({
 	script = script,
 	utils = utils,
 	system = system
-})
+}))
 
 for name, value in pairs(_G) do
 	if originals_newindexes[name] then
@@ -437,7 +412,7 @@ do
 			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
 			local status <const> = originals.entity.delete_entity(Entity)
 			if status and not entity.is_an_entity(Entity) then
-				deleted_entities[Entity] = utils.time_ms() + 20000
+				deleted_entities[Entity] = utils.time_ms() + 60000
 			end
 			return status
 		else
