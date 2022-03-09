@@ -30,7 +30,7 @@ local function apply_vehicle_modifications(...)
 	if info.Mods._48[1] == -1 or info.Livery ~= -1 then
 		vehicle.set_vehicle_livery(Entity, info.Livery)
 	end
-	vehicle.set_vehicle_wheel_type(Entity, info.WheelType) -- Wheel type must go first. Has caused a crash earlier.
+	kek_entity.set_wheel_type(Entity, info.WheelType) -- Wheel type must go first. Has caused a crash earlier.
 	vehicle.set_vehicle_bulletproof_tires(Entity, info.BulletProofTyres == true)
 	for i = 0, 75 do -- setting[2] is mod variation. Verified in menyoo source code.
 		local setting <const> = info.Mods["_"..i]
@@ -934,11 +934,12 @@ local function spawn_type_1_ini(info)
 	update_spawn_counter(entities, hash, Vehicle)
 	if entity.is_entity_a_vehicle(Vehicle) then
 		vehicle.set_vehicle_bulletproof_tires(Vehicle, is_bulletproof)
-		vehicle.set_vehicle_wheel_type(
+		kek_entity.set_wheel_type(
 			Vehicle, 
 			info.VEHICLE and info.VEHICLE.wheelType or info["Vehicle"]["Wheel Type"]
 		)
 		vehicle.set_vehicle_mod_kit_type(Vehicle, 0)
+
 		for i = 0, 48 do
 			if i >= 17 and i <= 22 then
 				local mod = info.MODS and info.MODS["mod"..i] == 1
@@ -1064,7 +1065,7 @@ local function spawn_type_2_ini(...)
 		if hash then
 			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
 			if entity.is_entity_a_vehicle(Entity) then
-				vehicle.set_vehicle_wheel_type(Entity, info.WheelType.Index)
+				kek_entity.set_wheel_type(Entity, info.WheelType.Index)
 				vehicle.set_vehicle_mod_kit_type(Entity, 0)
 				for i = 0, 49 do
 					if i >= 17 and i <= 22 then
@@ -1202,7 +1203,7 @@ local function spawn_type_3_ini(...)
 		if info.Model or info.model then
 			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
 			if entity.is_entity_a_vehicle(Entity) and info["tyre smoke red"] then -- info["tyre smoke red"] One of the types doesnt apply any mods to vehicles.
-				vehicle.set_vehicle_wheel_type(Entity, info["wheel type"])
+				kek_entity.set_wheel_type(Entity, info["wheel type"])
 				vehicle.set_vehicle_mod_kit_type(Entity, 0)
 				for i = 0, 48 do
 					if i >= 17 and i <= 22 then
@@ -1297,7 +1298,7 @@ local function spawn_type_4_ini(...)
 			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
 			if entity.is_entity_a_vehicle(Entity) then
 				if not info.IsAttached then -- Mods are only set for parent vehicle
-					vehicle.set_vehicle_wheel_type(Entity, info.WheelsType or info.Wheels)
+					kek_entity.set_wheel_type(Entity, info.WheelsType or info.Wheels)
 					vehicle.set_vehicle_mod_kit_type(Entity, 0)
 					for i = 0, 45 do
 						if not (i >= 17 and i <= 22) and info[tostring(i)] then -- The file doesnt use every index from 0 to 45.

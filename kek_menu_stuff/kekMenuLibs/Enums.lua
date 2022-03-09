@@ -316,6 +316,7 @@ return {
 		VMT_DOOR_R = 47,
 		VMT_LIVERY_MOD = 48,
 		VMT_LIGHTBAR = 49,
+		wheel_customization = 62 -- Need to set this for certain wheel types like f1 to be visible
 	},
 	ctasks = {
 		HandsUp = 0,

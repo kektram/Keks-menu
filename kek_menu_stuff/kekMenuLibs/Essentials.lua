@@ -983,12 +983,7 @@ end
 
 function essentials.kick_player(pid)
 	essentials.assert(pid ~= player.player_id(), "Tried to kick yourself.")
-	if network.network_is_host() then
-		network.network_session_kick_player(pid) -- Is a void function
-		return true
-	else
-		return network.force_remove_player(pid)
-	end
+	return network.force_remove_player(pid)
 end
 
 function essentials.get_most_relevant_entity(...)

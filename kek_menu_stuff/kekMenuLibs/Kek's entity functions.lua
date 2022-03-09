@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local kek_entity <const> = {version = "1.2.2"}
+local kek_entity <const> = {version = "1.2.3"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -156,6 +156,22 @@ function kek_entity.get_control_of_entity(...)
 	return network.has_control_of_entity(Entity)
 end
 
+function kek_entity.set_wheel_type(Vehicle, wheel_type)
+	essentials.assert(wheel_type >= 0 and wheel_type <= enums.wheel_types.track, "Invalid wheel type.")
+	if entity.is_an_entity(Vehicle) then
+		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
+		if kek_entity.get_control_of_entity(Vehicle) then
+			vehicle.set_vehicle_wheel_type(Vehicle, wheel_type)
+			vehicle.set_vehicle_mod_kit_type(Vehicle, 0)
+			vehicle.set_vehicle_mod(
+				Vehicle, 
+				enums.vehicle_mods.wheel_customization, 
+				math.random(0, vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.wheel_customization) - 1)
+			)
+		end
+	end
+end
+
 do
 	local spawn_timer = 0
 	function kek_entity.spawn_ped_or_vehicle(...)
@@ -180,10 +196,17 @@ do
 				local coords <const>, dir <const> = coords_and_heading()
 				if streaming.is_model_a_vehicle(hash) then
 					Entity = vehicle.create_vehicle(hash, coords, dir, not_networked ~= true, not_networked == true, weight)
-					if max_vehicle then
-						kek_entity.max_car(Entity)
+					if entity.is_entity_a_vehicle(Entity) then
+						if settings.toggle["Always f1 wheels on #vehicle#"].on then
+							kek_entity.set_wheel_type(Entity, enums.wheel_types.f1_wheels)				
+						end
+						if max_vehicle then
+							kek_entity.max_car(Entity)
+						elseif type(settings.in_use["Plate vehicle text"]) == "string" then -- Crashes if plate text is nil
+							vehicle.set_vehicle_number_plate_text(Entity, settings.in_use["Plate vehicle text"])
+						end
+						decorator.decor_set_int(Entity, "MPBitset", 1 << 10) -- Stops the game from kicking people out of the vehicle
 					end
-					decorator.decor_set_int(Entity, "MPBitset", 1 << 10) -- Stops the game from kicking people out of the vehicle
 				elseif streaming.is_model_a_ped(hash) then
 					if not (ped_type >= -1 and ped_type <= 29) then
 						streaming.set_model_as_no_longer_needed(hash)
@@ -654,7 +677,7 @@ function kek_entity.modify_entity_godmode(...)
 	end
 end
 
-local num_of_mods_to_wheel_type_map <const> = essentials.const({ -- Indices are number of mods at vehicle.get_num_vehicle_mods(Vehicle, 62)
+local num_of_mods_to_wheel_type_map <const> = essentials.const({ -- Indices are number of mods at vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.wheel_customization)
 	[50] = enums.wheel_types.SPORT,
 	[36] = enums.wheel_types.MUSCLE,
 	[30] = enums.wheel_types.LOWRIDER,
@@ -671,7 +694,7 @@ local num_of_mods_to_wheel_type_map <const> = essentials.const({ -- Indices are 
 function kek_entity.get_wheel_type(Vehicle)
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
-		local num_of_mods <const> = vehicle.get_num_vehicle_mods(Vehicle, 62)
+		local num_of_mods <const> = vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.wheel_customization)
 		local Type <const> = num_of_mods_to_wheel_type_map[num_of_mods]
 		if num_of_mods == 48 then
 			local hash <const> = entity.get_entity_model_hash(Vehicle)
@@ -751,15 +774,14 @@ do
 				vehicle.set_vehicle_number_plate_text(Vehicle, settings.in_use["Plate vehicle text"])
 			end
 			if not streaming.is_model_a_bike(entity.get_entity_model_hash(Vehicle)) then
-				if settings.toggle["Always f1 wheels on #vehicle#"].on then 
+				if not settings.toggle["Always f1 wheels on #vehicle#"].on then 
 				--[[
 					Setting wheel type can cause crashes in certain cases. 
 					Death race - Buick riviera 2.xml caused this crash until applying wheel type before all other vehicle mods.
 				--]]
-					vehicle.set_vehicle_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
+					kek_entity.set_wheel_type(Vehicle, accepted_wheel_types[math.random(1, #accepted_wheel_types)])
 				else
-
-					vehicle.set_vehicle_wheel_type(Vehicle, accepted_wheel_types[math.random(1, #accepted_wheel_types)])
+					kek_entity.set_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
 				end
 			end
 			for i = 0, 75 do
@@ -1116,7 +1138,7 @@ function kek_entity.spawn_car()
 			return get_prefered_vehicle_pos(hash), player.get_player_heading(player.player_id())
 		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
 		if settings.toggle["Always f1 wheels on #vehicle#"].on then
-			vehicle.set_vehicle_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
+			kek_entity.set_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
 		end
 		kek_entity.vehicle_preferences(Vehicle)
 		vehicle.set_vehicle_engine_on(Vehicle, true, true, false)

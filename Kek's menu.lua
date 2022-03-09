@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.6.7
+-- Kek's menu version 0.4.6.8
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.6.7"
+__kek_menu_version = "0.4.6.8"
 
 local paths <const> = {
 	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
@@ -87,7 +87,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
 		["Menyoo spawner"] = "2.2.3",
-		["Kek's entity functions"] = "1.2.2",
+		["Kek's entity functions"] = "1.2.3",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.2",
 		["Admin mapper"] = "1.0.4",
@@ -1212,7 +1212,8 @@ end
 
 settings.toggle["Modded name detection"] = menu.add_feature(lang["Modded name detection"], "toggle", u.modder_detection_settings.id, function(f)
 	local function has_modded_name(pid)
-		if player.player_id() ~= pid
+		if player.is_player_valid(pid) -- player_join can have invalid players sometimes. Seems to happen if co-loading.
+		and player.player_id() ~= pid
 		and not player.is_player_modder(pid, keks_custom_modder_flags["Modded-Name"]) 
 		and essentials.is_not_friend(pid) then
 			local player_name <const> = player.get_player_name(pid)
@@ -3660,7 +3661,7 @@ settings.toggle["Anti chat spam"] = menu.add_feature(lang["Anti chat spam"], "va
 		local tracker <const> = {}
 		essentials.listeners["chat"]["anti spam"] = event.add_event_listener("chat", function(event)
 			local scid <const> = player.get_player_scid(event.player)
-			if event.player ~= player.player_id() and essentials.is_not_friend(event.player) then
+			if player.is_player_valid(event.player) and event.player ~= player.player_id() and essentials.is_not_friend(event.player) then
 				local msg_increment 	 <const> = (utf8.len(event.body) or #event.body) + 85 -- People may send a message that contains invalid utf8 seq, causing utf8.len to return nil.
 				local in_a_row_increment <const> = (utf8.len(event.body) or #event.body) >= 10 and 1.0 or 0.7
 				
@@ -4215,7 +4216,7 @@ settings.toggle["You can't be targeted"] = menu.add_feature(lang["You can't be t
 settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "toggle", u.chat_commands.id, function(f)
 	if f.on then
 		essentials.listeners["chat"]["commands"] = event.add_event_listener("chat", function(event)
-			if f.data.command_strings[(event.body:match("^%p(%a+)") or ""):lower()] then
+			if player.is_player_valid(event.player) and f.data.command_strings[(event.body:match("^%p(%a+)") or ""):lower()] then
 				if utils.time_ms() < (f.data.tracker[player.get_player_scid(event.player)] or 0) then
 					essentials.send_message("[Chat commands]: Attempting too many commands. Max 1 command every 1.5 seconds.", player.player_id() == event.player)
 					return
@@ -4982,7 +4983,7 @@ settings.toggle["Clever bot"] = menu.add_feature(lang["Log chat & use as chatbot
 		end
 		local last_response
 		essentials.listeners["chat"]["Clever bot"] = event.add_event_listener("chat", function(event)
-			if not f.data[player.get_player_scid(event.player)] or utils.time_ms() > f.data[player.get_player_scid(event.player)] then
+			if player.is_player_valid(event.player) and not f.data[player.get_player_scid(event.player)] or utils.time_ms() > f.data[player.get_player_scid(event.player)] then
 				f.data[player.get_player_scid(event.player)] = utils.time_ms() + 1000
 				if math.random(1, 100) <= settings.valuei["Chance to reply"].value and data[event.body] and event.player ~= player.player_id() then
 					essentials.send_message(data[event.body][math.random(1, #data[event.body])])
