@@ -569,7 +569,6 @@ Melee §近战武器
 Miscellaneous §其他
 Toggle engine §开关引擎
 Show sphere §显示球面
-Lock player inside §将玩家锁在里面
 Anti chat spam §反聊天刷屏
 kicked for spamming chat. §因聊天轰炸已踢出战局.
 Kick & add to timeout §踢出并添加到加入超时
@@ -676,3 +675,11 @@ Modded stats detection §检查修改后的统计
 Block passive mode §阻止被动模式
 Organization §组织
 Ptfx §粒子特效
+Unlocked their car. §已解锁他的车
+Locked their car. §已锁住他的车
+Unlock / lock inside §解锁 / 锁 在里面
+Killed their engine. §已熄灭他的引擎
+Revived their engine. §已恢复他的引擎
+The map won't be visible to other people. It has too many objects. Networked maps supports up to 80 objects. §这个地图其他人看不到. 物体太多了. 联网地图最多只支持80个物体.
+The map will be visible to other people. §这个地图其他人可以看到.
+Clear owned entities before spawning map §在生成地图前清除拥有的实体
