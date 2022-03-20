@@ -72,6 +72,7 @@ do
 		or eventName == "exit"
 		or eventName == "player_leave"
 		or eventName == "player_join"
+		or eventName == "modder"
 		or eventName == "script", "Invalid event listener type.")
 		return originals.event.add_event_listener(eventName, id)
 	end

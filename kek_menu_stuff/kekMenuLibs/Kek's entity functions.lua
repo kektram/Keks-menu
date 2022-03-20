@@ -64,6 +64,15 @@ do
 
 		return update_buf
 	end
+
+	function kek_entity.entity_manager:clear()
+		self:update()
+		for _, Entity in essentials.entities(essentials.deep_copy(self.entities)) do
+			if kek_entity.get_parent_of_attachment(Entity) ~= player.get_player_vehicle(player.player_id()) and kek_entity.get_control_of_entity(Entity, 200) then
+				kek_entity.hard_remove_entity_and_its_attachments(Entity)
+			end
+		end
+	end
 end
 
 setmetatable(kek_entity.entity_manager, {
@@ -144,14 +153,14 @@ function kek_entity.get_control_of_entity(...)
 	and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) 
 	and utils.time_ms() > essentials.new_session_timer
 	and (no_condition or kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]]) then
-		local time <const> = utils.time_ms() + (time_to_wait or 450)
+		local time <const> = utils.time_ms() + (time_to_wait or entity.is_entity_a_vehicle(Entity) and vehicle.get_vehicle_has_been_owned_by_player(Entity) and 900 or 450)
 		network.request_control_of_entity(Entity, true)
 		while not network.has_control_of_entity(Entity) and entity.is_an_entity(Entity) and time > utils.time_ms() do
 			system.yield(0)
 		end
 	end
 	if send_msg and not network.has_control_of_entity(Entity) then
-		essentials.msg(lang["Failed to get control. If you're blocking \"give control\" in net event hooks, disable it."], "blue", true, 6)
+		essentials.msg(lang["Failed to get control. If you're blocking \"give control\" in net event hooks, disable it. Even if it's disabled, it can fail to get control for a variety of reasons."], "blue", true, 8)
 	end
 	return network.has_control_of_entity(Entity)
 end
@@ -181,7 +190,8 @@ do
 		max_vehicle <const>, 
 		ped_type <const>, 
 		weight <const>, 
-		not_networked = ...
+		not_networked <const>,
+		dont_yield <const> = ...
 		essentials.assert(hash and streaming.is_model_valid(hash), "Tried to use an invalid model hash.", hash)
 		essentials.assert(not streaming.is_model_an_object(hash), "Tried to spawn an object with wrong function.", hash)
 		essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a crash ped.")
@@ -222,7 +232,9 @@ do
 				if give_godmode then
 					entity.set_entity_god_mode(Entity, true)
 				end
-				system.yield(0)
+				if not dont_yield then
+					system.yield(0)
+				end
 				spawn_timer = 0
 			end
 		end
@@ -299,16 +311,25 @@ function kek_entity.is_any_tasks_active(...)
 	return active_tasks
 end
 
+function kek_entity.get_most_relevant_entity(...)
+	local pid <const> = ...
+	if player.is_player_in_any_vehicle(pid) then
+		return kek_entity.get_parent_of_attachment(player.get_player_vehicle(pid))
+	else
+		return kek_entity.get_parent_of_attachment(player.get_player_ped(pid))
+	end
+end
+
 function kek_entity.check_player_vehicle_and_teleport_if_necessary(...)
 	local pid <const>, feature <const> = ...
 	local had_to_teleport = false
-	local time <const> = utils.time_ms() + 1250
+	local time <const> = utils.time_ms() + 3000
 	while time > utils.time_ms() and essentials.is_in_vehicle(pid) do
 		if player.is_player_in_any_vehicle(pid) then
 			return true, had_to_teleport
 		else
 			had_to_teleport = true
-			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), location_mapper.get_ground_z(memoize.get_player_coords(pid)) + memoize.v3(0, 0, 45))
+			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), location_mapper.get_ground_z(memoize.get_player_coords(pid)) + memoize.v3(0, 0, 45))
 		end
 		if feature and not feature.on then
 			break
@@ -532,6 +553,17 @@ function kek_entity.get_vector_relative_to_entity(...)
 	end
 end
 
+function kek_entity.get_vector_relative_to_pos(...)
+	local pos <const>,
+	distance_from_entity <const>,
+	heading = ...
+	local pos <const> = v3(pos.x, pos.y, pos.z) -- To not modify original v3
+	heading = math.rad((heading - 180) * -1)
+	pos.x = pos.x + (math.sin(heading) * -distance_from_entity)
+	pos.y = pos.y + (math.cos(heading) * -distance_from_entity)
+	return pos
+end
+
 function kek_entity.get_longest_dimension(...)
 	local hash <const> = ...
 	local min <const>, max <const> = vehicle_mapper.get_dimensions(hash)
@@ -727,6 +759,22 @@ function kek_entity.repair_car(...)
 			end
 		end
 	end
+end
+
+function kek_entity.set_entity_heading(Entity, heading) -- Removes rotation velocity
+	entity.freeze_entity(Entity, true)
+	local status <const> = entity.set_entity_heading(Entity, heading)
+	entity.freeze_entity(Entity, false)
+	rope.activate_physics(Entity)
+	return status
+end
+
+function kek_entity.set_entity_rotation(Entity, rot) -- Removes rotation velocity
+	entity.freeze_entity(Entity, true)
+	local status <const> = entity.set_entity_rotation(Entity, rot)
+	entity.freeze_entity(Entity, false)
+	rope.activate_physics(Entity)
+	return status
 end
 
 do
@@ -930,7 +978,7 @@ function kek_entity.remove_player_vehicle(...)
 		end
 	end
 	if had_to_teleport then
-		kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
+		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
 	return not entity.is_entity_a_vehicle(player.get_player_vehicle(pid))
 end
@@ -956,7 +1004,7 @@ function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
 		if not entity.is_entity_a_vehicle(hash_or_entity) then
 			essentials.assert(streaming.is_model_a_vehicle(hash_or_entity), "Expected a valid vehicle hash.", hash_or_entity)
 			Vehicle = kek_entity.spawn_ped_or_vehicle(hash_or_entity, function()
-				spawn_pos = kek_entity.get_vector_relative_to_entity(essentials.get_most_relevant_entity(pid), distance_from_target, nil, nil, pid)
+				spawn_pos = kek_entity.get_vector_relative_to_entity(kek_entity.get_most_relevant_entity(pid), distance_from_target, nil, nil, pid)
 				spawn_pos.z = select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f1, memoize.v3())).z
 				return spawn_pos, player.get_player_heading(pid)
 			end)
@@ -1052,9 +1100,9 @@ local function get_prefered_vehicle_pos(...)
 	local pos <const> = kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(player.player_id()))
 	essentials.assert(streaming.is_model_a_vehicle(hash), "Expected a valid vehicle hash.", hash)
 	if settings.toggle["Air #vehicle# spawn mid-air"].on and settings.toggle["Spawn inside of spawned #vehicle#"].on and streaming.is_model_a_heli(hash) then
-		return location_mapper.get_most_accurate_position(pos, true) + v3(0, 0, 100 - kek_entity.get_entity_altitude(essentials.get_most_relevant_entity(player.player_id())))
+		return location_mapper.get_most_accurate_position(pos, true) + v3(0, 0, 100 - kek_entity.get_entity_altitude(kek_entity.get_most_relevant_entity(player.player_id())))
 	elseif settings.toggle["Air #vehicle# spawn mid-air"].on and settings.toggle["Spawn inside of spawned #vehicle#"].on and streaming.is_model_a_plane(hash) then
-		return location_mapper.get_most_accurate_position(pos, true) + v3(0, 0, 250 - kek_entity.get_entity_altitude(essentials.get_most_relevant_entity(player.player_id())))
+		return location_mapper.get_most_accurate_position(pos, true) + v3(0, 0, 250 - kek_entity.get_entity_altitude(kek_entity.get_most_relevant_entity(player.player_id())))
 	else
 		return location_mapper.get_most_accurate_position(pos, true)
 	end
@@ -1133,7 +1181,7 @@ function kek_entity.spawn_car()
 		if settings.toggle["Delete old #vehicle#"].on then
 			kek_entity.clear_owned_vehicles()
 		end
-		local velocity <const> = entity.get_entity_velocity(essentials.get_most_relevant_entity(player.player_id()))
+		local velocity <const> = entity.get_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()))
 		local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
 			return get_prefered_vehicle_pos(hash), player.get_player_heading(player.player_id())
 		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
@@ -1234,7 +1282,7 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 		essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is not in a vehicle."]), "red", true)
 	end
 	if teleport_you_back_to_original_pos and had_to_teleport then
-		kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), initial_pos)
+		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
 	return status
 end

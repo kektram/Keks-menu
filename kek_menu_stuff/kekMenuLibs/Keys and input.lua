@@ -265,7 +265,7 @@ do
 		if status == 2 then -- Getting model from hash raises error if invalid hash.
 			return nil, status
 		elseif input ~= "?" then
-			return get_info[Type].name(hash):sub(1, 21), status
+			return get_info[Type].name(hash), status
 		else
 			return input, status
 		end

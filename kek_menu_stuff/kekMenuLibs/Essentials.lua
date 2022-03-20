@@ -32,6 +32,7 @@ essentials.nethooks = {}
 essentials.feats = {}
 essentials.player_feats = {}
 essentials.number_of_explosion_types = 82
+essentials.init_delay = utils.time_ms() + 1000 -- For notifications that should only display if user toggles on the feature (toggles being turned on due to settings and such)
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
@@ -59,6 +60,12 @@ function essentials.assert(bool, msg, ...)
 		essentials.log_error(msg)
 		error(debug.traceback(msg, 2))
 	end
+end
+
+function essentials.table_to_array(Table)
+	Table[0] = Table[1]
+	table.remove(Table, 1)
+	return Table
 end
 
 --[[
@@ -986,15 +993,6 @@ function essentials.kick_player(pid)
 	return network.force_remove_player(pid)
 end
 
-function essentials.get_most_relevant_entity(...)
-	local pid <const> = ...
-	if player.is_player_in_any_vehicle(pid) then
-		return player.get_player_vehicle(pid)
-	else
-		return player.get_player_ped(pid)
-	end
-end
-
 do
 	local last_message_sent = 0
 	local number_of_active_messages = 0
@@ -1315,7 +1313,6 @@ do
 		"qq",
 		"%.gg",
 		"#%d%d%d%d", -- Discord ig tag
-		"%d%d%d%d%d", -- tencent qq codes are 5 - 12 digits
 		"gta%d%d"
 	})
 	function essentials.contains_advert(str)

@@ -309,7 +309,7 @@ local function send_spawn_counter_msg(entities)
 	)
 end
 
-local function spawn_entity(info, entities, is_not_networked)
+local function spawn_entity(info, entities, network_status)
 	if not streaming.is_model_valid(info.ModelHash) then
 		update_spawn_counter(entities, 0, 0)
 		return 0
@@ -318,11 +318,11 @@ local function spawn_entity(info, entities, is_not_networked)
 	if streaming.is_model_an_object(info.ModelHash) then
 		Entity = kek_entity.spawn_object(info.ModelHash, function()
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40)
-		end, info.Dynamic == false, is_not_networked, 5)
+		end, info.Dynamic == false, network_status == "is_not_networked", 5)
 	else
 		Entity = kek_entity.spawn_ped_or_vehicle(info.ModelHash, function()
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
-		end, false, false, enums.ped_types.civmale, 5, is_not_networked)
+		end, false, false, enums.ped_types.civmale, 5, network_status == "is_not_networked")
 	end
 	if entity.is_an_entity(Entity) then
 		entity.freeze_entity(Entity, true)
@@ -494,7 +494,7 @@ function menyoo.spawn_xml_vehicle(...)
 		return 0
 	end
 	local entities <const> = get_info_containers()
-	local parent_entity <const> = spawn_entity(info, entities)
+	local parent_entity <const> = spawn_entity(info, entities, "is_networked")
 	if streaming.is_model_valid(info.ModelHash) then
 		if entity.is_entity_a_vehicle(parent_entity) then
 			entity.freeze_entity(parent_entity, true)
@@ -510,7 +510,7 @@ function menyoo.spawn_xml_vehicle(...)
 	end
 	if spooner and (spooner.Attachment or spooner.Placement) then -- Does it have attachments?
 		for _, info in pairs(is_table_logic(spooner.Attachment or spooner.Placement)) do
-			local Entity <const> = spawn_entity(info, entities)
+			local Entity <const> = spawn_entity(info, entities, "is_networked")
 			if entity.is_an_entity(Entity) then
 				entities[info.InitialHandle] = Entity
 				apply_entity_modifications(Entity, info, entities, pid)
@@ -527,12 +527,12 @@ function menyoo.spawn_xml_vehicle(...)
 	if not info.FrozenPos == true then
 		rope.activate_physics(parent_entity)
 	end
-	entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
+	kek_entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
 	send_spawn_counter_msg(entities)
 	return parent_entity
 end
 
-local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow this format
+local function spawn_xml_map_type_1(info, entities, networked) -- Most menyoo files follow this format
 	local spooner <const> = info.SpoonerPlacements
 	if player.player_count() > 0 and spooner.ClearWorld and spooner.ClearWorld > 0 then
 		for _, entities in pairs(kek_entity.get_table_of_entities_with_respect_to_distance_and_set_limit({
@@ -575,7 +575,7 @@ local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow 
 		end
 	end
 	for _, info in pairs(is_table_logic(spooner.Placement or spooner.Attachment)) do
-		local Entity <const> = spawn_entity(info, entities, true)
+		local Entity <const> = spawn_entity(info, entities, networked and "is_networked" or "is_not_networked")
 		local is_frozen <const> = info.FrozenPos
 		info.FrozenPos = true
 		if entity.is_an_entity(Entity) then
@@ -584,7 +584,7 @@ local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow 
 			if info.Attachment and info.Attachment.__attributes.isAttached then
 				attach(Entity, info, entities)
 			else
-				essentials.assert(entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
+				essentials.assert(kek_entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
 				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
 				entity.freeze_entity(Entity, is_frozen)
 				if not is_frozen then
@@ -598,14 +598,14 @@ local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow 
 	end
 end
 
-local function spawn_xml_map_type_2(info, entities) -- Same as type_1, but missing many properties, such as vehicle mods
+local function spawn_xml_map_type_2(info, entities, networked) -- Same as type_1, but missing many properties, such as vehicle mods
 	if player.player_count() > 0 and info.SpoonerPlacements.ClearWorld then
 		kek_entity.clear_entities(kek_entity.remove_player_entities(vehicle.get_all_vehicles()))
 		kek_entity.clear_entities(kek_entity.remove_player_entities(ped.get_all_peds()))
 		kek_entity.clear_entities(object.get_all_objects())
 	end
 	for _, info in pairs(is_table_logic(info.SpoonerPlacements.Placement)) do
-		local Entity <const> = spawn_entity(info, entities, true)
+		local Entity <const> = spawn_entity(info, entities, networked and "is_networked" or "is_not_networked")
 		if entity.is_an_entity(Entity) then
 			entities[info.InitialHandle] = Entity
 			entity.set_entity_alpha(Entity, info.OpacityLevel, 1)
@@ -616,7 +616,7 @@ local function spawn_xml_map_type_2(info, entities) -- Same as type_1, but missi
 			if info.Attachment and info.Attachment.__attributes.isAttached then
 				attach(Entity, info, entities)
 			else
-				essentials.assert(entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
+				essentials.assert(kek_entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
 				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
 				entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
 				if not entity.is_entity_an_object(Entity) then
@@ -630,16 +630,16 @@ local function spawn_xml_map_type_2(info, entities) -- Same as type_1, but missi
 	end
 end
 
-local function spawn_xml_map_type_3(info, entities) -- LSCdamwithpeds&vehicles.xml
+local function spawn_xml_map_type_3(info, entities, networked) -- LSCdamwithpeds&vehicles.xml
 	for _, info in pairs(is_table_logic(info.Map.Objects.MapObject)) do
 		info.ModelHash = info.Hash
-		local Entity <const> = spawn_entity(info, entities, true)
+		local Entity <const> = spawn_entity(info, entities, networked and "is_networked" or "is_not_networked")
 		if entity.is_an_entity(Entity) then
 			entities[Entity] = Entity
 			local rot <const> = info.Rotation
 			local pos <const> = info.Position
 			essentials.assert(
-				entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(rot.X, rot.Y, rot.Z))), 
+				kek_entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(rot.X, rot.Y, rot.Z))), 
 				"Failed to set entity rotation."
 			)
 			essentials.assert(
@@ -672,6 +672,29 @@ local function get_xml_map_type(info)
 	end
 end
 
+local function get_entity_counts_from_xml_parse(xml_table)
+	local is_model_an_object <const>, -- Tons of iterations below
+	is_model_a_vehicle <const>,
+	is_model_a_ped <const> = streaming.is_model_an_object, streaming.is_model_a_vehicle, streaming.is_model_a_ped
+
+	local counts <const> = {
+		object = 0,
+		ped = 0,
+		vehicle = 0
+	}
+	for i = 1, #xml_table do
+		local hash <const> = xml_table[i].ModelHash or xml_table[i].Hash
+		if is_model_an_object(hash) then
+			counts.object = counts.object + 1
+		elseif is_model_a_vehicle(hash) then
+			counts.vehicle = counts.vehicle + 1
+		elseif is_model_a_ped(hash) then
+			counts.ped = counts.ped + 1
+		end
+	end
+	return counts
+end
+
 function menyoo.spawn_xml_map(...)
 	local file_path <const>, teleport_to_map <const> = ...
 	if not utils.file_exists(file_path) then
@@ -694,7 +717,7 @@ function menyoo.spawn_xml_map(...)
 			entity.freeze_entity(frozen_vehicle, true)
 			tp_state, tp_err = pcall(function() -- There has to be zero chance of user being frozen forever.
 				kek_entity.teleport(
-					essentials.get_most_relevant_entity(player.player_id()), 
+					kek_entity.get_most_relevant_entity(player.player_id()), 
 					v3(
 						spooner.ReferenceCoords.X, 
 						spooner.ReferenceCoords.Y, 
@@ -706,23 +729,30 @@ function menyoo.spawn_xml_map(...)
 			local t = info.Map.Objects.MapObject
 			t = t.__is_table and t[1] or t
 			local pos <const> = info.Map.Objects.ReferenceCoords or t.Position
-			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), v3(pos.X, pos.Y, pos.Z))
+			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), v3(pos.X, pos.Y, pos.Z))
 		else
 			essentials.msg(lang["Failed to find reference coordinates."], "red", true, 6)
 		end
 	end
 
-	local entities, map_type, status
+	local entities, map_type, status, is_networked
 	local state <const>, err <const> = pcall(function() -- Must unfreeze user entities no matter what.
 		entities = get_info_containers()
 		map_type = get_xml_map_type(info)
-
+		if map_type and settings.toggle["Clear before spawning xml map"].on then
+			kek_entity.entity_manager:clear()
+		end
+		local counts <const> = get_entity_counts_from_xml_parse(
+			spooner.Objects and is_table_logic(spooner.Objects.MapObject)
+			or is_table_logic(spooner.Placement or spooner.Attachment)
+		)
+		is_networked = counts.object <= 80 and counts.ped <= 142 and counts.vehicle <= 160
 		if map_type == "type_1" then
-			status = spawn_xml_map_type_1(info, entities)
+			status = spawn_xml_map_type_1(info, entities, is_networked)
 		elseif map_type == "type_2" then
-			status = spawn_xml_map_type_2(info, entities)
+			status = spawn_xml_map_type_2(info, entities, is_networked)
 		elseif map_type == "type_3" then
-			status = spawn_xml_map_type_3(info, entities)
+			status = spawn_xml_map_type_3(info, entities, is_networked)
 		else
 			status = "failed"
 			essentials.msg(lang["Unsupported file format."], "red", true)
@@ -737,6 +767,11 @@ function menyoo.spawn_xml_map(...)
 
 	if status == "failed" then
 		return
+	end
+	if is_networked then
+		essentials.msg(lang["The map will be visible to other people."], "green", true, 5)
+	else
+		essentials.msg(lang["The map won't be visible to other people. It has too many objects. Networked maps supports up to 80 objects."], "red", true, 8)
 	end
 
 	local ipls <const> = spooner.IPLsToLoad
@@ -765,7 +800,7 @@ function menyoo.spawn_xml_map(...)
 end
 
 function menyoo.clone_vehicle(...)
-	local Vehicle, pos <const> = ...
+	local Vehicle, pos <const>, heading <const> = ...
 	if entity.is_an_entity(Vehicle) then
 		Vehicle = kek_entity.get_parent_of_attachment(Vehicle)
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
@@ -775,7 +810,7 @@ function menyoo.clone_vehicle(...)
 		local status <const>, err <const> = pcall(function() -- So that file is removed even in case of errors
 			menyoo_saver.save_vehicle(Vehicle, tmp_path)
 			car = menyoo.spawn_xml_vehicle(tmp_path, player.player_id())
-			entity.set_entity_heading(car, entity.get_entity_heading(Vehicle))
+			kek_entity.set_entity_heading(car, heading or entity.get_entity_heading(Vehicle))
 		end)
 		io.remove(tmp_path)
 		essentials.assert(status, err)
@@ -1442,7 +1477,7 @@ function menyoo.spawn_ini_vehicle(...)
 	end
 	if parent_entity and entity.is_entity_a_vehicle(parent_entity) then
 		entity.set_entity_rotation(parent_entity, memoize.v3())
-		entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
+		kek_entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
 	elseif parent_entity ~= -1 then
 		essentials.msg(lang["Failed to spawn driver vehicle for unknown reason."], "red", true, 6)
 	end

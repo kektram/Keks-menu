@@ -360,9 +360,9 @@ function troll_entity.send_kek_chopper(...)
 							end
 						end
 						kek_entity.teleport(vehicles[i], kek_entity.vehicle_get_vec_rel_to_dims(entity.get_entity_model_hash(vehicles[i]), chopper))
-						entity.set_entity_heading(vehicles[i], entity.get_entity_heading(chopper))
+						kek_entity.set_entity_heading(vehicles[i], entity.get_entity_heading(chopper))
 					end
-					entity.set_entity_rotation(vehicles[i], entity.get_entity_rotation(chopper))
+					kek_entity.set_entity_rotation(vehicles[i], entity.get_entity_rotation(chopper))
 					vehicle.set_vehicle_forward_speed(vehicles[i], 100)
 					essentials.use_ptfx_function(vehicle.set_vehicle_out_of_control, vehicles[i], false, true)
 				end

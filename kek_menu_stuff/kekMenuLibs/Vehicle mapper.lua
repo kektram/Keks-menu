@@ -4597,38 +4597,26 @@ end
 
 function vehicle_mapper.GetModelFromHash(...)
 	local hash <const> = ...
-	if hash ~= 0 then
-		essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
-		essentials.assert(vehicle_properties[hash], MISSING_INFO_ERR, hash)
-		return vehicle_properties[hash].model
-	else
-		return ""
-	end
+	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
+	essentials.assert(vehicle_properties[hash], MISSING_INFO_ERR, hash)
+	return vehicle_properties[hash].model
 end
 
 function vehicle_mapper.GetNameFromHash(...)
 	local hash <const> = ...
-	if hash ~= 0 then
-		essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
-		essentials.assert(vehicle_properties[hash], MISSING_INFO_ERR, hash)
-		return vehicle_properties[hash].name
-	else
-		return ""
-	end
+	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
+	essentials.assert(vehicle_properties[hash], MISSING_INFO_ERR, hash)
+	return vehicle_properties[hash].name
 end
 
 function vehicle_mapper.get_translated_vehicle_name(...)
 	local hash <const> = ...
-	if hash ~= 0 then
-		essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
-		if language.translated_vehicle_names then
-			essentials.assert(language.translated_vehicle_names[hash], MISSING_INFO_ERR, hash)
-			return language.translated_vehicle_names[hash]
-		else
-			return vehicle_mapper.GetNameFromHash(hash)
-		end
+	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
+	if language.translated_vehicle_names then
+		essentials.assert(language.translated_vehicle_names[hash], MISSING_INFO_ERR, hash)
+		return language.translated_vehicle_names[hash]
 	else
-		return ""
+		return vehicle_mapper.GetNameFromHash(hash)
 	end
 end
 
