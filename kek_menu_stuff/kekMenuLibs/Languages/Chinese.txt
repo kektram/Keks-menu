@@ -16,8 +16,6 @@ Hotkey settings §快捷键选项
 Modder detection §外挂检测
 Protections §保护功能
 Modder logging settings §作弊者记录设置
-Auto kick tag settings §自动踢标签设置
-Which modder detections are on §检测哪些作弊者
 Weapons §武器选项
 Kek's utilities §实体功能
 Script loader §脚本加载器
@@ -34,12 +32,10 @@ Remove script from auto loader §取消自动加载某个脚本(点击输入脚�
 Modded name detection §检测虚假名称
 Entity crash protection §检测尝试使用实体崩溃的作弊者
 Blacklist §黑名单
-Check people's stats automatically §自动检查玩家的统计数据
 Kick any vote kickers §自动踢战局内使用投票踢的玩家
 Add session §添加战局
 Remove session §删除战局
 Get host automatically §自动获取每个战局主机
-Log modders with selected tags to blacklist §将带有选定标签的作弊者记录到黑名单
 Auto kicker §自动踢出战局
 Ram everyone §载具撞击战局所有人
 Vehicle fly nearby vehicles §载具飞行附近的载具
@@ -60,7 +56,6 @@ Never wanted §永不通缉
 off the radar §人间蒸发
 Reapply bounty §悬赏循环
 Send to random mission §发送到随机任务
-Perico island §发送到佩里科海岛
 Apartment invites §公寓邀请
 Ban §禁止注册
 Dismiss §解散
@@ -79,7 +74,6 @@ Change backplate text §更改车牌文本
 Spawn vehicle §生成载具
 Vehicle fly speed, click to type §载具飞行速度
 Vehicle fly §载具飞行模式
-Type in what object §发射什么物体?输入物体名称
 Object gun §物体枪
 Airstrike gun §空袭枪
 What vehicle vehicle gun §发射什么载具?输入载具名称
@@ -92,7 +86,6 @@ Spawn a ped §生成NPC
 Car godmode §载具无敌
 Vehicle fly player §控制载具(先观看)
 Spastic car §抽搐载具
-What vehicle to spawn §输入要生成的载具
 Disable vehicles §踢出载具
 Off the radar §人间蒸发
 apply bounty §给予赏金
@@ -142,7 +135,7 @@ Kicking §正在踢出
 Invalid entry. §无效条目
 Couldn't find entry. §找不到条目
 Emptied vehicle blacklist. §已清空载具黑名单中的内容.
-Vehicle blacklist:\nEMP'd §载具黑名单:\n熄灭引擎'd
+Vehicle blacklist:\nEMP'd §载具黑名单:\n熄灭引擎
 Vehicle blacklist:\nKicked §载具黑名单:\n踢出载具
 Vehicle blacklist:\nExploding §载具黑名单:\n爆炸
 out of their §从他们的
@@ -292,7 +285,6 @@ Resurrect §复活
 Godmode §无敌
 Teleport in front of player §传送到玩家面前
 Teleport to entity §传送到实体
-Follow entity §尾随实体
 Set yourself in seat §设置自己的座位
 All entities of this type §此类型的所有实体
 Set speed §设置速度
@@ -351,7 +343,6 @@ Revenge §复仇
 Turned off §关闭
 Horn boost §喇叭加速
 Notifications §通知
-Auto kicker notifications §自动踢时通知
 Turn everything off §关闭所有
 First seen §首次遇见
 Last seen §最后遇见
@@ -364,7 +355,6 @@ keyboard §键盘
 controller §手柄
 Hotkeys §快捷键
 Type in bounty amount §请输入赏金金额.
-Turn all on or off §全部开启或关闭
 This language file is the wrong version. You can still use it. §该语言文件是错误的版本. 但你仍然可以使用它.
 Cage session §笼子战局
 Drive force multiplier §牵引力倍数
@@ -379,7 +369,6 @@ Turn off §关闭
 2 keys §2个组合键
 3 keys §3个组合键
 Clear entities §清除实体
-Set vehicle §设置载具
 Tp personal vehicle §传送到个人载具
 Hotkey:\nTeleported into personal vehicle. §快捷键:\已传送到个人载具内
 Auto tp to waypoint §自动传送到标记点
@@ -401,7 +390,6 @@ Left backseat §左后座
 Right backseat §右后座
 Extra seat §额外座位
 Commands §命令
-CEO §CEO / 摩托帮
 Explode with blame §栽赃
 Taze §电击
 Invite to apartment §邀请到公寓
@@ -435,7 +423,6 @@ no one §无
 Offset §偏移
 Strength towards you §朝你的力量强度
 Strength away from you §远离你的力量强度
-Block passive §阻止开启被动模式
 Send §发送
 Rid §Rid
 IP §IP
@@ -559,7 +546,6 @@ Save recorded race §保存记录的比赛轨迹
 Teleport to player when spectating §被人观看时自动传送到玩家
 Flamethrower §火焰喷射器
 Display notifications §显示通知
-Display 2take1 notifications on screen §在屏幕上显示2take1通知日志
 Number of notifications §通知数量
 Filter §过滤无用信息
 Log to console §记录到控制台
@@ -583,7 +569,6 @@ Melee §近战武器
 Miscellaneous §其他
 Toggle engine §开关引擎
 Show sphere §显示球面
-Lock player inside §将玩家锁在里面
 Anti chat spam §反聊天刷屏
 kicked for spamming chat. §因聊天轰炸已踢出战局.
 Kick & add to timeout §踢出并添加到加入超时
@@ -602,7 +587,6 @@ All scripts will run slower and might lag. More errors will occur, especially if
 Only use this mode if you intend to find bugs. §只有在你想找BUG的时候才使用此模式.
 Failed to find reference coordinates. §查找参考坐标失败
 The player must be an associate of an organization to use this. They can't be the ceo. §该玩家必须组织成员才能对他使用.他不能是CEO.
-Eclipse §日蚀
 Also known as §是否遇见过
 Check rid in also known as §检查rid是否遇见过
 Check name in also known as §检查名称是否遇见过
@@ -610,7 +594,6 @@ Check ip in also known as §检查ip是否遇见过
 What is known for §已知的内容有
 This player already have a bounty set on them. §该玩家已被设置了赏金.
 Team §团队
-What ped to spawn §输入要生成的NPC
 Spawned §已生成
 invalid models §无效模型
 Reached ped spawn limit. Cancelling menyoo spawn. §已达到NPC生成限制.已取消menyoo生成.
@@ -638,7 +621,6 @@ Chat log §聊天日志
 Mark as modder §标记为作弊者
 Don't reapply marks §不要重复标记
 Reapply marks §重复标记
-Failed to get control. If you're blocking "give control" in net event hooks, disable it. §未能获得控制权.如果你在网络事件中启用了阻止"给予控制",请关闭它.
 Failed to spawn driver vehicle for unknown reason. §因未知原因未能生成驾驶载具.
 Copied to clipboard. §已复制到剪贴板.
 Ini vehicles §Ini载具
@@ -659,4 +641,45 @@ Search features from all luas loaded §从所有已加载的lua中搜索功能
 For chat to show here, chat logger must be on. You can find chat logger in script features > Chat §要在此处显示聊天信息,必须打开聊天记录器.你可以在 脚本功能 > 聊天选项 中找到记录聊天信息到日志
 Gravity §重力
 Swap nearby vehicles to police §将附近的载具变成警车并为警察驾驶
-If the search doesn't find the features you expect, make sure you load all scripts before you load Kek's menu. §如果搜索结果中没有找到你期望寻找的功能,请确保在加载Kek菜单之前已加载所有脚本.
+Respawn vehicle after death §死亡后重新生成载具
+Failed to get control. If you're blocking "give control" in net event hooks, disable it. Even if it's disabled, it can fail to get control for a variety of reasons. §未能获得控制权.如果你在网络事件中启用了阻止"给予控制",请关闭它.即使它已经是关闭状态,也可能因为各种原因而无法获得控制权.
+Teleport to Perico island §传送到佩里科海岛
+"Log to file" must be toggled on in 2take1 notification settings in order for this to work. §必须在2take1的通知设置中打开“记录到文件”才能使其正常工作
+No filter §没有过滤器
+Display 2take1 notifications §显示2take1通知
+Set vehicle in use §设置要使用的载具
+Set ped in use §设置要使用的NPC
+Set object in use §设置要使用的物体
+Set to "?" to make it random. §设置为 "?" 可使其随机
+Attach players §附加玩家
+Attach player vehicle to entity §将玩家载具附加到实体
+Rotation x §旋转 x
+Rotation y §旋转 y
+Rotation z §旋转 z
+Offset x §偏移 x
+Offset y §偏移 y
+Offset z §偏移 z
+Detach §分离
+Reset rot §重置rot
+Reset offset §重置偏移
+Player is not in a vehicle. §玩家不在载具中.
+Clear attachments §清除附加
+Collision §碰撞
+If the search doesn't find the features you expect, make sure you load Kek's menu before you load all your other scripts. §如果搜索结果中没有找到你期望寻找的功能,请确保在加载所有其他脚本之前已经了加载 Kek 的菜单.
+Log flags below to blacklist §将以下标志记录到黑名单
+Notifications on §开启通知
+Notifications off §关闭通知
+Auto kicker settings §自动踢设置
+Notify when recognized in blacklist §检测到黑名单时通知
+Modded stats detection §检查修改后的统计
+Block passive mode §阻止被动模式
+Organization §组织
+Ptfx §粒子特效
+Unlocked their car. §已解锁他的车
+Locked their car. §已锁住他的车
+Unlock / lock inside §解锁 / 锁 在里面
+Killed their engine. §已熄灭他的引擎
+Revived their engine. §已恢复他的引擎
+The map won't be visible to other people. It has too many objects. Networked maps supports up to 80 objects. §这个地图其他人看不到. 物体太多了. 联网地图最多只支持80个物体.
+The map will be visible to other people. §这个地图其他人可以看到.
+Clear owned entities before spawning map §在生成地图前清除拥有的实体
