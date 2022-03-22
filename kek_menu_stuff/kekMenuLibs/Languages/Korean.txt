@@ -16,8 +16,6 @@ Hotkey settings §핫키 설정
 Modder detection §모더 감지
 Protections §프로텍션
 Modder logging settings §모더 기록 설정
-Auto kick tag settings §자동 킥 사유 설정
-Which modder detections are on §모더 감지 옵션 설정
 Weapons §무기
 Kek's utilities §Kek의 도구 모음
 Script loader §자동 Lua Script 실행기
@@ -33,12 +31,10 @@ Remove script from auto loader §자동 실행할 Lua Script 제거
 Modded scid detection §스푸핑 SCID 감지
 Modded name detection §스푸핑 닉네임 감지
 Blacklist §블랙리스트
-Check people's stats automatically §플레이어 통계 자동 확인
 Kick any vote kickers §추방 투표한 플레이어 킥
 Add session §모든 플레이어 추가
 Remove session §모든 플레이어 제거
 Get host automatically §세션 진입 시 호스트 자동으로 얻기
-Log modders with selected tags to blacklist §모더 사유에 해당하는 모더를 블랙리스트에 기록
 Auto kicker §자동 킥
 Ram everyone §모든 플레이어에게 부딪치기
 Vehicle fly nearby vehicles §주변 차량 공중에 띄우기
@@ -59,7 +55,6 @@ Never wanted §지명 수배 되지 않음
 off the radar §레이더 은신 (OTR)
 Reapply bounty §현상금 다시 걸기
 Send to random mission §랜덤 미션으로 보내기
-Perico island §페리코 섬
 Apartment invites §아파트 초대
 Ban §밴
 Dismiss §추방
@@ -75,11 +70,9 @@ Answer delay chatbot §채팅 봇 답변 지연 시간 주기
 Chat bot §채팅 봇
 Max car §차량 풀 업그레이드
 Change backplate text §번호판 글씨 변경
-What vehicle to spawn §소환할 차량
 Spawn vehicle §차량 소환
 Vehicle fly speed, click to type §하늘을 나는 차량 속도
 Vehicle fly §하늘을 나는 차량
-Type in what object §오브젝트 이름 입력
 Object gun §오브젝트 총
 Airstrike gun §공습 총
 What vehicle vehicle gun §발사할 차량 종류
@@ -93,7 +86,6 @@ Car godmode §차량 무적
 Copy player's car §플레이어 차량 복사
 Vehicle fly player §차량이 플레이어 날리기
 Spastic car §차량 바퀴 터트리기
-What vehicle to spawn §소환할 차량
 Off the radar §레이더 은신 (OTR)
 apply bounty §현상금 저장
 Reapply bounty §현상금 재 적용
@@ -301,7 +293,6 @@ Resurrect §부활
 Godmode §무적
 Teleport in front of player §플레이어 앞으로 순간 이동
 Teleport to entity §엔티티로 순간 이동
-Follow entity §엔티티 따라가기
 Set yourself in seat §시트에 앉기
 All entities of this type §해당 종류의 모든 엔티티 
 Set speed §속도 설정
@@ -359,7 +350,6 @@ Kill §죽이기
 Revenge §죽인 사람에게 복수
 Horn boost §경적 부스트
 Notifications §알림
-Auto kicker notifications §자동 킥 알림
 Turn everything off §모든 옵션 비활성화
 First seen §처음으로 본 날짜와 시간
 Last seen §마지막으로 본 날짜와 시간
@@ -371,7 +361,6 @@ Change name §프로필 이름 변경
 keyboard §키보드
 controller §컨트롤러
 Hotkeys §핫키 모드
-Turn all on or off §모두 켜거나 끄기
 Type in bounty amount §현상금 양을 입력하세요.
 Cage session §모든 플레이어 철창 씌우기
 Drive force multiplier §차량 운전 속도 강제 조정
@@ -386,7 +375,6 @@ Turn off §끄기
 2 keys §두 개 키
 3 keys §세 개 키
 Clear entities §엔티티 삭제
-Set vehicle §차량 설정
 Tp personal vehicle §개인 차량으로 순간 이동
 Hotkey:\nTeleported into personal vehicle. §핫키:\n개인 차량 안으로 텔레포트가 완료되었습니다.
 Auto tp to waypoint §목적지 자동 순간 이동
@@ -408,7 +396,6 @@ Left backseat §좌측 뒷자리
 Right backseat §우측 뒷자리
 Extra seat §추가 자리
 Commands §명령어
-CEO §CEO
 Explode with blame §누명 킬
 Taze §기절
 Invite to apartment §아파트로 초대
@@ -442,7 +429,6 @@ no one §아무도 포함 안함
 Offset §정렬 -
 Strength towards you §나를 향한 힘
 Strength away from you §나에게서 떨어진 힘
-Block passive §패시브 모드 차단
 Send §보내기
 Rid §SCID
 IP §IP
@@ -565,7 +551,6 @@ Save recorded race §기록된 레이스 저장
 Teleport to player when spectating §플레이어가 관전할 때 순간 이동
 Flamethrower §화염 방사기
 Display notifications §알림 보이기
-Display 2take1 notifications on screen §화면에 2Take1 알림 보이기
 Number of notifications §알림 개수
 Filter §필터
 Log to console §콘솔에 기록
@@ -589,7 +574,6 @@ Melee §근접 무기
 Miscellaneous §기타
 Toggle engine §엔진 켜놓기
 Show sphere §구 보이기
-Lock player inside §플레이어 차량 내부 잠금
 Anti chat spam §채팅 도배 방지
 kicked for spamming chat. §채팅 도배로 인해 킥했습니다.
 Kick & add to timeout §킥 & 타임아웃에 추가
@@ -609,7 +593,6 @@ All scripts will run slower and might lag. More errors will occur, especially if
 Only use this mode if you intend to find bugs. §버그를 찾으려고 할 때만 이 기능을 사용하세요.
 Failed to find reference coordinates. §참고 좌표를 찾는 것을 실패했습니다.
 The player must be an associate of an organization to use this. They can't be the ceo. §플레이어가 이를 사용하려면 조직의 구성원이어야 합니다. ceo는 사용할 수 없습니다.
-Eclipse §이클립스
 Also known as §또한 알려져 있습니다:
 Check rid in also known as §알고 있는 SCID 확인 
 Check name in also known as §알고 있는 닉네임 확인
@@ -617,7 +600,6 @@ Check ip in also known as §알고 있는 IP 확인
 What is known for §알고 있는 것:
 This player already have a bounty set on them. §이 플레이어는 이미 현상금이 걸려 있습니다.
 Team §팀
-What ped to spawn §소환할 NPC
 Spawned §소환됨
 invalid models §유효하지 않은 모델
 Reached ped spawn limit. Cancelling menyoo spawn. §NPC 소환 제한이 걸렸습니다. Menyoo 소환을 취소하는 중입니다.
@@ -635,7 +617,6 @@ Is added to join timeout §조인 타임아웃에 추가되었는지
 isn't blacklisted §블랙리스트에 추가되지 않음
 Type in name of entity. §엔티티 이름을 입력하세요.
 Invalid model name. §유효하지 않은 모델 이름입니다.
-Vote kick §추방 투표
 Draw number of se sent §보낸 스크립트 이벤트 표시
 Number of script events sent §보낸 스크립트 이벤트 숫자
 You can't use this on yourself. §자신에게는 이 기능을 사용할 수 없습니다.
@@ -645,11 +626,10 @@ Chat log §채팅 기록
 Mark as modder §모더로 마킹
 Don't reapply marks §모더 마킹 재 적용 X
 Reapply marks §모더 마킹 재 적용
-Failed to get control. If you're blocking "give control" in net event hooks, disable it. §컨트롤을 얻는 것을 실패했습니다. 만약 네트워크 이벤트 훅에서 "컨트롤 지급" 프로텍션을 활성화했다면, 비활성화하세요.
 Failed to spawn driver vehicle for unknown reason. §알려지지 않은 이유로 드라이버 차량을 소환하는 것을 실패했습니다.
 Copied to clipboard. §클립보드에 복사되었습니다.
 Ini vehicles §Ini 차량
-This can't be used in singleplayer. §싱글 플레이에서 사용할 수 없는 것입니다.
+This can't be used in singleplayer. §싱글 플레이에서 사용할 수 없습니다.
 Tried to spawn a xml vehicle with ini spawner. §xml 차량을 ini 차량 소환기에 사용하려고 시도했었습니다.
 Failed to attach an entity. Check debug console for more details. §엔티티를 부착하는 것을 실패했습니다. 자세한 정보는 디버그 콘솔을 확인하세요.
 This file doesn't exist or has an invalid file name. §해당 파일이 존재하지 않거나 유효하지 않은 파일 이름을 가지고 있습니다.
@@ -666,4 +646,53 @@ Search features from all luas loaded §불러와진 모든 Lua 중에서 기능 
 For chat to show here, chat logger must be on. You can find chat logger in script features > Chat §채팅을 여기에 보여주기 위해서는 채팅 기록이 켜져 있어야만 합니다.
 Gravity §중력
 Swap nearby vehicles to police §근처 차량들을 경찰에게 스왑
-If the search doesn't find the features you expect, make sure you load all scripts before you load Kek's menu. §자신이 찾고자 했던 기능이 검색되지 않는다면, Kek's menu를 불러오기 전에 모든 Lua Script들을 불러왔는지 확인하세요.
+Respawn vehicle after death §죽음 후 차량 재 소환
+Failed to get control. If you're blocking "give control" in net event hooks, disable it. Even if it's disabled, it can fail to get control for a variety of reasons. §컨트롤을 얻는 것을 실패했습니다. 네트워크 이벤트 훅에서 "컨트롤 지급" 옵션을 차단하고 있다면, 그 기능을 비활성화하세요. 그 기능이 비활성화 되어 있음에도 컨트롤을 얻는 것에 실패한다면 여러 종류의 이유가 있을 수 있습니다. 
+Teleport to Perico island §페리코 섬으로 순간 이동
+"Log to file" must be toggled on in 2take1 notification settings in order for this to work. §"파일에 기록" 이 작동하기 위해서는 2Take1 알림 설정이 활성화 되어 있어야만 합니다. 
+No filter §필터 없음
+Display 2take1 notifications §2Take1 알림 표시
+Set vehicle in use §사용할 차량 설정
+Set ped in use §사용할 NPC 설정
+Set object in use §사용할 오브젝트 설정
+Set to "?" to make it random. §그것을 랜덤하게 만들기 위해 "?" 로 설정
+Attach players §플레이어 부착
+Attach player vehicle to entity §플레이어 차량을 엔티티에 부착
+Rotation x §X 각도
+Rotation y §Y 각도
+Rotation z §Z 각도
+Offset x §X 오프셋
+Offset y §Y 오프셋
+Offset z §Z 오프셋
+Detach §분리
+Reset rot §각도 초기화
+Reset offset §오프셋 초기화
+Player is not in a vehicle. §플레이어가 차량에 있지 않습니다.
+Clear attachments §부착물 제거
+Collision §충돌
+If the search doesn't find the features you expect, make sure you load Kek's menu before you load all your other scripts. §검색 결과가 자신이 예상하던 게 아니라면, Kek's menu를 실행하기 전 모든 다른 기타 Lua Script를 실행했는지 다시 한 번 더 확인하세요.
+Log flags below to blacklist §블랙리스트 아래에 모더 마킹 사유 기록
+Notifications on §알림 활성화
+Notifications off §알림 비활성화
+Auto kicker settings §자동 킥 설정
+Notify when recognized in blacklist §블랙리스트에 있단 것을 알았을 때에 알림
+Modded stats detection §핵 사용 Stat 감지
+Block passive mode §패시브 모드 차단
+Organization §조직
+Ptfx §Ptfx
+Unlocked their car. §해당 플레이어의 차량을 잠금 해제 했습니다.
+Locked their car. §해당 플레이어의 차량을 잠궜습니다.
+Unlock / lock inside §내부 잠금 해제 / 잠금
+Killed their engine. §해당 플레이어 차량의 엔진을 정지 시켰습니다.
+Revived their engine. §해당 플레이어 차량의 엔진을 수리했습니다.
+The map won't be visible to other people. It has too many objects. Networked maps supports up to 80 objects. §그 맵은 다른 플레이어에게 보이지 않을 겁니다. 그 맵은 너무 많은 오브젝트를 가지고 있습니다. 다른 플레이어가 볼 수 있는 맵은 80개의 오브젝트까지 지원합니다.
+The map will be visible to other people. §그 맵은 다른 플레이어에게 보일 겁니다.
+Clear owned entities before spawning map §맵 소환 전 자신의 엔티티 청소
+Notify when typing & stopped typing §채팅 입력 시 & 입력 중단할 시 알림
+is typing. §이/가 채팅 작성 중입니다.
+is no longer typing. §이/가 더 이상 채팅을 작성 중이지 않습니다.
+Anti chat spoof & illegal msg §채팅 스푸핑 & 유효하지 않은 메시지 방지
+sent an illegal message. They are probably the victim of a chat spoof. §이/가 유효하지 않은 메시지를 보냈습니다. 채팅 스푸핑을 사용 중일 가능성이 높습니다.
+hide §숨기기
+just detect §그냥 감지
+Ptfx clear distance §Ptfx가 보이는 거리
