@@ -611,7 +611,6 @@ Is added to join timeout §添加到加入超时中
 isn't blacklisted §未添加到黑名单
 Type in name of entity. §请输入实体名称.
 Invalid model name. §模型名称无效.
-Vote kick §投票踢
 Draw number of se sent §显示发送次数
 Number of script events sent §发送脚本事件次数
 You can't use this on yourself. §你不能对自己使用这个
@@ -675,6 +674,7 @@ Modded stats detection §检查修改后的统计
 Block passive mode §阻止被动模式
 Organization §组织
 Ptfx §粒子特效
+Ptfx clear distance §粒子特效清除距离
 Unlocked their car. §已解锁他的车
 Locked their car. §已锁住他的车
 Unlock / lock inside §解锁 / 锁 在里面
@@ -683,3 +683,10 @@ Revived their engine. §已恢复他的引擎
 The map won't be visible to other people. It has too many objects. Networked maps supports up to 80 objects. §这个地图其他人看不到. 物体太多了. 联网地图最多只支持80个物体.
 The map will be visible to other people. §这个地图其他人可以看到.
 Clear owned entities before spawning map §在生成地图前清除拥有的实体
+Notify when typing & stopped typing §当有人在打字时通知
+is typing. §正在打字
+is no longer typing. §已停止打字
+Anti chat spoof & illegal msg §反聊天恶搞 & 非法信息
+sent an illegal message. They are probably the victim of a chat spoof. §发送了一条非法信息. 他可能是聊天恶搞的受害者.
+hide §隐藏
+just detect §只检测
