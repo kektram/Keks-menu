@@ -79,7 +79,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
 		["Menyoo spawner"] = "2.2.3",
-		["Kek's entity functions"] = "1.2.3",
+		["Kek's entity functions"] = "1.2.4",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.2",
 		["Admin mapper"] = "1.0.4",
@@ -1366,73 +1366,65 @@ settings.toggle["Modded name detection"] = menu.add_feature(lang["Modded name de
 	end
 end)
 
-do
-	local function check_if_recognize(f, pid)
-		if player.is_player_valid(pid)
-		and player.player_id() ~= pid 
-		and essentials.is_not_friend(pid)
-		and essentials.how_many_people_named(pid) == 1
-		and utils.time_ms() > (settings.toggle["Log modders"].data.recently_logged[pid] or 0) 
-		and not player.is_player_modder(pid, keks_custom_modder_flags["Blacklist"]) then
-			local rid <const> = player.get_player_scid(pid)
-			local name = player.get_player_name(pid)
-			local ip <const> = player.get_player_ip(pid)
-			if #name < 1 then
-				name = math.random(-2^61, 2^62)
-			end
-			local tags, what_was_detected = essentials.search_for_match_and_get_line(paths.blacklist, {
-				string.format("/%i/", rid),
-				string.format("&%i&", ip),
-				string.format("§%s§", name)
-			})
-			if tags and what_was_detected then
-				what_was_detected = what_was_detected:gsub("[/&§]", "")
-				if what_was_detected:find("/", 1, true) then
-					what_was_detected = string.format("%s: %s", lang["Rid"], what_was_detected)
-				elseif what_was_detected:find("&", 1, true) then 
-					what_was_detected = string.format("%s: %s", lang["IP"], essentials.dec_to_ipv4(tonumber(what_was_detected)))
-				elseif what_was_detected:find("§", 1, true) then
-					what_was_detected = string.format("%s: %s", lang["Name"], what_was_detected)
-				end
-				tags = tags:match("<(.+)>") or ""
-				local flags <const> = essentials.modder_text_to_flags(tags)
-				essentials.msg(
-					string.format("%s %s%s %s %s%s", lang["Recognized"], name, lang["\nDetected:"], what_was_detected, lang["\nTags:\n"], tags), 
-					"orange", 
-					settings.in_use["Blacklist notifications #notifications#"]
-				)
-				if f.value == 1 then
-					player.set_player_as_modder(pid, flags)
-				end
-				if player.is_player_valid(pid) then
-					player.set_player_as_modder(pid, keks_custom_modder_flags["Blacklist"])
-				end
-			end
+settings.toggle["Blacklist"] = menu.add_feature(lang["Blacklist"], "value_str", u.modder_detection.id, function(f)
+	if f.on then
+		if essentials.listeners["player_join"]["blacklist"] then -- value_str creates a new thread if no thread is active. Meaning duplicate event listeners.
+			return
 		end
+		essentials.listeners["player_join"]["blacklist"] = event.add_event_listener("player_join", function(event)
+			local pid <const> = event.player
+			if player.is_player_valid(pid)
+			and player.player_id() ~= pid 
+			and essentials.is_not_friend(pid)
+			and essentials.how_many_people_named(pid) == 1
+			and utils.time_ms() > (settings.toggle["Log modders"].data.recently_logged[pid] or 0) 
+			and not player.is_player_modder(pid, keks_custom_modder_flags["Blacklist"]) then
+				local rid <const> = player.get_player_scid(pid)
+				local name = player.get_player_name(pid)
+				local ip <const> = player.get_player_ip(pid)
+				if #name < 1 then
+					name = math.random(-2^61, 2^62)
+				end
+				local tags, what_was_detected = essentials.search_for_match_and_get_line(paths.blacklist, {
+					string.format("/%i/", rid),
+					string.format("&%i&", ip),
+					string.format("§%s§", name)
+				})
+				if tags and what_was_detected then
+					what_was_detected = what_was_detected:gsub("[/&§]", "")
+					if what_was_detected:find("/", 1, true) then
+						what_was_detected = string.format("%s: %s", lang["Rid"], what_was_detected)
+					elseif what_was_detected:find("&", 1, true) then 
+						what_was_detected = string.format("%s: %s", lang["IP"], essentials.dec_to_ipv4(tonumber(what_was_detected)))
+					elseif what_was_detected:find("§", 1, true) then
+						what_was_detected = string.format("%s: %s", lang["Name"], what_was_detected)
+					end
+					tags = tags:match("<(.+)>") or ""
+					local flags <const> = essentials.modder_text_to_flags(tags)
+					essentials.msg(
+						string.format("%s %s%s %s %s%s", lang["Recognized"], name, lang["\nDetected:"], what_was_detected, lang["\nTags:\n"], tags), 
+						"orange", 
+						settings.in_use["Blacklist notifications #notifications#"]
+					)
+					if f.value == 1 then
+						player.set_player_as_modder(pid, flags)
+					end
+					if player.is_player_valid(pid) then
+						player.set_player_as_modder(pid, keks_custom_modder_flags["Blacklist"])
+					end
+				end
+			end
+		end)
+	else
+		event.remove_event_listener("player_join", essentials.listeners["player_join"]["blacklist"])
+		essentials.listeners["player_join"]["blacklist"] = nil
 	end
-
-	settings.toggle["Blacklist"] = menu.add_feature(lang["Blacklist"], "value_str", u.modder_detection.id, function(f)
-		if f.on then
-			if essentials.listeners["player_join"]["blacklist"] then -- value_str creates a new thread if no thread is active. Meaning duplicate event listeners.
-				return
-			end
-			for pid in essentials.players() do
-				check_if_recognize(f, pid)
-			end
-			essentials.listeners["player_join"]["blacklist"] = event.add_event_listener("player_join", function(event)
-				check_if_recognize(f, event.player)
-			end)
-		else
-			event.remove_event_listener("player_join", essentials.listeners["player_join"]["blacklist"])
-			essentials.listeners["player_join"]["blacklist"] = nil
-		end
-	end)
-	settings.valuei["Blacklist option"] = settings.toggle["Blacklist"]
-	settings.valuei["Blacklist option"]:set_str_data({
-		lang["Don't reapply marks"],
-		lang["Reapply marks"]
-	})
-end
+end)
+settings.valuei["Blacklist option"] = settings.toggle["Blacklist"]
+settings.valuei["Blacklist option"]:set_str_data({
+	lang["Don't reapply marks"],
+	lang["Reapply marks"]
+})
 
 do
 	local strings <const> = essentials.const({
@@ -1621,47 +1613,32 @@ settings.toggle["Kick any vote kickers"] = menu.add_feature(lang["Kick any vote 
 end)
 
 settings.toggle["Anti chat spoof"] = menu.add_feature(lang["Anti chat spoof & illegal msg"], "value_str", u.chat_stuff.id, function(f)
-	if f.on then
-		if essentials.listeners["chat"]["anti chat spoof"] then
-			return
+	local typing_tracker <const> = {}
+	essentials.listeners["chat"]["anti chat spoof"] = event.add_event_listener("chat", function(event)
+		system.yield(0)
+		local scid <const> = player.get_player_scid(event.player)
+		if not player.is_player_modder(event.player, -1)
+		and (not typing_tracker[scid] or type(typing_tracker[scid]) == "number" and utils.time_ms() > typing_tracker[scid]) then
+			essentials.msg(string.format("%s %s", player.get_player_name(event.player), lang["sent an illegal message. They are probably the victim of a chat spoof."]), "red", true, 7)
+			if f.value == 0 then
+				essentials.send_message(string.rep("\n", 30))
+			end
 		end
-		local typing_tracker <const> = {}
-		menu.create_thread(function()
-			while f.on do
-				system.yield(0)
-				for pid in essentials.players(true) do
-					local scid <const> = player.get_player_scid(pid)
-					if type(typing_tracker[scid]) == "number" then
-						if utils.time_ms() > typing_tracker[scid] then
-							typing_tracker[scid] = false
-						end
-					else
-						if not typing_tracker[scid] and globals.get_player_global("is_player_typing", pid) & 1 << 16 ~= 0 then
-							typing_tracker[scid] = true
-						elseif typing_tracker[scid] and globals.get_player_global("is_player_typing", pid) & 1 << 16 == 0 then
-							typing_tracker[scid] = utils.time_ms() + 350
-						end
-					end
-				end
+	end)
+	while f.on do
+		for pid in essentials.players(true) do
+			local scid <const> = player.get_player_scid(pid)
+			if (not typing_tracker[scid] or type(typing_tracker[scid]) == "number" and utils.time_ms() > typing_tracker[scid])
+			and globals.get_player_global("is_player_typing", pid) & 1 << 16 ~= 0 then
+				typing_tracker[scid] = true
+			elseif typing_tracker[scid] and globals.get_player_global("is_player_typing", pid) & 1 << 16 == 0 then
+				typing_tracker[scid] = essentials.get_time_plus_frametime(3)
 			end
-		end, nil)
-		essentials.listeners["chat"]["anti chat spoof"] = event.add_event_listener("chat", function(event)
-			local time = utils.time_ms() + 150
-			while time > utils.time_ms() and not typing_tracker[scid] do
-				system.yield(0)
-			end
-			if not typing_tracker[player.get_player_scid(event.player)] then
-				essentials.msg(string.format("%s %s", player.get_player_name(event.player), lang["sent an illegal message. They are probably the victim of a chat spoof."]), "red", true, 7)
-				if f.value == 0 then
-					essentials.send_message(string.rep("\n", 30))
-					typing_tracker[player.get_player_scid(event.player)] = false
-				end
-			end
-		end)
-	else
-		event.remove_event_listener("chat", listeners["chat"]["anti chat spoof"])
-		listeners["chat"]["anti chat spoof"] = nil
+		end
+		system.yield(0)
 	end
+	event.remove_event_listener("chat", essentials.listeners["chat"]["anti chat spoof"])
+	essentials.listeners["chat"]["anti chat spoof"] = nil
 end)
 settings.valuei["Anti chat spoof option"] = settings.toggle["Anti chat spoof"]
 settings.toggle["Anti chat spoof"]:set_str_data({
@@ -1729,7 +1706,7 @@ settings.toggle["Aim protection"] = menu.add_feature(lang["Aim protection"], "va
 							false, 
 							1000
 						)
-						system.yield(0)
+						system.yield(75)
 					end
 				elseif f.value == 3 then
 					globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 113), 1, 1, 1}, true)
@@ -2018,7 +1995,7 @@ local function vehicle_effect_standard(...)
 	local remove_players <const>, effect_callback <const>, dont_yield <const> = ...
 	local entities <const> = memoize.get_all_vehicles()
 	local Ped <const> = essentials.get_ped_closest_to_your_pov()
-	local time <const> = utils.time_ms() + 2000
+	local time <const> = utils.time_ms() + 3000
 	for Vehicle in essentials.entities(entities) do
 		if memoize.get_distance_between(Vehicle, Ped, nil, nil, 5) < 200
 		and not entity.is_entity_attached(Vehicle)
@@ -3663,12 +3640,14 @@ settings.toggle["Is player typing"] = menu.add_feature(lang["Notify when typing 
 	while f.on do
 		system.yield(0)
 		for pid in essentials.players() do
-			if globals.get_player_global("is_player_typing", pid) & 1 << 16 ~= 0 and not f.data[pid] then
-				essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is typing."]), "blue", true, 4)
-				f.data[pid] = true
-			elseif f.data[pid] and globals.get_player_global("is_player_typing", pid) & 1 << 16 == 0 then
-				essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is no longer typing."]), "orange", true, 4)
-				f.data[pid] = false
+			if not player.is_player_modder(pid, -1) then
+				if globals.get_player_global("is_player_typing", pid) & 1 << 16 ~= 0 and not f.data[pid] then
+					essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is typing."]), "blue", true, 4)
+					f.data[pid] = true
+				elseif f.data[pid] and globals.get_player_global("is_player_typing", pid) & 1 << 16 == 0 then
+					essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is no longer typing."]), "orange", true, 4)
+					f.data[pid] = false
+				end
 			end
 		end
 	end
@@ -5304,7 +5283,8 @@ do
 		lang[", flags:\n"],
 		lang["Kicking "],
 		"] Chat judge:",
-		"Reason: "
+		"Reason: ",
+		lang["sent an illegal message. They are probably the victim of a chat spoof."]
 	}
 	local i = 0
 	repeat
@@ -5341,6 +5321,7 @@ do
 			essentials.msg(lang["\"Log to file\" must be toggled on in 2take1 notification settings in order for this to work."], "red", true, 10)
 		end
 		local file <const>, strings = io.open(paths.home.."notification.log", "rb")
+		local keks_menu_str <const> = " (%["..lang["Kek's menu"]..") %d%.%d%.%d%.%d+%]"
 		local value
 		while f.on do
 			if f.value ~= value then
@@ -5352,6 +5333,7 @@ do
 					file:seek("end", -pos)
 					for line in file:lines("*l") do
 						if not filter(line, f) then
+							line = line:gsub(keks_menu_str, " %1]")
 							if line:find("~", 1, true) then
 								line = line:gsub("~", "\\~")
 							end
@@ -6184,7 +6166,7 @@ menu.add_player_feature(lang["Set bounty"], "action_value_str", u.script_stuff, 
 			return
 		end
 		settings.in_use["Bounty amount"] = input
-	elseif player.player_count() > 0 then
+	else
 		if globals.get_player_global("bounty_status", pid) == 1 then
 			essentials.msg(lang["This player already have a bounty set on them."], "red", true, 6)
 			return
@@ -6860,7 +6842,6 @@ player_feat_ids["Vehicle gun"] = menu.add_player_feature(lang["Vehicle gun"], "v
 				if streaming.is_model_a_vehicle(hash) then
 					local car <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
 						local distance <const> = kek_entity.get_longest_dimension(hash) + kek_entity.get_longest_dimension(entity.get_entity_model_hash(player.get_player_vehicle(pid))) + 6
-						print(distance)
 						local pos <const> = kek_entity.get_vector_in_front_of_me(distance)
 						return pos, player.get_player_heading(pid)
 					end)
@@ -7011,7 +6992,7 @@ menu.add_feature(lang["Clear entities"], "value_str", u.kek_utilities.id, functi
 					}
 					radius = settings.valuei["Ped clear distance"].value
 				end
-				if t[f.value] == lang["Objects"] or t[f.value] == lang["All"] and player.player_count() ~= 0 then
+				if t[f.value] == lang["Objects"] or t[f.value] == lang["All"] and player.player_count() > 0 then
 					entities.objects = {
 						entities 			   = object.get_all_objects(),
 						max_number_of_entities = nil,
@@ -7021,7 +7002,7 @@ menu.add_feature(lang["Clear entities"], "value_str", u.kek_utilities.id, functi
 					}
 					radius = settings.valuei["Object clear distance"].value
 				end
-				if t[f.value] == lang["Pickups"] or t[f.value] == lang["All"] and player.player_count() ~= 0 then
+				if t[f.value] == lang["Pickups"] or t[f.value] == lang["All"] and player.player_count() > 0 then
 					entities.pickups = {
 						entities 			   = object.get_all_pickups(),
 						max_number_of_entities = nil,

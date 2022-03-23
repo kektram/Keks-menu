@@ -392,13 +392,11 @@ for name, _ in pairs(script_event_hashes) do
 end
 
 function globals.get_global(global_name)
-	essentials.assert(player.player_count() > 0, "Tried to get a global in singleplayer.")
 	essentials.assert(globals.global_indices[global_name], "Invalid global name.", global_name)
 	return script.get_global_i(globals.global_indices[global_name])
 end
 
 function globals.get_player_global(global_name, pid, get_index)
-	essentials.assert(player.player_count() > 0, "Tried to get a player global in singleplayer.")
 	essentials.assert(globals.player_global_indices[global_name], "Invalid player global name.", global_name)
 	local pid_offset <const> = pid * globals.player_global_indices[global_name].pid_multiplier
 	if get_index == true then

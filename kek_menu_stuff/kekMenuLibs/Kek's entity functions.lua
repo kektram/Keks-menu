@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local kek_entity <const> = {version = "1.2.3"}
+local kek_entity <const> = {version = "1.2.4"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -787,6 +787,14 @@ do
 		xenon_lights = 22
 	})
 
+	local toggle_vehicle_mods_map <const> = essentials.const((function()
+		local t <const> = {}
+		for name, mod in pairs(toggle_vehicle_mods) do
+			t[mod] = true
+		end
+		return t
+	end)())
+
 	local performance_mods <const> = essentials.const({
 		engine = 11,
 		brakes = 12,
@@ -810,12 +818,15 @@ do
 	function kek_entity.max_car(...)
 		local Vehicle <const>,
 		only_performance_upgrades <const>,
-		preserve_velocity <const> = ...
+		dont_freeze <const> = ... -- The freezing nullifies rotation velocity, so this is useful
 		essentials.assert(not entity.is_an_entity(Vehicle) or entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		if not kek_entity.get_control_of_entity(Vehicle) then
 			return
 		end
 		local velocity <const> = entity.get_entity_velocity(Vehicle)
+		if not dont_freeze and velocity ~= memoize.v3() then -- get_entity_velocity isn't that reliable, completely unreliable at long distances
+			entity.freeze_entity(Vehicle, true) -- Not freezing can cause vehicles to be slung into the air
+		end
 		vehicle.set_vehicle_mod_kit_type(Vehicle, 0)
 		if not only_performance_upgrades then
 			if type(settings.in_use["Plate vehicle text"]) == "string" then -- Crashes if plate text is nil
@@ -833,7 +844,7 @@ do
 				end
 			end
 			for i = 0, 75 do
-				if vehicle.get_num_vehicle_mods(Vehicle, i) > 0 then
+				if not toggle_vehicle_mods_map[i] and vehicle.get_num_vehicle_mods(Vehicle, i) > 0 then
 					if i ~= enums.vehicle_mods.VMT_LIVERY_MOD or math.random(1, 3) == 1 then
 						vehicle.set_vehicle_mod(Vehicle, i, math.random(0, vehicle.get_num_vehicle_mods(Vehicle, i) - 1))
 					else
@@ -858,7 +869,7 @@ do
 			vehicle.set_vehicle_custom_primary_colour(Vehicle, random_rgb())
 			vehicle.set_vehicle_custom_secondary_colour(Vehicle, random_rgb())
 			if not streaming.is_model_a_heli(entity.get_entity_model_hash(Vehicle)) then -- Prevent removal of heli rotors
-				for i = 1, 9 do
+				for i = 2, 9 do -- Extra 1 causes vehicles to get teleported around
 					if vehicle.does_extra_exist(Vehicle, i) then
 						vehicle.set_vehicle_extra(Vehicle, i, math.random(0, 1) == 0)
 					end
@@ -871,14 +882,17 @@ do
 		end
 		if vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.VMT_ROOF) == 1 then
 		--[[ 
-			Sets best vehicle weapon, not guaranteed to work for every vehicle. 
-			Main intention is for oppressor mk1 & mk2.
+			Sets best vehicle weapon, not confirmed to work for every vehicle. 
 		--]]
 			vehicle.set_vehicle_mod(Vehicle, enums.vehicle_mods.VMT_ROOF, 0)
 		else
 			vehicle.set_vehicle_mod(Vehicle, enums.vehicle_mods.VMT_ROOF, 1)
 		end
-		if preserve_velocity and velocity ~= memoize.v3() then
+		if velocity ~= memoize.v3() then
+			if not dont_freeze then
+				entity.freeze_entity(Vehicle, false)
+				rope.activate_physics(Vehicle)
+			end
 			entity.set_entity_velocity(Vehicle, velocity)
 		end
 		return

@@ -62,6 +62,10 @@ function essentials.assert(bool, msg, ...)
 	end
 end
 
+function essentials.get_time_plus_frametime(num_of_frames)
+	return utils.time_ms() + (gameplay.get_frame_time() * 1000 * num_of_frames)
+end
+
 function essentials.table_to_array(Table)
 	Table[0] = Table[1]
 	table.remove(Table, 1)
