@@ -7,6 +7,43 @@ end
 
 __kek_menu_version = "0.4.7.0"
 
+do -- Prevents crashes from messages, primarily error messages, when they contain invalid utf8 bytes.
+	local function check_msg_valid(message) 
+	--[[
+		Attempting to use https://en.wikipedia.org/wiki/Mao_Zedong as a message, getting the string via utils.from_clipboard, causes crash.
+		Most concerning would be grabbing data from files. There could be all kinds of corruption.
+		This will apply to all scripts loaded.
+		If these wrappers cause problems with your script, please report it.
+	--]]
+		if not utf8.len(message) then
+			message = message:gsub("[\0-\x7F\xC2-\xFD][\x80-\xBF]+", "")
+			message = message:gsub("[\x80-\xFF]", "")
+		end
+		return message
+	end
+
+	local newindex <const> = getmetatable(menu).__newindex
+	local original <const> = menu.notify
+	getmetatable(menu).__newindex = nil
+	menu.notify = function(message, title, seconds, color)
+		original(check_msg_valid(message), title, seconds, color)
+	end
+	getmetatable(menu).__newindex = newindex
+
+	local original <const> = error
+	error = function(message, level)
+		original(check_msg_valid(message).." if you see this error, check the full traceback. Kek's menu wraps the error, assert and notify function to fix certain crashes.", level)
+	end
+
+	local original <const> = assert
+	assert = function(condition, message)
+		if not condition then -- Done like this to not have to concatenate unless needed
+			print("If you see this error, check the full traceback. Kek's menu wraps the error, assert and notify function to fix certain crashes.")
+		end
+		return original(condition, check_msg_valid(message))
+	end
+end
+
 local paths <const> = {
 	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 }
@@ -79,7 +116,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
 		["Menyoo spawner"] = "2.2.3",
-		["Kek's entity functions"] = "1.2.4",
+		["Kek's entity functions"] = "1.2.5",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.2",
 		["Admin mapper"] = "1.0.4",
@@ -1613,26 +1650,39 @@ settings.toggle["Kick any vote kickers"] = menu.add_feature(lang["Kick any vote 
 end)
 
 settings.toggle["Anti chat spoof"] = menu.add_feature(lang["Anti chat spoof & illegal msg"], "value_str", u.chat_stuff.id, function(f)
-	local typing_tracker <const> = {}
+	local typing_tracker <const>, is_detection_on = {}, false
 	essentials.listeners["chat"]["anti chat spoof"] = event.add_event_listener("chat", function(event)
 		system.yield(0)
-		local scid <const> = player.get_player_scid(event.player)
-		if not player.is_player_modder(event.player, -1)
-		and (not typing_tracker[scid] or type(typing_tracker[scid]) == "number" and utils.time_ms() > typing_tracker[scid]) then
-			essentials.msg(string.format("%s %s", player.get_player_name(event.player), lang["sent an illegal message. They are probably the victim of a chat spoof."]), "red", true, 7)
-			if f.value == 0 then
-				essentials.send_message(string.rep("\n", 30))
+		if player.is_player_valid(event.player) then
+			local scid <const> = player.get_player_scid(event.player)
+			if is_detection_on
+			and not player.is_player_modder(event.player, -1)
+			and utils.time_ms() > essentials.new_session_timer
+			and (not typing_tracker[scid] or type(typing_tracker[scid]) == "number" and utils.time_ms() > typing_tracker[scid]) then
+				essentials.msg(string.format("%s %s", player.get_player_name(event.player), lang["sent an illegal message. They are probably the victim of a chat spoof."]), "red", true, 7)
+				if f.value == 0 then
+					essentials.send_message(string.rep("\n", 30))
+				end
 			end
 		end
 	end)
 	while f.on do
+		if essentials.new_session_timer > utils.time_ms() then
+			is_detection_on = false 
+			--[[ 
+				The game doesn't update the global until you are completely loaded into the session.
+				This will make sure detections can only occur while at least one player has been confirmed to type.
+			--]]
+		end
 		for pid in essentials.players(true) do
 			local scid <const> = player.get_player_scid(pid)
 			if (not typing_tracker[scid] or type(typing_tracker[scid]) == "number" and utils.time_ms() > typing_tracker[scid])
 			and globals.get_player_global("is_player_typing", pid) & 1 << 16 ~= 0 then
 				typing_tracker[scid] = true
+				is_detection_on = true
 			elseif typing_tracker[scid] and globals.get_player_global("is_player_typing", pid) & 1 << 16 == 0 then
 				typing_tracker[scid] = essentials.get_time_plus_frametime(3)
+				is_detection_on = true
 			end
 		end
 		system.yield(0)
@@ -4284,10 +4334,12 @@ do
 		local f <const> = ...
 		local value <const> = f.value
 		local spam_speed <const> = settings.valuei["Spam speed"].value
-		local time <const> = utils.time_ms() + settings.valuei["Spam speed"].value
-		repeat
-			system.yield(0)
-		until essentials.round(utils.time_ms() / gameplay.get_frame_time() * 1000) >= essentials.round(time / gameplay.get_frame_time() * 1000) or not f.on or value ~= f.value or spam_speed ~= settings.valuei["Spam speed"].value
+		if spam_speed > 100 then -- essentials.send_message yields for 100ms guaranteed
+			local time <const> = (utils.time_ms() + settings.valuei["Spam speed"].value) - 100 -- 100 compensates for the time waited in essentials.send_message.
+			repeat
+				system.yield(0)
+			until essentials.round(utils.time_ms() / gameplay.get_frame_time() * 1000) >= essentials.round(time / gameplay.get_frame_time() * 1000) or not f.on or value ~= f.value or spam_speed ~= settings.valuei["Spam speed"].value
+		end
 	end})
 	feat:set_str_data({
 		lang["Spam text"],
@@ -7201,7 +7253,7 @@ do
 			until not ents[i2] or
 			(u.entity_manager_toggle.on
 			and entity.is_an_entity(ents[i2])
-			and kek_entity.get_parent_of_attachment(ents[i2]) ~= player.get_player_vehicle(player.player_id())
+			and not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(ents[i2]), player.get_player_vehicle(player.player_id()))
 			and (not entity.is_entity_a_ped(ents[i2]) or not ped.is_ped_a_player(ents[i2]))
 			and parents_in_use[i][ents[i2]].name:find(filters[i])
 			and kek_entity.get_control_of_entity(ents[i2], 0))
@@ -8208,7 +8260,7 @@ settings:initialize(paths.home.."scripts\\kek_menu_stuff\\keksettings.ini")
 essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", function()
 	kek_entity.entity_manager:update()
 	for _, Entity in essentials.entities(essentials.deep_copy(kek_entity.entity_manager.entities)) do
-		if network.has_control_of_entity(Entity) and kek_entity.get_parent_of_attachment(Entity) ~= player.get_player_vehicle(player.player_id()) then
+		if network.has_control_of_entity(Entity) and not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(Entity), player.get_player_vehicle(player.player_id())) then
 			ui.remove_blip(ui.get_blip_from_entity(Entity))
 			if entity.is_entity_attached(Entity) then
 				entity.detach_entity(Entity)

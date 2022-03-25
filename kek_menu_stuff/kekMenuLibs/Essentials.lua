@@ -58,7 +58,7 @@ function essentials.assert(bool, msg, ...)
 		print(debug.traceback(msg, 2))
 		menu.notify(debug.traceback(msg, 2), "Error", 12, 0xff0000ff)
 		essentials.log_error(msg)
-		error(debug.traceback(msg, 2))
+		error(msg, 2)
 	end
 end
 
@@ -66,7 +66,7 @@ function essentials.get_time_plus_frametime(num_of_frames)
 	return utils.time_ms() + (gameplay.get_frame_time() * 1000 * num_of_frames)
 end
 
-function essentials.table_to_array(Table)
+function essentials.table_to_array(Table) -- Useful when dealing with .value properties of features
 	Table[0] = Table[1]
 	table.remove(Table, 1)
 	return Table
@@ -998,29 +998,26 @@ function essentials.kick_player(pid)
 end
 
 do
-	local last_message_sent = 0
-	local number_of_active_messages = 0
+	local msg_queue <const> = {}
+	local id = 0
 	function essentials.send_message(...)
 		local text, team <const> = ...
-		if number_of_active_messages > 30 then
-			return
+		if not utf8.len(text) then -- split_string requires valid utf8
+			text = text:gsub("[\0-\x7F\xC2-\xFD][\x80-\xBF]+", "")
+			text = text:gsub("[\x80-\xFF]", "")
 		end
-		essentials.assert(type(text) == "string", "Tried to send a chat message with a non string value.", text, type(text))
-		number_of_active_messages = number_of_active_messages + 1
-		local time <const> = utils.time_ms() + 2000
-		repeat
+		local local_id = id + 1
+		id = local_id
+		msg_queue[#msg_queue + 1] = local_id
+		while msg_queue[1] ~= local_id do
 			system.yield(0)
-		until utils.time_ms() > last_message_sent or utils.time_ms() > time
-		if time > utils.time_ms() then
-			local time <const> = utils.time_ms() + 5000
-			repeat
-				network.send_chat_message(text:sub(1, 255), team == true)
-				text = text:sub(256, -1)
-				system.yield(150)
-			until #text == 0 or utils.time_ms() > time
-			last_message_sent = utils.time_ms() + 150
 		end
-		number_of_active_messages = number_of_active_messages - 1
+		local strings <const> = essentials.split_string(text, 255)
+		for i = 1, math.min(#strings, 10) do
+			network.send_chat_message(strings[i], team == true)
+			system.yield(100)
+		end
+		table.remove(msg_queue, 1)
 	end
 end
 

@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local kek_entity <const> = {version = "1.2.4"}
+local kek_entity <const> = {version = "1.2.5"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -68,7 +68,7 @@ do
 	function kek_entity.entity_manager:clear()
 		self:update()
 		for _, Entity in essentials.entities(essentials.deep_copy(self.entities)) do
-			if kek_entity.get_parent_of_attachment(Entity) ~= player.get_player_vehicle(player.player_id()) and kek_entity.get_control_of_entity(Entity, 200) then
+			if not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(Entity), player.get_player_vehicle(player.player_id())) and kek_entity.get_control_of_entity(Entity, 200) then
 				kek_entity.hard_remove_entity_and_its_attachments(Entity)
 			end
 		end
@@ -378,6 +378,18 @@ function kek_entity.get_all_attached_entities(Entity, entities)
 	return entities
 end
 
+function kek_entity.is_vehicle_an_attachment_to(parent, child)
+	if parent == child then
+		return true
+	end
+	local attachments <const> = kek_entity.get_all_attached_entities(parent)
+	for i = 1, #attachments do
+		if attachments[i] == child then
+			return true
+		end
+	end
+end
+
 function kek_entity.get_parent_of_attachment(...)
 	local Entity <const> = ...
 	if entity.is_entity_attached(Entity) then
@@ -401,11 +413,10 @@ end
 function kek_entity.clear_entities(...)
 	local table_of_entities <const>, time_to_wait_for_control = ...
 	time_to_wait_for_control = time_to_wait_for_control or 350
-	local timeout <const> = utils.time_ms() + 10000 -- Worst case scenario: modder making control impossible, causing every request to take 250ms. Timeout will set req timer to 0ms.
+	local timeout <const> = utils.time_ms() + 10000 -- Worst case scenario: modder making control impossible, causing every request to take 350ms. Timeout will set req timer to 0ms.
 	for i2 = 1, 2 do
 		local count = 1
 		for Entity, i in essentials.entities(table_of_entities) do
-			Entity = math.tointeger(Entity) and entity.is_an_entity(Entity) and Entity or math.tointeger(i) or 0
 			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
 			if entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)) then
 				if i2 == 1 and not network.has_control_of_entity(Entity) then 

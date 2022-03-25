@@ -398,6 +398,7 @@ end
 
 function globals.get_player_global(global_name, pid, get_index)
 	essentials.assert(globals.player_global_indices[global_name], "Invalid player global name.", global_name)
+	essentials.assert(pid >= 0 and pid <= 31, "Invalid pid.", global_name, pid) -- Invalid pids can cause access violation crash
 	local pid_offset <const> = pid * globals.player_global_indices[global_name].pid_multiplier
 	if get_index == true then
 		return globals.player_global_indices[global_name].offset + pid_offset
