@@ -8291,8 +8291,3 @@ essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", fun
 end)
 
 essentials.msg(lang["Successfully loaded Kek's menu."], "green", true)
-
-menu.add_feature("test", "action", 0, function(f)
-	local str = string.rep("qq漢s", 1000).."Q"
-	essentials.send_message(str)
-end)
