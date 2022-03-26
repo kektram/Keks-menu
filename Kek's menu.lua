@@ -104,7 +104,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Language"] = "1.0.0",
 		["Settings"] = "1.0.1",
-		["Essentials"] = "1.4.5",
+		["Essentials"] = "1.4.6",
 		["Memoize"] = "1.0.0",
 		["Enums"] = "1.0.2",
 		["Vehicle mapper"] = "1.3.6", 
@@ -1650,15 +1650,16 @@ settings.toggle["Kick any vote kickers"] = menu.add_feature(lang["Kick any vote 
 end)
 
 settings.toggle["Anti chat spoof"] = menu.add_feature(lang["Anti chat spoof & illegal msg"], "value_str", u.chat_stuff.id, function(f)
-	local typing_tracker <const>, is_detection_on = {}, false
-	essentials.listeners["chat"]["anti chat spoof"] = event.add_event_listener("chat", function(event)
+	local tracker <const>, is_detection_on = {}, false
+	essentials.listeners["chat"]["anti chat spoof"] = essentials.add_chat_event_listener(function(event)
 		system.yield(0)
+		system.yield(0) -- So that the typing updater has updated first
 		if player.is_player_valid(event.player) then
 			local scid <const> = player.get_player_scid(event.player)
 			if is_detection_on
 			and not player.is_player_modder(event.player, -1)
 			and utils.time_ms() > essentials.new_session_timer
-			and (not typing_tracker[scid] or type(typing_tracker[scid]) == "number" and utils.time_ms() > typing_tracker[scid]) then
+			and (not tracker[scid] or (type(tracker[scid]) == "number" and utils.time_ms() > tracker[scid])) then
 				essentials.msg(string.format("%s %s", player.get_player_name(event.player), lang["sent an illegal message. They are probably the victim of a chat spoof."]), "red", true, 7)
 				if f.value == 0 then
 					essentials.send_message(string.rep("\n", 30))
@@ -1676,12 +1677,12 @@ settings.toggle["Anti chat spoof"] = menu.add_feature(lang["Anti chat spoof & il
 		end
 		for pid in essentials.players(true) do
 			local scid <const> = player.get_player_scid(pid)
-			if (not typing_tracker[scid] or type(typing_tracker[scid]) == "number" and utils.time_ms() > typing_tracker[scid])
+			if (not tracker[scid] or (type(tracker[scid]) == "number" and utils.time_ms() > tracker[scid]))
 			and globals.get_player_global("is_player_typing", pid) & 1 << 16 ~= 0 then
-				typing_tracker[scid] = true
+				tracker[scid] = true
 				is_detection_on = true
-			elseif typing_tracker[scid] and globals.get_player_global("is_player_typing", pid) & 1 << 16 == 0 then
-				typing_tracker[scid] = essentials.get_time_plus_frametime(3)
+			elseif tracker[scid] == true and globals.get_player_global("is_player_typing", pid) & 1 << 16 == 0 then
+				tracker[scid] = essentials.get_time_plus_frametime(4)
 				is_detection_on = true
 			end
 		end
@@ -3786,7 +3787,7 @@ end)
 
 settings.toggle["Chat logger"] = menu.add_feature(lang["Chat logger"], "toggle", u.chat_stuff.id, function(f)
 	if f.on then
-		essentials.listeners["chat"]["logger"] = event.add_event_listener("chat", function(event)
+		essentials.listeners["chat"]["logger"] = essentials.add_chat_event_listener(function(event)
 			if player.is_player_valid(event.player)
 			and (not f.data[player.get_player_scid(event.player)] or utils.time_ms() + 10000 > f.data[player.get_player_scid(event.player)]) then
 				local name <const> = player.get_player_name(event.player)..string.rep("\32", 16 - (utf8.len(player.get_player_name(event.player):sub(1, 16)) or #player.get_player_name(event.player):sub(1, 16)))
@@ -3816,7 +3817,7 @@ settings.toggle["Anti chat spam"] = menu.add_feature(lang["Anti chat spam"], "va
 			return
 		end
 		local tracker <const> = {}
-		essentials.listeners["chat"]["anti spam"] = event.add_event_listener("chat", function(event)
+		essentials.listeners["chat"]["anti spam"] = essentials.add_chat_event_listener(function(event)
 			local scid <const> = player.get_player_scid(event.player)
 			if player.is_player_valid(event.player) and event.player ~= player.player_id() and essentials.is_not_friend(event.player) then
 				local msg_increment 	 <const> = (utf8.len(event.body) or #event.body) + 85 -- People may send a message that contains invalid utf8 seq, causing utf8.len to return nil.
@@ -4154,7 +4155,7 @@ do
 				["[BLACKLIST]"] = "",
 				["[JOIN TIMEOUT]"] = ""
 			}
-			essentials.listeners["chat"]["judger"] = event.add_event_listener("chat", function(event)
+			essentials.listeners["chat"]["judger"] = essentials.add_chat_event_listener(function(event)
 				if player.is_player_valid(event.player)
 				and event.player ~= player.player_id()
 				and (not f.data.tracker[player.get_player_scid(event.player)] or utils.time_ms() > f.data.tracker[player.get_player_scid(event.player)])
@@ -4374,7 +4375,7 @@ settings.toggle["You can't be targeted"] = menu.add_feature(lang["You can't be t
 
 settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "toggle", u.chat_commands.id, function(f)
 	if f.on then
-		essentials.listeners["chat"]["commands"] = event.add_event_listener("chat", function(event)
+		essentials.listeners["chat"]["commands"] = essentials.add_chat_event_listener(function(event)
 			if player.is_player_valid(event.player) and f.data.command_strings[(event.body:match("^%p(%a+)") or ""):lower()] then
 				if utils.time_ms() < (f.data.tracker[event.player] or 0) then
 					essentials.send_message("[Chat commands]: Attempting too many commands. Max 1 command every second.", player.player_id() == event.player)
@@ -4832,7 +4833,7 @@ settings.valuei["Echo delay"].max, settings.valuei["Echo delay"].min, settings.v
 
 settings.toggle["Echo chat"] = menu.add_feature(lang["Echo chat"], "toggle", u.chat_spammer.id, function(f)
 	if f.on then
-		essentials.listeners["chat"]["echo"] = event.add_event_listener("chat", function(event)
+		essentials.listeners["chat"]["echo"] = essentials.add_chat_event_listener(function(event)
 			if player.is_player_valid(event.player) 
 			and player.player_id() ~= event.player 
 			and essentials.is_not_friend(event.player) then
@@ -4996,7 +4997,7 @@ do
 					return
 				end
 			end
-			essentials.listeners["chat"]["bot"] = event.add_event_listener("chat", function(event)
+			essentials.listeners["chat"]["bot"] = essentials.add_chat_event_listener(function(event)
 				if player.is_player_valid(event.player)
 				and player.player_id() ~= event.player 
 				and math.random(1, 100) <= settings.valuei["Chance to reply"].value then
@@ -5090,6 +5091,9 @@ settings.toggle["Clever bot"] = menu.add_feature(lang["Log chat & use as chatbot
 			local index
 			for line in io.lines(paths.clever_bot) do
 				if line:find("%S%s*§|§") then
+					if mapped_messages[index] and #mapped_messages[index] == 0 then
+						mapped_messages[index] = nil
+					end
 					index = line:match("(.*)§|§")
 					concat_str[#concat_str + 1] = line
 					mapped_messages[index] = {index = #concat_str}
@@ -5100,7 +5104,7 @@ settings.toggle["Clever bot"] = menu.add_feature(lang["Log chat & use as chatbot
 			end
 		end
 		local last_response
-		essentials.listeners["chat"]["Clever bot"] = event.add_event_listener("chat", function(event)
+		essentials.listeners["chat"]["Clever bot"] = essentials.add_chat_event_listener(function(event)
 			if player.is_player_valid(event.player) and (not f.data[player.get_player_scid(event.player)] or utils.time_ms() > f.data[player.get_player_scid(event.player)]) then
 				f.data[player.get_player_scid(event.player)] = utils.time_ms() + 1000
 				if math.random(1, 100) <= settings.valuei["Chance to reply"].value and mapped_messages[event.body] and event.player ~= player.player_id() then
@@ -8287,3 +8291,8 @@ essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", fun
 end)
 
 essentials.msg(lang["Successfully loaded Kek's menu."], "green", true)
+
+menu.add_feature("test", "action", 0, function(f)
+	local str = string.rep("qq漢s", 1000).."Q"
+	essentials.send_message(str)
+end)

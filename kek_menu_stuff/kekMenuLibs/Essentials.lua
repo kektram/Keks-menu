@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.5"}
+local essentials <const> = {version = "1.4.6"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -66,19 +66,23 @@ function essentials.get_time_plus_frametime(num_of_frames)
 	return utils.time_ms() + (gameplay.get_frame_time() * 1000 * num_of_frames)
 end
 
+function essentials.add_chat_event_listener(callback) -- Fixes crash if someone spams chat
+	local tracker <const> = {}
+	return event.add_event_listener("chat", function(event)
+		if not tracker[event.player] then
+			tracker[event.player] = true
+			callback(event)
+			tracker[event.player] = false
+		end
+	end)
+end
+
 function essentials.table_to_array(Table) -- Useful when dealing with .value properties of features
 	Table[0] = Table[1]
 	table.remove(Table, 1)
 	return Table
 end
 
---[[
-	Why would you store numbers this way?
-	It's far cheaper. A table with 3 (not enumerated) items will take up roughly 112 bytes. [https://wowwiki-archive.fandom.com/wiki/Lua_object_memory_sizes]
-	Packing numbers can save over 100 bytes per table. One 64 bit number takes up 8 bytes.
-	Now, accessing values from these packed numbers will be more expensive. 17x slower. However, we're talking 9 million accesses in 1 second vs 153 million.
-	The spared memory far outweighs the lost performance. The packing of numbers is about 60% slower than creating a table. [9.4 million in one sec vs 4.3 million]
---]]
 do 
 	local sign_bit_x <const> = 1 << 62
 	local sign_bit_y <const> = 1 << 61
@@ -290,12 +294,23 @@ end
 
 function essentials.split_string(str, size)
 	local strings <const> = {}
-	local pos = 1
-	local len <const> = utf8.len(str)
+	local pos = 0
+	local len <const> = #str
+	local found_no_more_unicode = false
 	repeat
-		strings[#strings + 1] = essentials.sub_unicode(str, pos, math.min(len, pos + size))
-		pos = pos + size + 1
-	until pos > len
+		local start_pos, end_pos
+		if not found_no_more_unicode then
+			start_pos, end_pos = str:find("[\0-\x7F\xC2-\xFD][\x80-\xBF]+", math.max(1, (pos + size) - 6))
+			if not start_pos then
+				found_no_more_unicode = true
+			end
+		end
+		strings[#strings + 1] = str:sub(
+			pos + 1, 
+			pos + (end_pos and end_pos < size and end_pos or size)
+		)
+		pos = pos + #strings[#strings]
+	until pos >= len
 	return strings
 end
 

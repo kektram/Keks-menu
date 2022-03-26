@@ -8,8 +8,9 @@
 > "Turn all on or off" in auto kicker & modder log flag settings
 > !votekick chat command
 
-### Fixed
+### Bug fixes
 > Max & repair nearby cars
+> Bug where "max nearby vehicles" teleported / slung vehicles around
 > Bugs affecting all vehicle player features
 > Error in "Log chat & add to bot" & "vehicle blacklist"
 > Give flamethrower not teleporting you back if it failed to get control
@@ -18,6 +19,11 @@
 > Vehicle fly tilting vehicle sideways when disabling it while slung forward
 > Clear owned entities, delete all entities (entity manager) & clear entities on reset lua state, clearing your vehicle if it has any attachments
 > "Block passive" on individual players not unblocking when toggled off
+> Blacklist recognizing people you had never met prior to the current session when loading the script
+> Crashes related to error handling & notifications, when the message contains invalid utf8
+> Chat spammer spamming at set spam speed + 150ms. Now it's set spam speed only. (2.5x faster spamming at lowest setting.)
+> Player history; "chat log" error
+> Fixed modders being able to crash you by spamming the chat (if u had all chat features toggled on. This is now safe. Now max 1 running chat thread per player, per chat feature)
 
 ### Entity manager
 > Removed "Follow entity"
@@ -50,4 +56,5 @@
 > Illegal message example: A chat spammer
 > It will send a message with a bunch of newline characters to make their illegal message disappear
 > Option to only detect if they sent an illegal message and not retaliate
+> Certain menues messes with how messages are sent & therefore detects all messages they send
 ```
