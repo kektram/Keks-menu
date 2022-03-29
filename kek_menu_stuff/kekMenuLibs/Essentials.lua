@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.6"}
+local essentials <const> = {version = "1.4.7"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -292,25 +292,31 @@ function essentials.make_string_case_insensitive(str)
 	return str
 end
 
-function essentials.split_string(str, size)
+function essentials.split_string(str, size) 
+--[[
+	Strings may be up to 4 bytes smaller than requested size if unicode is present. (alternative would be up to 3 bytes bigger, which cause more problems)
+	This happens if it finds a unicode character that needs more space than requested size. (at the end of the string)
+	Performance: split a 46k byte string (with chinese and ascii characters) by size 255 9,000 times in one second. (110 micro seconds per iteration). About 45% faster if no unicode.
+--]]
 	local strings <const> = {}
 	local pos = 0
-	local len <const> = #str
 	local found_no_more_unicode = false
+	local start_pos, end_pos = 0, 0
 	repeat
-		local start_pos, end_pos
-		if not found_no_more_unicode then
-			start_pos, end_pos = str:find("[\0-\x7F\xC2-\xFD][\x80-\xBF]+", math.max(1, (pos + size) - 6))
+		if not found_no_more_unicode and pos + size > end_pos then -- Would be extremely expensive to do useless searches
+			start_pos, end_pos = str:find("[\0-\x7F\xC2-\xFD][\x80-\xBF]+", pos + size > 4 and (pos + size) - 4 or 1)
 			if not start_pos then
-				found_no_more_unicode = true
+				found_no_more_unicode, end_pos, start_pos = true, 0, 0
 			end
 		end
 		strings[#strings + 1] = str:sub(
 			pos + 1, 
-			pos + (end_pos and end_pos < size and end_pos or size)
+			end_pos >= pos + size - 4 and end_pos <= pos + size and end_pos -- Found unicode char that fits in the requested size?
+			or start_pos >= pos + size - 4 and start_pos <= pos + size and start_pos - 1 -- Found uni char, but it doesn't fit the requested size?
+			or pos + size -- No unicode interference.
 		)
 		pos = pos + #strings[#strings]
-	until pos >= len
+	until pos >= #str
 	return strings
 end
 
@@ -1028,7 +1034,7 @@ do
 			system.yield(0)
 		end
 		local strings <const> = essentials.split_string(text, 255)
-		for i = 1, math.min(#strings, 10) do
+		for i = 1, math.min(#strings, 50) do
 			network.send_chat_message(strings[i], team == true)
 			system.yield(100)
 		end

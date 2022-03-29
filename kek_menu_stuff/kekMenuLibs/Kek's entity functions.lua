@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local kek_entity <const> = {version = "1.2.5"}
+local kek_entity <const> = {version = "1.2.6"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -136,7 +136,7 @@ function kek_entity.get_random_offset(...)
 		Any combination of arguments that could cause infinite loop will raise error.
 		The random range is required to be reasonable and will raise error if it's too small.
 	--]]
-		offset = memoize.v3(
+		offset = v3(
 			math.random(min_random_range, max_random_range),
 			math.random(min_random_range, max_random_range), 
 			0
@@ -560,7 +560,7 @@ function kek_entity.get_vector_relative_to_entity(...)
 		end
 		return pos
 	else
-		return memoize.v3()
+		return v3()
 	end
 end
 

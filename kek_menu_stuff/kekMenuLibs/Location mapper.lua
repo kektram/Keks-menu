@@ -7671,7 +7671,7 @@ end
 function location_mapper.get_closest_vector_to_pos(...)
 	local pos <const> = ...
 	local distance = 99999
-	local pos2 = memoize.v3()
+	local pos2 = v3()
 	for i = 1, #gta5_map, 4 do
 		local temp <const> = pos:magnitude(gta5_map[i])
 		if temp < distance then

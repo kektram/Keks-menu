@@ -104,7 +104,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Language"] = "1.0.0",
 		["Settings"] = "1.0.1",
-		["Essentials"] = "1.4.6",
+		["Essentials"] = "1.4.7",
 		["Memoize"] = "1.0.0",
 		["Enums"] = "1.0.2",
 		["Vehicle mapper"] = "1.3.6", 
@@ -116,7 +116,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
 		["Menyoo spawner"] = "2.2.3",
-		["Kek's entity functions"] = "1.2.5",
+		["Kek's entity functions"] = "1.2.6",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.2",
 		["Admin mapper"] = "1.0.4",
@@ -1652,8 +1652,12 @@ end)
 settings.toggle["Anti chat spoof"] = menu.add_feature(lang["Anti chat spoof & illegal msg"], "value_str", u.chat_stuff.id, function(f)
 	local tracker <const>, is_detection_on = {}, false
 	essentials.listeners["chat"]["anti chat spoof"] = essentials.add_chat_event_listener(function(event)
-		system.yield(0)
-		system.yield(0) -- So that the typing updater has updated first
+		for i = 1, 3 do
+			if type(tracker[scid]) == "number" then
+				break
+			end
+			system.yield(0)
+		end
 		if player.is_player_valid(event.player) then
 			local scid <const> = player.get_player_scid(event.player)
 			if is_detection_on
@@ -1682,7 +1686,7 @@ settings.toggle["Anti chat spoof"] = menu.add_feature(lang["Anti chat spoof & il
 				tracker[scid] = true
 				is_detection_on = true
 			elseif tracker[scid] == true and globals.get_player_global("is_player_typing", pid) & 1 << 16 == 0 then
-				tracker[scid] = essentials.get_time_plus_frametime(4)
+				tracker[scid] = essentials.get_time_plus_frametime(5)
 				is_detection_on = true
 			end
 		end
