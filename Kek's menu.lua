@@ -6345,12 +6345,13 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 		end
 		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), player.player_id() ~= pid, false, f)
 	elseif f.value == 2 then
-		kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), player.player_id() ~= pid, true)
-		globals.disable_vehicle(pid)
-		system.yield(1500)
-		for i = 1, 20 do
-			system.yield(0)
-			essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(pid))
+		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), player.player_id() ~= pid, true) then
+			globals.disable_vehicle(pid)
+			system.yield(1500)
+			for i = 1, 20 do
+				system.yield(0)
+				essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(pid))
+			end
 		end
 	elseif f.value == 3 then
 		kek_entity.teleport_player_and_vehicle_to_position(pid, v3(math.random(20000, 25000), math.random(-25000, -20000), math.random(-2400, 2400)), player.player_id() ~= pid, true)
