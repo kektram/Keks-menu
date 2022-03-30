@@ -659,7 +659,7 @@ for _, properties in pairs({
 	}, 
 	{
 		setting_name = "Chat judge reaction", 
-		setting = 2
+		setting = 1
 	}, 
 	{
 		setting_name = "User vehicle", 
@@ -7579,7 +7579,11 @@ do
 					end)
 					teleport_in_front_of_player[i] = menu.add_feature(lang["Teleport in front of player"], "action_value_str", parent.id, function(f)
 						if player.is_player_valid(f.data[f.value + 1]) then
-							kek_entity.teleport(parent.data.entity, kek_entity.vehicle_get_vec_rel_to_dims(entity.get_entity_model_hash(parent.data.entity), player.get_player_ped(f.data[f.value + 1])))
+							kek_entity.teleport(
+								parent.data.entity, 
+								entity.is_entity_a_vehicle(parent.data.entity) and kek_entity.vehicle_get_vec_rel_to_dims(entity.get_entity_model_hash(parent.data.entity), player.get_player_ped(f.data[f.value + 1]))
+								or kek_entity.get_vector_relative_to_entity(player.get_player_ped(f.data[f.value + 1]), 10)
+							)
 							kek_entity.set_entity_heading(parent.data.entity, player.get_player_heading(f.data[f.value + 1]))
 						end
 					end)
