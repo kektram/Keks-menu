@@ -1658,7 +1658,7 @@ settings.toggle["Anti chat spoof"] = menu.add_feature(lang["Anti chat spoof & il
 			end
 			system.yield(0)
 		end
-		if player.is_player_valid(event.player) then
+		if player.is_player_valid(event.player) and not entity.is_entity_dead(player.get_player_ped(event.player)) then
 			local scid <const> = player.get_player_scid(event.player)
 			if is_detection_on
 			and not player.is_player_modder(event.player, -1)
@@ -1680,14 +1680,16 @@ settings.toggle["Anti chat spoof"] = menu.add_feature(lang["Anti chat spoof & il
 			--]]
 		end
 		for pid in essentials.players(true) do
-			local scid <const> = player.get_player_scid(pid)
-			if (not tracker[scid] or (type(tracker[scid]) == "number" and utils.time_ms() > tracker[scid]))
-			and globals.get_player_global("is_player_typing", pid) & 1 << 16 ~= 0 then
-				tracker[scid] = true
-				is_detection_on = true
-			elseif tracker[scid] == true and globals.get_player_global("is_player_typing", pid) & 1 << 16 == 0 then
-				tracker[scid] = essentials.get_time_plus_frametime(5)
-				is_detection_on = true
+			if not entity.is_entity_dead(player.get_player_ped(pid)) then -- Player death can mess with detection
+				local scid <const> = player.get_player_scid(pid)
+				if (not tracker[scid] or (type(tracker[scid]) == "number" and utils.time_ms() > tracker[scid]))
+				and globals.get_player_global("is_player_typing", pid) & 1 << 16 ~= 0 then
+					tracker[scid] = true
+					is_detection_on = true
+				elseif tracker[scid] == true and globals.get_player_global("is_player_typing", pid) & 1 << 16 == 0 then
+					tracker[scid] = essentials.get_time_plus_frametime(5)
+					is_detection_on = true
+				end
 			end
 		end
 		system.yield(0)

@@ -296,27 +296,33 @@ function essentials.split_string(str, size)
 --[[
 	Strings may be up to 4 bytes smaller than requested size if unicode is present. (alternative would be up to 3 bytes bigger, which cause more problems)
 	This happens if it finds a unicode character that needs more space than requested size. (at the end of the string)
-	Performance: split a 46k byte string (with chinese and ascii characters) by size 255 9,000 times in one second. (110 micro seconds per iteration). About 45% faster if no unicode.
+	Performance: split a 46k byte string (with chinese and ascii characters) by size 255 9,000 times in one second. (110 micro seconds per iteration).
+	Returns a table with 1 empty string if str is empty.
+	Have applied every micro-optimization in the book. They yield 15% improved performance.
 --]]
 	local strings <const> = {}
-	local pos = 0
+	local pos, i, len <const> = 0, 1, #str
+	local find <const>, sub <const> = string.find, string.sub
 	local found_no_more_unicode = false
 	local start_pos, end_pos = 0, 0
 	repeat
-		if not found_no_more_unicode and pos + size > end_pos then -- Would be extremely expensive to do useless searches
-			start_pos, end_pos = str:find("[\0-\x7F\xC2-\xFD][\x80-\xBF]+", pos + size > 4 and (pos + size) - 4 or 1)
+		local posz <const> = pos + size
+		if not found_no_more_unicode and posz > end_pos then -- Makes sure all bytes in the string is searched no more than once.
+			start_pos, end_pos = find(str, "[\0-\x7F\xC2-\xFD][\x80-\xBF]+", posz > 4 and posz - 4 or 1) -- This will cause no unicode strings to be slower. Many smaller string.finds is much cheaper than one massive string.find.
 			if not start_pos then
 				found_no_more_unicode, end_pos, start_pos = true, 0, 0
 			end
 		end
-		strings[#strings + 1] = str:sub(
+		strings[i] = sub(
+			str,
 			pos + 1, 
-			end_pos >= pos + size - 4 and end_pos <= pos + size and end_pos -- Found unicode char that fits in the requested size?
-			or start_pos >= pos + size - 4 and start_pos <= pos + size and start_pos - 1 -- Found uni char, but it doesn't fit the requested size?
-			or pos + size -- No unicode interference.
+			end_pos >= posz - 4 and end_pos <= posz and end_pos -- Found unicode char that fits in the requested size?
+			or start_pos >= posz - 4 and start_pos <= posz and start_pos - 1 -- Found uni char, but it doesn't fit the requested size?
+			or posz -- No unicode interference.
 		)
-		pos = pos + #strings[#strings]
-	until pos >= #str
+		pos = pos + #strings[i]
+		i = i + 1
+	until pos >= len
 	return strings
 end
 
