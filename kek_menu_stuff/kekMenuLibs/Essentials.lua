@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.7"}
+local essentials <const> = {version = "1.4.8"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -300,6 +300,7 @@ function essentials.split_string(str, size)
 	Returns a table with 1 empty string if str is empty.
 	Have applied every micro-optimization in the book. They yield 15% improved performance.
 --]]
+	essentials.assert(size >= 4, "Failed to split string. Split size must be 4 or more.", str, size) -- Infinite loop (only if unicode is present). For consistency, 4 or more is required.
 	local strings <const> = {}
 	local pos, i, len <const> = 0, 1, #str
 	local find <const>, sub <const> = string.find, string.sub
@@ -310,7 +311,7 @@ function essentials.split_string(str, size)
 		if not found_no_more_unicode and posz > end_pos then -- Makes sure all bytes in the string is searched no more than once.
 			start_pos, end_pos = find(str, "[\0-\x7F\xC2-\xFD][\x80-\xBF]+", posz > 4 and posz - 4 or 1) -- This will cause no unicode strings to be slower. Many smaller string.finds is much cheaper than one massive string.find.
 			if not start_pos then
-				found_no_more_unicode, end_pos, start_pos = true, 0, 0
+				found_no_more_unicode, end_pos, start_pos = true, math.mininteger, math.mininteger
 			end
 		end
 		strings[i] = sub(

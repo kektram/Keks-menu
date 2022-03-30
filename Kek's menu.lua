@@ -104,7 +104,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Language"] = "1.0.0",
 		["Settings"] = "1.0.1",
-		["Essentials"] = "1.4.7",
+		["Essentials"] = "1.4.8",
 		["Memoize"] = "1.0.0",
 		["Enums"] = "1.0.2",
 		["Vehicle mapper"] = "1.3.6", 
@@ -4268,6 +4268,7 @@ end
 do
 	local feat = menu.add_feature(lang["Chat spammer"], "value_str", u.chat_spammer.id, function(f)
 		while f.on do
+			local time <const> = utils.time_ms() -- Send each line won't iterate if string is empty. Therefore it must force a wait if sending a message didn't take > 90ms.
 			if f.value == 0 then
 				essentials.send_message(settings.in_use["Spam text"])
 			elseif f.value == 1 then
@@ -4333,15 +4334,15 @@ do
 					end
 				end
 			end
-			f.data.wait(f)
+			f.data.wait(f, utils.time_ms() - time < 90)
 		end
 	end)
 	feat.data = essentials.const({
 		wait = function(...)
-		local f <const> = ...
+		local f <const>, force_wait <const> = ...
 		local value <const> = f.value
 		local spam_speed <const> = settings.valuei["Spam speed"].value
-		if spam_speed > 100 then -- essentials.send_message yields for 100ms guaranteed
+		if force_wait or spam_speed > 100 then -- essentials.send_message yields for 100ms guaranteed
 			local time <const> = (utils.time_ms() + settings.valuei["Spam speed"].value) - 100 -- 100 compensates for the time waited in essentials.send_message.
 			repeat
 				system.yield(0)
