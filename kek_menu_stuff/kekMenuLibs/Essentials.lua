@@ -305,7 +305,7 @@ function essentials.split_string(str, size)
 	local pos, i, len <const> = 0, 1, #str
 	local find <const>, sub <const> = string.find, string.sub
 	local found_no_more_unicode = false
-	local start_pos, end_pos = 0, 0
+	local start_pos, end_pos = math.mininteger, math.mininteger
 	repeat
 		local posz <const> = pos + size
 		if not found_no_more_unicode and posz > end_pos then -- Makes sure all bytes in the string is searched no more than once.
