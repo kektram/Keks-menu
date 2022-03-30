@@ -15,7 +15,7 @@ do -- Prevents crashes from messages, primarily error messages, when they contai
 		This will apply to all scripts loaded.
 		If these wrappers cause problems with your script, please report it.
 	--]]
-		if not utf8.len(message) then
+		if message and not utf8.len(message) then
 			message = message:gsub("[\0-\x7F\xC2-\xFD][\x80-\xBF]+", "")
 			message = message:gsub("[\x80-\xFF]", "")
 		end
