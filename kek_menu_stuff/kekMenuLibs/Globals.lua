@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram, Sainan
 
-local globals <const> = {version = "1.3.4"}
+local globals <const> = {version = "1.3.5"}
 
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
@@ -8,7 +8,7 @@ local settings <const> = require("settings")
 local memoize <const> = require("Memoize")
 
 local offsets <const> = essentials.const({
-	["MAIN"] = 1853128,
+	["MAIN"] = 1853131,
 	["OFFSET_PER_PLAYER"] = 888,
 	["OFFSET_TO_INFO"] = 205
 })
