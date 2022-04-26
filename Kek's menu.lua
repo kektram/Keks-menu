@@ -110,7 +110,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Vehicle mapper"] = "1.3.6", 
 		["Ped mapper"] = "1.2.7",
 		["Object mapper"] = "1.2.6", 
-		["Globals"] = "1.3.3",
+		["Globals"] = "1.3.4",
 		["Weapon mapper"] = "1.0.5",
 		["Location mapper"] = "1.0.2",
 		["Keys and input"] = "1.0.7",
