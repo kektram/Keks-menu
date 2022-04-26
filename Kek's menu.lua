@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.7.1
+-- Kek's menu version 0.4.7.2
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.7.1"
+__kek_menu_version = "0.4.7.2"
 
 do -- Prevents crashes from messages, primarily error messages, when they contain invalid utf8 bytes.
 	local function check_msg_valid(message) 
