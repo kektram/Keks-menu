@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram, Sainan
 
-local globals <const> = {version = "1.3.3"}
+local globals <const> = {version = "1.3.4"}
 
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
@@ -99,27 +99,27 @@ function globals.get_player_deaths(pid)
 end
 
 globals.global_indices = essentials.const({
-	time = 					2810287 + 4628, 	-- NETWORK::GET_NETWORK_TIME()
+	time = 					2810701 + 4624, 	-- NETWORK::GET_NETWORK_TIME()
 
-	current = 				1921036 + 9, 		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
+	current = 				1921039 + 9, 		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
 
-	previous = 				1921036 + 10		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
+	previous = 				1921039 + 10		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
 })
 
 globals.player_global_indices = essentials.const({
-	personal_vehicle = 				{offset = 2703656 + 1 + 187, 		pid_multiplier = 1},
+	personal_vehicle = 				{offset = 2703660 + 1 + 173, 		pid_multiplier = 1},
 
-	generic = 						{offset = 1893548 + 1 + 511, 		pid_multiplier = 600}, 		-- Equivalent to global(1921036 + 9) if pid is script host
+	generic = 						{offset = 1893551 + 1 + 510, 		pid_multiplier = 599}, 		-- Equivalent to global(1921036 + 9) if pid is script host
 
-	organization_associate_hash = 	{offset = 1893548 + 1 + 11 + 2, 	pid_multiplier = 600},		-- Seems to be 1639791091 + (unknown * 3)
+	organization_associate_hash = 	{offset = 1893551 + 1 + 10 + 2, 	pid_multiplier = 599},		-- Seems to be 1639791091 + (unknown * 3)
 
-	organization_id = 				{offset = 1893548 + 1 + 11, 		pid_multiplier = 600},
+	organization_id = 				{offset = 1893551 + 1 + 10, 		pid_multiplier = 599},
 
-	otr_status = 					{offset = 2689156 + 1 + 209, 		pid_multiplier = 453}, 		-- Returns 1 if player is otr
+	otr_status = 					{offset = 2689224 + 1 + 207, 		pid_multiplier = 451}, 		-- Returns 1 if player is otr
 
 	bounty_status = 				{offset = 1835502 + 1 + 4,			pid_multiplier = 3}, 		-- Returns 1 if player has bounty.
 
-	is_player_typing = 				{offset = 1644209 + 2 + 241 + 136 --[[+ ((16 // 32) * 33)--]], pid_multiplier = 1} -- < this > & 1 << 16 ~= 0 if they're typing.
+	is_player_typing = 				{offset = 1644218 + 2 + 241 + 136 --[[+ ((16 // 32) * 33)--]], pid_multiplier = 1} -- < this > & 1 << 16 ~= 0 if they're typing.
 })
 
 
