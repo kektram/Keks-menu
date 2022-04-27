@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.7.3
+-- Kek's menu version 0.4.7.4
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.7.3"
+__kek_menu_version = "0.4.7.4"
 
 do -- Prevents crashes from messages, primarily error messages, when they contain invalid utf8 bytes.
 	local function check_msg_valid(message) 
@@ -107,9 +107,9 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Essentials"] = "1.4.8",
 		["Memoize"] = "1.0.0",
 		["Enums"] = "1.0.2",
-		["Vehicle mapper"] = "1.3.6", 
+		["Vehicle mapper"] = "1.3.7", 
 		["Ped mapper"] = "1.2.7",
-		["Object mapper"] = "1.2.6", 
+		["Object mapper"] = "1.2.7", 
 		["Globals"] = "1.3.5",
 		["Weapon mapper"] = "1.0.5",
 		["Location mapper"] = "1.0.2",
