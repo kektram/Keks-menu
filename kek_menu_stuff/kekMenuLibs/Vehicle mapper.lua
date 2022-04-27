@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local vehicle_mapper <const> = {version = "1.3.6"}
+local vehicle_mapper <const> = {version = "1.3.7"}
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
 local language <const> = require("Language")
@@ -4637,7 +4637,7 @@ function vehicle_mapper.get_hash_from_user_input(...)
 		return vehicle_mapper.get_random_vehicle()
 	end
 	user_input = user_input:lower()
-	if streaming.is_model_a_vehicle(gameplay.get_hash_key(user_input)) then
+	if vehicle_properties[gameplay.get_hash_key(user_input)] then
 		return gameplay.get_hash_key(user_input)
 	end
 	user_input = (user_input:gsub("%s", "")):gsub("ii", "2")
