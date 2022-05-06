@@ -6,7 +6,7 @@ local enums <const> = require("Enums")
 local language <const> = require("Language")
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
-paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
+paths.kek_menu_stuff = paths.home.."scripts\\KeksMenu\\kek_menu_stuff\\"
 
 local vehicle_properties <const> = essentials.const_all({
 	[3296789504] = {

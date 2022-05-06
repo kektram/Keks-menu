@@ -47,7 +47,7 @@ end
 local paths <const> = {
 	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
 }
-paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
+paths.kek_menu_stuff = paths.home.."scripts\\KeksMenu\\kek_menu_stuff\\"
 paths.kek_menu_data = paths.kek_menu_stuff.."kekMenuData"
 paths.kek_menu_logs = paths.kek_menu_stuff.."kekMenuLogs"
 paths.blacklist = paths.kek_menu_stuff.."kekMenuLogs\\Blacklist.log"
@@ -304,7 +304,7 @@ for _, folder_name in pairs({
 	"Ini vehicles"
 }) do
 	if not utils.dir_exists(paths.kek_menu_stuff..folder_name) then
-		utils.make_dir(paths.home.."scripts\\"..folder_name)
+		utils.make_dir(paths.home.."scripts\\KeksMenu\\"..folder_name)
 	end
 end
 
@@ -392,7 +392,7 @@ u.chat_commands = menu.add_feature(lang["Chat commands"], "parent", u.chat_stuff
 
 for _, properties in pairs({
 	{
-		folder = paths.home.."scripts\\Menyoo vehicles",
+		folder = paths.home.."scripts\\KeksMenu\\Menyoo vehicles",
 		folder_name = "Menyoo vehicles",
 		extension = "xml",
 		parent = u.gvehicle,
@@ -405,7 +405,7 @@ for _, properties in pairs({
 		}
 	},
 	{
-		folder = paths.home.."scripts\\Ini vehicles",
+		folder = paths.home.."scripts\\KeksMenu\\Ini vehicles",
 		folder_name = "Ini vehicles",
 		extension = "ini",
 		parent = u.gvehicle,
@@ -1184,7 +1184,7 @@ do
 		if utils.file_exists(paths.home.."scripts\\autoexec.lua") and not str:find("sjhvnciuyu44khdjkhUSx", 1, true) then
 			local file <close> = io.open(paths.home.."scripts\\autoexec.lua", "w+")
 			file:write(table.concat({
-				"if false then return end",
+				"if true then return end",
 				"-- Version "..__kek_menu_version,
 				"-- sjhvnciuyu44khdjkhUSx",
 				"local appdata_path = utils.get_appdata_path(\"PopstarDevs\", \"2Take1Menu\")..\"\\\\\"",
@@ -1210,14 +1210,14 @@ do
 		local str <const> = essentials.get_file_string(paths.home.."scripts\\autoexec.lua")
 		if str:find("^if false then return end") then
 			essentials.replace_lines_in_file_exact(
-				paths.home.."scripts\\autoexec.lua", 
-				"if false then return end", 
+				paths.home.."scripts\\autoexec.lua",
+				"if false then return end",
 				"if true then return end"
 			)
 			essentials.msg(lang["Turned off script loader"], "red", true)
 		elseif str:find("^if true then return end") then
 			essentials.replace_lines_in_file_exact(
-				paths.home.."scripts\\autoexec.lua", 
+				paths.home.."scripts\\autoexec.lua",
 				"if true then return end", 
 				"if false then return end"
 			)
@@ -1244,7 +1244,7 @@ do
 			if file_name ~= "autoexec.lua" and file_name:find(input) then
 				if not essentials.search_for_match_and_get_line(paths.home.."scripts\\autoexec.lua", {file_name}) then
 					essentials.replace_lines_in_file_exact(
-						paths.home.."scripts\\autoexec.lua", 
+						paths.home.."scripts\\autoexec.lua",
 						"local scripts = {}", 
 						"local scripts = {}\nscripts[#scripts + 1] = \""..file_name.."\""
 					)
@@ -4072,7 +4072,7 @@ do
 					do
 						local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "[^\n\r]+")
 						if not is_valid then
-							essentials.msg(string.format("%s: %i\nscripts\\kek_menu_stuff\\Chat judger profiles\\%s.ini", lang["Failed to load profile. Error at line"], line_num, f.name), "red", true, 8)
+							essentials.msg(string.format("%s: %i\nscripts\\KeksMenu\\kek_menu_stuff\\Chat judger profiles\\%s.ini", lang["Failed to load profile. Error at line"], line_num, f.name), "red", true, 8)
 							return
 						end
 					end
@@ -4874,7 +4874,7 @@ do
 					do
 						local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "|([^\n\r]+)|&")
 						if not is_valid then
-							essentials.msg(string.format("%s: %i\nscripts\\kek_menu_stuff\\Chatbot profiles\\%s.ini", lang["Failed to load profile. Error at line"], line_num, f.name), "red", true, 8)
+							essentials.msg(string.format("%s: %i\nscripts\\KeksMenu\\kek_menu_stuff\\Chatbot profiles\\%s.ini", lang["Failed to load profile. Error at line"], line_num, f.name), "red", true, 8)
 							return
 						end
 					end
@@ -4999,7 +4999,7 @@ do
 			do
 				local is_valid, line_num = essentials.are_all_lines_pattern_valid(str, "|([^\n\r]+)|&")
 				if not is_valid then
-					essentials.msg(string.format("[%s]: %s: %i\nscripts\\kek_menu_stuff\\kekMenuData\\Kek's chat bot.txt", lang["Chat bot"], lang["Failed to load profile. Error at line"], line_num), "red", true, 12)
+					essentials.msg(string.format("[%s]: %s: %i\nscripts\\KeksMenu\\kek_menu_stuff\\kekMenuData\\Kek's chat bot.txt", lang["Chat bot"], lang["Failed to load profile. Error at line"], line_num), "red", true, 12)
 					f.on = false
 					return
 				end
@@ -5595,8 +5595,8 @@ do
 
 	local ghost_feat_callback <const> = function(f)
 		if f.value == 0 then
-			if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..f.name..".lua") then
-				local properties = loadfile(paths.home.."scripts\\Race ghosts\\"..f.name..".lua")
+			if utils.file_exists(paths.home.."scripts\\KeksMenu\\Race ghosts\\"..f.name..".lua") then
+				local properties = loadfile(paths.home.."scripts\\KeksMenu\\Race ghosts\\"..f.name..".lua")
 				local hash
 				if not pcall(function()
 					hash, properties = properties()
@@ -5678,7 +5678,7 @@ do
 		elseif f.value == 1 then
 			f.data.status = "STOP"
 		elseif f.value == 2 then
-			local properties = loadfile(paths.home.."scripts\\Race ghosts\\"..f.name..".lua")
+			local properties = loadfile(paths.home.."scripts\\KeksMenu\\Race ghosts\\"..f.name..".lua")
 			local hash
 			if not pcall(function()
 				hash, properties = properties()
@@ -5692,8 +5692,8 @@ do
 			ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), f.data.vehicle, enums.vehicle_seats.driver)
 		elseif f.value == 4 then
 			f.data.status = "STOP"
-			if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..f.name..".lua") then
-				io.remove(paths.home.."scripts\\Race ghosts\\"..f.name..".lua")
+			if utils.file_exists(paths.home.."scripts\\KeksMenu\\Race ghosts\\"..f.name..".lua") then
+				io.remove(paths.home.."scripts\\KeksMenu\\Race ghosts\\"..f.name..".lua")
 			end
 			f.hidden = true -- So that there is no delay between pressing delete and feature disappearing
 			repeat
@@ -5715,7 +5715,7 @@ do
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..input..".lua") then
+				if utils.file_exists(paths.home.."scripts\\KeksMenu\\Race ghosts\\"..input..".lua") then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -5727,7 +5727,7 @@ do
 				::skip::
 				system.yield(0)
 			end
-			essentials.rename_file(paths.home.."scripts\\Race ghosts\\", f.name, input, "lua")
+			essentials.rename_file(paths.home.."scripts\\KeksMenu\\Race ghosts\\", f.name, input, "lua")
 			f.name = input
 		end
 	end
@@ -5797,7 +5797,7 @@ do
 				essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 				goto skip
 			end
-			if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..input..".lua") then
+			if utils.file_exists(paths.home.."scripts\\KeksMenu\\Race ghosts\\"..input..".lua") then
 				essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 				goto skip
 			end
@@ -5809,7 +5809,7 @@ do
 			::skip::
 			system.yield(0)
 		end
-		local file <close> = io.open(paths.home.."scripts\\Race ghosts\\"..input..".lua", "w+")
+		local file <close> = io.open(paths.home.."scripts\\KeksMenu\\Race ghosts\\"..input..".lua", "w+")
 		file:write(essentials.get_file_string(paths.kek_menu_stuff.."kekMenuData\\Temp recorded race.lua"))
 		file:flush()
 		create_ghost_racer_feature(input)
@@ -5818,9 +5818,9 @@ do
 	local feat_name_map = {}
 	local map_feat_callback <const> = function(f)
 		if f.value == 0 then
-			menyoo.spawn_xml_map(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml", true)
+			menyoo.spawn_xml_map(paths.home.."scripts\\KeksMenu\\Menyoo Maps\\"..f.name..".xml", true)
 		elseif f.value == 1 then
-			local info <const> = essentials.parse_xml(essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml"))
+			local info <const> = essentials.parse_xml(essentials.get_file_string(paths.home.."scripts\\KeksMenu\\Menyoo maps\\"..f.name..".xml"))
 			if info.SpoonerPlacements and info.SpoonerPlacements.ReferenceCoords then
 				kek_entity.teleport(
 					kek_entity.get_most_relevant_entity(player.player_id()), 
@@ -5839,9 +5839,9 @@ do
 				essentials.msg(lang["Failed to load spawn coordinates."], "red", true, 6)
 			end
 		elseif f.value == 2 then
-			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
+			if utils.file_exists(paths.home.."scripts\\KeksMenu\\Menyoo Maps\\"..f.name..".xml") then
 				local pos <const> = player.get_player_coords(player.player_id())
-				local file_path <const> = paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml"
+				local file_path <const> = paths.home.."scripts\\KeksMenu\\Menyoo Maps\\"..f.name..".xml"
 				local str, new_str = essentials.get_file_string(file_path)
 				str = str:gsub("\r\n", "\n")
 				essentials.assert(str ~= "", "Tried to replace menyoo map with an empty string.")
@@ -5886,8 +5886,8 @@ do
 				file:flush()
 			end
 		elseif f.value == 3 then
-			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
-				io.remove(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml")
+			if utils.file_exists(paths.home.."scripts\\KeksMenu\\Menyoo Maps\\"..f.name..".xml") then
+				io.remove(paths.home.."scripts\\KeksMenu\\Menyoo Maps\\"..f.name..".xml")
 			end
 			feat_name_map[f.name..".xml"] = nil
 			essentials.delete_feature(f.id)
@@ -5902,7 +5902,7 @@ do
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..input..".xml") then
+				if utils.file_exists(paths.home.."scripts\\KeksMenu\\Menyoo Maps\\"..input..".xml") then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -5914,7 +5914,7 @@ do
 				::skip::
 				system.yield(0)
 			end
-			essentials.rename_file(paths.home.."scripts\\Menyoo Maps\\", f.name, input, "xml")
+			essentials.rename_file(paths.home.."scripts\\KeksMenu\\Menyoo Maps\\", f.name, input, "xml")
 			feat_name_map[f.name..".xml"] = nil
 			f.name = input
 			feat_name_map[f.name..".xml"] = true
@@ -5963,7 +5963,7 @@ do
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..input..".xml") then
+				if utils.file_exists(paths.home.."scripts\\KeksMenu\\Menyoo Maps\\"..input..".xml") then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -5975,7 +5975,7 @@ do
 				::skip::
 				system.yield(0)
 			end
-			menyoo_saver.save_map(paths.home.."scripts\\Menyoo Maps\\"..input..".xml")
+			menyoo_saver.save_map(paths.home.."scripts\\KeksMenu\\Menyoo Maps\\"..input..".xml")
 			create_custom_map_feature(input)
 		elseif f.value == 2 then
 			local children <const> = custom_maps_parent.children
@@ -5985,7 +5985,7 @@ do
 					essentials.delete_feature(feat.id)
 				end
 			end
-			local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")
+			local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\KeksMenu\\Menyoo Maps", "xml")
 			feat_name_map = {}
 			for i = 1, #files do
 				create_custom_map_feature(files[i]:sub(1, -5))
@@ -6005,12 +6005,12 @@ do
 
 	settings.toggle["Clear before spawning xml map"] = menu.add_feature(lang["Clear owned entities before spawning map"], "toggle", custom_maps_parent.id)
 
-	local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")
+	local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\KeksMenu\\Menyoo Maps", "xml")
 	for i = 1, #files do
 		create_custom_map_feature(files[i]:sub(1, -5))
 	end
 
-	local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Race ghosts", "lua")
+	local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\KeksMenu\\Race ghosts", "lua")
 	for i = 1, #files do
 		create_ghost_racer_feature(files[i]:sub(1, -5))
 	end
@@ -6659,9 +6659,9 @@ menu.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player
 	if status == 2 then
 		return
 	end
-	for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
+	for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\KeksMenu\\Menyoo Vehicles", "xml")) do
 		if file_name:lower():find(input:lower(), 1, true) then
-			local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..file_name, pid)
+			local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.home.."scripts\\KeksMenu\\Menyoo Vehicles\\"..file_name, pid)
 			if entity.is_entity_a_vehicle(Vehicle) then
 				if streaming.is_model_a_plane(entity.get_entity_model_hash(Vehicle)) then
 					essentials.msg(lang["Attackers can't use planes. Cancelled."], "red", true)
@@ -7761,13 +7761,13 @@ do
 		menu.add_feature(essentials.get_safe_feat_name(file_name):gsub("%.ini$", ""), "action_value_str", u.profiles.id, function(f)
 			if f.value == 0 then
 				if utils.file_exists(paths.kek_menu_stuff.."profiles\\"..f.name..".ini") then
-					settings:initialize(paths.home.."scripts\\kek_menu_stuff\\profiles\\"..f.name..".ini")
+					settings:initialize(paths.home.."scripts\\KeksMenu\\kek_menu_stuff\\profiles\\"..f.name..".ini")
 					essentials.msg(string.format("%s %s.", lang["Successfully loaded"], f.name), "green", true)
 				else
 					essentials.msg(lang["Couldn't find file"], "red", true)
 				end
 			elseif f.value == 1 then
-				settings:save(paths.home.."scripts\\kek_menu_stuff\\profiles\\"..f.name..".ini")
+				settings:save(paths.home.."scripts\\KeksMenu\\kek_menu_stuff\\profiles\\"..f.name..".ini")
 				essentials.msg(string.format("%s %s.", lang["Saved"], f.name), "green", true)
 			elseif f.value == 2 then
 				if utils.file_exists(paths.kek_menu_stuff.."profiles\\"..f.name..".ini") then
@@ -7811,7 +7811,7 @@ do
 
 	 menu.add_feature(lang["Settings"], "action_value_str", u.profiles.id, function(f)
 	 	if f.value == 0 then
-			settings:save(paths.home.."scripts\\kek_menu_stuff\\keksettings.ini")
+			settings:save(paths.home.."scripts\\KeksMenu\\kek_menu_stuff\\keksettings.ini")
 			essentials.msg(lang["Settings saved!"], "green", true)
 		elseif f.value == 1 then
 			local input, status
@@ -7837,7 +7837,7 @@ do
 				system.yield(0)
 			end
 			essentials.create_empty_file(paths.kek_menu_stuff.."profiles\\"..input..".ini")
-			settings:save(paths.home.."scripts\\kek_menu_stuff\\profiles\\"..input..".ini")
+			settings:save(paths.home.."scripts\\KeksMenu\\kek_menu_stuff\\profiles\\"..input..".ini")
 			create_profile_feature(input..".ini")
 			essentials.msg(lang["Settings saved!"], "green", true)
 		elseif f.value == 2 then
@@ -8271,7 +8271,7 @@ menu.add_feature(lang["Search"], "action", u.search_features.id, function()
 	end
 end).data = "isn't searchable"
 
-settings:initialize(paths.home.."scripts\\kek_menu_stuff\\keksettings.ini")
+settings:initialize(paths.home.."scripts\\KeksMenu\\kek_menu_stuff\\keksettings.ini")
 
 essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", function()
 	kek_entity.entity_manager:update()

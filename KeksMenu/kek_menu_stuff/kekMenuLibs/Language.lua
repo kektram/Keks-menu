@@ -3,7 +3,7 @@
 local language <const> = {version = "1.0.0"}
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
-paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
+paths.kek_menu_stuff = paths.home.."scripts\\KeksMenu\\kek_menu_stuff\\"
 paths.language_ini = paths.kek_menu_stuff.."kekMenuLibs\\Languages\\language.ini"
 
 do

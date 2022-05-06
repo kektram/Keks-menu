@@ -35,7 +35,7 @@ essentials.number_of_explosion_types = 82
 essentials.init_delay = utils.time_ms() + 1000 -- For notifications that should only display if user toggles on the feature (toggles being turned on due to settings and such)
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
-paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
+paths.kek_menu_stuff = paths.home.."scripts\\KeksMenu\\kek_menu_stuff\\"
 
 essentials.new_session_timer = utils.time_ms()
 do
