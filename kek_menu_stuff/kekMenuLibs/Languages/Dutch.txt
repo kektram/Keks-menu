@@ -63,16 +63,16 @@ Reapply bounty §Bounty opnieuw plaatsen
 Send to random mission §Stuur naar random missie
 Perico island §Perico eiland
 Apartment invites §Apartementen uitnodigingen
-Ban §Ban
+Ban §Verban
 Dismiss §Afwijzen
 Terminate §Verbreken
 Transaction error §Transactie fout
 Custom chat judge §Eigen chat rechter
 Spam speed, click to type §Spam snelheid, klik om te typen
 Text to spam, type it in §Tekst om te spammen, intypen
-Random text from file §Random text van bestand
-Echo delay, click to type §Echo vertraging	
-Echo chat §Echo chat
+Random text from file §Willekeurig text van bestand
+Echo delay, click to type §Herhaal vertraging	
+Echo chat §Herhaal chat
 Answer delay chatbot §Antwoord vertraging chatbot
 Chat bot §Chat bot
 Max car §Upgrade Voertuig
@@ -188,7 +188,7 @@ Type in what player you wanna search for. rid / name / ip §Typ in welke speler 
 Type in what to add. §Typ in wat je wilt toevoegen.
 Type in what to remove. §Typ in wat je wilt verwijderen.
 Type in which car to spawn §Typ in welke auto je wilt spawnen.
-Type in echo delay. §Typ in Echo Vertraging.
+Type in echo delay. §Typ in Herhaal Vertraging.
 Type in what the bot will react to. §Typ in wat de chatrechter op moet reageren.
 Type in what the bot will say to what you previously typed in. §Typ in what de chatrechter reageert op wat je zojuist hebt ingetypt.
 Type in what the text the bot reacts to in the entry you wish to remove. §Typ de tekst waarop de bot reageert in het item dat u wilt verwijderen. 
@@ -197,11 +197,11 @@ Type in the name of the ped you want to spawn. §typ de naam van de ped die je w
 Type in the vehicle you want to be default. §typ de naam van het voertuig dat je standaard wilt maken.
 Type in the text you want displayed on the backplate of your cars after maxing them. §typ de text in die op je kenteken word weergegeven naar voertuig upgraden.
 Type in vehicle speed §typ voertuig snelheid in
-Type in which car to ram with §typ in met welke auto rammen
-Type in what object to use. §typ in welk object te gebruiken.
-Type in which car to use for vehicle stuff. §typ in welk voertuig te gebruiken voor voertuig opties
-Type in what you want the keybinding to be. §typ in wat je de snelkoppeling wilt laten zijn
-Type in the name of the profile. §typ in de naam van het profiel
+Type in which car to ram with §Typ in met welke auto rammen
+Type in what object to use. §Typ in welk object te gebruiken.
+Type in which car to use for vehicle stuff. §Typ in welk voertuig te gebruiken voor voertuig opties
+Type in what you want the keybinding to be. §Typ in wat je de snelkoppeling wilt laten zijn
+Type in the name of the profile. §Typ in de naam van het profiel
 Log: §opslag
 Kick: §Kicken
 Max vehicle §Voertuig upgraden
@@ -219,9 +219,9 @@ Finished crash. §Crash Uitgevoerd.
 Exclude friends from attacks §Vrienden niet meenemen in aanvallen
 Self options §Zelf Opties
 Max all weapons §Max alle wapens
-Randomize all weapons §Random alle wapens
+Randomize all weapons §Maak alle wapens willekeurig
 Give all weapons §Geef alle wapens
-Random weapon camo §Random wapen kleur
+Random weapon camo §Maak wapen kleur willekeurig
 Has a lot of money. §Heeft veel geld
 Has Negative lvl §Heeft negatief rang
 Has Negative k/d §Heeft negatief k/d
@@ -320,7 +320,7 @@ Session trolling §Sessie Trollen
 Vehicles §Voertuigen
 Peds §NPC'S
 Objects §Objecten
-Pickups §Objecten
+Pickups §Pickups
 Peds & vehicles §NPC'S & voertuigen
 All §Alles
 Cops §Politie
@@ -329,7 +329,7 @@ Send clown van §Stuur Clown bus
 Kick from session §Kicken van sessie
 Crash §Crashen
 Blame for killing session §Beschuldigen voor het killen van de sessie
-Random §Random
+Random §Willekeurig
 Ram §Rammen
 Kick from vehicle §Uit Voertuig Kicken
 EMP §Stroom Stoot
@@ -548,10 +548,10 @@ Sedans §Sedan
 SUVs §SUVs
 Coupes §Coupes
 Muscle §Muscle
-Sports classics §Sports classics
+Sports classics §Sports klassieken
 Sports §Sports
 Super §Super
-Motorcycles §Motors
+Motorcycles §Motorfietsen
 Off-Road §Off-Road
 Industrial §Industrieel
 Utility §Hulp
@@ -601,7 +601,7 @@ minute §Minuut
 Weapon blacklist §Wapen ZwarteLijst
 Rifles §Automatische Geweren
 SMGs §SMGs
-Shotguns §jachtgeweren
+Shotguns §Jachtgeweren
 Pistols §Pistolen
 Explosives §Explosieven
 Throwables §Gooibare Items
@@ -617,4 +617,4 @@ kicked for spamming chat. §Gekickt voor chat spammen
 kicked for sending the same message 3 times in a row. §Gekickt voor 3x het zelfde tezeggen
 Kick & add to timeout §Kicken en toevoegen aan timeout
 Crash & add to timeout §Crashen en toevoegen aan timeout
-Type in name of a player or regular feature. §typ in de naam van een speler of een normale optie.
+Type in name of a player or regular feature. §Typ in de naam van een speler of een normale optie.
