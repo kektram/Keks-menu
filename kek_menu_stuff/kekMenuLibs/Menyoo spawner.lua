@@ -352,17 +352,17 @@ local function get_info_containers()
 end
 
 local function check_entity_limits(entities, hash)
-	if streaming.is_model_a_ped(hash) and kek_entity.entity_manager.counts.ped >= settings.valuei["Ped limit"].value then
+	if streaming.is_model_a_ped(hash) and kek_entity.entity_manager.counts.ped >= settings.valuei["Ped limits"].value * 10 then
 		kek_entity.clear_entities(entities)
 		essentials.msg(lang["Reached ped spawn limit. Cancelling menyoo spawn."], "red", true, 6)
 		return true
 	end
-	if streaming.is_model_a_vehicle(hash) and kek_entity.entity_manager.counts.vehicle >= settings.valuei["Vehicle limit"].value then
+	if streaming.is_model_a_vehicle(hash) and kek_entity.entity_manager.counts.vehicle >= settings.valuei["Vehicle limits"].value * 10 then
 		kek_entity.clear_entities(entities)
 		essentials.msg(lang["Reached vehicle spawn limit. Cancelling menyoo spawn."], "red", true, 6)
 		return true
 	end
-	if streaming.is_model_an_object(hash) and kek_entity.entity_manager.counts.object >= settings.valuei["Object limit"].value then
+	if streaming.is_model_an_object(hash) and kek_entity.entity_manager.counts.object >= settings.valuei["Object limits"].value * 10 then
 		kek_entity.clear_entities(entities)
 		essentials.msg(lang["Reached object spawn limit. Cancelling menyoo spawn."], "red", true, 6)
 		return true

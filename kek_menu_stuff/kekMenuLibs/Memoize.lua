@@ -4,7 +4,7 @@
 	Certain functions, such as getting distance, is very wasteful in a loop.
 --]]
 
-local memoize <const> = {version = "1.0.0"}
+local memoize <const> = {version = "1.0.1"}
 
 local essentials <const> = require("Essentials")
 
@@ -111,7 +111,7 @@ do
 			else
 				memoized[data] = memoized[data] or {}
 				memoized[data].pos = (_G[func_table_name] or package.loaded[func_table_name])[func_name](data)
-				memoized[data].time = utils.time_ms() + math.ceil(20000 * gameplay.get_frame_time()) 
+				memoized[data].time = utils.time_ms() + math.ceil(20000 * math.min(gameplay.get_frame_time(), 0.03)) 
 				return memoized[data].pos
 			end
 		end
@@ -128,7 +128,7 @@ do -- memoizes entity tables for 50 frames. Only useful in loops.
 		local memoized <const> = {timer = 0}
 		memoize[func_name] = function()
 			if utils.time_ms() > memoized.timer then
-				memoized.timer = utils.time_ms() + math.ceil(50000 * gameplay.get_frame_time())
+				memoized.timer = utils.time_ms() + math.ceil(50000 * math.min(gameplay.get_frame_time(), 0.03))
 				memoized.Table = essentials.const(_G[func_table_name][func_name]())
 				return memoized.Table
 			else
@@ -162,7 +162,7 @@ do
 		if hash then
 			memoized[hash] = memoized[hash] or {}
 			memoized[hash].magnitude = magnitude
-			memoized[hash].time = utils.time_ms() + math.ceil((memoize_time or 20) * 1000 * gameplay.get_frame_time())
+			memoized[hash].time = utils.time_ms() + math.ceil((memoize_time or 20) * 1000 * math.min(gameplay.get_frame_time(), 0.03))
 		end
 		return magnitude
 	end

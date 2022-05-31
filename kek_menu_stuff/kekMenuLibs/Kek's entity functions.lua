@@ -56,11 +56,11 @@ do
 				self.entities[Entity] = nil
 			end
 		end
-		update_buf.is_ped_limit_not_breached = self.counts.ped <= settings.valuei["Ped limit"].value and #memoize.get_all_peds() < 135.0
+		update_buf.is_ped_limit_not_breached = self.counts.ped <= settings.valuei["Ped limits"].value * 10 and #memoize.get_all_peds() < 135.0
 
-		update_buf.is_object_limit_not_breached = self.counts.object < settings.valuei["Object limit"].value
+		update_buf.is_object_limit_not_breached = self.counts.object < settings.valuei["Object limits"].value * 10
 
-		update_buf.is_vehicle_limit_not_breached = self.counts.vehicle < settings.valuei["Vehicle limit"].value
+		update_buf.is_vehicle_limit_not_breached = self.counts.vehicle < settings.valuei["Vehicle limits"].value * 10
 
 		return update_buf
 	end
@@ -711,45 +711,13 @@ function kek_entity.modify_entity_godmode(...)
 	local Entity <const>, toggle_on_god <const> = ...
 	if entity.is_an_entity(Entity) then
 		essentials.assert(entity.is_entity_a_ped(Entity) or entity.is_entity_a_vehicle(Entity), "Expected a vehicle or ped from argument \"Entity\".")
-		if kek_entity.get_control_of_entity(Entity) then
+		if entity.get_entity_god_mode(Entity) ~= toggle_on_god and kek_entity.get_control_of_entity(Entity) then
 			entity.set_entity_god_mode(Entity, toggle_on_god)
 			if entity.is_entity_a_vehicle(Entity) then
 				vehicle.set_vehicle_can_be_visibly_damaged(Entity, false)
 			end
 		end
 	end
-end
-
-local num_of_mods_to_wheel_type_map <const> = essentials.const({ -- Indices are number of mods at vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.wheel_customization)
-	[50] = enums.wheel_types.SPORT,
-	[36] = enums.wheel_types.MUSCLE,
-	[30] = enums.wheel_types.LOWRIDER,
-	[38] = enums.wheel_types.SUV,
-	[35] = enums.wheel_types.OFFROAD,
-	[72] = enums.wheel_types.BIKE,
-	[40] = enums.wheel_types.HIEND,
-	[140] = enums.wheel_types.f1_wheels,
-	[217] = enums.wheel_types.bennys_original,  -- enums.wheel_types.bennys_bespoke Also has this number of mods
-	[210] = enums.wheel_types.street, 			-- enums.wheel_types.track also has this number of mods.
-	[48] = {bike = enums.wheel_types.BIKE, car = enums.wheel_types.TUNER}
-})
-
-function kek_entity.get_wheel_type(Vehicle)
-	if entity.is_an_entity(Vehicle) then
-		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
-		local num_of_mods <const> = vehicle.get_num_vehicle_mods(Vehicle, enums.vehicle_mods.wheel_customization)
-		local Type <const> = num_of_mods_to_wheel_type_map[num_of_mods]
-		if num_of_mods == 48 then
-			local hash <const> = entity.get_entity_model_hash(Vehicle)
-			if streaming.is_model_a_bike(hash) then
-				return Type.bike
-			else
-				return Type.car
-			end
-		end
-		return Type
-	end
-	return 0
 end
 
 function kek_entity.repair_car(...)
@@ -854,12 +822,19 @@ do
 					kek_entity.set_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
 				end
 			end
-			for i = 0, 75 do
-				if not toggle_vehicle_mods_map[i] and vehicle.get_num_vehicle_mods(Vehicle, i) > 0 then
-					if i ~= enums.vehicle_mods.VMT_LIVERY_MOD or math.random(1, 3) == 1 then
-						vehicle.set_vehicle_mod(Vehicle, i, math.random(0, vehicle.get_num_vehicle_mods(Vehicle, i) - 1))
-					else
-						vehicle.set_vehicle_mod(Vehicle, i, -1)
+			if  entity.get_entity_model_hash(Vehicle) ~= gameplay.get_hash_key("banshee") 
+			and entity.get_entity_model_hash(Vehicle) ~= gameplay.get_hash_key("sentinel") then
+				for i = 0, 75 do 
+				--[[
+					Certain vehicles, banshee & sentinel XS in particular, get white boxes that crashes other player's games.
+					HSW upgrades appears to be the culprit. (mod id 36)
+				--]]
+					if not toggle_vehicle_mods_map[i] and vehicle.get_num_vehicle_mods(Vehicle, i) > 0 then
+						if i ~= enums.vehicle_mods.VMT_LIVERY_MOD or math.random(1, 3) == 1 then
+							vehicle.set_vehicle_mod(Vehicle, i, math.random(0, vehicle.get_num_vehicle_mods(Vehicle, i) - 1))
+						else
+							vehicle.set_vehicle_mod(Vehicle, i, -1)
+						end
 					end
 				end
 			end
@@ -1414,7 +1389,7 @@ end
 			local parent <const> = menu.add_feature(info.class_name, "parent", parent.id, function(f)
 				if f.child_count == 0 then
 					for i = count - info.num_of_vehicles_in_class + 1, count do -- Iterates until reaching class end vehicle. Starts at previous class's end vehicle or index 1.
-						local feature <const> = menu.add_feature(vehicle_mapper.get_translated_vehicle_name(hashes[i]), feat_type, f.id, func)
+						local feature <const> = menu.add_feature(vehicle_mapper.get_vehicle_name(hashes[i]), feat_type, f.id, func)
 						feature.data = hashes[i]
 						feature:set_str_data(feat_str)
 						feature.value = value_i_func(hashes[i])
@@ -1442,15 +1417,16 @@ end
 			local parent <const> = menu.add_player_feature(info.class_name, "parent", parent, function(f, pid)
 				if f.child_count == 0 then
 					for i = count - info.num_of_vehicles_in_class + 1, count do -- Iterates until reaching class end vehicle. Starts at previous class's end vehicle or index 1.
-						local feature_id <const> = menu.add_player_feature(vehicle_mapper.get_translated_vehicle_name(hashes[i])..initial_name, feature_info.type, f.id, func).id
+						local feature_id <const> = menu.add_player_feature(vehicle_mapper.get_vehicle_name(hashes[i])..initial_name, feature_info.type, f.id, func).id
+						local player_feat <const> = menu.get_player_feature(feature_id)
 						if feature_info.type:find("value_i", 1, true) then
-							menu.get_player_feature(feature_id).max = feature_info.max
-							menu.get_player_feature(feature_id).min = feature_info.min
-							menu.get_player_feature(feature_id).mod = feature_info.mod
-							menu.get_player_feature(feature_id).value = feature_info.value
+							player_feat.max = feature_info.max
+							player_feat.min = feature_info.min
+							player_feat.mod = feature_info.mod
+							player_feat.value = feature_info.value
 						end
 						for pid = 0, 31 do
-							menu.get_player_feature(feature_id).feats[pid].data = hashes[i]
+							player_feat.feats[pid].data = hashes[i]
 						end
 					end
 				end

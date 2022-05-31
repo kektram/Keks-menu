@@ -3,7 +3,6 @@
 local vehicle_mapper <const> = {version = "1.3.7"}
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
-local language <const> = require("Language")
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
@@ -4559,20 +4558,6 @@ local vehicle_properties <const> = essentials.const_all({
 	}
 })
 
-do
-	local is_missing = false
-	for _, file in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\Vehicle names", "lua")) do
-		local language <const> = require("Languages\\Vehicle names\\"..file:gsub("%.lua", ""))
-		for hash, properties in pairs(vehicle_properties) do
-			if not language[hash] then
-				print(string.format("Missing info in vehicle translation: File = [%s] Name of missing vehicle = [%s]", file, properties.name))
-				is_missing = true
-			end
-		end
-	end
-	essentials.assert(not is_missing, "Failed to load script. Is missing one or more entry in vehicle name translation files. Check console for missing names.")
-end
-
 local INVALID_HASH_ERR <const> = "Expected a valid vehicle hash:"
 local MISSING_INFO_ERR <const> = "Missing information about a valid, requested vehicle hash:"
 
@@ -4609,15 +4594,10 @@ function vehicle_mapper.GetNameFromHash(...)
 	return vehicle_properties[hash].name
 end
 
-function vehicle_mapper.get_translated_vehicle_name(...)
+function vehicle_mapper.get_vehicle_name(...)
 	local hash <const> = ...
 	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
-	if language.translated_vehicle_names then
-		essentials.assert(language.translated_vehicle_names[hash], MISSING_INFO_ERR, hash)
-		return language.translated_vehicle_names[hash]
-	else
-		return vehicle_mapper.GetNameFromHash(hash)
-	end
+	return streaming.get_vehicle_model_name(hash) or "Unknown vehicle name"
 end
 
 function vehicle_mapper.get_random_vehicle()

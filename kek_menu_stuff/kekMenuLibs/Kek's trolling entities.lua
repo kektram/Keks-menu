@@ -165,7 +165,7 @@ function troll_entity.send_army(...)
 	local update <const> = kek_entity.entity_manager:update()
 	if not update.is_vehicle_limit_not_breached 
 	or not update.is_ped_limit_not_breached 
-	or kek_entity.entity_manager.counts.ped > settings.valuei["Ped limit"].value - 90 then
+	or kek_entity.entity_manager.counts.ped > (settings.valuei["Ped limits"].value * 10) - 90 then
 		return -2
 	end
 	local entities <const> = {}
@@ -228,7 +228,7 @@ function troll_entity.send_attack_chopper(...)
 	local update <const> = kek_entity.entity_manager:update()
 	if not update.is_vehicle_limit_not_breached 
 	or not update.is_ped_limit_not_breached 
-	or kek_entity.entity_manager.counts.ped > settings.valuei["Ped limit"].value - 15 then
+	or kek_entity.entity_manager.counts.ped > (settings.valuei["Ped limits"].value * 10) - 15 then
 		return -2
 	end
 	local hash <const> = vehicle_mapper.HELICOPTERS[math.random(1, #vehicle_mapper.HELICOPTERS)]
@@ -297,7 +297,7 @@ function troll_entity.send_kek_chopper(...)
 	local update <const> = kek_entity.entity_manager:update()
 	if not update.is_vehicle_limit_not_breached 
 	or not update.is_ped_limit_not_breached
-	or kek_entity.entity_manager.counts.ped > settings.valuei["Ped limit"].value - 45 then
+	or kek_entity.entity_manager.counts.ped > (settings.valuei["Ped limits"].value * 10) - 45 then
 		return -2
 	end
 	local chopper <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("havok"), function() 
@@ -447,7 +447,7 @@ function troll_entity.send_clown_van(...)
 	local update <const> = kek_entity.entity_manager:update()
 	if not update.is_vehicle_limit_not_breached 
 	or not update.is_ped_limit_not_breached
-	or kek_entity.entity_manager.counts.ped > settings.valuei["Ped limit"].value - 60 then
+	or kek_entity.entity_manager.counts.ped > (settings.valuei["Ped limits"].value * 10) - 60 then
 		return -2
 	end
 	create_clown_relationship_group()

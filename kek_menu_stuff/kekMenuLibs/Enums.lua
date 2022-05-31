@@ -1,7 +1,7 @@
 -- Copyright © 2020-2022 Kektram
 
 return {
-	version = "1.0.2",
+	version = "1.0.3",
 	ped_types = {
 		any_ped = -1,
 		player_0 = 0,
@@ -302,7 +302,7 @@ return {
 		VMT_STEERING = 33,
 		VMT_KNOB = 34,
 		VMT_PLAQUE = 35,
-		VMT_ICE = 36,
+		VMT_HSW_UPGRADE = 36,
 		VMT_TRUNK = 37,
 		VMT_HYDRO = 38,
 		VMT_ENGINEBAY1 = 39,

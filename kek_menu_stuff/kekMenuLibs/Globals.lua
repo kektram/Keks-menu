@@ -142,8 +142,6 @@ local script_event_hashes <const> = essentials.const({
 
 	["Block passive"] = 					1114091621,
 
-	["Send to mission"] = 					2020588206,
-
 	["Send to Perico island"] = 			-621279188,
 
 	["Apartment invite"] = 					603406648,
@@ -456,14 +454,14 @@ end
 function globals.set_bounty(...)
 	local script_target <const>,
 	friend_relevant <const>,
-	anonymous = ...
+	anonymous,
+	amount = ...
 	if player.player_count() > 0
 	and globals.get_player_global("bounty_status", script_target) == 0
-	and player.player_id() ~= script.get_host_of_this_script()
 	and player.is_player_valid(script_target) 
 	and player.is_player_playing(script_target) 
 	and (not friend_relevant or essentials.is_not_friend(script_target)) then
-		local amount = math.tointeger(settings.in_use["Bounty amount"]) or 10000
+		amount = amount or math.tointeger(settings.in_use["Bounty amount"]) or 10000
 		for pid in essentials.players(true) do
 			globals.send_script_event(
 				"Bounty", 

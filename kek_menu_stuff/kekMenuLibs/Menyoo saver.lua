@@ -119,7 +119,7 @@ local function get_properties(...)
 			MaxGear = vehicle.get_vehicle_max_gear(Entity),
 			CurrentGear = vehicle.get_vehicle_current_gear(Entity),
 			WheelsCount = vehicle.get_vehicle_wheel_count(Entity),
-			WheelType = kek_entity.get_wheel_type(Entity),
+			WheelType = vehicle.get_vehicle_wheel_type(Entity),
 			NumberPlateText = settings.in_use["Plate vehicle text"],
 			NumberPlateIndex = math.random(0, 3),
 			WindowTint = vehicle.get_vehicle_window_tint(Entity),

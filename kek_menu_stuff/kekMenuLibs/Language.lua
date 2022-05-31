@@ -17,12 +17,6 @@ do
 	paths.what_language = paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..language.what_language	
 end
 
-if utils.file_exists(string.format("%skekMenuLibs\\Languages\\Vehicle names\\%s", paths.kek_menu_stuff, language.what_language:gsub("%.txt$", ".lua"))) then
-	language.translated_vehicle_names = require("\\Languages\\Vehicle names\\"..language.what_language:gsub("%.txt", ""))
-else
-	language.translated_vehicle_names = {}
-end
-
 if not utils.file_exists(paths.language_ini) then
 	local file = io.open(paths.language_ini, "w+")
 	file:write("English.txt")

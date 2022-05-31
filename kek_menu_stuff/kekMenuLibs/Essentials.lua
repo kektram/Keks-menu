@@ -48,6 +48,10 @@ do
 	end)
 end
 
+function essentials.is_str(f, str) -- Greatly improves readability
+	return f.str_data[f.value + 1] == lang[str]
+end
+
 function essentials.assert(bool, msg, ...)
 	if not bool then
 		local n_args <const> = select("#", ...)
@@ -75,12 +79,6 @@ function essentials.add_chat_event_listener(callback) -- Fixes crash if someone 
 			tracker[event.player] = false
 		end
 	end)
-end
-
-function essentials.table_to_array(Table) -- Useful when dealing with .value properties of features
-	Table[0] = Table[1]
-	table.remove(Table, 1)
-	return Table
 end
 
 do 
@@ -286,7 +284,7 @@ function essentials.const_all(Table, timeout)
 end
 
 function essentials.make_string_case_insensitive(str)
-	str = str:gsub("%a", function(str)
+	str = str:gsub("%a", function(str) -- Done like this to only return the string. Gsub has 2 return values.
 		return "["..str:lower()..str:upper().."]"
 	end)
 	return str
@@ -350,7 +348,7 @@ function essentials.are_all_lines_pattern_valid(str, pattern)
 	local line_num = 1
 	for line in str:gmatch(pattern) do
 		if not pcall(function()
-			return str:find(line)
+			return (""):find(line)
 		end) then
 			return false, line_num
 		end
