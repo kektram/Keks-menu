@@ -413,7 +413,7 @@ do
 			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
 			local status <const> = originals.entity.delete_entity(Entity)
 			if status and not entity.is_an_entity(Entity) then
-				deleted_entities[Entity] = utils.time_ms() + 60000
+				deleted_entities[Entity] = utils.time_ms() + 10000
 			end
 			return status
 		else

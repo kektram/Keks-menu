@@ -13,6 +13,7 @@ local keys_and_input <const> = require("Keys and input")
 local object_mapper <const> = require("Object mapper")
 local ped_mapper <const> = require("Ped mapper")
 local settings <const> = require("Settings")
+local globals <const> = require("globals")
 
 kek_entity.user_vehicles = {}
 
@@ -68,7 +69,7 @@ do
 	function kek_entity.entity_manager:clear()
 		self:update()
 		for _, Entity in essentials.entities(essentials.deep_copy(self.entities)) do
-			if not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(Entity), player.get_player_vehicle(player.player_id())) and kek_entity.get_control_of_entity(Entity, 200) then
+			if not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(Entity), player.get_player_vehicle(player.player_id())) and kek_entity.get_control_of_entity(Entity) then
 				kek_entity.hard_remove_entity_and_its_attachments(Entity)
 			end
 		end
@@ -151,9 +152,9 @@ function kek_entity.get_control_of_entity(...)
 	if not network.has_control_of_entity(Entity) 
 	and entity.is_an_entity(Entity) 
 	and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) 
-	and utils.time_ms() > essentials.new_session_timer
+	and globals.is_fully_transitioned_into_session()
 	and (no_condition or kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]]) then
-		local time <const> = utils.time_ms() + (time_to_wait or entity.is_entity_a_vehicle(Entity) and vehicle.get_vehicle_has_been_owned_by_player(Entity) and 900 or 450)
+		local time <const> = utils.time_ms() + (time_to_wait or 3000)
 		network.request_control_of_entity(Entity, true)
 		while not network.has_control_of_entity(Entity) and entity.is_an_entity(Entity) and time > utils.time_ms() do
 			system.yield(0)
@@ -182,7 +183,7 @@ function kek_entity.set_wheel_type(Vehicle, wheel_type)
 end
 
 do
-	local spawn_timer = 0
+	kek_entity.spawn_queue, kek_entity.spawn_queue_id = {}, 0
 	function kek_entity.spawn_ped_or_vehicle(...)
 		local hash <const>, 
 		coords_and_heading <const>, 
@@ -191,18 +192,21 @@ do
 		ped_type <const>, 
 		weight <const>, 
 		not_networked <const>,
-		dont_yield <const> = ...
+		dont_yield <const>,
+		dont_constantize <const> = ...
 		essentials.assert(hash and streaming.is_model_valid(hash), "Tried to use an invalid model hash.", hash)
 		essentials.assert(not streaming.is_model_an_object(hash), "Tried to spawn an object with wrong function.", hash)
 		essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a crash ped.")
-		while spawn_timer > utils.time_ms() and essentials.new_session_timer < utils.time_ms() do
+		kek_entity.spawn_queue_id = kek_entity.spawn_queue_id + 1
+		local local_id <const> = kek_entity.spawn_queue_id
+		kek_entity.spawn_queue[#kek_entity.spawn_queue + 1] = local_id
+		while kek_entity.spawn_queue[1] ~= local_id and globals.is_fully_transitioned_into_session() do
 			system.yield(0)
 		end
 		local Entity = 0
-		if utils.time_ms() > essentials.new_session_timer then -- Clears spawn queue immediately if new session
+		if globals.is_fully_transitioned_into_session() then -- Clears spawn queue immediately if new session
 			local status <const> = kek_entity.request_model(hash)
 			if status then
-				spawn_timer = utils.time_ms() + 2500
 				local coords <const>, dir <const> = coords_and_heading()
 				if streaming.is_model_a_vehicle(hash) then
 					Entity = vehicle.create_vehicle(hash, coords, dir, not_networked ~= true, not_networked == true, weight)
@@ -228,17 +232,19 @@ do
 				end
 				if not_networked then
 					entity.set_entity_as_mission_entity(Entity, true, true)
-				end 
+				elseif not dont_constantize then
+					kek_entity.constantize_network_id(Entity)
+				end
 				if give_godmode then
 					entity.set_entity_god_mode(Entity, true)
 				end
 				if not dont_yield then
 					system.yield(0)
 				end
-				spawn_timer = 0
 			end
 		end
 		streaming.set_model_as_no_longer_needed(hash) -- The game will crash if requesting many hashes and never setting as no longer needed
+		table.remove(kek_entity.spawn_queue, 1)
 		return Entity
 	end
 end
@@ -247,11 +253,11 @@ function kek_entity.spawn_object(...)
 	local hash <const>,
 	coords <const>,
 	not_dynamic_object <const>,
-	not_networked,
+	not_networked <const>,
 	weight <const> = ...
 	essentials.assert(streaming.is_model_valid(hash), "Tried to use an invalid model hash.", hash)
 	local Object = 0
-	if utils.time_ms() > essentials.new_session_timer then
+	if globals.is_fully_transitioned_into_session() then
 		local status <const> = kek_entity.request_model(hash)
 		if status then
 			local coords <const> = coords()
@@ -263,22 +269,15 @@ function kek_entity.spawn_object(...)
 				streaming.set_model_as_no_longer_needed(hash)
 				essentials.assert(false, "Tried to use a non-object hash in spawn_object function.", hash)
 			end
+			if not_networked then
+				entity.set_entity_as_mission_entity(Object, true, true)
+			else
+				kek_entity.constantize_network_id(Object)
+			end
 		end
 	end
 	streaming.set_model_as_no_longer_needed(hash)
 	return Object
-end
-
-function kek_entity.correct_pitch(rot) -- Some menyoo maps needs this to get correct rotations
-	local pitch, roll, yaw = rot.x, rot.y, rot.z
-	if math.abs(roll) > 179 then
-		if pitch > 0 then
-			pitch = -pitch
-		else
-			pitch = math.abs(pitch)
-		end
-	end
-	return v3(pitch, roll, yaw)
 end
 
 function kek_entity.is_entity_valid(Entity)
@@ -390,6 +389,15 @@ function kek_entity.is_vehicle_an_attachment_to(parent, child)
 	end
 end
 
+function kek_entity.get_bone_entity_is_attached_to(child, parent) -- ONLY WORKS IF ENTITY IS ATTACHED WITH NO OFFSET.
+	local child_pos <const> = entity.get_entity_coords(child)
+	for i = 0, entity._get_entity_bone_count(parent) - 1 do
+		if entity.get_world_position_of_entity_bone(parent, i) == child_pos then
+			return i
+		end
+	end
+end
+
 function kek_entity.get_parent_of_attachment(...)
 	local Entity <const> = ...
 	if entity.is_entity_attached(Entity) then
@@ -410,17 +418,32 @@ function kek_entity.hard_remove_entity_and_its_attachments(...)
 	end
 end
 
+function kek_entity.get_entity_proofs(Entity)
+	local status, bullet, fire, explosion, collision, melee, steam, unknown, drown = entity._get_entity_proofs(Entity)
+	return {
+		status = status,
+		bullet = bullet,
+		fire = fire,
+		explosion = explosion,
+		collision = collision,
+		melee = melee,
+		steam = steam,
+		unknown = unknown,
+		drown = drown
+	}
+end
+
 function kek_entity.clear_entities(...)
 	local table_of_entities <const>, time_to_wait_for_control = ...
-	time_to_wait_for_control = time_to_wait_for_control or 350
-	local timeout <const> = utils.time_ms() + 10000 -- Worst case scenario: modder making control impossible, causing every request to take 350ms. Timeout will set req timer to 0ms.
+	time_to_wait_for_control = time_to_wait_for_control or 3000
+	local timeout <const> = utils.time_ms() + 30000
 	for i2 = 1, 2 do
 		local count = 1
 		for Entity, i in essentials.entities(table_of_entities) do
 			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
 			if entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)) then
 				if i2 == 1 and not network.has_control_of_entity(Entity) then 
-					kek_entity.get_control_of_entity(Entity, timeout > utils.time_ms() and time_to_wait_for_control or 0)
+					kek_entity.get_control_of_entity(Entity, timeout > utils.time_ms() and time_to_wait_for_control or 200)
 				end
 				if network.has_control_of_entity(Entity) then
 					if ui.get_blip_from_entity(Entity) ~= 0 then
@@ -444,6 +467,7 @@ function kek_entity.clear_entities(...)
 					end
 					count = count + 1
 				end
+				ui.remove_blip(ui.get_blip_from_entity(Entity))
 			else
 				table_of_entities[i] = nil
 			end
@@ -493,6 +517,17 @@ function kek_entity.is_player_in_vehicle(...)
 		end
 	end
 	return player_in_vehicle, friend_in_vehicle
+end
+
+function kek_entity.constantize_network_id(Entity)
+	if not network.network_get_entity_is_networked(Entity) then
+		network.network_register_entity_as_networked(Entity)
+	end
+	local net_id <const> = network.network_get_network_id_from_entity(Entity)
+	--network.set_network_id_can_migrate(net_id, false) Caused players unable to drive vehicles
+	network.set_network_id_exists_on_all_machines(net_id, true)
+	network.set_network_id_always_exists_for_player(net_id, player.player_id(), true)
+	return net_id
 end
 
 function kek_entity.request_model(...)
@@ -547,7 +582,10 @@ function kek_entity.get_vector_relative_to_entity(...)
 		else
 			heading = entity.get_entity_heading(Entity)
 		end
-		local pos = entity.get_entity_coords(Entity)
+		local pos = 
+		entity.is_entity_a_ped(Entity) and ped.is_ped_a_player(Entity) and essentials.get_player_coords(player.get_player_from_ped(Entity))
+		or entity.get_entity_coords(Entity)
+
 		if get_z_axis then
 			rot = entity.get_entity_rotation(Entity)
 			rot.z = kek_entity.get_rotated_heading(Entity, angle or 0, nil, rot.z)
@@ -854,6 +892,7 @@ do
 			end
 			vehicle.set_vehicle_custom_primary_colour(Vehicle, random_rgb())
 			vehicle.set_vehicle_custom_secondary_colour(Vehicle, random_rgb())
+			vehicle.set_vehicle_enveff_scale(Vehicle, essentials.random_real(0, 1))
 			if not streaming.is_model_a_heli(entity.get_entity_model_hash(Vehicle)) then -- Prevent removal of heli rotors
 				for i = 2, 9 do -- Extra 1 causes vehicles to get teleported around
 					if vehicle.does_extra_exist(Vehicle, i) then
@@ -863,6 +902,7 @@ do
 			end
 		end
 		vehicle.set_vehicle_bulletproof_tires(Vehicle, true)
+		vehicle.set_vehicle_dirt_level(Vehicle, 0.0)
 		for _, mod in pairs(performance_mods) do
 			vehicle.set_vehicle_mod(Vehicle, mod, vehicle.get_num_vehicle_mods(Vehicle, mod) - 1)
 		end
@@ -917,7 +957,7 @@ function kek_entity.get_collision_vector(...)
 	local pid <const> = ...
 	local rot = cam.get_gameplay_cam_rot()
 	rot:transformRotToDir()
-	local hit_pos <const> = select(2, worldprobe.raycast(player.get_player_coords(pid), rot * 1000 + cam.get_gameplay_cam_pos(), -1, player.get_player_ped(pid)))
+	local hit_pos <const> = select(2, worldprobe.raycast(essentials.get_player_coords(pid), rot * 1000 + cam.get_gameplay_cam_pos(), -1, player.get_player_ped(pid)))
 	return hit_pos
 end
 
@@ -965,7 +1005,7 @@ end
 
 function kek_entity.remove_player_vehicle(...)
 	local pid <const> = ...
-	local initial_pos <const> = player.get_player_coords(player.player_id())
+	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
 	if status then
 		local time <const> = utils.time_ms() + 2000
@@ -1073,10 +1113,10 @@ function kek_entity.create_cage(...)
 		ped.set_ped_config_flag(temp_ped, enums.ped_config_flags.InVehicle, 1)
 		entity.freeze_entity(temp_ped, true)
 		local cage <const> = kek_entity.spawn_object(gameplay.get_hash_key("prop_test_elevator"), function()
-			return player.get_player_coords(pid) + memoize.v3(0, 0, 10)
+			return essentials.get_player_coords(pid) + memoize.v3(0, 0, 10)
 		end)
 		local cage_2 <const> = kek_entity.spawn_object(gameplay.get_hash_key("prop_test_elevator"), function()
-			return player.get_player_coords(pid) + memoize.v3(0, 0, 10)
+			return essentials.get_player_coords(pid) + memoize.v3(0, 0, 10)
 		end)
 		entity.set_entity_visible(temp_ped, true)
 		entity.attach_entity_to_entity(cage, temp_ped, 0, memoize.v3(), memoize.v3(), false, true, true, 0, true)
@@ -1150,13 +1190,6 @@ function kek_entity.set_blip(...)
 		local blip <const> = ui.add_blip_for_entity(Entity)
 		ui.set_blip_sprite(blip, sprite_id or 0)
 		ui.set_blip_colour(blip, color or 0)
-		menu.create_thread(function()
-			local personal_vehicle <const> = Entity
-			while entity.is_an_entity(Entity) and Entity == personal_vehicle do
-				system.yield(0)
-			end
-			ui.remove_blip(blip)
-		end, nil)
 		return blip
 	else
 		return -1
@@ -1262,7 +1295,7 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 	teleport_you_back_to_original_pos <const>,
 	show_message <const>,
 	f <const> = ...
-	local initial_pos <const> = player.get_player_coords(player.player_id())
+	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	local value
 	if f then
 		value = f.value

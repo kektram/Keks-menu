@@ -101,6 +101,8 @@ end
 globals.global_indices = essentials.const({
 	time = 					2810701 + 4624, 	-- NETWORK::GET_NETWORK_TIME()
 
+	transition = 			1574988, -- Is 66 if fully loaded into session
+
 	current = 				1921039 + 9, 		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
 
 	previous = 				1921039 + 10		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
@@ -449,6 +451,10 @@ function globals.send_script_event(...)
 		system.yield(0)
 	end
 	return false
+end
+
+function globals.is_fully_transitioned_into_session()
+	return globals.get_global("transition") == 66
 end
 
 function globals.set_bounty(...)

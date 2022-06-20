@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local menyoo <const> = {version = "2.2.3"}
+local menyoo <const> = {version = "2.2.4"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -70,7 +70,25 @@ local function apply_vehicle_modifications(...)
 	if colours.IsPearlColourCustom then
 		vehicle.set_vehicle_custom_pearlescent_colour(Entity, colours.PearlCustom)
 	end
+	if info.PaintFade then
+		vehicle.set_vehicle_enveff_scale(Entity, info.PaintFade)
+	end
+	if info.HeadlightIntensity then
+		vehicle.set_vehicle_light_multiplier(Entity, info.HeadlightIntensity)
+	end
+
+	if info.RoofState then
+		if info.RoofState == 1 or info.RoofState == 2 then
+			vehicle.raise_convertible_roof(Entity, info.RoofState == 2);
+		else
+			vehicle.lower_convertible_roof(Entity, info.RoofState == 0);
+		end
+	end
+
+	vehicle.set_vehicle_lights(Entity, info.LightsOn and 3 or 4)
+	vehicle.set_vehicle_siren(Entity, info.SirenActive == true)
 	vehicle.set_vehicle_number_plate_index(Entity, info.NumberPlateIndex)
+	vehicle.set_vehicle_dirt_level(Entity, info.DirtLevel)
 	vehicle.set_vehicle_window_tint(Entity, info.WindowTint)
 	vehicle.set_vehicle_engine_on(Entity, info.EngineOn == true, true, false)
 	vehicle.set_vehicle_neon_light_enabled(Entity, 0, info.Neons.Left == true)
@@ -199,10 +217,6 @@ local function apply_ped_modifications(...)
 	if type(info.PedProperties.RelationshipGroupAltered) == true then
 		ped.set_ped_relationship_group_hash(Entity, info.PedProperties.RelationshipGroup)
 	end
-	if info.MaxHealth then
-		ped.set_ped_max_health(Entity, info.MaxHealth)
-	end
-	ped.set_ped_health(Entity, info.Health)
 	if info.PedProperties.PedVehicleSeat
 	and info.PedProperties.PedVehicleSeat ~= -2
 	and info.Attachment
@@ -231,13 +245,36 @@ local function apply_entity_modifications(...) -- To be used with function spawn
 			apply_vehicle_modifications(Entity, info)
 		elseif entity.is_entity_a_ped(Entity) and info.PedProperties then
 			apply_ped_modifications(Entity, info, entities)
+		elseif entity.is_entity_an_object(Entity) and info.ObjectProperties and info.ObjectProperties.TextureVariation then
+			object._set_object_texture_variation(Entity, info.ObjectProperties.TextureVariation)
 		end
 		if info.OpacityLevel then
 			entity.set_entity_alpha(Entity, info.OpacityLevel, 1)
 		end
-		if type(info.LightsOn) == "boolean" then
-			entity.set_entity_lights(Entity, info.LightsOn)
+		if info.LodDistance then
+			entity.set_entity_lod_dist(Entity, info.LodDistance)
 		end
+		if info.MaxHealth then
+			entity.set_entity_max_health(Entity, info.MaxHealth)
+		end
+		if info.Health then
+			entity.set_entity_health(Entity, info.Health, 0) -- Third parameter is always 0 in freemode.ysc
+		end
+
+		local entity_proofs <const> = kek_entity.get_entity_proofs(Entity)
+
+		entity.set_entity_proofs( -- If the file doesn't specify all the proofs, the conditions prevent proofs from being modified.
+			Entity, 
+			info.IsBulletProof 	  == true or info.IsBulletProof 	 == nil and entity_proofs.bullet 	or false, 
+			info.IsFireProof 	  == true or entity_proofs.fire 	 == nil and entity_proofs.fire 		or false, 
+			info.IsExplosionProof == true or entity_proofs.explosion == nil and entity_proofs.explosion or false, 
+			info.IsCollisionProof == true or entity_proofs.collision == nil and entity_proofs.collision or false, 
+			info.IsMeleeProof 	  == true or entity_proofs.melee 	 == nil and entity_proofs.melee 	or false, 
+			info.IsSteamProof 	  == true or entity_proofs.steam 	 == nil and entity_proofs.steam 	or false, 
+			entity_proofs.unknown,
+			info.IsDrownProof	  == true or entity_proofs.drown 	 == nil and entity_proofs.drown 	or false
+		)
+
 		if type(info.HasGravity) == "boolean" then
 			entity.set_entity_gravity(Entity, info.HasGravity)
 		end
@@ -584,7 +621,7 @@ local function spawn_xml_map_type_1(info, entities, networked) -- Most menyoo fi
 			if info.Attachment and info.Attachment.__attributes.isAttached then
 				attach(Entity, info, entities)
 			else
-				essentials.assert(kek_entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
+				entity.set_entity_rotation__native(Entity, info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw, 2, true)
 				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
 				entity.freeze_entity(Entity, is_frozen)
 				if not is_frozen then
@@ -616,7 +653,7 @@ local function spawn_xml_map_type_2(info, entities, networked) -- Same as type_1
 			if info.Attachment and info.Attachment.__attributes.isAttached then
 				attach(Entity, info, entities)
 			else
-				essentials.assert(kek_entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
+				entity.set_entity_rotation__native(Entity, info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw, 2, true)
 				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
 				entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
 				if not entity.is_entity_an_object(Entity) then
@@ -638,10 +675,7 @@ local function spawn_xml_map_type_3(info, entities, networked) -- LSCdamwithpeds
 			entities[Entity] = Entity
 			local rot <const> = info.Rotation
 			local pos <const> = info.Position
-			essentials.assert(
-				kek_entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(rot.X, rot.Y, rot.Z))), 
-				"Failed to set entity rotation."
-			)
+			entity.set_entity_rotation__native(Entity, rot.X, rot.Y, rot.Z, 2, true)
 			essentials.assert(
 				entity.set_entity_coords_no_offset(Entity, v3(pos.X, pos.Y, pos.Z)), 
 				"Failed to set entity position."
@@ -797,6 +831,7 @@ function menyoo.spawn_xml_map(...)
 		end, nil)
 	end
 	send_spawn_counter_msg(entities)
+	return entities
 end
 
 function menyoo.clone_vehicle(...)
@@ -817,6 +852,7 @@ function menyoo.clone_vehicle(...)
 		if pos and entity.is_entity_a_vehicle(car) then
 			kek_entity.teleport(car, pos)
 		end
+		vehicle.copy_vehicle_damages(Vehicle, car)
 		return car
 	else
 		return 0
@@ -1133,6 +1169,8 @@ local function spawn_type_2_ini(...)
 				vehicle.set_vehicle_number_plate_index(Entity, info.Numberplate.Index)
 				vehicle.set_vehicle_number_plate_text(Entity, type(info.Numberplate.Text) == "string" and info.Numberplate.Text or "kektram")
 				vehicle.set_vehicle_window_tint(Entity, info.WindowTint.Index)
+				entity.set_entity_render_scorched(Entity, info.ScorchedRender == true)
+				vehicle.set_vehicle_siren(Entity, info.Siren == true)
 				if info.IsCustomPrimary.bool then
 					vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(info.CustomPrimaryColor.R, info.CustomPrimaryColor.G, info.CustomPrimaryColor.B))
 				end
@@ -1166,6 +1204,21 @@ local function spawn_type_2_ini(...)
 				if info.TyreBurst6MR then
 					vehicle.set_vehicle_tire_burst(Entity, 47, true, 1000.0)
 				end
+				if info.HeadlightMultiplier then
+					vehicle.set_vehicle_light_multiplier(Entity, info.HeadlightMultiplier)
+				end
+				if info.LightsState then
+					vehicle.set_vehicle_lights(Entity, info.LightsState)
+				end
+				if info.Dirt then
+					vehicle.set_vehicle_dirt_level(Entity, info.Dirt)
+				end
+				if info.WindscreenDetached then
+					vehicle.pop_out_vehicle_windscreen(Entity)
+				end
+				if info.PaintFade then
+					vehicle.set_vehicle_enveff_scale(Entity, info.PaintFade.PaintFade)
+				end
 			elseif entity.is_entity_a_ped(Entity) then
 				if info.ScenarioPlaying and type(info.ScenarioName) == "string" then
 					ai.task_start_scenario_in_place(Entity, info.ScenarioName, 0, true)
@@ -1197,6 +1250,9 @@ local function spawn_type_2_ini(...)
 				end
 				if info.Alpha then
 					entity.set_entity_alpha(Entity, info.Alpha, true)
+				end
+				if info.Health then
+					entity.set_entity_health(Entity, info.Health, 0)
 				end
 				if info.Gravity == false then
 					entity.set_entity_gravity(Entity, false)
@@ -1276,6 +1332,7 @@ local function spawn_type_3_ini(...)
 				vehicle.set_vehicle_number_plate_index(Entity, info["plate index"])
 				vehicle.set_vehicle_number_plate_text(Entity, type(info["plate text"]) == "string" and info["plate text"] or "kektram")
 				vehicle.set_vehicle_window_tint(Entity, info["window tint"])
+				vehicle.set_vehicle_dirt_level(Entity, info["dirt level"])
 				vehicle.set_vehicle_bulletproof_tires(Entity, info["bulletproof tyres"] == 1)
 				if info["custom primary colour"] and info["custom primary colour"] ~= 0 then
 					vehicle.set_vehicle_custom_primary_colour(Entity, info["custom primary colour"])
@@ -1369,6 +1426,12 @@ local function spawn_type_4_ini(...)
 					vehicle.set_vehicle_number_plate_text(Entity, type(info.PlateText) == "string" and info.PlateText or "kektram")
 					vehicle.set_vehicle_window_tint(Entity, info.WindowTint or info.Tint)
 					vehicle.set_vehicle_bulletproof_tires(Entity, (info.Bulletproof or info.BulletproofTires) == 1)
+					if info.PaintFade then
+						vehicle.set_vehicle_enveff_scale(Entity, info.PaintFade)
+					end
+					if info.Dirt then
+						vehicle.set_vehicle_dirt_level(Entity, info.Dirt)
+					end
 					if info.PrimaryPaintT == 1 then
 						vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(info.PrimaryR, info.PrimaryG, info.PrimaryB))
 					end

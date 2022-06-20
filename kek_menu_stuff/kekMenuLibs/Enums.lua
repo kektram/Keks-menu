@@ -1,7 +1,7 @@
 -- Copyright © 2020-2022 Kektram
 
 return {
-	version = "1.0.3",
+	version = "1.0.4",
 	ped_types = {
 		any_ped = -1,
 		player_0 = 0,
@@ -317,6 +317,22 @@ return {
 		VMT_LIVERY_MOD = 48,
 		VMT_LIGHTBAR = 49,
 		wheel_customization = 62 -- Need to set this for certain wheel types like f1 to be visible
+	},
+	plane_mission_types = {
+		None = 0,
+		Unk = 1,
+		CTaskVehicleRam = 2,
+		CTaskVehicleBlock = 3,
+		CTaskVehicleGoToPlane = 4,
+		CTaskVehicleStop = 5,
+		CTaskVehicleAttack = 6,
+		CTaskVehicleFollow = 7,
+		CTaskVehicleFleeAirborne = 8,
+		CTaskVehicleCircle = 9,
+		CTaskVehicleEscort = 10,
+		CTaskVehicleFollowRecording = 15,
+		CTaskVehiclePoliceBehaviour = 16,
+		CTaskVehicleCrash = 17
 	},
 	ctasks = {
 		HandsUp = 0,

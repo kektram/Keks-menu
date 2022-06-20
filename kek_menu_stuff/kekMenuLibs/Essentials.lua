@@ -37,17 +37,6 @@ essentials.init_delay = utils.time_ms() + 1000 -- For notifications that should 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
 
-essentials.new_session_timer = utils.time_ms()
-do
-	local my_pid = player.player_id()
-	essentials.listeners["player_leave"]["timer"] = event.add_event_listener("player_leave", function(event)
-		if my_pid == event.player then
-			essentials.new_session_timer = utils.time_ms() + 15000
-			my_pid = player.player_id()
-		end
-	end)
-end
-
 function essentials.is_str(f, str) -- Greatly improves readability
 	return f.str_data[f.value + 1] == lang[str]
 end
@@ -290,6 +279,14 @@ function essentials.make_string_case_insensitive(str)
 	return str
 end
 
+function essentials.get_player_coords(pid) -- Allows you to get player coords with accurate z coordinate.
+	if pid == player.player_id() then
+		return player.get_player_coords(pid)
+	else
+		return network._network_get_player_coords(pid)
+	end
+end
+
 function essentials.split_string(str, size) 
 --[[
 	Strings may be up to 4 bytes smaller than requested size if unicode is present. (alternative would be up to 3 bytes bigger, which cause more problems)
@@ -392,6 +389,7 @@ do
 		local feat
 		local type <const> = type
 		if type(func) == "function" then
+			essentials.assert(utf8.len(name), "Tried to create a feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
 			feat = originals.add_feature(name, Type, parent, function(f, data)
 				if type(f) == "userdata" then
 					if func(f, data) == HANDLER_CONTINUE then
@@ -422,6 +420,7 @@ do
 		local feat
 		local type <const> = type
 		if type(func) == "function" then
+			essentials.assert(utf8.len(name), "Tried to create a player feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
 			feat = originals.add_player_feature(name, Type, parent, function(f, pid, data)
 				if type(f) == "userdata" then
 					if func(f, pid, data) == HANDLER_CONTINUE then
@@ -748,7 +747,7 @@ end
 
 local __is_table_mt = {__index = {__is_table = true}}
 
-local accepted_whitespace <const> = "[\t\n\r\32]"
+local accepted_whitespace <const> = "[\t\n\r]"
 local escape_seq_map <const> = {
 	["&quot;"] = "\"",
 	["&apos;"] = "'",

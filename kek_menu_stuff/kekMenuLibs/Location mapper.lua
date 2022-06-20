@@ -7668,6 +7668,29 @@ local function attempt_ground_z(...)
 	return pos, false
 end
 
+local function attempt_ground_z_no_offset(...)
+	local pos <const> = ...
+	for i = 1, 60, 3 do
+		local temp = 825
+		local Z = 825
+		local status
+		while temp == Z do
+			status, temp = gameplay.get_ground_z(v3(pos.x, pos.y, Z))
+			if status and temp ~= Z then
+				pos.z = temp
+				return pos, status and temp ~= Z
+			else
+				temp = Z - 12.5
+			end
+			Z = Z - 12.5
+			if Z == -25 then
+				break
+			end
+		end
+	end
+	return pos, false
+end
+
 function location_mapper.get_closest_vector_to_pos(...)
 	local pos <const> = ...
 	local distance = 99999
@@ -7697,7 +7720,8 @@ function location_mapper.get_zone_entity_is_in(...) -- Zones do overlap each oth
 end
 
 function location_mapper.get_most_accurate_position(...)
-	local pos, always <const> = ...
+	local original_pos, always <const> = ...
+	local pos <const> = v3(original_pos.x, original_pos.y, original_pos.z)
 	if not always and pos.z > -10 then
 		return pos
 	end
@@ -7717,6 +7741,17 @@ function location_mapper.get_most_accurate_position(...)
 		return pos
 	else
 		return pos2
+	end
+end
+
+function location_mapper.get_most_accurate_position_soft(...)
+	local original_pos <const> = ...
+	local pos <const> = v3(original_pos.x, original_pos.y, original_pos.z)
+	local pos2 <const>, status <const> = attempt_ground_z_no_offset(pos)
+	if status then
+		return pos2
+	else
+		return original_pos
 	end
 end
 

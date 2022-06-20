@@ -109,8 +109,8 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Settings"] = "1.0.1",
 		["Essentials"] = "1.4.8",
 		["Memoize"] = "1.0.1",
-		["Enums"] = "1.0.3",
-		["Vehicle mapper"] = "1.3.7", 
+		["Enums"] = "1.0.4",
+		["Vehicle mapper"] = "1.3.9", 
 		["Ped mapper"] = "1.2.7",
 		["Object mapper"] = "1.2.7", 
 		["Globals"] = "1.3.5",
@@ -118,12 +118,13 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Location mapper"] = "1.0.2",
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
-		["Menyoo spawner"] = "2.2.3",
+		["Menyoo spawner"] = "2.2.4",
 		["Kek's entity functions"] = "1.2.6",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.2",
 		["Admin mapper"] = "1.0.4",
-		["Menyoo saver"] = "1.0.8"
+		["Menyoo saver"] = "1.0.9",
+		["Natives"] = "1.0.0"
 	}) do
 		if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 			menu.notify(string.format("%s [%s]", package.loaded["Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
@@ -159,6 +160,12 @@ local troll_entity <const> = package.loaded["Kek's trolling entities"]
 local custom_upgrades <const> = package.loaded["Custom upgrades"]
 local admin_mapper <const> = package.loaded["Admin mapper"]
 local menyoo_saver <const> = package.loaded["Menyoo saver"]
+local natives <const> = package.loaded["Natives"]
+
+if not menu.is_trusted_mode_enabled() then
+	essentials.msg(lang["You must turn on trusted mode to use the script."], "red", true, 6)
+	return
+end
 
 local player_history <const> = {
 	year_parents = {},
@@ -837,7 +844,7 @@ for _, properties in pairs({
 		setting = false
 	},
 	{
-		setting_name = "Tp to player while spectating",
+		setting_name = "Move mini map to people you spectate",
 		setting = false
 	},
 	{
@@ -926,6 +933,10 @@ for _, properties in pairs({
 	},
 	{
 		setting_name = "Draw garbage collection",
+		setting = false
+	},
+	{
+		setting_name = "Draw entity queue",
 		setting = false
 	},
 	{
@@ -1158,19 +1169,22 @@ do
 				"if false then return end",
 				"-- Version "..__kek_menu_version,
 				"-- sjhvnciuyu44khdjkhUSx",
-				"local appdata_path = utils.get_appdata_path(\"PopstarDevs\", \"2Take1Menu\")..\"\\\\\"",
-				"local scripts = {}",
-				"for i = 0, #scripts - 1 do",
-				"\tscript_name = scripts[#scripts - i]",
-				"\tlocal file_path = appdata_path..\"scripts\\\\\"..script_name",
-				"\tif utils.file_exists(file_path) then",
-				"\t\tif not require(script_name:gsub(\"%.lua$\", \"\")) then",
-				"\t\t\tmenu.notify(\"Failed to load \"..script_name, \"error\", 6)",
-				"\t\t\tlocal err = select(2, loadfile(file_path))",
-				"\t\t\tprint(err)",
-				"\t\tend",
-				"\tend",
-				"end"
+				"local appdata_path <const> = utils.get_appdata_path(\"PopstarDevs\", \"2Take1Menu\")..\"\\\\\"",
+				"local scripts <const> = {}",
+				"menu.create_thread(function()",
+				"	system.yield(0)",
+				"	for i = 0, #scripts - 1 do",
+				"		local script_name <const> = scripts[#scripts - i]",
+				"		local file_path <const> = appdata_path..\"scripts\\\\\"..script_name",
+				"		if utils.file_exists(file_path) then",
+				"			if not require(script_name:gsub(\"%.lua$\", \"\")) then",
+				"				menu.notify(\"Failed to load \"..script_name, \"error\", 6)",
+				"				local err <const> = select(2, loadfile(file_path))",
+				"				print(err)",
+				"			end",
+				"		end",
+				"	end",
+				"end, nil)"
 			}, "\n"))
 			file:flush()
 		end
@@ -1216,8 +1230,8 @@ do
 				if not essentials.search_for_match_and_get_line(paths.home.."scripts\\autoexec.lua", {file_name}) then
 					essentials.replace_lines_in_file_exact(
 						paths.home.."scripts\\autoexec.lua", 
-						"local scripts = {}", 
-						"local scripts = {}\nscripts[#scripts + 1] = \""..file_name.."\""
+						"local scripts <const> = {}", 
+						"local scripts <const> = {}\nscripts[#scripts + 1] = \""..file_name.."\""
 					)
 					essentials.msg(string.format("%s %s %s", lang["Added"], file_name, lang["to script loader"]), "green", true)
 					update_script_loader_toggle_name()
@@ -1565,6 +1579,7 @@ settings.toggle["Kick any vote kickers"] = menu.add_feature(lang["Kick any vote 
 			if event == enums.net_event_ids.KICK_VOTES_EVENT
 			and sender ~= player.player_id()
 			and target == player.player_id()
+			and player.can_player_be_modder(sender)
 			and essentials.is_not_friend(sender) then
 				local player_name <const> = player.get_player_name(sender) -- Player is most likely gone after kick
 				local scid <const> = player.get_player_scid(sender)
@@ -1583,17 +1598,16 @@ settings.toggle["Revenge"] = menu.add_feature(lang["Revenge"], "value_str", u.pr
 	while f.on do
 		system.yield(0)
 		if entity.is_entity_dead(player.get_player_ped(player.player_id())) then
-			for pid in essentials.players() do
-				if essentials.is_not_friend(pid) and player.player_id() ~= pid and entity.has_entity_been_damaged_by_entity(player.get_player_ped(player.player_id()), player.get_player_ped(pid)) then
-					if essentials.is_str(f, "Kill") then
-						essentials.use_ptfx_function(fire.add_explosion, location_mapper.get_most_accurate_position(player.get_player_coords(pid)), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(player.player_id()))
-					elseif essentials.is_str(f, "Clown vans") then
-						troll_entity.send_clown_van(pid)
-					elseif essentials.is_str(f, "Kick") then
-						essentials.kick_player(pid)
-					elseif essentials.is_str(f, "Crash") then
-						globals.script_event_crash(pid)
-					end
+			local pid <const> = network._network_get_player_killer_of_player(player.player_id()):__tointeger() -- is -1 if not killed by player
+			if player.is_player_valid(pid) and essentials.is_not_friend(pid) and player.can_player_be_modder(pid) and player.player_id() ~= pid then
+				if essentials.is_str(f, "Kill") then
+					essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(player.player_id()))
+				elseif essentials.is_str(f, "Clown vans") then
+					troll_entity.send_clown_van(pid)
+				elseif essentials.is_str(f, "Kick") then
+					essentials.kick_player(pid)
+				elseif essentials.is_str(f, "Crash") then
+					globals.script_event_crash(pid)
 				end
 			end
 			while f.on and entity.is_entity_dead(player.get_player_ped(player.player_id())) do
@@ -1623,7 +1637,7 @@ settings.toggle["Aim protection"] = menu.add_feature(lang["Aim protection"], "va
 					if essentials.is_str(f, "Explode with blame") then
 						blame = player.player_id()
 					end
-					essentials.use_ptfx_function(fire.add_explosion, location_mapper.get_most_accurate_position(player.get_player_coords(pid)), enums.explosion_types.GRENADELAUNCHER, true, false, 0, player.get_player_ped(blame))
+					essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.GRENADELAUNCHER, true, false, 0, player.get_player_ped(blame))
 				elseif essentials.is_str(f, "Taze") then
 					local time <const> = utils.time_ms() + 500
 					while time > utils.time_ms() do
@@ -1824,6 +1838,23 @@ settings.toggle["Draw entity limits"] = menu.add_feature(lang["Draw entity limit
 	end
 end)
 
+settings.toggle["Draw entity queue"] = menu.add_feature(lang["Draw entity queue"], "toggle", u.debug.id, function(f)
+	while f.on do
+		system.yield(0)
+		ui.set_text_color(255, 255, 255, 255)
+		ui.set_text_scale(0.3)
+		ui.set_text_font(0)
+		ui.set_text_outline(true)
+		ui.draw_text(string.format("%s: %i\n%s: %i", 
+			lang["Num of peds/vehicles in queue"],
+			#kek_entity.spawn_queue,
+			lang["Num of peds/vehicles spawned"],
+			kek_entity.spawn_queue_id
+			), 
+		memoize.v2(0.8, 0.7))		
+	end
+end)
+
 settings.toggle["Draw number of script events sent"] = menu.add_feature(lang["Draw number of se sent"], "toggle", u.debug.id, function(f)
 	while f.on do
 		system.yield(0)
@@ -1880,7 +1911,7 @@ do
 	local feat = menu.add_feature("Spawn object & draw object properties", "toggle", object_testing_parent.id, function(f)
 		local model <const> = settings.user_entity_features.object.feats["Change object testing"]:get_str_data()[1]
 		f.data = kek_entity.spawn_object(object_mapper.get_hash_from_user_input(model), function()
-			return player.get_player_coords(player.player_id()) + 2
+			return essentials.get_player_coords(player.player_id()) + 2
 		end)
 		f1.on = true -- Update newly spawned object to current set rot
 		entity.freeze_entity(f.data, true)
@@ -2136,7 +2167,7 @@ do
 							)
 							kek_entity.max_car(new_vehicle, true) -- Only maxes performance
 							local police <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key(police_ped_models[math.random(1, #police_ped_models)]), function()
-								return player.get_player_coords(player.player_id()) + 30, 0
+								return essentials.get_player_coords(player.player_id()) + 30, 0
 							end, false, false, enums.ped_types.cop)
 							kek_entity.set_combat_attributes(police, false, combat_attributes)
 							ped.set_ped_relationship_group_hash(police, enums.relationship_group_hashes.COP) -- Must go after set_combat_attributes. It sets relationship hash to hate_player.
@@ -2190,7 +2221,7 @@ settings.user_entity_features.vehicle.feats["Swap nearby cars"] = menu.add_featu
 						if entity.is_entity_a_vehicle(car) then
 							entity.set_entity_velocity(car, velocity)
 							local Ped <const> = kek_entity.spawn_ped_or_vehicle(ped_mapper.get_random_ped("all peds except animals"), function() 
-								return player.get_player_coords(player.player_id()) + 30, 0
+								return essentials.get_player_coords(player.player_id()) + 30, 0
 							end, false, false, enums.ped_types.civmale)
 							if entity.is_entity_a_ped(Ped) then
 								ped.set_ped_into_vehicle(Ped, car, enums.vehicle_seats.driver)
@@ -2348,11 +2379,11 @@ do
 				tracker[pid] = utils.time_ms() + 1000
 			elseif essentials.is_str(f, "Explode") then
 				ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
-				essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(pid))
+				essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(pid))
 				tracker[pid] = utils.time_ms() + 1000
 			elseif essentials.is_str(f, "Explode with blame") then
 				ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
-				essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(player.player_id()))
+				essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(player.player_id()))
 				tracker[pid] = utils.time_ms() + 1000
 			end
 		end
@@ -2698,7 +2729,7 @@ for _, year in pairs(player_history.sort_numbers(utils.get_all_sub_directories_i
 				player_history.hour_parents[file_path] = menu.add_feature(current_file:gsub("%.log$", ""), "parent", player_history.day_parents[day_folder].id)
 
 				for name, rid, ip, time in essentials.get_file_string(file_path):gmatch("|([^\n\r|]+)| &(%d+)& %^([%d.]+)%^ !([%d:]+)!") do
-					menu.add_feature(string.format("%s [%s]", name, time), "parent", player_history.hour_parents[file_path].id, function(f)
+					menu.add_feature(essentials.get_safe_feat_name(string.format("%s [%s]", name, time)), "parent", player_history.hour_parents[file_path].id, function(f)
 						player_history.add_features(f, rid, ip, name)	
 					end)
 					player_history.players_added_to_history[string.format("|%s| &%d& ^%s^", name, rid, ip)] = true
@@ -2810,7 +2841,7 @@ menu.add_player_feature(lang["Crash"], "action", u.malicious_player_features, fu
 		entity.freeze_entity(Vehicle, true)
 		local time <const> = utils.time_ms() + 1500
 		while time > utils.time_ms() and entity.is_entity_a_vehicle(Vehicle) and player.is_player_valid(pid) do
-			kek_entity.teleport(Vehicle, player.get_player_coords(pid))
+			kek_entity.teleport(Vehicle, essentials.get_player_coords(pid))
 			system.yield(0)
 		end
 		if not entity.is_entity_a_vehicle(Vehicle) then
@@ -2860,7 +2891,7 @@ settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_playe
 					local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 					if streaming.is_model_a_vehicle(hash) then
 						vehicles[i] = kek_entity.spawn_ped_or_vehicle(hash, function()
-							return player.get_player_coords(player.player_id()) + v3(0, 0, essentials.random_real(30, 50)), 0
+							return essentials.get_player_coords(player.player_id()) + v3(0, 0, essentials.random_real(30, 50)), 0
 						end)
 					end
 				end
@@ -2880,7 +2911,7 @@ settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_playe
 				system.yield(0)
 				if kek_entity.get_control_of_entity(Vehicle, 200) then
 					essentials.use_ptfx_function(vehicle.set_vehicle_out_of_control, Vehicle, false, true)
-					kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(player.get_player_coords(pid)) + v3(essentials.random_real(-2, 2), essentials.random_real(-2, 2), essentials.random_real(-2, 2)))
+					kek_entity.teleport(Vehicle, essentials.get_player_coords(pid) + v3(essentials.random_real(-2, 2), essentials.random_real(-2, 2), essentials.random_real(-2, 2)))
 				end
 			end
 		end
@@ -2903,7 +2934,7 @@ menu.add_player_feature(lang["Perma-cage"], "toggle", u.malicious_player_feature
 		end
 		if memoize.get_distance_between(player.get_player_ped(pid), Ped) > 5 then
 			ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
-			kek_entity.teleport(Ped, player.get_player_coords(pid))
+			kek_entity.teleport(Ped, essentials.get_player_coords(pid))
 		end
 	end
 	f.on = false
@@ -2996,7 +3027,7 @@ do
 				if player.is_player_in_any_vehicle(pid) then
 					local player_vehicle <const> = player.get_player_vehicle(pid)
 					local p_veh_hash <const> = entity.get_entity_model_hash(player_vehicle)
-					if streaming.is_model_a_vehicle(p_veh_hash) and (not tracker[player_vehicle] or utils.time_ms() > tracker[player_vehicle]) then -- It has been observed entity hash can be 0 despite checking if player is in vehicle.
+					if streaming.is_model_a_vehicle(p_veh_hash) and player.can_player_be_modder(pid) and (not tracker[player_vehicle] or utils.time_ms() > tracker[player_vehicle]) then -- It has been observed entity hash can be 0 despite checking if player is in vehicle.
 						local setting = vehicle_blacklist_reaction_names[settings.in_use["vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(p_veh_hash)] + 1]
 						if f.on and setting ~= "Turned off" and essentials.is_not_friend(pid)
 						and (not player.is_player_in_any_vehicle(player.player_id()) or player_vehicle ~= player.get_player_vehicle(player.player_id())) then
@@ -3010,7 +3041,7 @@ do
 							menu.create_thread(function()
 								if setting == "EMP" then
 									essentials.msg(string.format("%s %s's' %s.", lang["Vehicle blacklist:\nEMP'd"], name, veh_name), "orange", notif_on)
-									local pos <const> = player.get_player_coords(pid)
+									local pos <const> = essentials.get_player_coords(pid)
 									globals.send_script_event("Vehicle EMP", pid, {pid, essentials.round(pos.x), essentials.round(pos.y), essentials.round(pos.z), 0}, false, true)
 								elseif setting == "Kick from vehicle" then
 									essentials.msg(string.format("%s %s %s %s.", lang["Vehicle blacklist:\nKicked"], name, lang["out of their"], veh_name), "orange", notif_on)
@@ -3019,7 +3050,7 @@ do
 									essentials.msg(string.format("%s %s's' %s.", lang["Vehicle blacklist:\nExploding"], name, veh_name), "orange", notif_on)		
 									local time <const> = utils.time_ms() + 2000
 									while time > utils.time_ms() and not entity.is_entity_dead(player.get_player_ped(pid)) do
-										essentials.use_ptfx_function(fire.add_explosion, location_mapper.get_most_accurate_position(player.get_player_coords(pid)), math.random(0, essentials.number_of_explosion_types), true, false, 0, player.get_player_ped(pid))
+										essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), math.random(0, essentials.number_of_explosion_types), true, false, 0, player.get_player_ped(pid))
 										system.yield(300)
 									end
 								elseif setting == "Ram" then
@@ -3084,7 +3115,7 @@ menu.add_feature(lang["Spawn vehicle for everyone"], "action", u.session_peacefu
 	local spawn_count = 0
 	for pid in essentials.players() do
 		local car <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
-			return location_mapper.get_most_accurate_position(player.get_player_coords(pid)), player.get_player_heading(pid)
+			return essentials.get_player_coords(pid), player.get_player_heading(pid)
 		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
 		if not entity.is_entity_a_vehicle(car) then
 			essentials.msg(string.format("%s %i / %i %s. %s", lang["Failed to spawn"], player.player_count() - spawn_count, player.player_count(), lang["Vehicles"]:lower(), lang["Vehicle limit was reached."]), "red", true, 6)
@@ -3097,7 +3128,7 @@ menu.add_feature(lang["Spawn vehicle for everyone"], "action", u.session_peacefu
 end)
 
 menu.add_feature(lang["Max everyone's car"], "action", u.session_peaceful.id, function()
-	local initial_pos <const> = player.get_player_coords(player.player_id())
+	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	for pid in essentials.players() do
 		if kek_entity.check_player_vehicle_and_teleport_if_necessary(pid) then
 			kek_entity.max_car(player.get_player_vehicle(pid))
@@ -3128,7 +3159,7 @@ menu.add_player_feature(lang["Kidnap player"], "toggle", u.player_trolling_featu
 			if not entity.is_entity_dead(player.get_player_ped(pid)) then
 				if not entity.is_entity_a_vehicle(van) then
 					van = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("stockade"), function()
-						return location_mapper.get_most_accurate_position(player.get_player_coords(pid)) + memoize.v3(0, 0, 50), 0
+						return essentials.get_player_coords(pid) + memoize.v3(0, 0, 50), 0
 					end, true, true)
 					vehicle.set_vehicle_doors_locked_for_all_players(van, true)
 				end
@@ -3208,7 +3239,7 @@ player_feat_ids["Mad peds"] = menu.add_player_feature(lang["Mad peds in their ca
 			local hash <const> = gameplay.get_hash_key(ped_mapper.LIST_OF_SPECIAL_PEDS[math.random(1, #ped_mapper.LIST_OF_SPECIAL_PEDS)])
 			if essentials.is_str(f, "Fill, steal & run away") and not entity.is_entity_a_ped(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0) then
 				local Ped <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
-					return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10), 0
+					return essentials.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10), 0
 				end, false, false, enums.ped_types.civmale)
 				ped.set_ped_into_vehicle(Ped, Vehicle, enums.vehicle_seats.driver)
 				ped.set_ped_combat_attributes(Ped, 3, false)
@@ -3232,7 +3263,7 @@ menu.get_player_feature(player_feat_ids["Mad peds"]):set_str_data({
 })
 
 menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, function(f)
-	local initial_pos <const> = player.get_player_coords(player.player_id())
+	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	menu.create_thread(function()
 		while f.on do
 			entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
@@ -3241,12 +3272,12 @@ menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, f
 	end, nil)
 	while f.on do
 		if essentials.is_str(f, "Current position") then
-			local pos <const> = player.get_player_coords(player.player_id())
+			local pos <const> = essentials.get_player_coords(player.player_id())
 			while essentials.is_str(f, "Current position") and f.on do
 				kek_entity.teleport_session(pos, f)
 				system.yield(0)
 			end
-		elseif essentials.is_str(f, "Waypoint") and ui.get_waypoint_coord().x < 14000 then
+		elseif essentials.is_str(f, "Waypoint") and hud.is_waypoint_active() then
 			local pos <const> = location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50))
 			while essentials.is_str(f, "Waypoint") and f.on do
 				kek_entity.teleport_session(pos, f)
@@ -3273,7 +3304,7 @@ menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, f
 				if not entity.is_entity_dead(player.get_player_ped(players[i])) then
 					for i2 = 1, 10 do
 						system.yield(0)
-						essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(players[i]), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(players[i]))
+						essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(players[i]), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(players[i]))
 					end
 				end
 			end
@@ -3368,10 +3399,10 @@ do
 	local function unblock_area(...)
 		local model <const>, positions <const> = ...
 		essentials.assert(streaming.is_model_valid(gameplay.get_hash_key(model)), "Invalid model.", model)
-		local initial_pos <const> = player.get_player_coords(player.player_id())
+		local initial_pos <const> = essentials.get_player_coords(player.player_id())
 		local had_to_teleport
 		for _, pos in pairs(positions) do
-			if player.get_player_coords(player.player_id()):magnitude(pos) > 200 then
+			if essentials.get_player_coords(player.player_id()):magnitude(pos) > 200 then
 				kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), pos)
 				had_to_teleport = true
 				system.yield(100)
@@ -3708,7 +3739,7 @@ settings.toggle["Anti chat spam"] = menu.add_feature(lang["Anti chat spam"], "va
 		local tracker <const> = {}
 		essentials.listeners["chat"]["anti spam"] = essentials.add_chat_event_listener(function(event)
 			local scid <const> = player.get_player_scid(event.player)
-			if player.is_player_valid(event.player) and event.player ~= player.player_id() and essentials.is_not_friend(event.player) then
+			if player.is_player_valid(event.player) and player.can_player_be_modder(event.player) and event.player ~= player.player_id() and essentials.is_not_friend(event.player) then
 				local msg_increment 	 <const> = (utf8.len(event.body) or #event.body) + 85 -- People may send a message that contains invalid utf8 seq, causing utf8.len to return nil.
 				local in_a_row_increment <const> = (utf8.len(event.body) or #event.body) >= 10 and 1.0 or 0.7
 				
@@ -3768,7 +3799,7 @@ do
 					local time <const> = utils.time_ms() + 4000
 					while f.on
 					and settings.toggle["Anti stuck measures"].on
-					and (not wp or not essentials.is_str(f, "waypoint") or ui.get_waypoint_coord().x < 14000)
+					and (not wp or not essentials.is_str(f, "waypoint") or hud.is_waypoint_active())
 					and player.is_player_in_any_vehicle(player.player_id())
 					and time > utils.time_ms()
 					and entity.get_entity_speed(player.get_player_vehicle(player.player_id())) < 2
@@ -3786,7 +3817,7 @@ do
 					if not settings.toggle["Anti stuck measures"].on then
 						consecutive_stuck_counter = 0
 					end
-					if wp and essentials.is_str(f, "waypoint") and ui.get_waypoint_coord().x > 14000 then
+					if wp and essentials.is_str(f, "waypoint") and not hud.is_waypoint_active() then
 						consecutive_stuck_counter = 0
 					end
 					if entity.get_entity_speed(player.get_player_vehicle(player.player_id())) > 12 then
@@ -3794,7 +3825,7 @@ do
 					end
 					if consecutive_stuck_counter > 3 or vehicle.is_vehicle_stuck_on_roof(player.get_player_vehicle(player.player_id())) or (entity.get_entity_submerged_level(player.get_player_vehicle(player.player_id())) == 1 and not streaming.is_model_a_boat(entity.get_entity_model_hash(player.get_player_vehicle(player.player_id())))) then
 						consecutive_stuck_counter = 0
-						kek_entity.teleport(player.get_player_vehicle(player.player_id()), location_mapper.get_most_accurate_position(player.get_player_coords(player.player_id()) + kek_entity.get_random_offset(-80, 80, 25, 75), true))
+						kek_entity.teleport(player.get_player_vehicle(player.player_id()), essentials.get_player_coords(player.player_id() + kek_entity.get_random_offset(-80, 80, 25, 75), true))
 					end
 				end
 				if entity.is_entity_a_vehicle(player.get_player_vehicle(player.player_id())) and entity.is_entity_dead(player.get_player_vehicle(player.player_id())) and player.is_player_in_any_vehicle(player.player_id()) then
@@ -3815,7 +3846,7 @@ do
 			menu.get_player_feature(player_feat_ids["Follow player"]).on = false
 			while f.on do
 				if player.is_player_in_any_vehicle(player.player_id()) then
-					if (not essentials.is_str(f, "waypoint") or ui.get_waypoint_coord().x < 14000) and entity.is_entity_upside_down(player.get_player_vehicle(player.player_id())) then
+					if (not essentials.is_str(f, "waypoint") or hud.is_waypoint_active()) and entity.is_entity_upside_down(player.get_player_vehicle(player.player_id())) then
 						local rot <const> = entity.get_entity_rotation(player.get_player_vehicle(player.player_id()))
 						entity.set_entity_rotation(player.get_player_vehicle(player.player_id()), v3(0, 0, rot.z))
 					end
@@ -3826,9 +3857,9 @@ do
 					or (essentials.is_str(f, "waypoint") and pos ~= ui.get_waypoint_coord()) 
 					or utils.time_ms() > time
 					or (essentials.is_str(f, "Wander") and not ai.is_task_active(player.get_player_ped(player.player_id()), enums.ctasks.CarDriveWander)) then
-						if essentials.is_str(f, "waypoint") and ui.get_waypoint_coord().x > 14000 then
+						if essentials.is_str(f, "waypoint") and not hud.is_waypoint_active() then
 							kek_entity.clear_tasks_without_leaving_vehicle(player.get_player_ped(player.player_id()), player.get_player_vehicle(player.player_id()))
-							while f.on and essentials.is_str(f, "waypoint") and ui.get_waypoint_coord().x > 14000 do
+							while f.on and essentials.is_str(f, "waypoint") and not hud.is_waypoint_active() do
 								system.yield(0)
 							end
 						end
@@ -3841,7 +3872,7 @@ do
 						entity.set_entity_max_speed(player.get_player_vehicle(player.player_id()), u.drive_speed.value)
 						if essentials.is_str(f, "Wander") then
 							ai.task_vehicle_drive_wander(player.get_player_ped(player.player_id()), player.get_player_vehicle(player.player_id()), u.drive_speed.value, settings.in_use["Drive style"])
-						elseif essentials.is_str(f, "waypoint") and ui.get_waypoint_coord().x < 14000 then
+						elseif essentials.is_str(f, "waypoint") and hud.is_waypoint_active() then
 							ai.task_vehicle_drive_to_coord_longrange(player.get_player_ped(player.player_id()), player.get_player_vehicle(player.player_id()), location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), u.drive_speed.value, settings.in_use["Drive style"], 10)
 						end
 					end
@@ -3869,7 +3900,7 @@ do
 			local thread <const> = create_anti_stuck_thread(f)
 			local speed, style, Vehicle, value
 			local time = 0
-			local pos = player.get_player_coords(player.player_id())
+			local pos = essentials.get_player_coords(player.player_id())
 			local Ped = player.get_player_ped(player.player_id())
 			while f.on do
 				if player.is_player_in_any_vehicle(player.player_id()) then
@@ -3887,7 +3918,7 @@ do
 						style = settings.in_use["Drive style"]
 						Vehicle = player.get_player_vehicle(player.player_id())
 						value = memoize.get_distance_between(player.get_player_ped(pid), player.get_player_ped(player.player_id()))
-						pos = player.get_player_coords(pid)
+						pos = essentials.get_player_coords(pid)
 						Ped = player.get_player_ped(pid)
 						entity.set_entity_max_speed(player.get_player_vehicle(player.player_id()), u.drive_speed.value)
 						time = utils.time_ms() + 7000
@@ -4046,6 +4077,7 @@ do
 			}
 			essentials.listeners["chat"]["judger"] = essentials.add_chat_event_listener(function(event)
 				if player.is_player_valid(event.player)
+				and player.can_player_be_modder(event.player)
 				and event.player ~= player.player_id()
 				and (not f.data.tracker[player.get_player_scid(event.player)] or utils.time_ms() > f.data.tracker[player.get_player_scid(event.player)])
 				and essentials.is_not_friend(event.player) then
@@ -4323,13 +4355,16 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								return
 							end
 							menu.create_thread(function()
-								local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function() 
-									return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 50), player.get_player_heading(pid)
-								end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
+								local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+									local pos = kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))
+									local accurate_pos <const> = location_mapper.get_most_accurate_position_soft(pos)
+									if pos == accurate_pos then -- If ground_z can't be obtained
+										pos = essentials.get_player_coords(pid) 
+									end
+									return pos, player.get_player_heading(pid)
+								end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on, nil, nil, nil, nil, true)
 								if not entity.is_entity_a_vehicle(Vehicle) then
 									essentials.send_message("[Chat commands]: Vehicle spawn limit is reached. Spawns are disabled.", event.player == player.player_id())
-								else
-									kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))))
 								end
 							end, nil)
 						elseif settings.in_use["weapon #chat command#"] and str:find("^%pweapon [^\32]+") then
@@ -4388,9 +4423,8 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 										blame = event.player
 									end
 									local time <const> = utils.time_ms() + 900
-									ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 									while not entity.is_entity_dead(player.get_player_ped(pid)) and time > utils.time_ms() do
-										essentials.use_ptfx_function(fire.add_explosion, location_mapper.get_most_accurate_position(player.get_player_coords(pid)), enums.explosion_types.BARREL, true, false, 0, player.get_player_ped(blame))
+										essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BARREL, true, false, 0, player.get_player_ped(blame))
 										system.yield(75)
 									end
 									kek_entity.ram_player(pid)
@@ -4413,7 +4447,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								essentials.send_message("[Chat commands]: You can't kick yourself.")
 								return
 							end
-							if pid == player.player_id() then
+							if pid == player.player_id() or not player.can_player_be_modder(pid) then
 								essentials.send_message("[Chat commands]: You can't kick this player.")
 								return
 							end
@@ -4434,14 +4468,21 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							menu.create_thread(function()
 								local clown_van <const> = troll_entity.send_clown_van(pid)
 								if not entity.is_entity_a_vehicle(clown_van) then
-									essentials.send_message("[Chat commands]: Failed to spawn clown van; entity limit is reached.", event.player == player.player_id())
+									essentials.send_message("[Chat commands]: Failed to spawn clown van.", event.player == player.player_id())
+								end
+							end, nil)
+						elseif settings.in_use["jet #chat command#"] and str:find("^%pjet$") then
+							menu.create_thread(function()
+								local jet <const> = troll_entity.send_jet(pid)
+								if not entity.is_entity_a_vehicle(jet) then
+									essentials.send_message("[Chat commands]: Failed to spawn jet.", event.player == player.player_id())
 								end
 							end, nil)
 						elseif settings.in_use["chopper #chat command#"] and str:find("^%pchopper$") then
 							menu.create_thread(function()
 								local chopper <const> = troll_entity.send_attack_chopper(pid)
 								if not entity.is_entity_a_vehicle(chopper) then
-									essentials.send_message("[Chat commands]: Failed to spawn chopper; entity limit is reached.", event.player == player.player_id())
+									essentials.send_message("[Chat commands]: Failed to spawn chopper.", event.player == player.player_id())
 								end
 							end, nil)
 						elseif settings.in_use["tp #chat command#"] and (str:find("^%ptp [^\32]+") or str:find("^%pteleport [^\32]+")) then
@@ -4453,7 +4494,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							menu.create_thread(function()
 								local pos
 								if player.is_player_valid(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))) then
-									pos = location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 8))
+									pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
 								end
 								if not pos then
 									local str <const> = str:match("^%ptp (.+)"):lower()
@@ -4592,6 +4633,12 @@ do
 			args = "<Player>"
 		},
 		{
+			setting_name = "jet #chat command#", 
+			setting = false, 
+			feature_name = lang["Jet"],
+			args = "<Player>"
+		},
+		{
 			setting_name = "chopper #chat command#", 
 			setting = false, 
 			feature_name = lang["Send attack chopper"],
@@ -4697,11 +4744,11 @@ do
 		while f.on do
 			local time <const> = utils.time_ms() + ((f.value + 1) * 60000)
 			local value <const> = f.value
-			while f.on and time > utils.time_ms() and utils.time_ms() > essentials.new_session_timer and f.value == value do
+			while f.on and time > utils.time_ms() and globals.is_fully_transitioned_into_session() and f.value == value do
 				system.yield(0)
 			end
 			if settings.toggle["Chat commands"].on and settings.toggle["Send command info"].on and value == f.value then
-				while utils.time_ms() < essentials.new_session_timer and f.on do
+				while not globals.is_fully_transitioned_into_session() and f.on do
 					system.yield(0)
 				end
 				if not admin_mapper.is_there_admin_in_session() and f.on then
@@ -5067,41 +5114,29 @@ settings.toggle["Clever bot"].data = {}
 settings.toggle["Auto tp to waypoint"] = menu.add_feature(lang["Auto tp to waypoint"], "toggle", u.self_options.id, function(f)
 	while f.on do
 		system.yield(0)
-		if math.abs(ui.get_waypoint_coord().x) < 16000 and math.abs(ui.get_waypoint_coord().x) > 10 and math.abs(ui.get_waypoint_coord().y) > 10 then
+		if hud.is_waypoint_active() then
 			local pos <const> = ui.get_waypoint_coord()
 			ui.set_waypoint_off()
-			for i = 1, 2 do
-				kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), location_mapper.get_most_accurate_position(v3(pos.x, pos.y, -50)))
-				system.yield(0)
-			end
+			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), location_mapper.get_most_accurate_position(v3(pos.x, pos.y, -50)))
 		end
 	end
 end)
 
-settings.toggle["Tp to player while spectating"] = menu.add_feature(lang["Teleport to player when spectating"], "toggle", u.self_options.id, function(f)
-	local initial_pos = player.get_player_coords(player.player_id())
-	local is_teleported = false
+settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang["Move mini map to people you spectate"], "toggle", u.self_options.id, function(f)
+	local who_spectating
+	local pos <const> = player.get_player_coords(player.player_id())
+	player.extend_world_boundary_for_player(pos.x, pos.y, pos.z)
 	while f.on do
-		local pos <const> = player.get_player_coords(player.player_id())
-		if pos.z < 2275 or pos.z > 2325 then
-			initial_pos = pos
-		end
-		is_teleported = network.get_player_player_is_spectating(player.player_id())
-		while is_teleported and f.on do
-			local pos <const> = player.get_player_coords(network.get_player_player_is_spectating(player.player_id()))
-			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), v3(pos.x, pos.y, 2300))
-			system.yield(0)
-			if not network.get_player_player_is_spectating(player.player_id()) then
-				kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
-				is_teleported = false
-				break
-			end
-		end
 		system.yield(0)
+		if player.is_player_spectating(player.player_id()) then
+			who_spectating = network.get_player_player_is_spectating(player.player_id()) or who_spectating
+			hud.set_minimap_in_spectator_mode(true, player.get_player_ped(who_spectating))
+		elseif who_spectating and who_spectating ~= -1 then
+			hud.set_minimap_in_spectator_mode(false, player.get_player_ped(who_spectating))
+			who_spectating = -1
+		end
 	end
-	if is_teleported then
-		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
-	end
+	player.reset_world_boundary_for_player()
 end)
 
 local function display_settings(...)
@@ -5399,7 +5434,7 @@ menu.add_feature(lang["Force field"], "value_str", u.force_field.id, function(f)
 			end
 			local my_ped = player.get_player_ped(player.player_id())
 			local my_vehicle <const> = player.get_player_vehicle(player.player_id())
-			pos = player.get_player_coords(player.player_id()) + memoize.v3(u.force_field_offset_x.value, u.force_field_offset_y.value, u.force_field_offset_z.value)
+			pos = essentials.get_player_coords(player.player_id()) + memoize.v3(u.force_field_offset_x.value, u.force_field_offset_y.value, u.force_field_offset_z.value)
 			for i, entities in pairs(buf) do
 				for Entity in essentials.entities(entities) do
 					if my_vehicle ~= Entity then
@@ -5739,7 +5774,7 @@ do
 			end
 		elseif essentials.is_str(f, "Set where you spawn") then
 			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
-				local pos <const> = player.get_player_coords(player.player_id())
+				local pos <const> = essentials.get_player_coords(player.player_id())
 				local file_path <const> = paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml"
 				local str, new_str = essentials.get_file_string(file_path)
 				str = str:gsub("\r\n", "\n")
@@ -5851,7 +5886,7 @@ do
 			for i = 1, #children do
 				children[i].hidden = children[i].data == "MENYOO" and not children[i].name:find(input)
 			end
-		elseif essentials.is_str(f, "Save") then
+		elseif essentials.is_str(f, "Save") or essentials.is_str(f, "Save only mission entities") then
 			local input, status
 			while true do
 				input, status = keys_and_input.get_input(lang["Type in name of menyoo map."], input, 128, 0)
@@ -5874,7 +5909,7 @@ do
 				::skip::
 				system.yield(0)
 			end
-			menyoo_saver.save_map(paths.home.."scripts\\Menyoo Maps\\"..input..".xml")
+			menyoo_saver.save_map(paths.home.."scripts\\Menyoo Maps\\"..input..".xml", essentials.is_str(f, "Save only mission entities"))
 			create_custom_map_feature(input)
 		elseif essentials.is_str(f, "Refresh list") then
 			local children <const> = custom_maps_parent.children
@@ -5893,6 +5928,7 @@ do
 	end)
 	main_feat:set_str_data({
 		lang["Search"],
+		lang["Save only mission entities"],
 		lang["Save"],
 		lang["Refresh list"]
 	})
@@ -5919,7 +5955,7 @@ settings.user_entity_features.ped.player_feats["Spawn ped"] = menu.add_player_fe
 	local hash <const> = ped_mapper.get_hash_from_user_input(settings.in_use["User ped"])
 	if streaming.is_model_a_ped(hash) then
 		kek_entity.spawn_ped_or_vehicle(hash, function() 
-			return location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 7)), 0
+			return location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 7)), 0
 		end, false, false, enums.ped_types.civmale)
 	end
 end).id
@@ -5984,14 +6020,14 @@ u.vehicle_fly = menu.add_feature(lang["Vehicle fly"], "toggle", u.gvehicle.id, f
 			if menu.has_thread_finished(thread) and player.is_player_in_any_vehicle(player.player_id()) and not entity.is_entity_a_vehicle(fly_entity) then
 				thread = menu.create_thread(function()
 					fly_entity = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("bmx"), function() 
-						return player.get_player_coords(player.player_id()), 0 
+						return essentials.get_player_coords(player.player_id()), 0 
 					end, true, false, nil, 0, true, true)
 					entity.set_entity_max_speed(fly_entity, 45000)
 					entity.set_entity_visible(fly_entity, false)
 					entity.set_entity_collision(fly_entity, false, false, false)
 				end, nil)
 			end
-			entity.set_entity_coords_no_offset(fly_entity, player.get_player_coords(player.player_id()))
+			entity.set_entity_coords_no_offset(fly_entity, essentials.get_player_coords(player.player_id()))
 			if player.is_player_in_any_vehicle(player.player_id()) then
 				for i = -3, 7, 2 do
 					while controls.is_disabled_control_pressed(0, control_indexes[i]) and f.on and player.is_player_in_any_vehicle(player.player_id()) do
@@ -6021,7 +6057,7 @@ u.vehicle_fly = menu.add_feature(lang["Vehicle fly"], "toggle", u.gvehicle.id, f
 						elseif math.abs(i) == 1 then
 							entity.set_entity_rotation(player.get_player_vehicle(player.player_id()), cam.get_gameplay_cam_rot())
 							vehicle.set_vehicle_forward_speed(player.get_player_vehicle(player.player_id()), settings.valuei["Vehicle fly speed"].value * i / math.abs(i))
-							entity.set_entity_coords_no_offset(fly_entity, player.get_player_coords(player.player_id()))
+							entity.set_entity_coords_no_offset(fly_entity, essentials.get_player_coords(player.player_id()))
 						else
 							if angle == 0 or rot == memoize.v3() then
 								angle = kek_entity.get_rotated_heading(player.get_player_vehicle(player.player_id()), angles[i], player.player_id())
@@ -6188,9 +6224,9 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 			essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
 			return
 		end
-		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true, true)
+		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true, true)
 	elseif essentials.is_str(f, "waypoint") then
-		if ui.get_waypoint_coord().x > 14000 then
+		if not hud.is_waypoint_active() then
 			essentials.msg(lang["Please set a waypoint."], "red", true)
 			return
 		end
@@ -6201,7 +6237,7 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 			system.yield(1500)
 			for i = 1, 20 do
 				system.yield(0)
-				essentials.use_ptfx_function(fire.add_explosion, player.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(pid))
+				essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(pid))
 			end
 		end
 	elseif essentials.is_str(f, "far away") then
@@ -6221,7 +6257,7 @@ do
 				return 0
 			end
 		})
-		local initial_pos <const> = player.get_player_coords(player.player_id())
+		local initial_pos <const> = essentials.get_player_coords(player.player_id())
 		local initial_heading <const> = player.get_player_heading(player.player_id())
 		local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
 		local Vehicle <const> = player.get_player_vehicle(pid)
@@ -6277,11 +6313,11 @@ do
 				local my_veh_dims <const> = entity.is_entity_a_vehicle(my_vehicle) and kek_entity.get_longest_dimension(entity.get_entity_model_hash(my_vehicle)) or 0
 				menyoo.clone_vehicle(
 					Vehicle, 
-					kek_entity.get_vector_relative_to_pos(
+					location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_pos(
 						initial_pos, 
 						veh_dims + my_veh_dims + 3, 
 						initial_heading
-					),
+					)),
 					initial_heading
 				)
 			end
@@ -6353,7 +6389,7 @@ menu.get_player_feature(player_feat_ids["Player horn boost"]).value = 25
 
 do
 	local feat = menu.add_player_feature(lang["Flamethrower"], "action_value_str", u.player_peaceful, function(f, pid)
-		local initial_pos <const> = player.get_player_coords(player.player_id())
+		local initial_pos <const> = essentials.get_player_coords(player.player_id())
 		local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
 		if status then
 			if essentials.is_str(f, "Give") then
@@ -6387,7 +6423,7 @@ do
 end
 
 player_feat_ids["Drive force multiplier"] = menu.add_player_feature(lang["Drive force multiplier"], "action_value_f", u.player_vehicle_features, function(f, pid)
-	local initial_pos <const> = player.get_player_coords(player.player_id())
+	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
 	if status and kek_entity.get_control_of_entity(player.get_player_vehicle(pid), nil, nil, true) then
 		entity.set_entity_max_speed(player.get_player_vehicle(pid), 45000)
@@ -6413,7 +6449,7 @@ end):set_str_data({
 })
 
 menu.add_player_feature(lang["Vehicle can't be locked on"], "action_value_str", u.player_peaceful, function(f, pid)
-	local initial_pos <const> = player.get_player_coords(player.player_id())
+	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
 	if status and kek_entity.get_control_of_entity(player.get_player_vehicle(pid), nil, nil, true) then
 		vehicle.set_vehicle_can_be_locked_on(player.get_player_vehicle(pid), essentials.is_str(f, "Remove"), true)
@@ -6520,7 +6556,7 @@ menu.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player
 					kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
 					return
 				end
-				kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(player.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0)
+				kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(essentials.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0)
 				troll_entity.setup_peds_and_put_in_seats(kek_entity.get_empty_seats(Vehicle), ped_mapper.get_random_ped("all peds except animals"), Vehicle, pid)
 			end
 			return
@@ -6580,6 +6616,10 @@ menu.add_feature(lang["Send to session"], "value_str", u.session_trolling.id, fu
 			temp = troll_entity.spawn_standard(f, troll_entity.send_clown_van)
 		elseif essentials.is_str(f, "Army") then
 			temp = troll_entity.spawn_standard(f, troll_entity.send_army)
+		elseif essentials.is_str(f, "Kek's chopper") then
+			temp = troll_entity.spawn_standard(f, troll_entity.send_kek_chopper)
+		elseif essentials.is_str(f, "Jet") then
+			temp = troll_entity.spawn_standard(f, troll_entity.send_jet)
 		end
 		if temp and #temp > 0 then
 			entities[#entities + 1] = temp
@@ -6592,7 +6632,9 @@ menu.add_feature(lang["Send to session"], "value_str", u.session_trolling.id, fu
 	end
 end):set_str_data({
 	lang["Clown vans"],
-	lang["Army"]
+	lang["Army"],
+	lang["Kek's chopper"],
+	lang["Jet"]
 })
 
 menu.add_player_feature(lang["Taze player"], "toggle", u.player_trolling_features, function(f, pid)
@@ -6649,11 +6691,11 @@ menu.add_player_feature(lang["Float"], "value_str", u.player_trolling_features, 
 				end
 			end
 			platform = kek_entity.spawn_object(hash, function()
-				pos = player.get_player_coords(pid) - memoize.v3(0, 0, -2.5)
+				pos = essentials.get_player_coords(pid) - memoize.v3(0, 0, -2.5)
 				return pos
 			end)
 		end
-		local player_coords <const> = player.get_player_coords(pid)
+		local player_coords <const> = essentials.get_player_coords(pid)
 		if entity.get_entity_coords(platform).z > player_coords.z + 3 then
 			pos.z = player_coords.z - 2.5
 		elseif essentials.is_str(f, "Upwards") then
@@ -6787,7 +6829,7 @@ menu.add_player_feature(lang["Kick gun"], "toggle", u.pWeapons, function(f, pid)
 		local Ped <const> = player.get_entity_player_is_aiming_at(pid)
 		if entity.is_entity_a_ped(Ped) and ped.is_ped_a_player(Ped) then
 			local target_pid <const> = player.get_player_from_ped(Ped)
-			if target_pid ~= player.player_id() and ped.is_ped_shooting(player.get_player_ped(pid)) and essentials.is_not_friend(target_pid) then
+			if target_pid ~= player.player_id() and player.can_player_be_modder(target_pid) and ped.is_ped_shooting(player.get_player_ped(pid)) and essentials.is_not_friend(target_pid) then
 				essentials.kick_player(target_pid)
 			end
 		end
@@ -6871,7 +6913,7 @@ menu.add_feature(lang["Clear entities"], "value_str", u.kek_utilities.id, functi
 	menu.create_thread(function()
 		while f.on do
 			if settings.toggle["Show red sphere clear entities"].on and not essentials.is_str(f, "Peds & vehicles") and not essentials.is_str(f, "All") and radius < 10001 then
-				graphics.draw_marker(28, player.get_player_coords(player.player_id()), memoize.v3(0, 90, 0), memoize.v3(0, 90, 0), memoize.v3(radius, radius, radius), 255, 0, 0, 85, false, false, 2, false, nil, "MarkerTypeDebugSphere", false)
+				graphics.draw_marker(28, essentials.get_player_coords(player.player_id()), memoize.v3(0, 90, 0), memoize.v3(0, 90, 0), memoize.v3(radius, radius, radius), 255, 0, 0, 85, false, false, 2, false, nil, "MarkerTypeDebugSphere", false)
 			end
 			system.yield(0)
 		end
@@ -7193,7 +7235,7 @@ do
 				teleport_all_in_front_of_player[i] = menu.add_feature(lang["Teleport in front of player"], "action_value_str", parent.id, function(f)
 					if player.is_player_valid(f.data[f.value + 1]) then
 						for Entity, count in entities_ite(i) do
-							entity.set_entity_coords_no_offset(Entity, location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(player.get_player_ped(f.data[f.value + 1]), 10)))
+							entity.set_entity_coords_no_offset(Entity, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(f.data[f.value + 1]), 10)))
 							if count == 30 then
 								break
 							end
@@ -7269,7 +7311,7 @@ do
 						local rot_x, rot_y, rot_z, offset_x, offset_y, offset_z, collision
 
 						attach_player_vehicle[i] = menu.add_feature(lang["Attach player vehicle to entity"], "action_value_str", attach_parent.id, function(f)
-							local initial_pos <const> = player.get_player_coords(player.player_id())
+							local initial_pos <const> = essentials.get_player_coords(player.player_id())
 							local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(f.data[f.value + 1])
 							if not status or parent.data.entity == player.get_player_vehicle(f.data[f.value + 1]) then
 								if not status then
@@ -7287,7 +7329,7 @@ do
 						end)
 
 						detach_player_vehicle[i] = menu.add_feature(lang["Detach"], "action_value_str", attach_parent.id, function(f)
-							local initial_pos <const> = player.get_player_coords(player.player_id())
+							local initial_pos <const> = essentials.get_player_coords(player.player_id())
 							local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(f.data[f.value + 1])
 							if status and entity.is_entity_attached(player.get_player_vehicle(f.data[f.value + 1])) and kek_entity.get_control_of_entity(player.get_player_vehicle(f.data[f.value + 1]), nil, nil, true) then
 								entity.detach_entity(player.get_player_vehicle(f.data[f.value + 1]))
@@ -7397,7 +7439,7 @@ do
 								kek_entity.set_entity_heading(Vehicle, player.get_player_heading(player.player_id()))
 							elseif entity.is_entity_a_ped(parent.data.entity) then
 								local Ped <const> = ped.clone_ped(parent.data.entity)
-								kek_entity.teleport(Ped, kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8))
+								kek_entity.teleport(Ped, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)))
 							end
 						end)
 						menu.add_feature(lang["Resurrect"], "action", parent.id, function(f)
@@ -7438,7 +7480,7 @@ do
 							kek_entity.teleport(
 								parent.data.entity, 
 								entity.is_entity_a_vehicle(parent.data.entity) and kek_entity.vehicle_get_vec_rel_to_dims(entity.get_entity_model_hash(parent.data.entity), player.get_player_ped(f.data[f.value + 1]))
-								or kek_entity.get_vector_relative_to_entity(player.get_player_ped(f.data[f.value + 1]), 10)
+								or location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(f.data[f.value + 1]), 10))
 							)
 							kek_entity.set_entity_heading(parent.data.entity, player.get_player_heading(f.data[f.value + 1]))
 						end
@@ -7507,7 +7549,7 @@ do
 				if parent_i == 1 then
 					if time_ms() > player_vehicles.timer then
 						player_vehicles.timer = time_ms() + 1000
-						local my_ped_coords <const> = player.get_player_coords(player.player_id())
+						local my_ped_coords <const> = essentials.get_player_coords(player.player_id())
 						for pid in essentials.players(true) do
 							if player.get_player_vehicle(pid) ~= 0 then
 								local Entity <const> = player.get_player_vehicle(pid)
@@ -7520,7 +7562,7 @@ do
 						end
 					end
 				end
-				local my_ped_coords <const> = player.get_player_coords(player.player_id())
+				local my_ped_coords <const> = essentials.get_player_coords(player.player_id())
 				for Entity, parent in pairs(parents_in_use[parent_i]) do
 					parent.on = find(parent.name, filters[parent_i]) ~= nil
 					if is_an_entity(Entity) then
@@ -7580,10 +7622,10 @@ menu.add_player_feature(lang["Copy to clipboard"], "action_value_str", u.player_
 	elseif essentials.is_str(f, "Host token") then
 		utils.to_clipboard(string.format("%x", player.get_player_host_token(pid)))
 	elseif essentials.is_str(f, "Position") then
-		local str <const> = tostring(player.get_player_coords(pid)):match("v3%(([%d%-%.%,%s]+)%)")
+		local str <const> = tostring(essentials.get_player_coords(pid)):match("v3%(([%d%-%.%,%s]+)%)")
 		utils.to_clipboard(str)
 	elseif essentials.is_str(f, "Position without dec") then
-		local pos <const> = player.get_player_coords(pid)
+		local pos <const> = essentials.get_player_coords(pid)
 		utils.to_clipboard(string.format("%i, %i, %i", essentials.round(pos.x), essentials.round(pos.y), essentials.round(pos.z)))
 	elseif essentials.is_str(f, "Vehicle hash") then
 		utils.to_clipboard(tostring(entity.get_entity_model_hash(player.get_player_vehicle(pid))))
@@ -8131,8 +8173,8 @@ settings:initialize(paths.home.."scripts\\kek_menu_stuff\\keksettings.ini")
 essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", function()
 	kek_entity.entity_manager:update()
 	for _, Entity in essentials.entities(essentials.deep_copy(kek_entity.entity_manager.entities)) do
+		ui.remove_blip(ui.get_blip_from_entity(Entity))
 		if network.has_control_of_entity(Entity) and not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(Entity), player.get_player_vehicle(player.player_id())) then
-			ui.remove_blip(ui.get_blip_from_entity(Entity))
 			if entity.is_entity_attached(Entity) then
 				entity.detach_entity(Entity)
 			end

@@ -240,7 +240,7 @@ do
 	local get_info <const> = essentials.const({
 		vehicle = {
 			hash = vehicle_mapper.get_hash_from_user_input,
-			name = vehicle_mapper.GetNameFromHash
+			name = vehicle_mapper.get_english_name_regardless_of_game_language
 		},
 		ped = {
 			hash = ped_mapper.get_hash_from_user_input,

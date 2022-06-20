@@ -28,11 +28,7 @@ function troll_entity.spawn_standard(...)
 			and utils.time_ms() > tracker[scid].time
 			and essentials.is_not_friend(pid)
 			and (not settings.toggle["Exclude yourself from trolling"].on or player.player_id() ~= pid) then
-				local Vehicle, Table
-				repeat
-					system.yield(0)
-					Vehicle, Table = grief_function(pid)
-				until not player.is_player_valid(pid) or not f.on or f.value ~= value or kek_entity.is_entity_valid(Vehicle) or Vehicle == -1
+				local Vehicle, Table = grief_function(pid)
 				if player.is_player_valid(pid) and f.on and f.value == value and kek_entity.is_entity_valid(Vehicle) then
 					tracker[scid] = essentials.const({time = utils.time_ms() + 30000, vehicle = Vehicle})
 					entities = entities or {} -- Only create table if needed to spare memory
@@ -92,11 +88,12 @@ function troll_entity.setup_peds_and_put_in_seats(...)
 	if not entity.is_entity_a_vehicle(Vehicle) then
 		return
 	end
+	vehicle.set_heli_blades_full_speed(Vehicle)
 	vehicle.set_vehicle_doors_locked_for_all_players(Vehicle, true)
 	vehicle.set_vehicle_can_be_locked_on(Vehicle, false, true)
 	local peds <const> = entity_table or {}
 	for i = 1, #seats do
-		if seats[i] <= vehicle.get_vehicle_model_number_of_seats(entity.get_entity_model_hash(Vehicle)) - 2 and not entity.is_entity_a_ped(vehicle.get_ped_in_vehicle_seat(Vehicle, seats[i])) then
+		if entity.is_entity_a_vehicle(Vehicle) and seats[i] <= vehicle.get_vehicle_model_number_of_seats(entity.get_entity_model_hash(Vehicle)) - 2 and not entity.is_entity_a_ped(vehicle.get_ped_in_vehicle_seat(Vehicle, seats[i])) then
 			menu.create_thread(function(Ped)
 				peds[#peds + 1] = Ped
 				local weapon_hash <const> = weapons[math.random(1, #weapons)]
@@ -112,16 +109,21 @@ function troll_entity.setup_peds_and_put_in_seats(...)
 					kek_entity.clear_entities({Ped})
 					return
 				end
-				local time <const> = utils.time_ms() + 240000
 				if seats[i] == -1 then
-					while time > utils.time_ms() and kek_entity.is_entity_valid(Ped) and not entity.is_entity_dead(Ped) and kek_entity.is_entity_valid(Vehicle) and not entity.is_entity_dead(Vehicle) and player.is_player_valid(pid) do
-						vehicle.set_heli_blades_full_speed(Vehicle)
-						ai.task_vehicle_follow(Ped, Vehicle, player.get_player_ped(pid), 150, settings.in_use["Drive style"], 6)
+					while kek_entity.is_entity_valid(Ped) and not entity.is_entity_dead(Ped) and kek_entity.is_entity_valid(Vehicle) and not entity.is_entity_dead(Vehicle) and player.is_player_valid(pid) do
+						if kek_entity.get_control_of_entity(Ped) then
+							ai.task_vehicle_follow(Ped, Vehicle, player.get_player_ped(pid), 150, settings.in_use["Drive style"], 6)
+						end
 						system.yield(500)
-						ai.task_combat_ped(Ped, player.get_player_ped(pid), 0, 16)
+						if kek_entity.get_control_of_entity(Ped) then
+							ai.task_combat_ped(Ped, player.get_player_ped(pid), 0, 16)
+						end
 						essentials.wait_conditional(15000, function()
-							return time > utils.time_ms() and kek_entity.is_entity_valid(Ped) and not entity.is_entity_dead(Ped) and kek_entity.is_entity_valid(Vehicle) and not entity.is_entity_dead(Vehicle) and player.is_player_valid(pid)
+							return kek_entity.is_entity_valid(Ped) and not entity.is_entity_dead(Ped) and kek_entity.is_entity_valid(Vehicle) and not entity.is_entity_dead(Vehicle) and player.is_player_valid(pid)
 						end)
+						if entity.is_entity_waiting_for_world_collision(Vehicle) then
+							entity.apply_force_to_entity(Vehicle, 0, 1, 1, 0, 0, 0, 0, false, true)
+						end
 					end
 					if dont_clear_vehicle then
 						entity.detach_entity(ped.get_vehicle_ped_is_using(Ped) or 0)
@@ -131,11 +133,13 @@ function troll_entity.setup_peds_and_put_in_seats(...)
 						kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
 					end
 				else
-					while time > utils.time_ms() and kek_entity.is_entity_valid(Ped) and not entity.is_entity_dead(Ped) and not entity.is_entity_dead(Vehicle) and player.is_player_valid(pid) do
+					while kek_entity.is_entity_valid(Ped) and not entity.is_entity_dead(Ped) and not entity.is_entity_dead(Vehicle) and player.is_player_valid(pid) do
 						essentials.wait_conditional(15000, function()
-							return time > utils.time_ms() and kek_entity.is_entity_valid(Ped) and not entity.is_entity_dead(Ped) and not entity.is_entity_dead(Vehicle) and player.is_player_valid(pid)
+							return kek_entity.is_entity_valid(Ped) and not entity.is_entity_dead(Ped) and not entity.is_entity_dead(Vehicle) and player.is_player_valid(pid)
 						end)
-						ai.task_combat_ped(Ped, player.get_player_ped(pid), 0, 16)
+						if kek_entity.get_control_of_entity(Ped) then
+							ai.task_combat_ped(Ped, player.get_player_ped(pid), 0, 16)
+						end
 					end
 					kek_entity.clear_entities({Ped, Vehicle})
 				end
@@ -168,18 +172,26 @@ function troll_entity.send_army(...)
 	or kek_entity.entity_manager.counts.ped > (settings.valuei["Ped limits"].value * 10) - 90 then
 		return -2
 	end
+	local blip_color <const> = math.random(1, 84)
 	local entities <const> = {}
 	entities.valkyrie = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("valkyrie2"), function()
 		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true) + memoize.v3(0, 0, 35), 0
 	end, false, true)
+	kek_entity.set_blip(entities.valkyrie, 481, blip_color)
 	if not entity.is_entity_a_vehicle(entities.valkyrie) then
 		return -2
 	end
 	troll_entity.setup_peds_and_put_in_seats(seats_army.valkyrie, gameplay.get_hash_key("s_m_y_swat_01"), entities.valkyrie, pid, false, entities)
 
+	entities.jet = troll_entity.send_jet(pid, blip_color)
+	if not entity.is_entity_a_vehicle(entities.jet) then
+		return -2
+	end
+
 	entities.half_track = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("halftrack"), function()
 		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0
 	end, false, true)
+	kek_entity.set_blip(entities.half_track, 513, blip_color)
 	if not entity.is_entity_a_vehicle(entities.half_track) then
 		return entities.valkyrie, entities
 	end
@@ -188,6 +200,7 @@ function troll_entity.send_army(...)
 	entities.thruster = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("thruster"), function()
 		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true) + memoize.v3(0, 0, 35), 0
 	end, false, true)
+	kek_entity.set_blip(entities.thruster, 480, blip_color)
 	if not entity.is_entity_a_vehicle(entities.thruster) then
 		return entities.half_track, entities
 	end
@@ -196,6 +209,7 @@ function troll_entity.send_army(...)
 	entities.khanjali = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("khanjali"), function()
 		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0
 	end, false, true)
+	kek_entity.set_blip(entities.khanjali, 421, blip_color)
 	if not entity.is_entity_a_vehicle(entities.khanjali) then
 		return entities.thruster, entities
 	end
@@ -233,16 +247,18 @@ function troll_entity.send_attack_chopper(...)
 	end
 	local hash <const> = vehicle_mapper.HELICOPTERS[math.random(1, #vehicle_mapper.HELICOPTERS)]
 	local chopper <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
-		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true) + memoize.v3(0, 0, 35), 0
+		return memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75) + memoize.v3(0, 0, 35), 0
 	end, false, true)
 	if not entity.is_entity_a_vehicle(chopper) then
 		return -2
 	end
+	vehicle.set_heli_blades_full_speed(chopper)
+	kek_entity.set_blip(chopper, 481, math.random(1, 84))
 	vehicle.control_landing_gear(chopper, 3)
 	vehicle.set_vehicle_can_be_locked_on(chopper, false, true)
 	vehicle.set_vehicle_doors_locked_for_all_players(chopper, true)
 	local pilot <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("a_f_y_topless_01"), function() 
-		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid)) + memoize.v3(0, 0, 10), 0
+		return memoize.get_player_coords(pid) + memoize.v3(0, 0, 10), 0
 	end, false, false, enums.ped_types.civmale, 15)
 	if not ped.set_ped_into_vehicle(pilot, chopper, enums.vehicle_seats.driver) then
 		kek_entity.clear_entities({pilot, chopper})
@@ -255,18 +271,20 @@ function troll_entity.send_attack_chopper(...)
 	)
 	menu.create_thread(function()
 		local timer = 0
-		local time <const> = utils.time_ms() + 240000
-		while time > utils.time_ms() and kek_entity.is_entity_valid(pilot) and kek_entity.is_entity_valid(chopper) and not entity.is_entity_dead(chopper) and player.is_player_valid(pid) do
-			vehicle.set_heli_blades_full_speed(chopper)
-			ai.task_vehicle_follow(pilot, chopper, player.get_player_ped(pid), 150, settings.in_use["Drive style"], 6)
-			system.yield(250)
-			ai.task_combat_ped(pilot, player.get_player_ped(pid), 0, 16)
-			system.yield(250)
+		while kek_entity.is_entity_valid(pilot) 
+		and kek_entity.is_entity_valid(chopper) 
+		and not entity.is_entity_dead(pilot) 
+		and not entity.is_entity_dead(chopper)
+		and not vehicle.is_vehicle_stopped(chopper)
+		and player.is_player_valid(pid) do
+			if kek_entity.get_control_of_entity(pilot) then
+				ai.task_vehicle_follow(pilot, chopper, player.get_player_ped(pid), 150, settings.in_use["Drive style"], 6)
+			end
 			if utils.time_ms() > timer and memoize.get_distance_between(player.get_player_ped(pid), chopper) < 120 then
 				ai.task_vehicle_shoot_at_ped(pilot, player.get_player_ped(pid), 2000)
 				timer = utils.time_ms() + 5000
-				system.yield(250)
 			end
+			system.yield(1000)
 		end
 		kek_entity.clear_entities({pilot, chopper})
 	end, nil)
@@ -301,14 +319,16 @@ function troll_entity.send_kek_chopper(...)
 		return -2
 	end
 	local chopper <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("havok"), function() 
-		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid)) + v3(math.random(-50, 50), math.random(-50, 50), 30), 0
+		return memoize.get_player_coords(pid) + v3(math.random(-50, 50), math.random(-50, 50), 30), 0
 	end, false, true)
+	kek_entity.set_blip(chopper, 310, 58)
 	if not entity.is_entity_a_vehicle(chopper) then
 		return -2
 	end
+	vehicle.set_heli_blades_full_speed(chopper)
 	vehicle.control_landing_gear(chopper, 3)
 	local pilot <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("s_m_y_swat_01"), function()
-		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid)) + memoize.v3(0, 0, 20), 0
+		return memoize.get_player_coords(pid) + memoize.v3(0, 0, 20), 0
 	end, false, false, enums.ped_types.civmale, 20)
 	kek_entity.set_combat_attributes(
 		pilot, 
@@ -319,30 +339,24 @@ function troll_entity.send_kek_chopper(...)
 		kek_entity.clear_entities({pilot, chopper})
 		return -2
 	end
-	menu.create_thread(function()
-		local time <const> = utils.time_ms() + 240000
-		while time > utils.time_ms() 
-		and player.is_player_valid(pid) 
+	local pilot_thread <const> = menu.create_thread(function()
+		while player.is_player_valid(pid) 
 		and kek_entity.is_entity_valid(pilot) 
 		and kek_entity.is_entity_valid(chopper) 
 		and not entity.is_entity_dead(pilot)
-		and not entity.is_entity_dead(chopper) do
-			vehicle.set_heli_blades_full_speed(chopper)
-			ai.task_vehicle_follow(pilot, chopper, player.get_player_ped(pid), 300, drive_style_kek_chopper, 50)
-			system.yield(250)
+		and not entity.is_entity_dead(chopper)
+		and not vehicle.is_vehicle_stopped(chopper) do
+			if kek_entity.get_control_of_entity(pilot) then
+				ai.task_vehicle_follow(pilot, chopper, player.get_player_ped(pid), 300, drive_style_kek_chopper, 50)
+			end
+			system.yield(1000)
 		end
 		kek_entity.clear_entities({pilot, chopper})
 	end, nil)
 
 	menu.create_thread(function()
-		local time <const> = utils.time_ms() + 240000
 		local vehicles = {}
-		while time > utils.time_ms() 
-		and player.is_player_valid(pid) 
-		and kek_entity.is_entity_valid(pilot) 
-		and kek_entity.is_entity_valid(chopper)
-		and not entity.is_entity_dead(pilot)
-		and not entity.is_entity_dead(chopper) do
+		while not menu.has_thread_finished(pilot_thread) do
 			system.yield(0)
 			if memoize.get_distance_between(chopper, player.get_player_ped(pid)) < 170 and not entity.is_entity_dead(player.get_player_ped(pid)) then
 				for i = 1, 4 do
@@ -351,6 +365,7 @@ function troll_entity.send_kek_chopper(...)
 						vehicles[i] = kek_entity.spawn_ped_or_vehicle(hash, function()
 							return kek_entity.vehicle_get_vec_rel_to_dims(hash, chopper), entity.get_entity_heading(chopper)
 						end)
+						kek_entity.set_blip(vehicles[i], 119, 1)
 					else
 						kek_entity.repair_car(vehicles[i], true)
 						entity.set_entity_no_collsion_entity(vehicles[i], chopper, false)
@@ -451,9 +466,11 @@ function troll_entity.send_clown_van(...)
 		return -2
 	end
 	create_clown_relationship_group()
+	local pos <const> = location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 35, 100), true)
 	local clown_van <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("speedo2"), function() 
-		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0
+		return pos, 0
 	end, false, true)
+	kek_entity.set_blip(clown_van, 484, math.random(1, 84))
 	if not entity.is_entity_a_vehicle(clown_van) then
 		return -2
 	end
@@ -462,7 +479,7 @@ function troll_entity.send_clown_van(...)
 		return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 20), 0
 	end, false, false, enums.ped_types.civmale, 15)
 	if not ped.set_ped_into_vehicle(driver, clown_van, enums.vehicle_seats.driver) then
-		kek_entity.clear_entities({driver, clown_van})
+		kek_entity.clear_entities({driver, clown_van}, 3000)
 		return -2
 	end
 	weapon.give_delayed_weapon_to_ped(driver, gameplay.get_hash_key("weapon_appistol"), 0, 1)
@@ -474,16 +491,20 @@ function troll_entity.send_clown_van(...)
 	)
 	ped.set_ped_relationship_group_hash(driver, clown_relationship_group)
 	ped.set_can_attack_friendly(driver, false, false)
-	local time <const> = utils.time_ms() + 240000
 	local ai_follow_tracker = 0
 	local driver_thread <const> = menu.create_thread(function()
-		while time > utils.time_ms() and player.is_player_valid(pid) and kek_entity.is_entity_valid(clown_van) and not entity.is_entity_dead(clown_van) and kek_entity.is_entity_valid(driver) do
-			if not ped.is_ped_in_vehicle(driver, clown_van) then
+		while player.is_player_valid(pid) 
+		and kek_entity.is_entity_valid(clown_van) 
+		and not entity.is_entity_dead(clown_van) 
+		and kek_entity.is_entity_valid(driver)
+		and memoize.get_distance_between(clown_van, player.get_player_ped(pid)) < 2000
+		do
+			if not ped.is_ped_in_vehicle(driver, clown_van) and kek_entity.get_control_of_entity(driver) then
 				ped.clear_ped_tasks_immediately(vehicle.get_ped_in_vehicle_seat(clown_van, enums.vehicle_seats.driver))
 				ped.set_ped_into_vehicle(driver, clown_van, enums.vehicle_seats.driver)
 				system.yield(500)
 			end
-			if ped.is_ped_in_vehicle(driver, clown_van) and utils.time_ms() > ai_follow_tracker then
+			if ped.is_ped_in_vehicle(driver, clown_van) and utils.time_ms() > ai_follow_tracker and kek_entity.get_control_of_entity(driver) then
 				ai.task_vehicle_follow(driver, clown_van, player.get_player_ped(pid), 120, settings.in_use["Drive style"], 10)
 				ai_follow_tracker = utils.time_ms() + 8000
 			end
@@ -492,17 +513,28 @@ function troll_entity.send_clown_van(...)
 				if essentials.request_ptfx("scr_rcbarry2") then
 					essentials.use_ptfx_function(graphics.start_networked_particle_fx_non_looped_at_coord, "scr_clown_death", entity.get_entity_coords(driver), memoize.v3(), 1, true, true, true)
 				end
-				ped.resurrect_ped(driver)
-				ped.clear_ped_tasks_immediately(driver)
+				if kek_entity.get_control_of_entity(driver) then
+					ped.resurrect_ped(driver)
+					ped.clear_ped_tasks_immediately(driver)
+				end
 				system.yield(250)
-				ped.set_ped_into_vehicle(driver, clown_van, enums.vehicle_seats.driver)
+				if kek_entity.get_control_of_entity(driver) then
+					ped.set_ped_into_vehicle(driver, clown_van, enums.vehicle_seats.driver)
+				end
 			end
-			if math.abs(entity.get_entity_pitch(clown_van)) > 40 then
+			if math.abs(entity.get_entity_pitch(clown_van)) > 40 and kek_entity.get_control_of_entity(clown_van) then
 				entity.set_entity_rotation(clown_van, memoize.v3())
 			end
+			if entity.is_entity_waiting_for_world_collision(clown_van) then
+				entity.apply_force_to_entity(clown_van, 0, 1, 1, 0, 0, 0, 0, false, true)
+			end
 			system.yield(250)
+			if vehicle.is_vehicle_stopped(clown_van) and kek_entity.get_control_of_entity(clown_van) then
+				vehicle.set_vehicle_forward_speed(clown_van, -10)
+				entity.set_entity_heading(clown_van, kek_entity.get_rotated_heading(clown_van, 180, player.player_id(), entity.get_entity_heading(clown_van)))
+			end
 		end
-		kek_entity.clear_entities({clown_van, driver})
+		kek_entity.clear_entities({clown_van, driver}, 3000)
 	end, nil)
 
 	for i = 1, math.random(1, 3) do
@@ -518,60 +550,120 @@ function troll_entity.send_clown_van(...)
 			ped.set_ped_relationship_group_hash(clown, clown_relationship_group)
 			ped.set_can_attack_friendly(clown, false, false)
 			ped.set_ped_into_vehicle(clown, clown_van, enums.vehicle_seats.first_free_seat)
-			local Ped = player.get_player_ped(pid) -- To reapply combat ai if their ped id changes
-			ai.task_combat_ped(clown, player.get_player_ped(pid), 0, 16)
 			while kek_entity.is_entity_valid(clown) and not menu.has_thread_finished(driver_thread) do
 				if entity.is_entity_dead(clown) then
 					system.yield(math.random(1000, 2500))
 					if essentials.request_ptfx("scr_rcbarry2") then
 						essentials.use_ptfx_function(graphics.start_networked_particle_fx_non_looped_at_coord, "scr_clown_death", entity.get_entity_coords(clown), memoize.v3(), 1, true, true, true)
 					end
-					ped.resurrect_ped(clown)
-					ped.clear_ped_tasks_immediately(clown)
-					ped.set_ped_into_vehicle(clown, clown_van, enums.vehicle_seats.first_free_seat)
-					system.yield(250)
-					ai.task_combat_ped(clown, player.get_player_ped(pid), 0, 16)
+					if kek_entity.get_control_of_entity(clown) then
+						ped.resurrect_ped(clown)
+						ped.clear_ped_tasks_immediately(clown)
+						ped.set_ped_into_vehicle(clown, clown_van, enums.vehicle_seats.first_free_seat)
+					end
 				end
 				if not ped.is_ped_in_vehicle(clown, clown_van) then
 					if player.is_player_in_any_vehicle(pid) or memoize.get_distance_between(player.get_player_ped(pid), clown) > 40 then
 						if not essentials.binary_search(weapons, clown_weapon) then
+							if kek_entity.get_control_of_entity(clown) then
+								if weapon.has_ped_got_weapon(clown, clown_weapon) then
+									weapon.remove_weapon_from_ped(clown, clown_weapon)
+								end
+								clown_weapon = weapons[math.random(1, #weapons)]
+								weapon.give_delayed_weapon_to_ped(clown, clown_weapon, 0, 1)
+								weapon_mapper.set_ped_weapon_attachments(clown, true, clown_weapon)
+							end
+						end
+					elseif not essentials.binary_search(close_range, clown_weapon) then
+						if kek_entity.get_control_of_entity(clown) then
 							if weapon.has_ped_got_weapon(clown, clown_weapon) then
 								weapon.remove_weapon_from_ped(clown, clown_weapon)
 							end
-							clown_weapon = weapons[math.random(1, #weapons)]
+							clown_weapon = close_range[math.random(1, #close_range)]
 							weapon.give_delayed_weapon_to_ped(clown, clown_weapon, 0, 1)
 							weapon_mapper.set_ped_weapon_attachments(clown, true, clown_weapon)
 						end
-					elseif not essentials.binary_search(close_range, clown_weapon) then
-						if weapon.has_ped_got_weapon(clown, clown_weapon) then
-							weapon.remove_weapon_from_ped(clown, clown_weapon)
-						end
-						clown_weapon = close_range[math.random(1, #close_range)]
-						weapon.give_delayed_weapon_to_ped(clown, clown_weapon, 0, 1)
-						weapon_mapper.set_ped_weapon_attachments(clown, true, clown_weapon)
 					end
 				end
 				if not ped.is_ped_in_vehicle(clown, clown_van) and memoize.get_distance_between(player.get_player_ped(pid), clown) > 70 then
-					ped.set_ped_into_vehicle(clown, clown_van, enums.vehicle_seats.first_free_seat)
+					if kek_entity.get_control_of_entity(clown) then
+						ped.set_ped_into_vehicle(clown, clown_van, enums.vehicle_seats.first_free_seat)
+					end
 				elseif ped.is_ped_in_vehicle(clown, clown_van) 
 				and not entity.is_entity_dead(player.get_player_ped(pid)) 
 				and memoize.get_distance_between(clown_van, player.get_player_ped(pid)) < 30 then
-					ai.task_leave_vehicle(clown, clown_van, 256)
+					if kek_entity.get_control_of_entity(clown) then
+						ai.task_leave_vehicle(clown, clown_van, 256)
+					end
 					system.yield(250)
-					ai.task_combat_ped(clown, player.get_player_ped(pid), 0, 16)
 				end
 				system.yield(250)
-				if Ped ~= player.get_player_ped(pid) then
-					Ped = player.get_player_ped(pid)
+				if not ped.is_ped_in_combat(clown, player.get_player_ped(pid)) and kek_entity.get_control_of_entity(clown) then
 					ai.task_combat_ped(clown, player.get_player_ped(pid), 0, 16)
 				end
 			end
-			kek_entity.clear_entities({clown})
+			kek_entity.clear_entities({clown}, 3000)
 		end, kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key(ped_mapper.LIST_OF_SPECIAL_PEDS[math.random(1, #ped_mapper.LIST_OF_SPECIAL_PEDS)]), function()
 			return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 20), 0
 		end, false, false, enums.ped_types.civmale, 15))
 	end
 	return clown_van
+end
+
+function troll_entity.send_jet(...)
+	local pid <const>, blip_color <const> = ...
+	local update <const> = kek_entity.entity_manager:update()
+	if not update.is_vehicle_limit_not_breached 
+	or not update.is_ped_limit_not_breached
+	or kek_entity.entity_manager.counts.ped > (settings.valuei["Ped limits"].value * 10) - 15 then
+		return -2
+	end
+
+	local pos <const> = essentials.get_player_coords(pid)
+
+	local pilot <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("s_m_y_swat_01"), function()
+		return pos + memoize.v3(0, 0, 60), 0
+	end, false, false, enums.ped_types.civmale)
+
+	local jet <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("lazer"), function()
+		return pos + kek_entity.get_random_offset(-150, 150, 50, 200) + memoize.v3(0, 0, math.random(40, 100)), 0
+	end, false, true)
+	vehicle.control_landing_gear(jet, 3)
+	kek_entity.set_blip(jet, 16, blip_color or math.random(1, 84))
+
+	ped.set_ped_into_vehicle(pilot, jet, enums.vehicle_seats.driver)
+	vehicle.set_vehicle_forward_speed(jet, 40)
+
+	menu.create_thread(function()
+		while kek_entity.is_entity_valid(jet) 
+		and kek_entity.is_entity_valid(pilot)
+		and not entity.is_entity_dead(pilot)
+		and not entity.is_entity_dead(jet)
+		and not vehicle.is_vehicle_stopped(jet)
+		and player.is_player_valid(pid) do
+			if kek_entity.get_control_of_entity(pilot) then
+				task.task_plane_mission(
+					pilot, 
+					jet, 
+					player.get_player_vehicle(pid), 
+					player.get_player_ped(pid), 
+					pos.x, 
+					pos.y, 
+					pos.z, 
+					enums.plane_mission_types.CTaskVehicleAttack, 
+					0, 
+					0, 
+					0, 
+					2500, 
+					-1500, 
+					0
+				)
+			end
+			system.yield(1000)
+		end
+		kek_entity.clear_entities({pilot, jet})
+	end, nil)
+	return jet
 end
 
 return essentials.const_all(troll_entity)

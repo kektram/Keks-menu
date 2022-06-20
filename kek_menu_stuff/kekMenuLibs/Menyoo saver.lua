@@ -8,42 +8,48 @@ local settings <const> = require("settings")
 local language <const> = require("Language")
 local lang <const> = language.lang
 
-local menyoo_saver <const> = {version = "1.0.8"}
+local menyoo_saver <const> = {version = "1.0.9"}
 
 local function get_properties(...)
 	local Entity <const>, initial <const> = ...
+	local entity_proofs <const> = kek_entity.get_entity_proofs(Entity)
 	local info <const> = {
 		ModelHash = entity.get_entity_model_hash(Entity),
+		OpacityLevel = entity.get_entity_alpha(Entity),
 		InitialHandle = Entity,
 		IsOnFire = entity.is_entity_on_fire(Entity),
 		IsVisible = entity.is_entity_visible(Entity),
 		IsInvincible = entity.get_entity_god_mode(Entity),
-		OpacityLevel = 255,
-		LodDistance = 20000,
+		LodDistance = entity.get_entity_lod_dist(Entity),
+		MaxHealth = entity.get_entity_max_health(Entity),
+		Health = entity.get_entity_health(Entity),
+		IsBulletProof = entity_proofs.bullet,
+		IsExplosionProof = entity_proofs.explosion,
+		IsFireProof = entity_proofs.fire,
+		IsMeleeProof = entity_proofs.melee,
+		IsCollisionProof = entity_proofs.collision,
+		IsDrownProof = entity_proofs.drown,
+		IsSteamProof = entity_proofs.steam,
 		Dynamic = true,
 		FrozenPos = false
 	}
 	if entity.is_entity_a_ped(Entity) then
-		info.IsCollisionProof = entity.has_entity_collided_with_anything(Entity)
 		info.Type = 1
-		info.MaxHealth = ped.get_ped_max_health(Entity)
-		info.Health = ped.get_ped_health(Entity)
 	elseif entity.is_entity_a_vehicle(Entity) then
-		info.IsCollisionProof = initial
 		info.Type = 2
 	else
-		info.IsCollisionProof = entity.has_entity_collided_with_anything(Entity)
 		info.Type = 3
 	end
+	info.IsCollisionProof = entity.get_entity_collision_disabled(Entity)
 	if not initial then
 		local is_attached_str <const> = string.format("Attachment isAttached=\"%s\"", entity.is_entity_attached(Entity))
 		if entity.is_entity_attached(Entity) then
 			info[is_attached_str] = {
 				AttachedTo = entity.get_entity_attached_to(Entity),
 				BoneIndex = 0,
-				Pitch = entity.get_entity_pitch(Entity),
-				Roll = entity.get_entity_roll(Entity),
-				Yaw = entity.get_entity_rotation(Entity).z,
+				Pitch = entity.get_entity_rotation__native(Entity, 2).x,
+				Roll = entity.get_entity_rotation__native(Entity, 2).y,
+				Yaw = entity.get_entity_rotation__native(Entity, 2).z,
 				X = select(2, entity.get_entity_offset_from_entity(entity.get_entity_attached_to(Entity), Entity)).x,
 				Y = select(2, entity.get_entity_offset_from_entity(entity.get_entity_attached_to(Entity), Entity)).y,
 				Z = select(2, entity.get_entity_offset_from_entity(entity.get_entity_attached_to(Entity), Entity)).z
@@ -56,9 +62,9 @@ local function get_properties(...)
 			X = pos.x,
 			Y = pos.y,
 			Z = pos.z,
-			Pitch = entity.get_entity_pitch(Entity),
-			Roll = entity.get_entity_roll(Entity),
-			Yaw = entity.get_entity_rotation(Entity).z
+			Pitch = entity.get_entity_rotation__native(Entity, 2).x,
+			Roll = entity.get_entity_rotation__native(Entity, 2).y,
+			Yaw = entity.get_entity_rotation__native(Entity, 2).z
 		}
 	end
 	if entity.is_entity_a_ped(Entity) then
@@ -88,11 +94,12 @@ local function get_properties(...)
 		local Cust1_R <const>, Cust1_G <const>, Cust1_B <const> = essentials.rgb_to_bytes(vehicle.get_vehicle_custom_primary_colour(Entity))
 		local Cust2_R <const>, Cust2_G <const>, Cust2_B <const> = essentials.rgb_to_bytes(vehicle.get_vehicle_custom_secondary_colour(Entity))
 		local neon_r <const>, neon_g <const>, neon_b <const> = essentials.rgb_to_bytes(vehicle.get_vehicle_neon_lights_color(Entity))
+		local smoke_r <const>, smoke_g <const>, smoke_b <const> = vehicle.get_vehicle_tyre_smoke_color(Entity)
 		info.VehicleProperties = {
 			Colours = {
-				tyreSmoke_R = math.random(0, 255), 
-				tyreSmoke_G = math.random(0, 255), -- No function to get these values 
-				tyreSmoke_B = math.random(0, 255),
+				tyreSmoke_R = smoke_r, 
+				tyreSmoke_G = smoke_g,
+				tyreSmoke_B = smoke_b,
 				Primary = vehicle.get_vehicle_primary_color(Entity),
 				Secondary = vehicle.get_vehicle_secondary_color(Entity),
 				Pearl = vehicle.get_vehicle_pearlecent_color(Entity),
@@ -120,8 +127,14 @@ local function get_properties(...)
 			CurrentGear = vehicle.get_vehicle_current_gear(Entity),
 			WheelsCount = vehicle.get_vehicle_wheel_count(Entity),
 			WheelType = vehicle.get_vehicle_wheel_type(Entity),
-			NumberPlateText = settings.in_use["Plate vehicle text"],
-			NumberPlateIndex = math.random(0, 3),
+			NumberPlateText = vehicle.get_vehicle_number_plate_text__native(Entity),
+			NumberPlateIndex = vehicle.get_vehicle_number_plate_text_index(Entity),
+			DirtLevel = vehicle.get_vehicle_dirt_level(Entity),
+			PaintFade = vehicle.get_vehicle_enveff_scale(Entity),
+			RoofState = vehicle.get_convertible_roof_state(Entity),
+			SirenActive = vehicle.is_vehicle_siren_on(Entity),
+			EngineHealth = vehicle.get_vehicle_engine_health(Entity),
+			LightsOn = select(2, vehicle.get_vehicle_lights_state(Entity)),
 			WindowTint = vehicle.get_vehicle_window_tint(Entity),
 			Neons = essentials.const({
 				R = neon_r,
@@ -159,9 +172,13 @@ local function get_properties(...)
 			if i >= 17 and i <= 22 then
 				info.VehicleProperties.Mods["_"..i] = vehicle.is_toggle_mod_on(Entity, i)
 			else
-				info.VehicleProperties.Mods["_"..i] = vehicle.get_vehicle_mod(Entity, i)..",0"
+				info.VehicleProperties.Mods["_"..i] = vehicle.get_vehicle_mod(Entity, i)..","..(vehicle.get_vehicle_mod_variation(Entity, i) and 1 or 0)
 			end
 		end
+	elseif entity.is_entity_an_object(Entity) then
+		info.ObjectProperties = {
+			TextureVariation = object._get_object_texture_variation(Entity)
+		}
 	end
 	return info
 end
@@ -212,20 +229,18 @@ function menyoo_saver.save_vehicle(...)
 end
 
 function menyoo_saver.save_map(...)
-	local file_path <const> = ...
+	local file_path <const>, save_only_mission_entities <const> = ...
 	essentials.assert(not utils.file_exists(file_path), "Tried to overwrite a file without intent to do so.", file_path)
 	local file <close> = io.open(file_path, "w+")
-	local ref <const> = player.get_player_coords(player.player_id())
+	local ref <const> = essentials.get_player_coords(player.player_id())
 	local xml_string <const> = {
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" kek_menu_version=\""..__kek_menu_version.."\"?>",
 		"<SpoonerPlacements>",
-		essentials.table_to_xml({
-			ReferenceCoords = essentials.const({
-				X = ref.x,
-				Y = ref.y,
-				Z = ref.z
-			})
-		}, 1, nil, {}, true)
+		"<ReferenceCoords>\n"
+			.."	<X>"..ref.x.."</X>\n"
+			.."	<Y>"..ref.y.."</Y>\n"
+			.."	<Z>"..ref.z.."</Z>\n"
+		.."</ReferenceCoords>"
 	}
 	local is_attached_str <const> = string.format("Attachment isAttached=\"%s\"", true)
 	for _, entities in pairs({
@@ -234,7 +249,8 @@ function menyoo_saver.save_map(...)
 		object.get_all_objects()
 	}) do
 		for Entity in essentials.entities(entities) do
-			if entity.is_entity_visible(Entity) 
+			if (not save_only_mission_entities or entity.is_entity_a_mission_entity(Entity))
+			and entity.is_entity_visible(Entity) 
 			and not entity.is_entity_attached(Entity)
 			and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
 				local info <const> = {Placement = get_properties(Entity)}

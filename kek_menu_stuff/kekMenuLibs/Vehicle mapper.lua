@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local vehicle_mapper <const> = {version = "1.3.7"}
+local vehicle_mapper <const> = {version = "1.3.9"}
 local essentials <const> = require("Essentials")
 local enums <const> = require("Enums")
 
@@ -4558,22 +4558,16 @@ local vehicle_properties <const> = essentials.const_all({
 	}
 })
 
-local INVALID_HASH_ERR <const> = "Expected a valid vehicle hash:"
+local INVALID_HASH_ERR <const> = "THIS ERROR IS TYPICALLY CAUSED BY CO-LOADING. Expected a valid vehicle hash:"
 local MISSING_INFO_ERR <const> = "Missing information about a valid, requested vehicle hash:"
 
-local model_to_hash = {}
-local name_to_hash = {}
 vehicle_mapper.HELICOPTERS = {}
-for hash, properties in pairs(vehicle_properties) do
-	essentials.assert(streaming.is_model_a_vehicle(hash), MISSING_INFO_ERR, hash)
-	model_to_hash[properties.model] = hash
-	name_to_hash[properties.name] = hash
+for hash in pairs(vehicle_properties) do
+	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
 	if streaming.is_model_a_heli(hash) then
 		vehicle_mapper.HELICOPTERS[#vehicle_mapper.HELICOPTERS + 1] = hash
 	end
 end
-model_to_hash = essentials.const(model_to_hash)
-name_to_hash = essentials.const(name_to_hash)
 
 function vehicle_mapper.get_dimensions(...)
 	local hash <const> = ...
@@ -4587,7 +4581,7 @@ function vehicle_mapper.GetModelFromHash(...)
 	return vehicle_properties[hash].model
 end
 
-function vehicle_mapper.GetNameFromHash(...)
+function vehicle_mapper.get_english_name_regardless_of_game_language(...)
 	local hash <const> = ...
 	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
 	essentials.assert(vehicle_properties[hash], MISSING_INFO_ERR, hash)
@@ -4603,12 +4597,6 @@ end
 function vehicle_mapper.get_random_vehicle()
 	local hashes <const> = vehicle.get_all_vehicle_model_hashes()
 	return hashes[math.random(1, #hashes)]
-end
-
-function vehicle_mapper.GetHashFromModel(model)
-	essentials.assert(streaming.is_model_a_vehicle(model_to_hash[model]), INVALID_HASH_ERR, model)
-	essentials.assert(model_to_hash[model], MISSING_INFO_ERR, model)
-	return model_to_hash[model]
 end
 
 function vehicle_mapper.get_hash_from_user_input(...)
