@@ -5,7 +5,9 @@ if __kek_menu_version then
 	return
 end
 
-__kek_menu_version = "0.4.8.0"
+__kek_menu_version = "0.4.8.1"
+
+menu.create_thread(function()
 
 do -- Prevents crashes from messages, primarily error messages, when they contain invalid utf8 bytes.
 	local function check_msg_valid(message) 
@@ -8208,3 +8210,5 @@ essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", fun
 end)
 
 essentials.msg(lang["Successfully loaded Kek's menu."], "green", true)
+
+end, nil)
