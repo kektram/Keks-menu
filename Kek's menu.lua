@@ -173,6 +173,8 @@ if menu.get_trust_flags() & 1 << 3 == 8 then
 	if essentials.update_keks_menu() == "has updated" then
 		return
 	end
+else
+	essentials.msg(lang["Enable trusted mode->http for automatic updates."], "blue", true, 3)
 end
 
 local player_history <const> = {

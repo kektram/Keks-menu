@@ -1297,12 +1297,12 @@ function essentials.update_keks_menu()
 			pcall(function()
 				require("Kek's menu")
 			end)
+			update_status = "done"
 			return "has updated"
 		else
 			essentials.msg(lang["Update failed. No files are changed."], "green", true, 6)
 		end
 	end
-	update_status = "done"
 end
 
 function essentials.is_all_true(...)
