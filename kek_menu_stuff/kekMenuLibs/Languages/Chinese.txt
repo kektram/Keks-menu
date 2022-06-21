@@ -29,7 +29,6 @@ as default language. §作为默认语言
 Empty script loader file §清空脚本加载器
 Add script to auto loader §设置自动加载某个脚本(点击输入脚本名称)
 Remove script from auto loader §取消自动加载某个脚本(点击输入脚本名称)
-Modded name detection §检测虚假名称
 Entity crash protection §检测尝试使用实体崩溃的作弊者
 Blacklist §黑名单
 Kick any vote kickers §自动踢战局内使用投票踢的玩家
@@ -55,7 +54,6 @@ Give session bounty §战局悬赏
 Never wanted §永不通缉
 off the radar §人间蒸发
 Reapply bounty §悬赏循环
-Send to random mission §发送到随机任务
 Apartment invites §公寓邀请
 Ban §禁止注册
 Dismiss §解散
@@ -119,7 +117,6 @@ Chat judge\nCrashing §聊天审判:崩溃玩家
 sent vote kick. Kicking them... §尝试投票踢人.踢出他们...
 tried to crash you. §尝试崩溃你.
 has: §有作弊嫌疑:
-has a modded name. §使用了虚假名称.
 Recognized §检测到黑名单玩家:
 \nDetected: §\n信息:\n
 \nTags:\n §\n添加原因:\n
@@ -543,7 +540,7 @@ has finished lap §已完成一圈
 Failed to load file. §加载文件失败.
 Cleared old race & recording a new one. §已清除旧比赛记录并开始记录新的比赛
 Save recorded race §保存记录的比赛轨迹
-Teleport to player when spectating §被人观看时自动传送到玩家
+Move mini map to people you spectate §观看别人时同步小地图
 Flamethrower §火焰喷射器
 Display notifications §显示通知
 Number of notifications §通知数量
@@ -686,7 +683,13 @@ Clear owned entities before spawning map §在生成地图前清除拥有的实�
 Notify when typing & stopped typing §当有人在打字时通知
 is typing. §正在打字
 is no longer typing. §已停止打字
-Anti chat spoof & illegal msg §反聊天恶搞 & 非法信息
-sent an illegal message. They are probably the victim of a chat spoof. §发送了一条非法信息. 他可能是聊天恶搞的受害者.
-hide §隐藏
-just detect §只检测
+Debug mode §调试模式
+Draw garbage collection stats §显示垃圾收集统计
+Garbage count §垃圾数量
+Garbage change §垃圾更改
+Jet §天煞
+You must turn on trusted mode to use the script. §您必须启用信任模式才能使用脚本.
+Draw entity queue §显示实体队列
+Num of peds/vehicles in queue §队列中的NPC/载具数量
+Num of peds/vehicles spawned §已生成的NPC/载具数量
+Save only mission entities §仅保存任务实体
