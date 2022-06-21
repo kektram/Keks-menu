@@ -5,7 +5,7 @@ if __kek_menu_version then
 	return
 end
 
-__kek_menu_version = "0.4.8.1"
+__kek_menu_version = "0.4.8.0"
 
 menu.create_thread(function()
 
