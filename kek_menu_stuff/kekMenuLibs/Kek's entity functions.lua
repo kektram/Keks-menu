@@ -154,7 +154,7 @@ function kek_entity.get_control_of_entity(...)
 	and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) 
 	and globals.is_fully_transitioned_into_session()
 	and (no_condition or kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]]) then
-		local time <const> = utils.time_ms() + (time_to_wait or 3000)
+		local time <const> = utils.time_ms() + (time_to_wait or 1000)
 		network.request_control_of_entity(Entity, true)
 		while not network.has_control_of_entity(Entity) and entity.is_an_entity(Entity) and time > utils.time_ms() do
 			system.yield(0)
@@ -437,45 +437,34 @@ function kek_entity.clear_entities(...)
 	local table_of_entities <const>, time_to_wait_for_control = ...
 	time_to_wait_for_control = time_to_wait_for_control or 3000
 	local timeout <const> = utils.time_ms() + 30000
-	for i2 = 1, 2 do
-		local count = 1
-		for Entity, i in essentials.entities(table_of_entities) do
-			essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
-			if entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)) then
-				if i2 == 1 and not network.has_control_of_entity(Entity) then 
-					kek_entity.get_control_of_entity(Entity, timeout > utils.time_ms() and time_to_wait_for_control or 200)
+	local count = 1
+	for Entity, i in essentials.entities(table_of_entities) do
+		essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
+		if entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)) then
+			if kek_entity.get_control_of_entity(Entity, timeout > utils.time_ms() and time_to_wait_for_control or 200) then
+				if ui.get_blip_from_entity(Entity) ~= 0 then
+					ui.remove_blip(ui.get_blip_from_entity(Entity))
 				end
-				if network.has_control_of_entity(Entity) then
-					if ui.get_blip_from_entity(Entity) ~= 0 then
-						ui.remove_blip(ui.get_blip_from_entity(Entity))
-					end
-					if entity.is_entity_attached(Entity) then
-						entity.detach_entity(Entity)
-					end
-					if not entity.is_entity_attached(Entity) then
-						if entity.is_entity_a_vehicle(Entity) then
-							entity.set_entity_as_mission_entity(Entity, true, true)
-						elseif entity.is_entity_an_object(Entity) then
-							entity.set_entity_as_mission_entity(Entity, false, true)
-						elseif entity.is_entity_a_ped(Entity) then
-							entity.set_entity_as_mission_entity(Entity, false, false)
-						end
-						local hash <const> = entity.get_entity_model_hash(Entity)
-						entity.delete_entity(Entity)
-						table_of_entities[i] = nil
-						streaming.set_model_as_no_longer_needed(hash)
-					end
-					count = count + 1
+				if entity.is_entity_attached(Entity) then
+					entity.detach_entity(Entity)
 				end
-				ui.remove_blip(ui.get_blip_from_entity(Entity))
-			else
-				table_of_entities[i] = nil
+				if not entity.is_entity_attached(Entity) then
+					if entity.is_entity_a_vehicle(Entity) then
+						entity.set_entity_as_mission_entity(Entity, true, true)
+					elseif entity.is_entity_an_object(Entity) then
+						entity.set_entity_as_mission_entity(Entity, false, true)
+					elseif entity.is_entity_a_ped(Entity) then
+						entity.set_entity_as_mission_entity(Entity, false, false)
+					end
+					local hash <const> = entity.get_entity_model_hash(Entity)
+					entity.delete_entity(Entity)
+					streaming.set_model_as_no_longer_needed(hash)
+				end
+				count = count + 1
 			end
-			if count % 10 == 0 then
-				system.yield(0)
-			end
+			ui.remove_blip(ui.get_blip_from_entity(Entity))
 		end
-		if next(table_of_entities) then
+		if count % 10 == 0 then
 			system.yield(0)
 		end
 	end

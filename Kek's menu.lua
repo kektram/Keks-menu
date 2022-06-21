@@ -5,7 +5,7 @@ if __kek_menu_version then
 	return
 end
 
-__kek_menu_version = "0.4.8.0"
+__kek_menu_version = "0.4.8.1"
 
 do -- Prevents crashes from messages, primarily error messages, when they contain invalid utf8 bytes.
 	local function check_msg_valid(message) 
@@ -118,13 +118,13 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Location mapper"] = "1.0.2",
 		["Keys and input"] = "1.0.7",
 		["Drive style mapper"] = "1.0.4",
-		["Menyoo spawner"] = "2.2.4",
+		["Menyoo spawner"] = "2.2.5",
 		["Kek's entity functions"] = "1.2.6",
 		["Kek's trolling entities"] = "1.0.7",
 		["Custom upgrades"] = "1.0.2",
 		["Admin mapper"] = "1.0.4",
 		["Menyoo saver"] = "1.0.9",
-		["Natives"] = "1.0.0"
+		["Natives"] = "1.0.1"
 	}) do
 		if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 			menu.notify(string.format("%s [%s]", package.loaded["Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
@@ -162,9 +162,15 @@ local admin_mapper <const> = package.loaded["Admin mapper"]
 local menyoo_saver <const> = package.loaded["Menyoo saver"]
 local natives <const> = package.loaded["Natives"]
 
-if not menu.is_trusted_mode_enabled() then
-	essentials.msg(lang["You must turn on trusted mode to use the script."], "red", true, 6)
+if menu.get_trust_flags() & 1 << 2 ~= 4 then
+	essentials.msg(lang["You must turn on trusted mode->Natives to use this script."], "red", true, 6)
 	return
+end
+
+if menu.get_trust_flags() & 1 << 3 == 8 then
+	if essentials.update_keks_menu() == "has updated" then
+		return
+	end
 end
 
 local player_history <const> = {
@@ -1413,7 +1419,6 @@ do
 		lang["Has Negative k/d"],
 		lang["Has a high rank."],
 		lang["Has a high k/d."],
-		lang["Has modded armor."],
 		lang["Has modded weapons."]
 	})
 	local detection_string_cache <const> = {}
@@ -1451,10 +1456,6 @@ do
 				severity = severity + 1
 				hash = hash | 1 << 4
 			end
-			if player.get_player_armour(pid) > 50 then
-				severity = severity + 3
-				hash = hash | 1 << 5
-			end
 			local Ped <const> = player.get_player_ped(pid)
 			if weapon.has_ped_got_weapon(Ped, gameplay.get_hash_key("weapon_stungun"))
 			or weapon.has_ped_got_weapon(Ped, gameplay.get_hash_key("weapon_stinger"))
@@ -1467,7 +1468,7 @@ do
 			end
 			if not detection_string_cache[hash] then
 				local str <const> = {}
-				for i = 0, 6 do
+				for i = 0, #strings - 1 do
 					if hash & 1 << i ~= 0 then
 						str[#str + 1] = strings[i + 1]
 					end
@@ -1920,7 +1921,7 @@ do
 			ui.set_text_scale(0.5)
 			ui.set_text_font(1)
 			ui.set_text_outline(true)
-			ui.draw_text(string.format("%s", entity.get_entity_rotation(f.data)), 
+			ui.draw_text(string.format("%s", entity.get_entity_rotation__native(f.data, 2)), 
 			memoize.v2(0.8, 0.6))
 			system.yield(0)
 			if model ~= settings.user_entity_features.object.feats["Change object testing"]:get_str_data()[1] then
@@ -1941,7 +1942,7 @@ do
 
 	local rot_set_callback <const> = function(f)
 		if entity.is_entity_an_object(feat.data or 0) then
-			entity.set_entity_rotation(feat.data, v3(f1.value, f2.value, f3.value))
+			entity.set_entity_rotation__native(feat.data, v3(f1.value, f2.value, f3.value), 2, true)
 		end
 	end
 	f1 = menu.add_feature("X", "autoaction_value_i", object_testing_parent.id, rot_set_callback)
@@ -5750,9 +5751,16 @@ do
 	end)
 
 	local feat_name_map = {}
+	local spawning_active = false
 	local map_feat_callback <const> = function(f)
 		if essentials.is_str(f, "Spawn") then
+			if spawning_active then
+				essentials.msg(lang["Wait until the previous map is done spawning."], "blue", true, 6)
+				return
+			end
+			spawning_active = true
 			menyoo.spawn_xml_map(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml", true)
+			spawning_active = false
 		elseif essentials.is_str(f, "Teleport to map spawn") then
 			local info <const> = essentials.parse_xml(essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml"))
 			if info.SpoonerPlacements and info.SpoonerPlacements.ReferenceCoords then
@@ -7055,7 +7063,7 @@ menu.add_feature(lang["Shoot entity| get model name of entity"], "toggle", u.kek
 			ui.set_text_scale(0.5)
 			ui.set_text_font(1)
 			ui.set_text_outline(true)
-			ui.draw_text(string.format("%s%s\n%i", name, model or "", hash), memoize.v2(0.5, 0.4))
+			ui.draw_text(string.format("%s%s\n%i\nRot: %s", name, model or "", hash, entity.get_entity_rotation__native(Entity, 2)), memoize.v2(0.5, 0.4))
 		end
 		if model_name ~= "" then
 			essentials.msg(lang["The hash was copied to your clipboard, more info in the debug console."], "green", true)

@@ -1195,6 +1195,116 @@ function essentials.is_any_true(...)
 	return false
 end
 
+function essentials.update_keks_menu()
+	essentials.assert(menu.get_trust_flags() & 1 << 3 == 8, "Tried to update Kek's menu without http permission.")
+	local update_status, current_file_num, current_file, html_page_info = true, 0
+	local file_strings <const> = {}
+	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/main/"
+	local download_path <const> = paths.home.."Downloads\\"
+	local status <const>, script_version = web.get(base_path.."VERSION.txt")
+	local script_version <const> = script_version:sub(1, -2) -- There's a newline at the end
+	if status ~= 200 then
+		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
+		goto exit 
+	end
+	if __kek_menu_version == script_version then
+		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
+		goto exit
+	else
+		essentials.msg(lang["There's a new version of Kek's menu, starting update..."], "green", true, 3)
+		local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/main/kek_menu_stuff/kekMenuLibs")
+		update_status = status == 200
+		if not update_status then
+			goto exit
+		end
+		html_page_info = str
+		local file_count = 1
+		for file_name in html_page_info:gmatch("title=\"([^\"]+%.lua)\"") do
+			file_count = file_count + 1
+		end
+		menu.create_thread(function()
+			while update_status ~= "done" do
+				ui.set_text_color(255, 255, 255, 255)
+				ui.set_text_scale(0.8)
+				ui.set_text_font(1)
+				ui.set_text_outline(true)
+				ui.draw_text(string.format("%i / %i "..lang["files downloaded"].."\n%s", current_file_num, file_count, current_file), v2(0.4, 0.45))
+				ui.draw_rect(0.5, 0.5, 0.25, 0.10, 0, 0, 120, 255)
+				system.yield(0)
+			end
+		end, nil)
+		if not utils.dir_exists(download_path) then
+			utils.make_dir(download_path)
+		end
+	end
+	do -- Goto error fix
+		current_file = "Kek's menu.lua"
+		local status <const>, str <const> = web.get(base_path.."Kek's%20menu.lua")
+		update_status = status == 200
+		if not update_status then
+			goto exit
+		end
+		file_strings["Kek's menu.lua"] = str
+		current_file_num = current_file_num + 1
+
+		local file <const> = io.open(download_path.."Kek's menu.lua", "w+b")
+		file:write(str)
+		file:flush()
+		file:close()
+
+		for file_name in html_page_info:gmatch("title=\"([^\"]+%.lua)\"") do
+			local system_file_name <const> = file_name:gsub("&#39;", "'")
+			local web_file_name <const> = system_file_name:gsub("\32", "%%20")
+			current_file = system_file_name
+
+			local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/"..web_file_name)
+			update_status = status == 200
+			if not update_status then
+				goto exit
+			end
+			file_strings[system_file_name] = str
+			local file <const> = io.open(download_path..system_file_name, "w+b")
+			file:write(str)
+			file:flush()
+			file:close()
+			current_file_num = current_file_num + 1
+		end
+	end
+	::exit::
+	if __kek_menu_version ~= script_version then
+		if update_status then
+			essentials.msg(lang["Update successfully installed."], "green", true, 6)
+			setmetatable(_G, nil)
+			__kek_menu_version = nil
+			io.remove(paths.home.."scripts\\Kek's menu.lua")
+			local file_names <const> = utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")
+			for _, file_name in pairs(file_names) do
+				package.loaded[file_name:gsub("%.lua", "")] = nil
+				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name)
+			end
+			local file <const> = io.open(paths.home.."scripts\\Kek's menu.lua", "w+b")
+			file:write(file_strings["Kek's menu.lua"])
+			file:flush()
+			file:close()
+			io.remove(download_path.."Kek's menu.lua")
+			for _, file_name in pairs(file_names) do
+				local file <const> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name, "w+b")
+				file:write(file_strings[file_name])
+				file:flush()
+				file:close()
+				io.remove(download_path..file_name)
+			end
+			pcall(function()
+				require("Kek's menu")
+			end)
+			return "has updated"
+		else
+			essentials.msg(lang["Update failed. No files are changed."], "green", true, 6)
+		end
+	end
+	update_status = "done"
+end
+
 function essentials.is_all_true(...)
 	local Table <const>, conditions <const> = ...
 	for i = 1, #Table do
