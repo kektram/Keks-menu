@@ -5,7 +5,7 @@ if __kek_menu_version then
 	return
 end
 
-__kek_menu_version = "0.4.8.1"
+__kek_menu_version = "0.4.8.0"
 
 do -- Prevents crashes from messages, primarily error messages, when they contain invalid utf8 bytes.
 	local function check_msg_valid(message) 
