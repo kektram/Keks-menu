@@ -1281,7 +1281,7 @@ function essentials.update_keks_menu()
 		current_file_num = current_file_num + 1
 	end
 
-	for properties in pairs(updated_lib_files) do
+	for _, properties in pairs(updated_lib_files) do
 		local system_file_name <const> = properties.system_file_name
 		local web_file_name <const> = properties.web_file_name
 		current_file = system_file_name
@@ -1295,7 +1295,7 @@ function essentials.update_keks_menu()
 		current_file_num = current_file_num + 1
 	end
 
-	for properties in pairs(updated_language_files) do
+	for _, properties in pairs(updated_language_files) do
 		local system_file_name <const> = properties.system_file_name
 		local web_file_name <const> = properties.web_file_name
 		current_file = system_file_name
