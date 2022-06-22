@@ -1221,6 +1221,7 @@ function essentials.show_changelog()
 		for line in str:gmatch("[^\n]+") do
 			number_of_lines = number_of_lines + 1
 		end
+		local start_y_pos <const> = math.max(0, 0.5 - (number_of_lines * 0.01))
 		while not controls.is_control_pressed(0, 143) do
 			local y_offset_from_top = 0
 			for line in str:gmatch("[^\n]+") do
@@ -1228,14 +1229,14 @@ function essentials.show_changelog()
 				ui.set_text_scale(number_of_lines <= max_lines_before_shrinking and 0.275 or 0.275 / (number_of_lines / max_lines_before_shrinking))
 				ui.set_text_font(0)
 				ui.set_text_outline(true)
-				ui.draw_text(line, v2(0.3, y_offset_from_top))
+				ui.draw_text(line, v2(0.3, start_y_pos + y_offset_from_top))
 				y_offset_from_top = y_offset_from_top + (number_of_lines <= max_lines_before_shrinking and 0.018 or 0.018 / (number_of_lines / max_lines_before_shrinking))
 			end
 			ui.set_text_color(255, 0, 0, 255)
 			ui.set_text_scale(0.4)
 			ui.set_text_font(0)
 			ui.set_text_outline(true)
-			ui.draw_text(lang["Press space to remove this message."], v2(0.3, y_offset_from_top + 0.005))
+			ui.draw_text(lang["Press space to remove this message."], v2(0.3, start_y_pos + y_offset_from_top + 0.005))
 			system.yield(0)
 		end
 	end, nil)
