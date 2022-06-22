@@ -1246,6 +1246,7 @@ function essentials.update_keks_menu()
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/main/"
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
 	local script_version <const> = script_version:sub(1, -2) -- There's a newline at the end
+	print("test", script_version:byte(1, -1))
 	local
 		update_status,
 		current_file_num,
@@ -1289,7 +1290,7 @@ function essentials.update_keks_menu()
 		end
 
 		menu.create_thread(function()
-			local file_count <const> = #updated_lib_files + #updated_language_files + 2
+			local file_count <const> = #updated_lib_files + #updated_language_files + 1
 			while update_status ~= "done" do
 				ui.set_text_color(255, 255, 255, 255)
 				ui.set_text_scale(0.8)
@@ -1345,6 +1346,7 @@ function essentials.update_keks_menu()
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
 			setmetatable(_G, nil)
 			__kek_menu_version = nil
+			__kek_menu_debug_mode = nil
 
 			-- Remove old files & undo all changes to the global space
 			io.remove(paths.home.."scripts\\Kek's menu.lua")
