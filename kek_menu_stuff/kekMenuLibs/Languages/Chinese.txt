@@ -206,7 +206,6 @@ Has Negative lvl §有不正常的等级
 Has Negative k/d §有不正常的KDA
 Has a high rank. §等级过高
 Has a high k/d. §KDA 过高
-Has modded armor. §进行了护甲数值修改
 Block areas §阻止区域
 Los santos customs §洛圣都改车王
 Ammu-Nations §武装国度商店
@@ -688,8 +687,16 @@ Draw garbage collection stats §显示垃圾收集统计
 Garbage count §垃圾数量
 Garbage change §垃圾更改
 Jet §天煞
-You must turn on trusted mode to use the script. §您必须启用信任模式才能使用脚本.
+You must turn on trusted mode->Natives to use this script. §你必须启用 信任模式 -> Natives 才能使用此脚本.
 Draw entity queue §显示实体队列
 Num of peds/vehicles in queue §队列中的NPC/载具数量
 Num of peds/vehicles spawned §已生成的NPC/载具数量
 Save only mission entities §仅保存任务实体
+Wait until the previous map is done spawning. §正在等待上一张地图完成生成.
+You have the latest version of Kek's menu. §当前为最新版本的Kek菜单.
+There's a new version of Kek's menu, starting update... §检测到有新版本的 Kek 菜单,开始更新...
+Update successfully installed. §更新已安装成功.
+Update failed. No files are changed. §更新失败了. 没有文件被更改.
+Failed to check what the latest version of the script is. §检查脚本的最新版本失败.
+files downloaded §文件已下载.
+Enable trusted mode->http for automatic updates. §启用 信任模式 -> http 以进行自动更新.
