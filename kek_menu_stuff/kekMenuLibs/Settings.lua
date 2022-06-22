@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local settings <const> = {version = "1.0.1"}
+local settings <const> = {version = "1.0.2"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -19,7 +19,6 @@ settings.user_entity_features = {
 settings.drive_style_toggles = {}
 settings.valuei = {}
 settings.valuef = {}
-settings.hotkey_features = {}
 
 function settings:add_setting(...)
 	local properties <const> = ...
@@ -114,14 +113,6 @@ function settings:initialize(...)
 	}) do
 		self:update_user_entity_feats(Type)
 	end
-	for _, profile in pairs(self.hotkey_features) do
-		if self.in_use[profile[3]] ~= "off" then
-			profile[2].name = string.format("%s: %s", profile[1], self.in_use[profile[3]])
-		else
-			profile[2].name = string.format("%s: %s", profile[1], lang["Turned off"])
-		end
-	end
-	self.hotkey_control_keys_update = true
 end
 
 return settings

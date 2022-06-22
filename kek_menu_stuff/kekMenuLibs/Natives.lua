@@ -6591,7 +6591,7 @@ do
 		for native_name, info in pairs(category) do
 			_G[category_name][native_name] = _G[category_name][native_name] 
 			or info.buffer_needed and not info.pars:find("any*", 1, true) and function(...)
-				essentials.assert(menu.get_trust_flags() & 1 << 2 == 4, "Tried to call a native without trusted mode enabled.", category_name, native_name)
+				essentials.assert(menu.is_trusted_mode_enabled(1 << 2), "Tried to call a native without trusted mode enabled.", category_name, native_name)
 				local args <const>, buffers <const> = parse_parameters(info.pars, ...)
 				local return_value
 				if info.type == "any" then
@@ -6620,7 +6620,7 @@ do
 				end
 			end 
 			or function(...)
-				essentials.assert(menu.get_trust_flags() & 1 << 2 == 4, "Tried to call a native without trusted mode enabled.", category_name, native_name)
+				essentials.assert(menu.is_trusted_mode_enabled(1 << 2), "Tried to call a native without trusted mode enabled.", category_name, native_name)
 				if info.type == "any" then
 					return native.call(info.id, ...)
 				else
