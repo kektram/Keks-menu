@@ -7,6 +7,7 @@ end
 
 __kek_menu_version = "0.4.8.0"
 __kek_menu_debug_mode = false
+__kek_menu_participate_in_betas = false
 
 menu.create_thread(function()
 
@@ -78,6 +79,9 @@ and utils.file_exists(paths.debugger) then
 		if str:match("Debug mode=(%a%a%a%a)") == "true" then
 			__kek_menu_debug_mode = true
 			dofile(paths.debugger)
+		end
+		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
+			__kek_menu_participate_in_betas = true
 		end
 	end
 else
@@ -949,6 +953,10 @@ for _, properties in pairs({
 	{
 		setting_name = "Is player typing",
 		setting = false
+	},
+	{
+		setting_name = "Participate in betas",
+		setting = false
 	}
 }) do
 	settings:add_setting(properties)
@@ -1786,6 +1794,10 @@ menu.add_feature(lang["Show latest update changelog"], "action", u.settingsUI.id
 	else
 		essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
 	end
+end)
+
+settings.toggle["Participate in betas"] = menu.add_feature(lang["Participate in betas"], "toggle", u.settingsUI.id, function(f)
+	__kek_menu_participate_in_betas = f.on
 end)
 
 settings.toggle["Debug mode"] = menu.add_feature(lang["Debug mode"], "toggle", u.debug.id, function(f)
@@ -5981,6 +5993,10 @@ u.max_self_vehicle_loop.max = 975
 u.max_self_vehicle_loop.min = 25
 u.max_self_vehicle_loop.mod = 25
 u.max_self_vehicle_loop.value = 500
+
+menu.add_feature(lang["Max car"], "action", u.gvehicle.id, function(f)
+	kek_entity.max_car(player.get_player_vehicle(player.player_id()), false, true)
+end)
 
 menu.add_feature(lang["Change backplate text"], "action", u.vehicleSettings.id, function(f)
 	local input <const>, status <const> = keys_and_input.get_input(lang["Type in the text you want displayed on the backplate of your cars after maxing them."], "", 128, 0)
