@@ -1343,8 +1343,8 @@ function essentials.update_keks_menu()
 	::exit::
 	if __kek_menu_version ~= script_version then
 		if update_status then
+			__kek_menu_version = script_version
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
-			setmetatable(_G, nil)
 			__kek_menu_version = nil
 			__kek_menu_debug_mode = nil
 			__kek_menu_participate_in_betas = nil
