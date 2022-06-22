@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.8"}
+local essentials <const> = {version = "1.4.9"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -391,7 +391,7 @@ do
 		if type(func) == "function" then
 			essentials.assert(utf8.len(name), "Tried to create a feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
 			feat = originals.add_feature(name, Type, parent, function(f, data)
-				if type(f) == "userdata" then
+				if type(f) ~= "number" then
 					if func(f, data) == HANDLER_CONTINUE then
 						return HANDLER_CONTINUE
 					end
@@ -422,7 +422,7 @@ do
 		if type(func) == "function" then
 			essentials.assert(utf8.len(name), "Tried to create a player feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
 			feat = originals.add_player_feature(name, Type, parent, function(f, pid, data)
-				if type(f) == "userdata" then
+				if type(f) ~= "number" then -- Must check if not a number, custom UIs pass table instead of userdata.
 					if func(f, pid, data) == HANDLER_CONTINUE then
 						return HANDLER_CONTINUE
 					end
@@ -1195,15 +1195,41 @@ function essentials.is_any_true(...)
 	return false
 end
 
+function essentials.parse_files_from_html(str, extension)
+	local files <const> = {}
+	for file_name in str:gmatch("title=\"([^\"]+%."..extension..")\"") do
+		local system_file_name <const> = file_name:gsub("&#39;", "'")
+		local web_file_name <const> = system_file_name:gsub("\32", "%%20")
+		files[#files + 1] = {
+			system_file_name = system_file_name,
+			web_file_name = web_file_name
+		}
+	end
+	return files
+end
+
 function essentials.update_keks_menu()
 	essentials.assert(menu.get_trust_flags() & 1 << 3 == 8, "Tried to update Kek's menu without http permission.")
-	local update_status, current_file_num, current_file, html_page_info = true, 0
-	local file_strings <const> = {}
+	if __kek_menu_debug_mode then
+		essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
+		return
+	end
+
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/main/"
-	local download_path <const> = paths.home.."Downloads\\"
-	local status <const>, script_version = web.get(base_path.."VERSION.txt")
+	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
 	local script_version <const> = script_version:sub(1, -2) -- There's a newline at the end
-	if status ~= 200 then
+	local
+		update_status,
+		current_file_num,
+		current_file,
+		html_page_info,
+		kek_menu_file_string, 
+		lib_file_strings, 
+		language_file_strings, 
+		updated_lib_files, 
+		updated_language_files = true, 0
+
+	if version_check_status ~= 200 then
 		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
 		goto exit 
 	end
@@ -1211,18 +1237,28 @@ function essentials.update_keks_menu()
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
 		goto exit
 	else
-		essentials.msg(lang["There's a new version of Kek's menu, starting update..."], "green", true, 3)
-		local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/main/kek_menu_stuff/kekMenuLibs")
-		update_status = status == 200
-		if not update_status then
-			goto exit
+
+		do
+			essentials.msg(lang["There's a new version of Kek's menu, starting update..."], "green", true, 3)
+			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/main/kek_menu_stuff/kekMenuLibs")
+			update_status = status == 200
+			if not update_status then
+				goto exit
+			end
+			updated_lib_files = essentials.parse_files_from_html(str, "lua")
 		end
-		html_page_info = str
-		local file_count = 1
-		for file_name in html_page_info:gmatch("title=\"([^\"]+%.lua)\"") do
-			file_count = file_count + 1
+
+		do
+			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/main/kek_menu_stuff/kekMenuLibs/Languages")
+			update_status = status == 200
+			if not update_status then
+				goto exit
+			end
+			updated_language_files = essentials.parse_files_from_html(str, "txt")
 		end
+
 		menu.create_thread(function()
+			local file_count <const> = #updated_lib_files + #updated_language_files
 			while update_status ~= "done" do
 				ui.set_text_color(255, 255, 255, 255)
 				ui.set_text_scale(0.8)
@@ -1233,42 +1269,44 @@ function essentials.update_keks_menu()
 				system.yield(0)
 			end
 		end, nil)
-		if not utils.dir_exists(download_path) then
-			utils.make_dir(download_path)
-		end
 	end
-	do -- Goto error fix
-		current_file = "Kek's menu.lua"
+	do
+		current_file = "Kek's menu.lua" -- Download updated files
 		local status <const>, str <const> = web.get(base_path.."Kek's%20menu.lua")
 		update_status = status == 200
 		if not update_status then
 			goto exit
 		end
-		file_strings["Kek's menu.lua"] = str
+		kek_menu_file_string = str
 		current_file_num = current_file_num + 1
+	end
 
-		local file <const> = io.open(download_path.."Kek's menu.lua", "w+b")
-		file:write(str)
-		file:flush()
-		file:close()
+	for properties in pairs(updated_lib_files) do
+		local system_file_name <const> = properties.system_file_name
+		local web_file_name <const> = properties.web_file_name
+		current_file = system_file_name
 
-		for file_name in html_page_info:gmatch("title=\"([^\"]+%.lua)\"") do
-			local system_file_name <const> = file_name:gsub("&#39;", "'")
-			local web_file_name <const> = system_file_name:gsub("\32", "%%20")
-			current_file = system_file_name
-
-			local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/"..web_file_name)
-			update_status = status == 200
-			if not update_status then
-				goto exit
-			end
-			file_strings[system_file_name] = str
-			local file <const> = io.open(download_path..system_file_name, "w+b")
-			file:write(str)
-			file:flush()
-			file:close()
-			current_file_num = current_file_num + 1
+		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/"..web_file_name)
+		update_status = status == 200
+		if not update_status then
+			goto exit
 		end
+		lib_file_strings[system_file_name] = str
+		current_file_num = current_file_num + 1
+	end
+
+	for properties in pairs(updated_language_files) do
+		local system_file_name <const> = properties.system_file_name
+		local web_file_name <const> = properties.web_file_name
+		current_file = system_file_name
+
+		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..web_file_name)
+		update_status = status == 200
+		if not update_status then
+			goto exit
+		end
+		language_file_strings[system_file_name] = str
+		current_file_num = current_file_num + 1
 	end
 	::exit::
 	if __kek_menu_version ~= script_version then
@@ -1276,27 +1314,28 @@ function essentials.update_keks_menu()
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
 			setmetatable(_G, nil)
 			__kek_menu_version = nil
+
+			-- Remove old files & undo all changes to the global space
 			io.remove(paths.home.."scripts\\Kek's menu.lua")
-			local file_names <const> = utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")
-			for _, file_name in pairs(file_names) do
+			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")) do
 				package.loaded[file_name:gsub("%.lua", "")] = nil
 				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name)
 			end
-			local file <const> = io.open(paths.home.."scripts\\Kek's menu.lua", "w+b")
-			file:write(file_strings["Kek's menu.lua"])
-			file:flush()
-			file:close()
-			io.remove(download_path.."Kek's menu.lua")
-			for _, file_name in pairs(file_names) do
-				local file <const> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name, "w+b")
-				file:write(file_strings[file_name])
-				file:flush()
-				file:close()
-				io.remove(download_path..file_name)
+			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages", "txt")) do
+				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name)
 			end
-			pcall(function()
-				require("Kek's menu")
-			end)
+			essentials.log(paths.home.."scripts\\Kek's menu.lua", kek_menu_file_string)
+
+			-- Copy new files to their desired locations
+			for file_name in pairs(lib_file_strings) do -- REMEMEMBER TO ADD UPDATE LANGUAGE FILES TOO
+				essentials.log(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name, lib_file_strings[file_name])
+			end
+
+			for file_name in pairs(language_file_strings) do -- REMEMEMBER TO ADD UPDATE LANGUAGE FILES TOO
+				essentials.log(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name, language_file_strings[file_name])
+			end
+
+			require("Kek's menu")
 			update_status = "done"
 			return "has updated"
 		else

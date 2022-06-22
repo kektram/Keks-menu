@@ -6,6 +6,7 @@ if __kek_menu_version then
 end
 
 __kek_menu_version = "0.4.8.0"
+__kek_menu_debug_mode = false
 
 menu.create_thread(function()
 
@@ -75,6 +76,7 @@ and utils.file_exists(paths.debugger) then
 		local str <const> = file:read("*a")
 		file:close()
 		if str:match("Debug mode=(%a%a%a%a)") == "true" then
+			__kek_menu_debug_mode = true
 			dofile(paths.debugger)
 		end
 	end
@@ -109,7 +111,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Language"] = "1.0.0",
 		["Settings"] = "1.0.1",
-		["Essentials"] = "1.4.8",
+		["Essentials"] = "1.4.9",
 		["Memoize"] = "1.0.1",
 		["Enums"] = "1.0.4",
 		["Vehicle mapper"] = "1.3.9", 
@@ -164,12 +166,12 @@ local admin_mapper <const> = package.loaded["Admin mapper"]
 local menyoo_saver <const> = package.loaded["Menyoo saver"]
 local natives <const> = package.loaded["Natives"]
 
-if menu.get_trust_flags() & 1 << 2 ~= 4 then
+if not menu.is_trusted_mode_enabled(1 << 2) then
 	essentials.msg(lang["You must turn on trusted mode->Natives to use this script."], "red", true, 6)
 	return
 end
 
-if menu.get_trust_flags() & 1 << 3 == 8 then
+if menu.is_trusted_mode_enabled(1 << 3) then
 	if essentials.update_keks_menu() == "has updated" then
 		return
 	end
