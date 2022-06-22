@@ -66,3 +66,5 @@
 
 ** From now on, you must turn on trusted mode **
 > This is necessary to call gta natives
+
+TEST TEST TEST
