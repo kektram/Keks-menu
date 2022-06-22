@@ -1208,12 +1208,40 @@ function essentials.parse_files_from_html(str, extension)
 	return files
 end
 
+function essentials.show_changelog()
+	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to show changelog without http permissions.")
+	menu.create_thread(function()
+		local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/main/Changelog.md")
+		if status ~= 200 then
+			return
+		end
+		local max_lines_before_shrinking <const> = 50
+		local number_of_lines = 0
+		for line in str:gmatch("[^\n]+") do
+			number_of_lines = number_of_lines + 1
+		end
+		while not controls.is_control_pressed(0, 143) do
+			local y_offset_from_top = 0
+			for line in str:gmatch("[^\n]+") do
+				ui.set_text_color(255, 255, 255, 255)
+				ui.set_text_scale(number_of_lines <= max_lines_before_shrinking and 0.275 or 0.275 / (number_of_lines / max_lines_before_shrinking))
+				ui.set_text_font(0)
+				ui.set_text_outline(true)
+				ui.draw_text(line, v2(0.3, y_offset_from_top))
+				y_offset_from_top = y_offset_from_top + (number_of_lines <= max_lines_before_shrinking and 0.018 or 0.018 / (number_of_lines / max_lines_before_shrinking))
+			end
+			ui.set_text_color(255, 0, 0, 255)
+			ui.set_text_scale(0.4)
+			ui.set_text_font(0)
+			ui.set_text_outline(true)
+			ui.draw_text(lang["Press space to remove this message."], v2(0.3, y_offset_from_top + 0.005))
+			system.yield(0)
+		end
+	end, nil)
+end
+
 function essentials.update_keks_menu()
-	essentials.assert(menu.get_trust_flags() & 1 << 3 == 8, "Tried to update Kek's menu without http permission.")
-	if __kek_menu_debug_mode then
-		essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
-		return
-	end
+	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to update Kek's menu without http permissions.")
 
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/main/"
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
@@ -1225,7 +1253,7 @@ function essentials.update_keks_menu()
 		language_file_strings, 
 		current_file,
 		html_page_info,
-		kek_menu_file_string, 
+		kek_menu_file_string,
 		updated_lib_files, 
 		updated_language_files = true, 0, {}, {}
 
@@ -1237,9 +1265,12 @@ function essentials.update_keks_menu()
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
 		goto exit
 	else
-
 		do
-			essentials.msg(lang["There's a new version of Kek's menu, starting update..."], "green", true, 3)
+			essentials.msg(lang["There's a new version of Kek's menu, starting update..."], "green", true, 6)
+			if __kek_menu_debug_mode then
+				essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
+				return
+			end
 			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/main/kek_menu_stuff/kekMenuLibs")
 			update_status = status == 200
 			if not update_status then
@@ -1258,7 +1289,7 @@ function essentials.update_keks_menu()
 		end
 
 		menu.create_thread(function()
-			local file_count <const> = #updated_lib_files + #updated_language_files
+			local file_count <const> = #updated_lib_files + #updated_language_files + 2
 			while update_status ~= "done" do
 				ui.set_text_color(255, 255, 255, 255)
 				ui.set_text_scale(0.8)
@@ -1337,6 +1368,7 @@ function essentials.update_keks_menu()
 
 			require("Kek's menu")
 			update_status = "done"
+			essentials.show_changelog()
 			return "has updated"
 		else
 			essentials.msg(lang["Update failed. No files are changed."], "green", true, 6)

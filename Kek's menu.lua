@@ -110,7 +110,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 
 	for name, version in pairs({
 		["Language"] = "1.0.0",
-		["Settings"] = "1.0.1",
+		["Settings"] = "1.0.2",
 		["Essentials"] = "1.4.9",
 		["Memoize"] = "1.0.1",
 		["Enums"] = "1.0.4",
@@ -563,7 +563,6 @@ u.vehicleSettings = menu.add_feature(lang["Vehicle settings"], "parent", u.gvehi
 u.settingsUI = menu.add_feature(lang["Settings"], "parent", u.kekMenu)
 u.profiles = menu.add_feature(lang["Settings"], "parent", u.settingsUI.id)
 u.script_loader = menu.add_feature(lang["Script loader"], "parent", u.settingsUI.id)
-u.hotkey_settings = menu.add_feature(lang["Hotkey settings"], "parent", u.settingsUI.id)
 u.language_config = menu.add_feature(lang["Language configuration"], "parent", u.settingsUI.id)
 u.ai_drive = menu.add_feature(lang["Ai driving"], "parent", u.gvehicle.id)
 u.drive_style_cfg = menu.add_feature(lang["Drive style"], "parent", u.gvehicle.id)
@@ -796,14 +795,6 @@ for _, properties in pairs({
 		setting = false
 	},
 	{
-		setting_name = "Hotkeys",
-		setting = true
-	},
-	{
-		setting_name = "Hotkey mode",
-		setting = 0
-	},
-	{
 		setting_name = "Bounty amount",
 		setting = 10000
 	},
@@ -971,12 +962,6 @@ for _, properties in pairs({
 		setting = true, 
 		feature_name = lang["Notifications"], 
 		feature_parent = u.custom_chat_judger
-	},
-	{
-		setting_name = "Hotkeys #notifications#", 
-		setting = true, 
-		feature_name = lang["Notifications"], 
-		feature_parent = u.hotkey_settings
 	},
 	{
 		setting_name = "Vehicle blacklist #notifications#", 
@@ -1794,6 +1779,14 @@ settings.user_entity_features.object.feats["Change user object setting"] = menu.
 end)
 
 menu.add_feature(lang["Set to \"?\" to make it random."], "action", u.settingsUI.id)
+
+menu.add_feature(lang["Show latest update changelog"], "action", u.settingsUI.id, function(f)
+	if menu.is_trusted_mode_enabled(1 << 3) then
+		essentials.show_changelog()
+	else
+		essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
+	end
+end)
 
 settings.toggle["Debug mode"] = menu.add_feature(lang["Debug mode"], "toggle", u.debug.id, function(f)
 	if f.on and keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
@@ -7772,227 +7765,6 @@ do
 	for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."profiles", "ini")) do
 		create_profile_feature(file_name)
 	end
-end
-
-local function switch(...)
-	local feature <const>, text <const> = ...
-	if not feature.on then
-		feature.on = true
-		essentials.msg(string.format("%s %s", lang["Hotkey:\nTurned on"], text), "green", settings.in_use["Hotkeys #notifications#"]) 
-	else
-		feature.on = false
-		essentials.msg(string.format("%s %s", lang["Hotkey:\nTurned off"], text), "red", settings.in_use["Hotkeys #notifications#"]) 
-	end
-end
-
-local hotkey_setting_properties <const> = {
-	{
-		setting_name = "Spawn vehicle #keybinding#", 
-		setting = "off",
-		func = function() 
-			if kek_entity.spawn_car() ~= -1 then
-				essentials.msg(lang["Hotkey:\nSpawned vehicle."], "green", settings.in_use["Hotkeys #notifications#"])
-			end
-		end,
-		feature_name = lang["Spawn vehicle"]
-	},
-	{
-		setting_name = "Vehicle fly #keybinding#", 
-		setting = "off",
-		func = function()
-			switch(u.vehicle_fly, lang["vehicle fly."])
-		end,
-		feature_name = lang["Vehicle fly"]
-	},
-
-	{
-		setting_name = "Repair vehicle #keybinding#", 
-		setting = "off",
-		func = function()
-			kek_entity.repair_car(player.get_player_vehicle(player.player_id()), true)
-			essentials.msg(lang["Hotkey:\nRepaired vehicle."], "green", settings.in_use["Hotkeys #notifications#"])
-		end,
-		feature_name = lang["Repair vehicle"]
-	},
-	{
-		setting_name = "Max vehicle #keybinding#", 
-		setting = "off", 
-		func = function() 
-			kek_entity.max_car(player.get_player_vehicle(player.player_id()), false, true)
-			essentials.msg(lang["Hotkey:\nMaxed vehicle."], "green", settings.in_use["Hotkeys #notifications#"])
-		end,
-		feature_name = lang["Max vehicle"]
-	},
-	{
-		setting_name = "Change vehicle used for vehicle stuff #keybinding#", 
-		setting = "off",
-		func = function()
-			settings.user_entity_features.vehicle.feats["Change user vehicle setting"].on = true
-		end,
-		feature_name = lang["Set vehicle in use"]
-	},
-	{
-		setting_name = "Clear owned entities #keybinding#", 
-		setting = "off",
-		func = function()
-			u.clear_owned_entities.on = true
-		end,
-		feature_name = lang["Clear entities"]
-	},
-	{
-		setting_name = "Teleport into personal vehicle #keybinding#", 
-		setting = "off",
-		func = function()
-			local Vehicle = 0
-			if player.player_count() > 0 and globals.get_player_global("personal_vehicle", player.player_id()) ~= 0 and not entity.is_entity_dead(globals.get_player_global("personal_vehicle", player.player_id())) then
-				Vehicle = globals.get_player_global("personal_vehicle", player.player_id())
-			elseif player.get_player_vehicle(player.player_id()) ~= 0 and not entity.is_entity_dead(player.get_player_vehicle(player.player_id())) then
-				Vehicle = player.get_player_vehicle(player.player_id())
-			end
-			if not player.is_player_in_any_vehicle(player.player_id()) then
-				ped.clear_ped_tasks_immediately(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver))
-			end
-			ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), Vehicle, enums.vehicle_seats.driver)
-			essentials.msg(lang["Hotkey:\nTeleported into personal vehicle."], "green", settings.in_use["Hotkeys #notifications#"])
-		end,
-		feature_name = lang["Tp personal vehicle"]
-	},
-	{
-		setting_name = "Send clipboard to chat #keybinding#", 
-		setting = "off",
-		func = function()
-			essentials.send_message(utils.from_clipboard())
-		end,
-		feature_name = lang["Clipboard to chat"]
-	},
-	{
-		setting_name = "Teleport forward #keybinding#", 
-		setting = "off",
-		func = function()
-			local velocity <const> = entity.get_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()))
-			local speed <const> = entity.get_entity_speed(kek_entity.get_most_relevant_entity(player.player_id()))
-			kek_entity.teleport(
-				kek_entity.get_most_relevant_entity(player.player_id()), 
-				location_mapper.get_most_accurate_position(kek_entity.get_vector_relative_to_entity(kek_entity.get_most_relevant_entity(player.player_id()), 10), true)
-			)
-			if player.is_player_in_any_vehicle(player.player_id()) then
-				vehicle.set_vehicle_forward_speed(player.get_player_vehicle(player.player_id()), speed)
-			else
-				entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), velocity)
-			end
-			essentials.msg(lang["Hotkey:\nTeleported forward."], "green", settings.in_use["Hotkeys #notifications#"])
-		end,
-		feature_name = lang["Teleport forward"]
-	}
-}
-
-for _, properties in pairs(hotkey_setting_properties) do
-	settings:add_setting(properties)
-end
-
-settings.toggle["Hotkeys"] = menu.add_feature(lang["Hotkey mode"], "value_str", u.hotkey_settings.id, function(f)
-	if f.on then
-		local is_table_of_gta_keys_all_pressed <const> = keys_and_input.is_table_of_gta_keys_all_pressed -- The hotkey loop was causing lag, optimizing every possible thing.
-		local hotkey_stuff
-		settings.hotkey_control_keys_update = true
-		local group = f.value * 2
-		while f.on do
-			system.yield(0)
-			if settings.hotkey_control_keys_update or group ~= f.value * 2 then
-				group = f.value * 2
-				hotkey_stuff = {}
-				for _, properties in pairs(hotkey_setting_properties) do
-					local temp <const> = {}
-					if f.value * 2 == 0 then
-						for hotkey in settings.in_use[properties.setting_name]:gmatch("([%w_%-%s]+)%+?") do
-							temp[#temp + 1] = keys_and_input.get_keyboard_key_control_int_from_name(hotkey)
-						end
-					else
-						for hotkey in settings.in_use[properties.setting_name]:gmatch("([%w_%-%s]+)%+?") do
-							temp[#temp + 1] = keys_and_input.get_controller_key_control_int_from_name(hotkey)
-						end
-					end
-					if #temp > 0 then
-						hotkey_stuff[#hotkey_stuff + 1] = {keys = temp, func = properties.func}
-					end
-				end
-				table.sort(hotkey_stuff, function(a, b) return #a.keys > #b.keys end)
-				hotkey_stuff = essentials.const_all(hotkey_stuff)
-				settings.hotkey_control_keys_update = false
-			end
-			local group <const> = f.value * 2
-			for i = 1, #hotkey_stuff do
-				if is_table_of_gta_keys_all_pressed(hotkey_stuff[i].keys, group) then
-					hotkey_stuff[i].func()
-					keys_and_input.do_table_of_gta_keys(hotkey_stuff[i].keys, f.value * 2, 550)
-					while keys_and_input.is_table_of_gta_keys_all_pressed(hotkey_stuff[i].keys, f.value * 2) do
-						hotkey_stuff[i].func()
-						system.yield(80)
-						for i2 = 1, #hotkey_stuff do
-							if #hotkey_stuff[i].keys < #hotkey_stuff[i2].keys and keys_and_input.is_table_of_gta_keys_all_pressed(hotkey_stuff[i2].keys, f.value * 2) then
-								goto out_of_loop
-							end
-						end
-					end
-					::out_of_loop::
-				end
-			end
-		end
-	end
-end)
-settings.valuei["Hotkey mode"] = settings.toggle["Hotkeys"]
-settings.valuei["Hotkey mode"]:set_str_data({
-	lang["keyboard"],
-	lang["controller"]				
-})
-
-for _, properties in pairs(hotkey_setting_properties) do
-	settings.hotkey_features[#settings.hotkey_features + 1] = essentials.const({properties.feature_name, menu.add_feature(properties.feature_name..": ", "action_value_str", u.hotkey_settings.id, function(f)
-		if f.value < 3 then
-			keys_and_input.do_vk(10000, keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect"))
-			local hotkey_table <const> = {}
-			local time <const> = utils.time_ms() + 30000
-			for _ = 1, f.value + 1 do
-				essentials.msg(lang["Press key to set to hotkey."], "orange", true)
-				local keys
-				if settings.valuei["Hotkey mode"].value == 1 then
-					keys = keys_and_input.CONTROLLER_KEYS
-				else
-					keys = keys_and_input.KEYBOARD_KEYS
-				end
-				while time > utils.time_ms() do
-					system.yield(0)
-					for _, key in pairs(keys) do
-						if controls.is_control_pressed(key.group_id, key.key_id) then
-							keys_and_input.do_key(key.group_id, key.key_id, 15000)
-							hotkey_table[#hotkey_table + 1] = key.name
-							goto out_of_loop
-						end
-					end
-				end
-				::out_of_loop::
-			end
-			if #hotkey_table == f.value + 1 then
-				settings.in_use[properties.setting_name] = table.concat(hotkey_table, "+")
-				f.name = string.format("%s: %s", properties.feature_name, table.concat(hotkey_table, "+"))
-				settings.hotkey_control_keys_update = true
-				essentials.msg(string.format("%s %s %s %s.", lang["Changed"], properties.feature_name, lang["to"], table.concat(hotkey_table, "+")), "green", true)
-			else
-				essentials.msg(lang["Hotkey change timed out or failed."], "orange", true)
-			end
-		elseif essentials.is_str(f, "Turn off") then
-			settings.in_use[properties.setting_name] = "off"
-			essentials.msg(string.format("%s %s.", lang["Turned off the hotkey:\n"], properties.feature_name), "orange", true)
-			f.name = string.format("%s: %s", properties.feature_name, lang["Turned off"])
-			settings.hotkey_control_keys_update = true
-		end
-	end), properties.setting_name})
-	settings.hotkey_features[#settings.hotkey_features][2]:set_str_data({
-		lang["1 key"],
-		lang["2 keys"],
-		lang["3 keys"],
-		lang["Turn off"]
-	})
 end
 
 u.search_features.data = essentials.const({
