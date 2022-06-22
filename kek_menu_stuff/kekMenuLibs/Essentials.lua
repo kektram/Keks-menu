@@ -1221,13 +1221,13 @@ function essentials.update_keks_menu()
 	local
 		update_status,
 		current_file_num,
+		lib_file_strings, 
+		language_file_strings, 
 		current_file,
 		html_page_info,
 		kek_menu_file_string, 
-		lib_file_strings, 
-		language_file_strings, 
 		updated_lib_files, 
-		updated_language_files = true, 0
+		updated_language_files = true, 0, {}, {}
 
 	if version_check_status ~= 200 then
 		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
