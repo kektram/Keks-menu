@@ -1246,6 +1246,7 @@ function essentials.update_keks_menu()
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/main/"
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
 	local script_version <const> = script_version:sub(1, -2) -- There's a newline at the end
+	print("test", script_version:byte(1, -1))
 	local
 		update_status,
 		current_file_num,
@@ -1367,7 +1368,7 @@ function essentials.update_keks_menu()
 				essentials.log(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name, language_file_strings[file_name])
 			end
 
-			require("Kek's menu")
+			dofile(paths.home.."scripts\\Kek's menu.lua")
 			update_status = "done"
 			essentials.show_changelog()
 			return "has updated"
