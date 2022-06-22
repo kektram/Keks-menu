@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local menyoo <const> = {version = "2.2.4"}
+local menyoo <const> = {version = "2.2.5"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -621,7 +621,7 @@ local function spawn_xml_map_type_1(info, entities, networked) -- Most menyoo fi
 			if info.Attachment and info.Attachment.__attributes.isAttached then
 				attach(Entity, info, entities)
 			else
-				entity.set_entity_rotation__native(Entity, info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw, 2, true)
+				entity.set_entity_rotation__native(Entity, v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw), 2, true)
 				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
 				entity.freeze_entity(Entity, is_frozen)
 				if not is_frozen then
@@ -653,7 +653,7 @@ local function spawn_xml_map_type_2(info, entities, networked) -- Same as type_1
 			if info.Attachment and info.Attachment.__attributes.isAttached then
 				attach(Entity, info, entities)
 			else
-				entity.set_entity_rotation__native(Entity, info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw, 2, true)
+				entity.set_entity_rotation__native(Entity, v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw), 2, true)
 				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
 				entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
 				if not entity.is_entity_an_object(Entity) then
@@ -675,7 +675,7 @@ local function spawn_xml_map_type_3(info, entities, networked) -- LSCdamwithpeds
 			entities[Entity] = Entity
 			local rot <const> = info.Rotation
 			local pos <const> = info.Position
-			entity.set_entity_rotation__native(Entity, rot.X, rot.Y, rot.Z, 2, true)
+			entity.set_entity_rotation__native(Entity, v3(rot.X, rot.Y, rot.Z), 2, true)
 			essentials.assert(
 				entity.set_entity_coords_no_offset(Entity, v3(pos.X, pos.Y, pos.Z)), 
 				"Failed to set entity position."
@@ -774,7 +774,8 @@ function menyoo.spawn_xml_map(...)
 		entities = get_info_containers()
 		map_type = get_xml_map_type(info)
 		if map_type and settings.toggle["Clear before spawning xml map"].on then
-			kek_entity.entity_manager:clear()
+			kek_entity.entity_manager:clear() -- This sets models as no longer needed
+			system.yield(1000) -- Waits until models have left memory; has made spawning far more stable
 		end
 		local counts <const> = get_entity_counts_from_xml_parse(
 			spooner.Objects and is_table_logic(spooner.Objects.MapObject)

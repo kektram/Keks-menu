@@ -444,7 +444,7 @@ function globals.send_script_event(...)
 		until cant_yield or (globals.script_event_tracker.count < 10 or (priority and globals.script_event_tracker.count < 12))
 		if player.is_player_valid(pid) and globals.script_event_tracker.count < 12 then
 			globals.script_event_tracker[true] = utils.time_ms() + math.ceil(2000 * gameplay.get_frame_time())
-			script.trigger_script_event(globals.get_script_event_hash(name), pid, args)
+			script.trigger_script_event_2(1 << pid, globals.get_script_event_hash(name), table.unpack(args))
 			return true
 		end
 	elseif not cant_yield then

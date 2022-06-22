@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local natives <const> = {version = "1.0.0"}
+local natives <const> = {version = "1.0.1"}
 
 local essentials <const> = require("Essentials")
 
@@ -880,7 +880,7 @@ local ids <const> = {
 		_get_entity_proofs = {type = "bool", id = 0xbe8cd9be829bbebf, pars = "entity entity, bool* bulletproof, bool* fireproof, bool* explosionproof, bool* collisionproof, bool* meleeproof, bool* steamproof, bool* p7, bool* drownproof", buffer_needed = true},
 		set_entity_quaternion = {type = "void", id = 0x77b21be7ac540f07, pars = "entity entity, float x, float y, float z, float w"},
 		set_entity_records_collisions = {type = "void", id = 0x0a50a1eedad01e65, pars = "entity entity, bool toggle"},
-		set_entity_rotation__native = {type = "void", id = 0x8524a8b0171d5e07, pars = "entity entity, float pitch, float roll, float yaw, int rotationorder, bool p5"},
+		set_entity_rotation__native = {type = "void", id = 0x8524a8b0171d5e07, pars = "entity entity, vector3 rot, int rotationorder, bool p5"}, -- float pitch, float roll, float yaw originally, stuff didnt work as it should if passed this way.
 		set_entity_visible = {type = "void", id = 0xea1c610a04db6bbb, pars = "entity entity, bool toggle, bool unk"},
 		_0xc34bc448da29f5e9 = {type = "void", id = 0xc34bc448da29f5e9, pars = "entity entity, bool toggle"},
 		_0xe66377cddada4810 = {type = "void", id = 0xe66377cddada4810, pars = "entity entity, bool p1"},
@@ -6573,6 +6573,7 @@ do
 -- It makes function calls 3x slower. 120k calls per second to 40k calls. (_get_entity_proofs)
 -- If the function have an any* parameter, they're not converted.
 -- If the api already have a function with the same name, it's not overwritten.
+-- NATIVES ACCEPT V3, EVEN IF IT ASKS FOR X,Y,Z ARGS. IN SOME CASES, YOU MUST USE V3 FOR IT TO WORK. (set_entity_rotation__native)
 	local _G_mt
 	if getmetatable(_G) then
 		_G_mt = getmetatable(_G)
@@ -6590,7 +6591,7 @@ do
 		for native_name, info in pairs(category) do
 			_G[category_name][native_name] = _G[category_name][native_name] 
 			or info.buffer_needed and not info.pars:find("any*", 1, true) and function(...)
-				essentials.assert(menu.is_trusted_mode_enabled(), "Tried to call a native without trusted mode enabled.", category_name, native_name)
+				essentials.assert(menu.get_trust_flags() & 1 << 2 == 4, "Tried to call a native without trusted mode enabled.", category_name, native_name)
 				local args <const>, buffers <const> = parse_parameters(info.pars, ...)
 				local return_value
 				if info.type == "any" then
@@ -6619,7 +6620,7 @@ do
 				end
 			end 
 			or function(...)
-				essentials.assert(menu.is_trusted_mode_enabled(), "Tried to call a native without trusted mode enabled.", category_name, native_name)
+				essentials.assert(menu.get_trust_flags() & 1 << 2 == 4, "Tried to call a native without trusted mode enabled.", category_name, native_name)
 				if info.type == "any" then
 					return native.call(info.id, ...)
 				else
