@@ -1247,7 +1247,6 @@ function essentials.update_keks_menu()
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..tree.."/"
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
 	local script_version <const> = script_version:sub(1, -2)
-	if true then return end
 	local
 		update_status,
 		current_file_num,
