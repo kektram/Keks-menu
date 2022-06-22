@@ -1211,7 +1211,8 @@ end
 function essentials.show_changelog()
 	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to show changelog without http permissions.")
 	menu.create_thread(function()
-		local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/main/Changelog.md")
+		local tree <const> = __kek_menu_participate_in_betas and "beta" or "main"
+		local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..tree.."/Changelog.md")
 		if status ~= 200 then
 			return
 		end
@@ -1242,10 +1243,10 @@ end
 
 function essentials.update_keks_menu()
 	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to update Kek's menu without http permissions.")
-
-	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/main/"
+	local tree <const> = __kek_menu_participate_in_betas and "beta" or "main"
+	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..tree.."/"
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
-	local script_version <const> = script_version:sub(1, -2) -- There's a newline at the end
+	local script_version <const> = script_version:sub(1, -2)
 	local
 		update_status,
 		current_file_num,
@@ -1271,7 +1272,7 @@ function essentials.update_keks_menu()
 				essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
 				return
 			end
-			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/main/kek_menu_stuff/kekMenuLibs")
+			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..tree.."/kek_menu_stuff/kekMenuLibs")
 			update_status = status == 200
 			if not update_status then
 				goto exit
@@ -1280,7 +1281,7 @@ function essentials.update_keks_menu()
 		end
 
 		do
-			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/main/kek_menu_stuff/kekMenuLibs/Languages")
+			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..tree.."/kek_menu_stuff/kekMenuLibs/Languages")
 			update_status = status == 200
 			if not update_status then
 				goto exit
@@ -1342,10 +1343,11 @@ function essentials.update_keks_menu()
 	::exit::
 	if __kek_menu_version ~= script_version then
 		if update_status then
+			__kek_menu_version = script_version
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
-			setmetatable(_G, nil)
 			__kek_menu_version = nil
 			__kek_menu_debug_mode = nil
+			__kek_menu_participate_in_betas = nil
 
 			-- Remove old files & undo all changes to the global space
 			io.remove(paths.home.."scripts\\Kek's menu.lua")
