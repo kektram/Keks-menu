@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.9"}
+local essentials <const> = {version = "1.5.0"}
 
 local language <const> = require("Language")
 local lang <const> = language.lang
@@ -1211,9 +1211,9 @@ end
 function essentials.show_changelog()
 	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to show changelog without http permissions.")
 	menu.create_thread(function()
-		local tree <const> = __kek_menu_participate_in_betas and "beta" or "main"
-		local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..tree.."/Changelog.md")
-		if status ~= 200 then
+		local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
+		local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md")
+		if enums.html_response_codes[status] ~= "OK" then
 			return
 		end
 		local max_lines_before_shrinking <const> = 50
@@ -1244,8 +1244,8 @@ end
 
 function essentials.update_keks_menu()
 	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to update Kek's menu without http permissions.")
-	local tree <const> = __kek_menu_participate_in_betas and "beta" or "main"
-	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..tree.."/"
+	local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
+	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
 	local script_version <const> = script_version:sub(1, -2)
 	local
@@ -1259,7 +1259,7 @@ function essentials.update_keks_menu()
 		updated_lib_files, 
 		updated_language_files = true, 0, {}, {}
 
-	if version_check_status ~= 200 then
+	if enums.html_response_codes[version_check_status] ~= "OK" then
 		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
 		goto exit 
 	end
@@ -1273,8 +1273,8 @@ function essentials.update_keks_menu()
 				essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
 				return
 			end
-			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..tree.."/kek_menu_stuff/kekMenuLibs")
-			update_status = status == 200
+			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs")
+			update_status = enums.html_response_codes[status] == "OK"
 			if not update_status then
 				goto exit
 			end
@@ -1282,8 +1282,8 @@ function essentials.update_keks_menu()
 		end
 
 		do
-			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..tree.."/kek_menu_stuff/kekMenuLibs/Languages")
-			update_status = status == 200
+			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs/Languages")
+			update_status = enums.html_response_codes[status] == "OK"
 			if not update_status then
 				goto exit
 			end
@@ -1306,7 +1306,7 @@ function essentials.update_keks_menu()
 	do
 		current_file = "Kek's menu.lua" -- Download updated files
 		local status <const>, str <const> = web.get(base_path.."Kek's%20menu.lua")
-		update_status = status == 200
+		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit
 		end
@@ -1320,7 +1320,7 @@ function essentials.update_keks_menu()
 		current_file = system_file_name
 
 		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/"..web_file_name)
-		update_status = status == 200
+		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit
 		end
@@ -1334,7 +1334,7 @@ function essentials.update_keks_menu()
 		current_file = system_file_name
 
 		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..web_file_name)
-		update_status = status == 200
+		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit
 		end
@@ -1362,11 +1362,11 @@ function essentials.update_keks_menu()
 			essentials.log(paths.home.."scripts\\Kek's menu.lua", kek_menu_file_string)
 
 			-- Copy new files to their desired locations
-			for file_name in pairs(lib_file_strings) do -- REMEMEMBER TO ADD UPDATE LANGUAGE FILES TOO
+			for file_name in pairs(lib_file_strings) do
 				essentials.log(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name, lib_file_strings[file_name])
 			end
 
-			for file_name in pairs(language_file_strings) do -- REMEMEMBER TO ADD UPDATE LANGUAGE FILES TOO
+			for file_name in pairs(language_file_strings) do
 				essentials.log(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name, language_file_strings[file_name])
 			end
 
