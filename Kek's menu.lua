@@ -396,6 +396,7 @@ u.chat_spammer = menu.add_feature(lang["Chat spamming"], "parent", u.chat_stuff.
 u.custom_chat_judger = menu.add_feature(lang["Custom chat judger"], "parent", u.chat_stuff.id)
 u.chat_bot = menu.add_feature(lang["Chat bot"], "parent", u.chat_stuff.id)
 u.chat_commands = menu.add_feature(lang["Chat commands"], "parent", u.chat_stuff.id)
+u.translate_chat = menu.add_feature(lang["Translate chat"], "parent", u.chat_stuff.id)
 
 for _, properties in pairs({
 	{
@@ -973,6 +974,10 @@ for _, properties in pairs({
 	{
 		setting_name = "Translate chat into language what language to detect",
 		setting = 0
+	},
+	{
+		setting_name = "Translate your messages too",
+		setting = false
 	}
 }) do
 	settings:add_setting(properties)
@@ -3835,7 +3840,7 @@ settings.valuei["Anti chat spam reaction"]:set_str_data({
 	lang["Kick & add to timeout"]
 })
 
-settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.chat_stuff.id, function(f)
+settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.translate_chat.id, function(f)
 	if f.on then
 		if not menu.is_trusted_mode_enabled(1 << 3) then
 			essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
@@ -3846,7 +3851,7 @@ settings.toggle["Translate chat into language"] = menu.add_feature(lang["Transla
 			return
 		end
 		essentials.listeners["chat"]["translate"] = essentials.add_chat_event_listener(function(event)
-			--if event.player ~= player.player_id() then
+			if settings.toggle["Translate your messages too"].on or event.player ~= player.player_id() then
 				local str <const>, detected_language <const> = 
 					language.translate_text(
 						event.body, 
@@ -3855,12 +3860,11 @@ settings.toggle["Translate chat into language"] = menu.add_feature(lang["Transla
 						str_data[settings.valuei["Translate chat into language what language"].value + 1]
 						]
 					)
-					print(str)
 				if detected_language ~= enums.supported_langs_by_google_to_code[settings.valuei["Translate chat into language what language to detect"].
 				str_data[settings.valuei["Translate chat into language what language to detect"].value + 1]] then
 					essentials.send_message(lang["Translation"]..": "..str, essentials.is_str(f, "Team"))
 				end
-			--end
+			end
 		end)
 	else
 		event.remove_event_listener("chat", essentials.listeners["chat"]["translate"])
@@ -3872,19 +3876,21 @@ settings.toggle["Translate chat into language"]:set_str_data({
 	lang["All"]
 })
 
+settings.toggle["Translate your messages too"] = menu.add_feature(lang["Translate your messages"], "toggle", u.translate_chat.id)
+
 settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
 
 settings.valuei["Translate chat into language what language"] = menu.add_feature(
 	lang["Translate into"], 
 	"action_value_str", 
-	u.chat_stuff.id
+	u.translate_chat.id
 )
 settings.valuei["Translate chat into language what language"]:set_str_data(enums.supported_langs_by_google)
 
 settings.valuei["Translate chat into language what language to detect"] = menu.add_feature(
 	lang["Translate what is not"], 
 	"action_value_str", 
-	u.chat_stuff.id
+	u.translate_chat.id
 )
 settings.valuei["Translate chat into language what language to detect"]:set_str_data(enums.supported_langs_by_google)
 

@@ -55,8 +55,7 @@ end
 local encode_gsub_map <const> = {
 	["$"] = "%24",
 	["&"] = "%26",
-	["="] = "%3D",
-	["\32"] = ""
+	["="] = "%3D"
 }
 
 local remove_escape_map <const> = {
@@ -65,10 +64,9 @@ local remove_escape_map <const> = {
 }
 
 local function encode_url(url)
-    url = url:gsub("\n", "\r\n")
-    url = url:gsub("([^%w\32])", char_to_hex)
-    url = url:gsub("\32", "+")
-    url = url:gsub(utf8.charpattern, encode_gsub_map)
+	url = url:gsub("\n", "<code>0</code>")
+	url = url:gsub("([^%w])", char_to_hex)
+	url = url:gsub(utf8.charpattern, encode_gsub_map)
 	return url
 end
 
@@ -77,9 +75,11 @@ function language.translate_text(str, translate_from, translate_to)
 	local status <const>, str = web.get(
 		"https://translate.googleapis.com/translate_a/single?client=gtx&sl="..translate_from.."&tl="..translate_to.."&dt=t&q="..encode_url(str))
 	if status == 200 then
-		local translation <const> = str:match("^%[%[%[\"(.-)\","):gsub("\\u%x%x%x%x", function(str)
+		local translation = str:match("^%[%[%[\"(.-)\","):gsub("\\u%x%x%x%x", function(str)
 			return string.char(tonumber(str:match("\\u0*(%x+)"), 16))
-		end):gsub("\\\"", "\"")
+		end)
+		translation = translation:gsub("\\\"", "\"")
+		translation = translation:gsub(" <code> 0 </code> ", "\n")
 		local detected_language <const> = str:match("[[,]\"([%a-]+)\"%]%]%]$")
 		return translation, detected_language
 	else
