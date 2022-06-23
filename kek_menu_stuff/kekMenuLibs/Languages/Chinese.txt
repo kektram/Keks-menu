@@ -12,7 +12,6 @@ Chat §聊天选项
 Custom chat judger §自定义聊天审判
 Chat bot §聊天触发信息回应
 Chat spamming §聊天信息轰炸
-Hotkey settings §快捷键选项
 Modder detection §外挂检测
 Protections §保护功能
 Modder logging settings §作弊者记录设置
@@ -146,12 +145,6 @@ Please set a waypoint. §请先设置一个标记点.
 Successfully added entry. §成功添加条目
 Removed entry. §已删除条目
 is not in a vehicle. §不在载具内
-Hotkey:\nTurned on §快捷键:\n已开启
-Hotkey:\nTurned off §快捷键:\n已关闭
-Hotkey:\nMaxed vehicle. §快捷键:\n已最大化升级载具
-Hotkey:\nSpawned vehicle. §快捷键:\n已生成载具
-Hotkey:\nRepaired vehicle. §快捷键:\n已修理载具
-vehicle fly. §载具飞行
 vehicle gun. §载具枪
 Turned off the keybinding:\n\" §关闭了按键绑定:\n\"
 Keybinding not changed. Empty input or input is the same as existing keybinding. §按键绑定没有改变.输入为空或输入与现有的按键绑定冲突.
@@ -187,7 +180,6 @@ Log: §记录
 Kick: §踢出
 Max vehicle §最大化升级载具
 Spawn vehicle §生成载具
-Repair vehicle §修理载具
 Vehicle fly §载具飞行
 Vehicle gun §载具枪
 Glitch vehicle §故障载具
@@ -213,10 +205,6 @@ Casino §赌场
 Rid §R*id
 IP §IP
 Name §名称
-Press key to set to hotkey. §请按下要设置为快捷键的键.
-Turned off the hotkey:\n §已关闭快捷键
-Changed §已更改
-to §到
 Turned off §已关闭
 Hotkey:\nloaded §快捷键:\n已加载
 One of the people further in host queue is your friend! Cancelled. §主机队列中在你前一位的玩家是你的好友!已取消.
@@ -347,26 +335,17 @@ times. §次.
 Load §加载
 Save §保存
 Change name §更改名称
-keyboard §键盘
-controller §手柄
 Hotkeys §快捷键
 Type in bounty amount §请输入赏金金额.
 This language file is the wrong version. You can still use it. §该语言文件是错误的版本. 但你仍然可以使用它.
 Cage session §笼子战局
-Drive force multiplier §牵引力倍数
+Drive force multiplier §牵引力倍数Hotkey:\nTeleported forwar
 The hash was copied to your clipboard, more info in the debug console. §哈希已复制到剪贴板,更多信息请到控制台查看
 Send command list §发送命令列表
 Friends can't be targeted §排除好友
 You can't be targeted §排除自己
 Number of responses §回应数
-Hotkey change timed out or failed. §快捷键更改超时或失败
-Turn off §关闭
-1 key §1个按键
-2 keys §2个组合键
-3 keys §3个组合键
 Clear entities §清除实体
-Tp personal vehicle §传送到个人载具
-Hotkey:\nTeleported into personal vehicle. §快捷键:\已传送到个人载具内
 Auto tp to waypoint §自动传送到标记点
 Turn on script loader §开启脚本加载器
 Turn off script loader §关闭脚本加载器
@@ -379,7 +358,6 @@ Chat judge reaction §聊天判断反应
 Chat spammer §聊天轰炸
 Clear entities §清除实体
 Modify chatbot §聊天机器人编辑
-Hotkey mode §快捷键模式
 Driver's seat §驾驶座位
 Front passenger seat §前排乘客座位
 Left backseat §左后座
@@ -393,7 +371,6 @@ Cage §笼子
 Give weapon §给予武器
 Remove weapon §移除武器
 Send clipboard to chat §发送剪贴板内容到聊天窗口
-Clipboard to chat §发送剪贴板内容到聊天框
 Send to session §发送到战局
 Army §军队
 Teleport session §传送战局
@@ -496,8 +473,6 @@ Size §字体大小
 Font §字体
 time. §次
 Outline §字体加粗
-Hotkey:\nTeleported forward. §快捷键:\n向前传送
-Teleport forward §向前传送
 Vehicle blacklist:\nstealing §载具黑名单:\n抢车
 Mount Chiliad & kill §C山山顶 & 击杀
 Log chat & use as chatbot §记录聊天信息并作为聊天机器人使用
@@ -700,3 +675,8 @@ Update failed. No files are changed. §更新失败了. 没有文件被更改.
 Failed to check what the latest version of the script is. §检查脚本的最新版本失败.
 files downloaded §文件已下载.
 Enable trusted mode->http for automatic updates. §启用 信任模式 -> http 以进行自动更新.
+Turn off debug mode to use auto-updater. §关闭 调试模式 以使用自动更新.
+Press space to remove this message. §按 空格 移除此信息.
+Show latest update changelog §显示最新的更新日志
+Participate in betas §参与测试
+Trusted mode->http must be enabled to use this. §必须启用 信任模式 -> http 才能使用这个.
