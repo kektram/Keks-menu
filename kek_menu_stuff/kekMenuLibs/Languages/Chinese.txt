@@ -339,7 +339,7 @@ Hotkeys §快捷键
 Type in bounty amount §请输入赏金金额.
 This language file is the wrong version. You can still use it. §该语言文件是错误的版本. 但你仍然可以使用它.
 Cage session §笼子战局
-Drive force multiplier §牵引力倍数Hotkey:\nTeleported forwar
+Drive force multiplier §牵引力倍数
 The hash was copied to your clipboard, more info in the debug console. §哈希已复制到剪贴板,更多信息请到控制台查看
 Send command list §发送命令列表
 Friends can't be targeted §排除好友
