@@ -7,6 +7,7 @@ end
 
 __kek_menu_version = "0.4.8.0"
 __kek_menu_debug_mode = false
+__kek_menu_participate_in_betas = false
 
 menu.create_thread(function()
 
@@ -78,6 +79,9 @@ and utils.file_exists(paths.debugger) then
 		if str:match("Debug mode=(%a%a%a%a)") == "true" then
 			__kek_menu_debug_mode = true
 			dofile(paths.debugger)
+		end
+		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
+			__kek_menu_participate_in_betas = true
 		end
 	end
 else
@@ -949,6 +953,10 @@ for _, properties in pairs({
 	{
 		setting_name = "Is player typing",
 		setting = false
+	},
+	{
+		setting_name = "Participate in betas",
+		setting = false
 	}
 }) do
 	settings:add_setting(properties)
@@ -1786,6 +1794,10 @@ menu.add_feature(lang["Show latest update changelog"], "action", u.settingsUI.id
 	else
 		essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
 	end
+end)
+
+settings.toggle["Participate in betas"] = menu.add_feature(lang["Participate in betas"], "toggle", u.settingsUI.id, function(f)
+	__kek_menu_participate_in_betas = f.on
 end)
 
 settings.toggle["Debug mode"] = menu.add_feature(lang["Debug mode"], "toggle", u.debug.id, function(f)
@@ -3116,7 +3128,7 @@ menu.add_feature(lang["Spawn vehicle for everyone"], "action", u.session_peacefu
 	for pid in essentials.players() do
 		local car <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
 			return essentials.get_player_coords(pid), player.get_player_heading(pid)
-		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
+		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on, nil, nil, nil, nil, true)
 		if not entity.is_entity_a_vehicle(car) then
 			essentials.msg(string.format("%s %i / %i %s. %s", lang["Failed to spawn"], player.player_count() - spawn_count, player.player_count(), lang["Vehicles"]:lower(), lang["Vehicle limit was reached."]), "red", true, 6)
 			break
@@ -3600,7 +3612,7 @@ settings.user_entity_features.vehicle.feats["Respawn vehicle"] = menu.add_featur
 				local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 				f.data[scid] = kek_entity.spawn_ped_or_vehicle(hash, function()
 					return location_mapper.get_most_accurate_position(kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))), player.get_player_heading(pid)
-				end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
+				end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on, nil, nil, nil, nil, true)
 			end
 		end
 	end
@@ -5272,7 +5284,9 @@ do
 		"ZeroMenu",
 		"[Spectating You]",
 		"tried to report you",
-		"SCID: "
+		"SCID: ",
+		"Triggered",
+		"Toggled"
 	})
 	local whitelisted_strings <const> = {
 		lang["is in godmode."],
@@ -5982,6 +5996,10 @@ u.max_self_vehicle_loop.min = 25
 u.max_self_vehicle_loop.mod = 25
 u.max_self_vehicle_loop.value = 500
 
+menu.add_feature(lang["Max vehicle"], "action", u.gvehicle.id, function(f)
+	kek_entity.max_car(player.get_player_vehicle(player.player_id()), false, true)
+end)
+
 menu.add_feature(lang["Change backplate text"], "action", u.vehicleSettings.id, function(f)
 	local input <const>, status <const> = keys_and_input.get_input(lang["Type in the text you want displayed on the backplate of your cars after maxing them."], "", 128, 0)
 	if status == 2 then
@@ -6480,7 +6498,7 @@ settings.user_entity_features.vehicle.player_feats["Respawn vehicle"] = menu.add
 			local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 			f.data = kek_entity.spawn_ped_or_vehicle(hash, function()
 				return kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid)), player.get_player_heading(pid)
-			end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
+			end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on, nil, nil, nil, nil, true)
 		end
 	end
 end).id
