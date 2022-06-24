@@ -1352,23 +1352,26 @@ function essentials.update_keks_menu()
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages", "txt")) do
 				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name)
 			end
-
-			local new_file_name <const> = debug.getinfo(1).short_src == "Kek's menu__temp.lua" and "Kek's menu.lua" or "Kek's menu__temp.lua"
-			io.open(paths.home.."scripts\\"..new_file_name, "w+"):close()
-			essentials.log(paths.home.."scripts\\"..new_file_name, kek_menu_file_string)
+			local file <close> = io.open(paths.home.."scripts\\Kek's menu.lua", "w+b")
+			file:write(kek_menu_file_string)
+			file:flush()
 
 			-- Copy new files to their desired locations
 			for file_name in pairs(lib_file_strings) do
-				essentials.log(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name, lib_file_strings[file_name])
+				local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name, "w+b")
+				file:write(lib_file_strings[file_name])
+				file:flush()
 			end
 
 			for file_name in pairs(language_file_strings) do
-				essentials.log(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name, language_file_strings[file_name])
+				local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name, "w+b")
+				file:write(language_file_strings[file_name])
+				file:flush()
 			end
 
 			update_status = "done"
 			essentials.show_changelog()
-			dofile(paths.home.."scripts\\"..new_file_name)
+			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
 		else
 			update_status = "done"
