@@ -1247,7 +1247,7 @@ function essentials.update_keks_menu()
 	local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
-	local script_version <const> = script_version:gsub("[^.%d]", "")
+	local script_version <const> = script_version:gsub("[%s%c]", "")
 	local
 		update_status,
 		current_file_num,
