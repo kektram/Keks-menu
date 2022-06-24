@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.8.0
+-- Kek's menu version 0.4.8.0 beta 10
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 9"
+__kek_menu_version = "0.4.8.0 beta 10"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 
@@ -3862,8 +3862,10 @@ settings.toggle["Translate chat into language"] = menu.add_feature(lang["Transla
 			if (settings.toggle["Translate your messages too"].on or event.player ~= player.player_id())
 			and event.body:find("^%P") -- chat commands
 			and utils.time_ms() > (tracker[event.player] or 0) then
-				local language_translate_into_setting <const> = enums.supported_langs_by_google_to_code[settings.valuei["Translate chat into language what language"].
-					str_data[settings.valuei["Translate chat into language what language"].value + 1]]
+				local language_translate_into_setting <const> = 
+					enums.supported_langs_by_google_to_code[
+						enums.supported_langs_by_google[settings.valuei["Translate chat into language what language"].value + 1]
+					]
 
 				local str <const>, detected_language <const> = 
 					language.translate_text(
