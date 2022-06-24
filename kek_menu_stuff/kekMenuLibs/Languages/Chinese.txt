@@ -664,8 +664,8 @@ Garbage change §垃圾更改
 Jet §天煞
 You must turn on trusted mode->Natives to use this script. §你必须启用 信任模式 -> Natives 才能使用此脚本.
 Draw entity queue §显示实体队列
-Num of peds/vehicles in queue §队列中的NPC/载具数量
-Num of peds/vehicles spawned §已生成的NPC/载具数量
+Num of entities in queue §队列中的实体数量
+Num of entities spawned §已生成的实体数量
 Save only mission entities §仅保存任务实体
 Wait until the previous map is done spawning. §正在等待上一张地图完成生成.
 You have the latest version of Kek's menu. §当前为最新版本的Kek菜单.
@@ -680,3 +680,8 @@ Press space to remove this message. §按 空格 移除此信息.
 Show latest update changelog §显示最新的更新日志
 Participate in betas §参与测试
 Trusted mode->http must be enabled to use this. §必须启用 信任模式 -> http 才能使用这个.
+Translate into §翻译成
+Translate chat §翻译战局聊天
+Translation §翻译
+Translate what is not §不翻译
+Translate your messages §翻译你的聊天信息
