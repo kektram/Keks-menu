@@ -183,6 +183,16 @@ else
 	essentials.msg(lang["Enable trusted mode->http for automatic updates."], "blue", true, 3)
 end
 
+if debug.getinfo(1).short_src == "Kek's menu__temp.lua" then -- Part of script updater. io.remove can't remove files in use.
+	io.open(paths.home.."scripts\\Kek's menu.lua", "w+"):close()
+	essentials.log(
+		paths.home.."scripts\\Kek's menu.lua", 
+		essentials.get_file_string(paths.home.."scripts\\Kek's menu__temp.lua")
+	)
+elseif utils.file_exists(paths.home.."scripts\\Kek's menu__temp.lua") then
+	io.remove(paths.home.."scripts\\Kek's menu__temp.lua")
+end
+
 local player_history <const> = {
 	year_parents = {},
 	month_parents = {},

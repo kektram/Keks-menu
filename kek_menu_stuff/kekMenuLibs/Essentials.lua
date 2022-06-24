@@ -1345,7 +1345,6 @@ function essentials.update_keks_menu()
 			__kek_menu_participate_in_betas = nil
 
 			-- Remove old files & undo all changes to the global space
-			io.remove(paths.home.."scripts\\Kek's menu.lua")
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")) do
 				package.loaded[file_name:gsub("%.lua", "")] = nil
 				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name)
@@ -1353,7 +1352,10 @@ function essentials.update_keks_menu()
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages", "txt")) do
 				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name)
 			end
-			essentials.log(paths.home.."scripts\\Kek's menu.lua", kek_menu_file_string)
+
+			local new_file_name <const> = debug.getinfo(1).short_src == "Kek's menu__temp.lua" and "Kek's menu.lua" or "Kek's menu__temp.lua"
+			io.open(paths.home.."scripts\\"..new_file_name, "w+"):close()
+			essentials.log(paths.home.."scripts\\"..new_file_name, kek_menu_file_string)
 
 			-- Copy new files to their desired locations
 			for file_name in pairs(lib_file_strings) do
@@ -1366,7 +1368,7 @@ function essentials.update_keks_menu()
 
 			update_status = "done"
 			essentials.show_changelog()
-			dofile(paths.home.."scripts\\Kek's menu.lua")
+			dofile(paths.home.."scripts\\"..new_file_name)
 			return "has updated"
 		else
 			update_status = "done"
