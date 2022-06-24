@@ -361,11 +361,11 @@ local function spawn_entity(info, entities, network_status)
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40)
 		end, info.Dynamic == false)
 	elseif streaming.is_model_a_ped(info.ModelHash) and network_status == "is_networked" then
-		kek_entity.spawn_networked_ped(info.ModelHash, function()
+		Entity = kek_entity.spawn_networked_ped(info.ModelHash, function()
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
 		end)
 	elseif streaming.is_model_a_ped(info.ModelHash) and network_status == "is_not_networked" then
-		kek_entity.spawn_local_ped(info.ModelHash, function()
+		Entity = kek_entity.spawn_local_ped(info.ModelHash, function()
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
 		end)
 	elseif streaming.is_model_a_vehicle(info.ModelHash) and network_status == "is_networked" then

@@ -117,7 +117,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Settings"] = "1.0.2",
 		["Essentials"] = "1.5.0",
 		["Memoize"] = "1.0.1",
-		["Enums"] = "1.0.4",
+		["Enums"] = "1.0.5",
 		["Vehicle mapper"] = "1.3.9", 
 		["Ped mapper"] = "1.2.7",
 		["Object mapper"] = "1.2.7", 
@@ -3311,7 +3311,7 @@ menu.get_player_feature(player_feat_ids["Mad peds"]):set_str_data({
 })
 
 menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, function(f)
-	local initial_pos <const> = essentials.get_player_coords(player.player_id())
+	local initial_pos <const>, threads <const> = essentials.get_player_coords(player.player_id()), {}
 	menu.create_thread(function()
 		while f.on do
 			entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
@@ -3338,10 +3338,17 @@ menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, f
 					break
 				end
 				if essentials.is_not_friend(pid) then
-					local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795), true)
-					if status then
-						globals.disable_vehicle(pid)
-						players[#players + 1] = pid
+					if not essentials.is_in_vehicle(pid) and menu.has_thread_finished(threads[pid] or -1) then
+						threads[pid] = menu.create_thread(function()
+							globals.force_player_into_vehicle(pid)
+						end, nil)
+					end
+					if menu.has_thread_finished(threads[pid] or -1) then
+						local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795), true)
+						if status then
+							globals.disable_vehicle(pid)
+							players[#players + 1] = pid
+						end
 					end
 				end
 			end
@@ -3850,19 +3857,24 @@ settings.toggle["Translate chat into language"] = menu.add_feature(lang["Transla
 		if essentials.listeners["chat"]["translate"] then
 			return
 		end
+		local tracker <const> = {} -- To prevent spamming requests at Google, 1 translation every 500ms per player.
 		essentials.listeners["chat"]["translate"] = essentials.add_chat_event_listener(function(event)
-			if settings.toggle["Translate your messages too"].on or event.player ~= player.player_id() then
+			if settings.toggle["Translate your messages too"].on or event.player ~= player.player_id() and utils.time_ms() > (tracker[event.player] or 0) then
+				local language_translate_into_setting <const> = enums.supported_langs_by_google_to_code[settings.valuei["Translate chat into language what language"].
+					str_data[settings.valuei["Translate chat into language what language"].value + 1]]
+
 				local str <const>, detected_language <const> = 
 					language.translate_text(
 						event.body, 
 						"auto", 
-						enums.supported_langs_by_google_to_code[settings.valuei["Translate chat into language what language"].
-						str_data[settings.valuei["Translate chat into language what language"].value + 1]
-						]
+						language_translate_into_setting
 					)
-				if detected_language ~= enums.supported_langs_by_google_to_code[settings.valuei["Translate chat into language what language to detect"].
-				str_data[settings.valuei["Translate chat into language what language to detect"].value + 1]] then
-					essentials.send_message(lang["Translation"]..": "..str, essentials.is_str(f, "Team"))
+				tracker[event.player] = utils.time_ms() + 500
+				if enums.supported_langs_by_google_to_name[detected_language] 
+				and detected_language ~= enums.supported_langs_by_google_to_code[settings.valuei["Translate chat into language what language to detect"].
+				str_data[settings.valuei["Translate chat into language what language to detect"].value + 1]]
+				and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
+					essentials.send_message(lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str, essentials.is_str(f, "Team"))
 				end
 			end
 		end)
@@ -3872,8 +3884,8 @@ settings.toggle["Translate chat into language"] = menu.add_feature(lang["Transla
 	end
 end)
 settings.toggle["Translate chat into language"]:set_str_data({
-	lang["Team"],
-	lang["All"]
+	lang["Team chat"],
+	lang["All chat"]
 })
 
 settings.toggle["Translate your messages too"] = menu.add_feature(lang["Translate your messages"], "toggle", u.translate_chat.id)
@@ -3885,14 +3897,30 @@ settings.valuei["Translate chat into language what language"] = menu.add_feature
 	"action_value_str", 
 	u.translate_chat.id
 )
-settings.valuei["Translate chat into language what language"]:set_str_data(enums.supported_langs_by_google)
+settings.valuei["Translate chat into language what language"]:set_str_data(
+	(function()
+		local t = {}
+		for i = 1, #enums.supported_langs_by_google do
+			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
+		end
+		return t
+	end)()
+)
 
 settings.valuei["Translate chat into language what language to detect"] = menu.add_feature(
 	lang["Translate what is not"], 
 	"action_value_str", 
 	u.translate_chat.id
 )
-settings.valuei["Translate chat into language what language to detect"]:set_str_data(enums.supported_langs_by_google)
+settings.valuei["Translate chat into language what language to detect"]:set_str_data(
+	(function()
+		local t = {}
+		for i = 1, #enums.supported_langs_by_google do
+			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
+		end
+		return t
+	end)()
+)
 
 do
 	local function create_anti_stuck_thread(...)
@@ -4597,11 +4625,10 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							end, nil)
 						elseif settings.in_use["tp #chat command#"] and (str:find("^%ptp [^\32]+") or str:find("^%pteleport [^\32]+")) then
 							str = str:gsub("^%pteleport", "!tp")
-							if pid ~= player.player_id() and not essentials.is_in_vehicle(pid) then
-								essentials.send_message(string.format("[Chat commands]: Failed to tp %s; he isn't in a vehicle.", player.get_player_name(pid)), event.player == player.player_id())
-								return
-							end
 							menu.create_thread(function()
+								if player.player_id() ~= pid and not player.is_player_in_any_vehicle(pid) then
+									globals.force_player_into_vehicle(pid)
+								end
 								local pos
 								if player.is_player_valid(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))) then
 									pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
@@ -6342,6 +6369,16 @@ menu.add_player_feature(lang["Transaction error"], "toggle", u.script_stuff, fun
 end)
 
 menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicle_features, function(f, pid)
+	if essentials.is_str(f, "waypoint") and not hud.is_waypoint_active() then
+		essentials.msg(lang["Please set a waypoint."], "red", true)
+		return
+	end
+	if not essentials.is_in_vehicle(pid) then
+		globals.force_player_into_vehicle(pid)
+	end
+	if not essentials.is_in_vehicle(pid) then
+		return
+	end
 	if essentials.is_str(f, "me") then
 		if pid == player.player_id() then
 			essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
@@ -6349,10 +6386,6 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 		end
 		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true, true)
 	elseif essentials.is_str(f, "waypoint") then
-		if not hud.is_waypoint_active() then
-			essentials.msg(lang["Please set a waypoint."], "red", true)
-			return
-		end
 		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), player.player_id() ~= pid, false, f)
 	elseif essentials.is_str(f, "Mount Chiliad & kill") then
 		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), player.player_id() ~= pid, true) then

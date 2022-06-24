@@ -1395,8 +1395,13 @@ do
 						Entity = kek_entity.spawn_networked_object(hash, function()
 							return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 10)
 						end)
-					else
+					elseif streaming.is_model_a_ped(hash) then
 						Entity = kek_entity.spawn_networked_ped(hash, function()
+							return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 10), 0
+						end)
+						kek_entity.modify_entity_godmode(Entity, true)
+					elseif streaming.is_model_a_vehicle(hash) then
+						Entity = kek_entity.spawn_networked_mission_vehicle(hash, function()
 							return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 10), 0
 						end)
 						kek_entity.modify_entity_godmode(Entity, true)
@@ -1444,24 +1449,33 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 	return status
 end
 
-function kek_entity.teleport_session(...)
-	local pos <const>, f <const> = ...
-	local pids <const> = {}
-	for pid in essentials.players() do
-		if essentials.is_in_vehicle(pid)
-		and memoize.get_player_coords(pid):magnitude(pos) > 50
-		and essentials.is_not_friend(pid) then
-			pids[#pids + 1] = pid
+do
+	local threads <const> = {}
+	function kek_entity.teleport_session(...)
+		local pos <const>, f <const> = ...
+		local pids <const> = {}
+		for pid in essentials.players() do
+			if memoize.get_player_coords(pid):magnitude(pos) > 50 and essentials.is_not_friend(pid) then
+				pids[#pids + 1] = pid
+			end
 		end
-	end
-	local value <const> = f.value
-	while #pids > 0 and f.on and f.value == value do
-		local my_ped <const> = player.get_player_ped(player.player_id())
-		table.sort(pids, function(a, b) -- Makes sure closest player is teleported at all times. Needs to be updated on each iteration.
-			return (memoize.get_distance_between(player.get_player_ped(a), my_ped) < memoize.get_distance_between(player.get_player_ped(b), my_ped)) 
-		end)
-		kek_entity.teleport_player_and_vehicle_to_position(pids[1], pos, nil, nil, f)
-		table.remove(pids, 1)
+		local value <const> = f.value
+		while #pids > 0 and f.on and f.value == value do
+			local my_ped <const> = player.get_player_ped(player.player_id())
+			table.sort(pids, function(a, b) -- Makes sure closest player is teleported at all times. Needs to be updated on each iteration.
+				return (memoize.get_distance_between(player.get_player_ped(a), my_ped) < memoize.get_distance_between(player.get_player_ped(b), my_ped)) 
+			end)
+			if not essentials.is_in_vehicle(pids[1]) and (menu.has_thread_finished(threads[pids[1]] or -1)) then
+				local pid <const> = pids[1]
+				threads[pid] = menu.create_thread(function()
+					globals.force_player_into_vehicle(pid)
+				end, nil)
+			end
+			if menu.has_thread_finished(threads[pids[1]] or -1) then
+				kek_entity.teleport_player_and_vehicle_to_position(pids[1], pos, nil, nil, f)
+			end
+			table.remove(pids, 1)
+		end
 	end
 end
 

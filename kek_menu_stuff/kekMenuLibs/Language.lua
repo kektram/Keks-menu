@@ -52,35 +52,24 @@ local function char_to_hex(char)
 	return string.format("%%%02X", string.byte(char))
 end
 
-local encode_gsub_map <const> = {
-	["$"] = "%24",
-	["&"] = "%26",
-	["="] = "%3D"
-}
-
-local remove_escape_map <const> = {
-	["\\"] = "",
-	["+"] = ""
-}
-
 local function encode_url(url)
-	url = url:gsub("\n", "<code>0</code>")
 	url = url:gsub("([^%w])", char_to_hex)
-	url = url:gsub(utf8.charpattern, encode_gsub_map)
 	return url
 end
 
+-- "https://translate.googleapis.com/translate_a/single?client=gtx&sl="..translate_from.."&tl="..translate_to.."&dt=t&q="..encode_url(str)) ENDPOINT 1; this one provides more info, splits sentences into multiple objects.
+-- "https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl="..translate_from.."&tl="..translate_to.."&q="..encode_url(str) ENDPOINT 2; this one is easier to work with. If there are limits, this one is probably less likely to hit them since less data.
 function language.translate_text(str, translate_from, translate_to)
 	assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to translate text without http permissions.")
-	local status <const>, str = web.get(
-		"https://translate.googleapis.com/translate_a/single?client=gtx&sl="..translate_from.."&tl="..translate_to.."&dt=t&q="..encode_url(str))
+	local 
+		status <const>,
+		str <const> = web.get("https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl="..translate_from.."&tl="..translate_to.."&q="..encode_url(str))
+
 	if status == 200 then
-		local translation = str:match("^%[%[%[\"(.-)\","):gsub("\\u%x%x%x%x", function(str)
-			return string.char(tonumber(str:match("\\u0*(%x+)"), 16))
-		end)
+		local translation, detected_language <const> = str:match("%[%[\"(.-)\",\"(.-)\"%]%]")
+		translation = translation:gsub("\\n", "\n")
+		translation = translation:gsub("\\r", "\r")
 		translation = translation:gsub("\\\"", "\"")
-		translation = translation:gsub(" <code> 0 </code> ", "\n")
-		local detected_language <const> = str:match("[[,]\"([%a-]+)\"%]%]%]$")
 		return translation, detected_language
 	else
 		return "REQUEST FAILED", "FAILED"

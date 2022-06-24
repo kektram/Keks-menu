@@ -126,7 +126,7 @@ globals.player_global_indices = essentials.const({
 
 
 local script_event_hashes <const> = essentials.const({
-	["Crash 1"] = 							962740265,
+	["Force player into vehicle"] = 		962740265,
 
 	["Crash 2"] = 							-1386010354,
 
@@ -383,7 +383,7 @@ function globals.get_script_event_hash(name)
 	return script_event_hashes[name]
 end
 
-globals.CRASH_NAMES = {}
+globals.CRASH_NAMES = {"Force player into vehicle"}
 
 for name, _ in pairs(script_event_hashes) do
 	if name:find("^Crash %d+$") then
@@ -394,6 +394,15 @@ end
 function globals.get_global(global_name)
 	essentials.assert(globals.global_indices[global_name], "Invalid global name.", global_name)
 	return script.get_global_i(globals.global_indices[global_name])
+end
+
+function globals.force_player_into_vehicle(pid) -- Creds to RulyPancake the 5th#1345 for logging this from stand menu
+	globals.send_script_event("Force player into vehicle", pid, {pid, 1, 32, network.network_hash_from_player(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1})
+	system.yield(3000)
+	local time <const> = utils.time_ms() + 15000
+	while player.is_player_god(pid) and time > utils.time_ms() do
+		system.yield(0)
+	end
 end
 
 function globals.get_player_global(global_name, pid, get_index)
