@@ -794,3 +794,5 @@ Xhosa §科萨语
 Yiddish §意第绪语
 Yoruba §约鲁巴语
 Zulu §祖鲁语
+Team chat §团队聊天
+All chat §所有聊天
