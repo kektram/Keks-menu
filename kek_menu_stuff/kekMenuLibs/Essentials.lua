@@ -1315,30 +1315,24 @@ function essentials.update_keks_menu()
 	end
 
 	for _, properties in pairs(updated_lib_files) do
-		local system_file_name <const> = properties.system_file_name
-		local web_file_name <const> = properties.web_file_name
-		current_file = system_file_name
-
-		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/"..web_file_name)
+		current_file = properties.system_file_name
+		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/"..properties.web_file_name)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit
 		end
-		lib_file_strings[system_file_name] = str
+		lib_file_strings[properties.system_file_name] = str
 		current_file_num = current_file_num + 1
 	end
 
 	for _, properties in pairs(updated_language_files) do
-		local system_file_name <const> = properties.system_file_name
-		local web_file_name <const> = properties.web_file_name
-		current_file = system_file_name
-
-		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..web_file_name)
+		current_file = properties.system_file_name
+		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..properties.web_file_name)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit
 		end
-		language_file_strings[system_file_name] = str
+		language_file_strings[properties.system_file_name] = str
 		current_file_num = current_file_num + 1
 	end
 	::exit::
@@ -1370,12 +1364,14 @@ function essentials.update_keks_menu()
 				essentials.log(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name, language_file_strings[file_name])
 			end
 
-			dofile(paths.home.."scripts\\Kek's menu.lua")
 			update_status = "done"
 			essentials.show_changelog()
+			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
 		else
+			update_status = "done"
 			essentials.msg(lang["Update failed. No files are changed."], "green", true, 6)
+			return "failed update"
 		end
 	end
 end
