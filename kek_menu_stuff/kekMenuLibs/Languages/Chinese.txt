@@ -681,7 +681,7 @@ Show latest update changelog §显示最新的更新日志
 Participate in betas §参与测试
 Trusted mode->http must be enabled to use this. §必须启用 信任模式 -> http 才能使用这个.
 Translate into §翻译成
-Translate chat §翻译聊天到
+Translate chat §翻译聊天
 Translation §翻译
 Translate what is not §不翻译
 Translate your messages §翻译你的聊天信息
@@ -796,3 +796,7 @@ Yoruba §约鲁巴语
 Zulu §祖鲁语
 Team chat §团队聊天
 All chat §所有聊天
+Forcing player into vehicle. This can take up to 15 seconds. §强制玩家进入载具. 最多可能需要15秒.
+Failed to teleport player. §传送玩家失败.
+Translate your messages into §翻译你的聊天信息
+Your messages chat type §你的聊天信息类型
