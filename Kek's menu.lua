@@ -4328,6 +4328,14 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 						str = str:gsub(" "..name_pattern.." ", " ")
 						str = str:gsub(" "..name_pattern.."$", "")
 						found_player_pid = true
+					    elseif str.find(str, "you") then
+						pid = player.player_id()
+						str = str:gsub(" you ", " ")
+						str = str:gsub(" you$", "")
+					    elseif str.find(str, "me") then
+						pid = event.player
+						str = str:gsub(" me ", " ")
+						str = str:gsub(" me$", "")
 					else
 						pid = event.player
 					end
