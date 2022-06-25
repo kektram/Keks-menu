@@ -1,0 +1,616 @@
+Kek's menu §Kek's menu
+General settings §Generelle innstillinger
+Vehicle §Kjøretøy funksjoner
+Self §Meg
+Vehicle peaceful §Vennlige Kjøretøy funksjoner
+Vehicle settings §Kjøretøy innstillinger
+Vehicle blacklist §Kjøretøy svarteliste
+Session malicious §Ondsinnete økt funksjoner
+Player history §Spiller historie
+Scripts §Skript
+Settings §Innstillinger
+Chat §Chat
+Custom chat judger §Tilpasset chat dømmer
+Chat bot §Chat bot
+Chat spamming §Chat spammer
+Hotkey settings §Hurtigtast innstillinger
+Modder detection §Modder gjenkjenning
+Protections §Beskyttelse
+Modder logging settings §Modder logging innstillinger
+Auto kick tag settings §Auto spark ut markert innstillinger
+Which modder detections are on §Hvilke modder gjenkjenninger er på
+Weapons §Våpner
+Kek's utilities §Kek's verktøy
+Script loader §Skript innlaster
+Language configuration §Språk konfigurasjon
+Vehicle §Kjøretøy
+Trolling §Trolling
+Malicious §Ondsinnet funksjoner
+Set §Sett
+as default language. §som standard språk.
+Empty script loader file §Tøm skript innlaster fil
+Add script to auto loader §Legg til skript til skript innlaster
+Remove script from auto loader §Fjern skript fra skript innlaster
+Modded name detection §Modded navn gjenkjenning
+Blacklist §Svarteliste
+Check people's stats automatically §Gjenkjenn folks spiller egenskaper
+Detect any modded spectate §Gjenkjenn modded tilskuing
+Kick any vote kickers §Spark ut folk som stemmer på å sparke ut
+Add session §Legg til økten
+Remove session §Fjern økten
+Get host automatically §Skaff vert automatisk
+Log modders with selected tags to blacklist §Loggfør moddere meg valgte markeringer
+Auto kicker §Auto kicker
+Ram everyone §Kast biler på alle
+Vehicle fly nearby vehicles §Fly biler i nærheten
+Disable vehicles §Nekt tilgang til biler for alle
+Please click me for info §Vær så snill å klikk på meg for info
+Num of people, click to type §Antall folk, klikk på meg
+Player history §Spiller historie
+Clear search list §Fjern søke liste
+Search §Søk
+Vehicle blacklist §kjøretøy svarteliste
+Spawn vehicle for everyone §Spawn et kjøretøy for alle sammen
+Max everyone's car §Maksimer alle sin bil
+Current position §til meg
+Waypoint §Veipunkt
+Get host §Skaff vert
+Never wanted §Skru av politiet
+off the radar §Gi økten av radaren
+Reapply bounty §Gi dusør på nytt
+Send to random mission §Send økten til tilfeldig oppdrag
+Perico island §Send økten til Perico øya
+Apartment invites §Send økten til tilfeldige leiligheter
+Ban §Bannlys
+Dismiss §Avvis
+Terminate §Terminer
+Transaction error §Transaksjons feil
+Custom chat judge §Tilpasset chat dømmer
+Spam speed, click to type §Spam fart, klikk for å skrive
+Random text from file §Tilfeldig tekst fra fil
+Echo delay, click to type §Ekko forsinkelse
+Echo chat §Ekko chat
+Answer delay chatbot §Svar forsinkelsen til chatbotten
+Chat bot §Chat bot
+Max car §Maksimer kjøretøy
+Change default vehicle §Forandre standard kjøretøy
+Change backplate text §Forandre bakplate teksten på kjøretøy
+What vehicle to spawn §Hvilket kjøretøy du skal spawne
+Spawn vehicle §Spawn kjøretøy
+Vehicle fly speed, click to type §Kjøretøy flygnings fart
+Vehicle fly §Kjøretøy flygning
+Type in what object §skriv inn hvilket objekt
+Object gun §Objekt våpen
+Airstrike gun §Luftangrepts våpen
+What vehicle vehicle gun §Hvilket kjøretøy
+Vehicle gun §Kjøretøy våpen
+Clear entity type §Fjern enhetstype
+Shoot entity| get model name of entity §Skyt enhet|Få enhetens model navn
+save to default §lagre til default
+Script event crash §Skript hendelse krasj
+Spawn a ped §Spawn en fotgjenger
+Car godmode §Kjøretøy gudmodus
+Vehicle fly player §Fly kjøretøyet til spilleren
+What vehicle to spawn §Hvilket kjøretøy skal spawnes
+Disable vehicles §Skru av biler
+Off the radar §Av radaren
+apply bounty §Sett dusør på spilleren
+Reapply bounty §Sett dusør på spilleren etter død
+Perico island §Send til Perico øya
+Apartment invites §Leilighets invitasjoner
+Send to random mission §Send til tilfeldig oppdrag
+Ram player with vehicle §Kast kjøretøy på spiller
+Hurricane §Orkan
+Delete gun §Enhetfjernings våpen
+Explosion gun §Eksplosjons våpen
+was set as the default language. §var satt som standard språk.
+You're missing a file in kekMenuLibs. Please reinstall Kek's menu. §Du mangler en fil i kekMenuLibs, reinstaller kek's menu.
+There's a library file which is the wrong version, please reinstall kek's menu. §En av filene i kekMenuLibs er utdatert, reinstaller kek's menu
+Turned off script loader §Skrudde av skript innlaster.
+Turned on script loader §Skrudde på skript innlaster.
+Emptied script loader §Tømte skript innlaster.
+Added §La til
+to script loader §til skript innlaster.
+is already in the script loader §er allerede i skript innlasteren.
+Couldn't find file §Fant ikke filen.
+Removed §Fjernte
+from script loader §fra skript innlaster.
+autoexec doesn't exist §Autoexec filen finnes ikke.
+Chat judge:\nBounty set on §Chatdømmer:\nDusør satt på
+Chat judge:\nRamming §Chatdømmer:\nSprenger
+with explosive tankers §ved å kaste bensinlastebiler på dem.
+out of their vehicle. §ut av kjøretøyet deres.
+Chat judge:\nKicking §Chatdømmer:\nSparker ut
+Chat judge\nCrashing §Krasjer
+sent vote kick. Kicking them... §Sendte stemme om å sparke deg ut. Sparker dem ut...
+has: §har:
+has a modded name. §har et modded navn.
+Recognized §Gjenkjente
+\nDetected: §\nOppdaget:
+\nTags:\n §\nMarkeringer:
+Checked blacklist. §Sjekket svartelisten.
+is spectating §er tilskuer av
+Changed the reason this person was added to the blacklist. §Forandret hvorfor de ble lagt til i svartelisten.
+Added to blacklist. §Lagt til i svartelisten.
+Removed rid. §Fjernet rid.
+Couldn't find player. §Fant ikke spilleren.
+Blacklist file doesn't exist. §Svartelisten filen finnes ikke.
+You can't add yourself to the blacklist... §Du kan ikke legge deg selv til i svartelisten...
+One of the people further in host queue is your friend! Cancelled. §En av de foran deg i vert køen er din venn! Vert anskaffelse kansellert.
+Kicking §Sparker ut
+, flags:\n §, markeringer:\n
+Num of people, click to type, means how many people are shown in the player history. §Antall folk, klikk for å skriv, betyr hvor mange folk som kan vises i spiller historien.
+The higher it is, the longer the freeze when reseting lua state becomes. Default value is safe. §Jo høyere denne verdien er, jo lengre fryser spillet når du reseter lua state.
+Invalid entry. §Ugyldig påføring.
+Couldn't find entry. §Klarte ikke å finne påføringen.
+Emptied vehicle blacklist. §Tømte kjøretøy svartelisten.
+Vehicle blacklist:\nEMP'd §Kjøretøy svarteliste:\nEMPa
+Vehicle blacklist:\nKicked §Kjøretøy svarteliste:\nSparket ut
+Vehicle blacklist:\nExploding §Kjøretøy svarteliste:\nEksploderer
+out of their §ut av deres
+Vehicle blacklist:\nRamming §Kjøretøy svarteliste:\nKaster
+Vehicle blacklist:\nCrashed §Kjøretøy svarteliste:\nKrasjet
+for using §for å bruke
+to clipboard. §til utklippstavlen.
+Cars spawned. §kjøretøy spawnet.
+Maxed everyone's cars. §Maksimerte alle sine kjøretøy.
+Please set a waypoint. §Vær så snill å sett et veipunkt.
+Successfully added entry. §La til påføring.
+Removed entry. §Fjernet påføringen.
+Changed default vehicle. §Forandret standard kjøretøy.
+Invalid input. Default value remains the same. §Ugyldig input. Standardverdien forblir det samme.
+Invalid object. §Ugyldig objekt.
+Hotkey:\nTurned on §Hurtigtast:\nSkrudde på
+Hotkey:\nTurned off §Hurtigtast:\nSkrudde av
+Hotkey:\nMaxed vehicle. §Hurtigtast:\nMaksimerte kjøretøy.
+Hotkey:\nSpawned vehicle. §Hurtigtast:\nSpawned kjøretøy.
+Hotkey:\nRepaired vehicle. §Hurtigtast:\nReparerte kjøretøyet ditt.
+vehicle fly. §kjøretøy flygning.
+vehicle gun. §kjøretøy våpnet.
+Turned off the keybinding:\n\" §Skrudde av hurtigtast.
+Keybinding not changed. Empty input or input is the same as existing keybinding. §Hurtigtasten ble ikke forandret, inputten din var det samme som den var / tom.
+Invalid keybinding.\nIt's case sensitive, get it right. §Ugyldig hurtigtast.
+Most of the keys like, left shift. are written in all caps. Example: LSHIFT. §De fleste knappene, som for eksempel left shift, er skrevet med bare store bokstaver.
+Settings saved! §Innstillinger lagret.
+Successfully loaded §Lastet inn
+Saved §Lagret
+Saved profile name. §Lagret profil navn.
+Successfully loaded Kek's menu. §Lastet inn Kek's menu.
+Type in what car to use §Skriv inn hvilket kjøretøy du skal bruke.
+Type in the name of the lua script to add. §Skriv inn navnet på lua skriptet du vil legge til.
+Type in the lua script you want to remove. §Skriv inn navnet på lua skriptet du vil fjerne.
+Type in why you're adding this person. §Skriv inn hvorfor du legger til denne personen
+Type in social club ID, also known as: rid / scid. §skriv inn rid.
+Type in ip. §Skriv inn ip.
+Type in their name. §Skriv inn navnet deres.
+Type in why you're adding everyone. §Skriv hvorfor du legger til alle sammen.
+Type in history limit. §Skriv inn hvor mange folk som kan vises i spiller historien på en gang.
+Type in what player you wanna search for. rid / name / ip §Skriv inn hvilken spiller du vil finne.
+Type in what to add. §Skriv inn hva du vil legge til.
+Type in what to remove. §Skriv inn hva du vil fjerne.
+Type in which car to spawn §Skriv inn hvilken bil du vil spawne.
+Type in echo delay. §Skriv inn ekko forsinkelse.
+Type in what the bot will react to. §Skriv inn hva botten til reagere til.
+Type in what the bot will say to what you previously typed in. §Skriv inn hva botten skal si til hva du skrev inn i forrige input.
+Type in what the text the bot reacts to in the entry you wish to remove. §Skriv inn hva botten skal reagere til for å fjerne den fra chatbot.
+Type in answer delay. §skriv inn svar forsinkelse.
+Type in the name of the ped you want to spawn. §Skriv inn navnet på forgjengeren.
+Type in the vehicle you want to be default. §skriv inn bilen du vil ha som standard.
+Type in the text you want displayed on the backplate of your cars after maxing them. §Skriv inn teksten som skal vises på bakplaten til bilen din.
+Type in vehicle speed §Skriv inn bil flygnings fart.
+Type in which car to ram with §Skriv inn hvilken bil som skal kastes på spillere.
+Type in what object to use. §Skriv inn objektet som skal brukes.
+Type in which car to use for vehicle stuff. §Skriv inn hva du skal bruke for bil greier.
+Type in what you want the keybinding to be. §Skriv hva hurtigtasten skal bli satt til.
+Type in the name of the profile. §skriv inn navnet på profilen.
+Log: §Loggfør:
+Kick: §Spark ut:
+Max vehicle §Maksimer kjøretøy
+Spawn vehicle §Spawn kjøretøy
+Repair vehicle §Reparer kjøretøy
+Vehicle fly §Kjøretøy flygning
+Vehicle gun §Kjøretøy våpen
+Chat judge:\nBlaming §Chatdømmer:\nGir
+for killing session. §skylda for å ha drept økten.
+Glitch vehicle §Glitch kjøretøy
+Vehicle blacklist:\nGlitching §Kjøretøy svarteliste\nGlitcher
+Taze player §Taze spilleren
+Perma-cage §Permanent-bur
+Exclude friends from attacks §Eksluder venner fra ondsinnete angrep
+Self options §Meg
+Max all weapons §Maksimer alle våpna dine
+Randomize all weapons §Randomiser alle våpna dine
+Give all weapons §Gi alle våpen
+Random weapon camo §Tilfeldige våpen kamoer
+Has a lot of money. §Har mye penger
+Has Negative lvl §Har negativt level
+Has Negative k/d §Har negativ K/D
+Has a high rank. §Har et høyt level
+Has a high k/d. §Har en høy K/D
+Has modded armor. §Har modded rustning
+Block areas §Blokker områder
+Los santos customs §Los santos customs
+Ammu-Nations §Ammu-Nations
+Casino §Kasino
+Rid §Rid
+IP §IP
+Name §Navn
+Successfully gave §Klarte å gi
+vehicle §kjøretøy
+godmode. §gudmodus.
+Failed to get control of §Klarte ikke å få kontroll over
+Set controller hotkeys §Sett kontroller hurtigtaster
+Press key to set to hotkey. §Press på en knapp for å sette hurtigtast.
+Turned off the hotkey:\n §Skrudde av hurtigtast
+Invalid hotkey. Please try again. §Ugyldig hurtigtast, prøv igjen.
+Changed §Forandret
+to §til
+Turned off §Er skrudd av
+Max kicks for auto host §Max kicks for auto vert
+Type in clear distance limit. §Skriv inn fjernings distanse grense.
+Vehicle clear distance §Kjøretøy fjernings distanse
+Ped clear distance §Fotgjenger fjernings distanse
+Object clear distance §Objekt fjernings distanse
+Pickup clear distance §Plukk-opp fjernings distanse
+Dump world §Dump verden
+Send clown van §Send en klovn van
+Make nearby peds hostile §Gjør fotgjengere i nærheten sinte
+Kick gun §Spark-ut gevær
+Kidnap player §Kidnapp spiller
+Swap nearby cars §Bytt ut trafikken
+Notification spam §Notifikasjons spam
+Notification spam §Notifications spam
+Kidnap is already being used on another player. §Kidnap er allerede brukt på en annen spiller.
+Spawn vehicles maxed §Spawn kjøretøy maxed
+Delete old vehicle §Slett forrige kjøretøy
+Spawn inside of spawned vehicle §Spawn inni spawnet kjøretøy
+Always spawn with f1 wheels §Alltid spawn med f1 hjul
+Always ask what vehicle §Alltid spør hvilket kjøretøy
+Spawn air vehicle mid-air §Spawn luft-kjøretøy i lufta
+Spawn vehicles in godmode §Spawn kjøretøy i gudmodus
+Vehicle can't be locked on §Kjøretøy kan ikke bli locked on
+Freeze session §Frys økten
+Ai driving §Ai kjøring
+Stop before vehicles §Stopp foran kjøretøy
+Stop before peds §Stopp foran fotgjengere
+Avoid vehicles §Unngå kjøretøy
+Avoid empty vehicles §Unngå tomme kjøretøy
+Avoid peds §Unngå fotgjengere
+Avoid objects §Unngå objekter
+Unknown §Ukjent
+Stop at traffic lights §Stopp på trafikklys
+Use blinkers §Bruk blinklys
+Allow going wrong way §Mulig å tå feil vei
+Drive in reverse §Kjør baklengs
+Take shortest path §Ta den korteste veien
+Allow overtaking vehicles §Mulig å ta over kjøretøy
+Ignore roads §Ignorer veier
+Ignore all pathing §Ignorer alt
+Avoid highways §Unngå hovedveier
+waypoint §veipunkt
+Follow player §Følg etter spilleren
+Wander §Vandre
+Drive speed §Kjøretøy fart
+Sort search from newest §Sorter søk fra nyest til eldest
+Drive style §Kjørestil
+Max nearby cars §Maks kjøretøy i nærheten
+Repair nearby cars §Reparer kjøretøy i nærheten
+Give nearby cars godmode §Gi kjøretøy i nærheten gudmodus
+Nearby cars have no collision §Kjøretøy i nærheten har ikke kollisjon
+Clown vans §Klovn van
+Clear all owned entities §Fjern alle eide enheter
+Take revenge on death §Ta hevn etter du dør
+Aim protection §Aim beskyttelse
+Nearby cars have zero gravity §Biler i nærheten har ikke gravitet
+Entity manager §Enhets manager
+Entity manager §Enhets manager
+Vehicles §Kjøretøy
+Peds §Fotgjengere
+Objects §Objekter
+Unknown_name §Ukjent_navn
+Explode §Eksploder
+Delete §Slett
+Resurrect §gjenoppliv
+Godmode §Gudmodus
+Zero gravity §Null gravitet
+Teleport in front of player §Teleporter foran spiller
+Teleport to entity §Teleporter til enhet
+Follow entity §Følg etter enhet
+Set yourself in seat §Sett deg selv i sete
+All entities of this type §Alle enheter av denne typen
+Set speed §Sett fart
+Disable ped spawning §Skru av fotgjenger spawning
+Disable vehicle spawning §Skru av kjøretøy spawning
+Cops clear distance §Politi fjernings distanse
+Set on fire §Sett i flammer
+Clear ped tasks §Clear ped tasks
+Kek's chopper §Kek's helikopter
+Session trolling §Økt trolling
+Vehicles §Kjøretøy
+Peds §Fotgjengere
+Objects §Objekter
+Pickups §Pickups
+Peds & vehicles §Fotgjengere og kjøretøy
+All §Alle sammen
+Cops §Politi
+Kill player § Drep spilleren
+Kick from session §Spark ut av økten
+Crash §Krasj
+Blame for killing session §Gi skylda for drep økt
+Random §Tilfeldig
+Bounty §Dusør
+Ram §Ram
+Kick from vehicle §Spark ut av kjøretøy
+EMP §EMP
+Remove §Fjern
+30k ceo loop §30k ceo loop
+Army §Army
+Chat logger §Chat logger
+Type in chat spam speed §Skriv inn chat spam fart
+Script quick access §Skript hurtig tilgang
+Cleared owned entities. §Fjernte eide enheter.
+Exclude you from session trolling §Ekskluder deg selv fra økt trolling
+Spam text §Spam tekst
+From clipboard §Fra utklippstavlen
+From clipboard & send each line §Fra utklippstavlen & send hver linje
+From file §Fra fil
+From file & send each line §Fra fil & send hver linje
+Send each line §Send hver linje
+Chat commands §Chat kommandoer
+Chat commands §Chat kommandoer
+Send chat command info every 15th min §Send kommando info hvert 15th minutt
+Kill player §Drep spiller
+Only friends can use commands §Bare venner kan bruker kommandoer
+Teleport to §Teleporter til
+This player can't use chat commands §Denne spilleren kan ikke bruke chat kommandoer
+Cage player §Putt spiller i et bur
+Kick §Spark ut
+Send attack chopper §Send angreps helikopter
+Float §Svev
+Godmode detection §Gudmodus deteksjon
+is in godmode. §er i gudmodus.
+Suspicious activity §Mistenkelig aktivitet
+bypassed max speed. §kjørte raskere enn maks hastighet.
+Kill §Drep
+Clowns §Klovner
+Kill session §Drep økta
+Revenge §Hevn
+Turned off §Skrudd av
+Horn boost §Horn boost
+Notifications §Notifikasjoner
+Auto kicker notifications §Auto kicker notifikasjoner
+Give nearby players horn boost §Gi spillere i nærheten horn boost
+Missing vehicle files. §Mangler kjøretøy filer.
+Turn everything off §Skru av alt
+Menyoo vehicle §Menyoo kjøretøy
+First seen §Først sett
+Last seen §Sett forrige gang
+Seen §Sett
+times. §ganger.
+Load §Last inn
+Save §Lagre
+Change name §Bytt navn
+keyboard §Keyboard
+controller §kontroller
+Hotkeys §Hurtigtaster
+Type in bounty amount §Skriv inn dusør størrelse
+Turn all on or off §Skru alt av eller på
+Cage session §Putt økten i ett bur
+Drive force multiplier §Drive force multiplier
+The hash was copied to your clipboard, more info in the debug console. §Hashen var kopiert til utklippstavlen. Mere informasjon i debug konsolen.
+Send command list §Send kommando liste
+Friends can't be targeted §Venner kan ikke bli targeted
+You can't be targeted §Du kan ikke bli targeted
+Number of responses §Antall responser
+Hotkey change timed out or failed. §Hurtigtast forandring timet ut eller feilet.
+Turn off §Skru av
+1 key §1 tast
+2 keys §2 taster
+3 keys §3 taster
+Clear entities §Fjern enheter
+Set vehicle §Sett kjøretøy
+Tp personal vehicle §Tp personlig kjøretøy
+Hotkey:\nTeleported into personal vehicle. §Teleporterte inn i ditt personlige kjøretøy.
+Auto tp to waypoint §Auto tp til veipunkt
+Turn on script loader §Skru på skript innlaster
+Turn off script loader §Skru av skript innlaster
+Give session bounty §Gi økta dusør
+With your name §Med navnet ditt
+Anonymous §Anonym
+Change amount §Bytt mengde
+Set bounty §Sett dusør
+Chat judge reaction §Chat judge reaksjon
+Chat spammer §Chat spammer
+Modify chatbot §Modifiser chatbot
+Clear entities §Fjern enheter
+Hotkey mode §Hurtigtast modus
+Driver's seat §Sjoførens sete
+Front passenger seat §Front sete
+Left backseat §Venstre baksete
+Right backseat §Høyre baksete
+Extra seat §Ekstra sete
+Commands §Kommandoer
+CEO §CEO
+Taze §Taze
+Invite to apartment §Inviter til leilighet
+Explode with blame §Eksploder med skylda
+Cage §Bur
+Give weapon §Gi våpen
+Remove weapon §Fjern våpen
+Send clipboard to chat §Send utklippstavlen til chat
+Clipboard to chat §Utklippstavlen til chat
+Send to session §Send til økta
+Teleport session §Teleporter økten
+Force field §Force field
+Force field radius §Force field radius
+Away from you §Fra deg
+Towards you §Mot deg
+Entities §Enheter
+Copy to clipboard §Kopier til utklippstavlen
+position §posisjon
+hash §hash
+pos without dec §pos uten desimal
+model name §model navn
+name §navn
+rid §rid
+ip §ip
+host token §host token
+Add §legg til
+Exclude §Ekskluder
+players §spillere
+friends §venner
+no one §ingen
+Offset §Offset
+Strength towards you §Styrke imot deg
+Strength away from you §Styrke fra deg
+Block passive §Blokker passiv
+Send §Send
+Rid §RID
+IP §IP
+Host token §Vert token
+Position §Posisjon
+Position without dec §Posisjon uten dec
+Misc §Misc
+Ped model §Fotgjenger model
+Spawn §Spawn
+Vehicle hash §Kjøretøy hash
+Ped hash §Ped hash
+me §meg
+Vehicle §Kjøretøy
+Max §Maks
+Repair §Reparer
+Copy §Kopier
+is not in a vehicle. §er ikke i et kjøretøy.
+Menyoo vehicles §Menyoo kjøretøy
+Found no vehicle to save. §Fant ingen kjøretøy å lagre.
+Existing file found. Please choose another name. §Fil funnet. Plis prøv et annet navn.
+Illegal characters detected. Please try again. Illegal chars: §Ulovlig karakterer funnet. Prøv igjen. Ulovlig karakterer:
+Refresh list §Refresh lista
+Found no vehicle to spawn. §Fant ingen kjøretøy
+Cancelled. §Kansellerte.
+Too few reactions to add entry. §For få oppføringer til å legge til.
+Glitch §Glitch
+Unglitch §Unglitch
+Block §Blokker
+Unblock §Unblokker
+Type in what to spam in chat §Skriv inn hva du vil spamme i chat
+Text to spam, type it in §Tekst du vil spamme
+Xml file is empty. §Xml fil er tom.
+File name §Fil navn
+Wrong file extension. §Feil file extension.
+Warning: missing "%" before any of these characters; §Advarsel: mangle "%" før en eller fler av disse karakterne:
+This is fine, just note that if you don't put the "%" before those characters, they mean something else. §Dette går fint, men bare så du vet det, putter du ikke "%" før disse karakterne, betyr de noe annet.
+Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §Ugyldig mønster. Mangler nok en "[", "]", "(", ")" eller en "%". Kan også være "[]", "[]" får en error.
+Give §Gi
+Attackers can't use planes. Cancelled. §Angripere kan ikke bruke luftfartøy
+Chance to reply §Sjanse for å svare
+Missing necessarry file. Please reinstall. Read the README that comes with the script for more information. §Mangler nødvending fil. Reinstaller. les README som kommer med skriptet for mer informasjon.
+New profile §Ny profil
+Failed to find vehicle. Try again. §Klarte ikke å finne kjøretøy. Prøv igjen.
+Type in name of vehicle §Skriv inn navn på kjøretøy
+Vehicle name §Kjøretøy navn
+Menyoo vehicles §Menyoo kjøretøy
+Clone §Klon
+Send Menyoo vehicle attacker §Send Menyoo kjøretøy angriper
+Spawn Menyoo vehicle §Spawn Menyoo kjøretøy
+Type in name of menyoo vehicle. §Skriv inn navnet på Menyoo kjøretøy.
+Create new judger profile §Lag ny judger profil
+Create new chatbot profile §Lag ny chatbot profil
+There can't be a ".." in the name. There also can't be a "." at the end of the name. §Det kan ikke være en ".." i navnet. Det kan heller ikke være en "." på slutten av navnet.
+Unsupported file format. §Denne filens formatering er ikke støttet.
+How to use §Hvordan brukes
+Part §Del
+Failed to load profile. Error at line §Klarte ikke å laste inn profil. Feil på linje
+There are 2 special texts for the chat judger: [BLACKLIST] = Add people to the blacklist\n[JOIN TIMEOUT] = Add people to 2take1's join timeout. §Det er 2 spesielle tekster i chat judger: [BLACKLIST] = Legg til folk i svartelisten\n[JOIN TIMEOUT] = Legg til folk i 2take1s join timeout.
+Examples of how to use:\nmoney[BLACKLIST] -- This will add anyone saying the word money in a sentence to the blacklist §Eksempler på hvordan:\nmoney[BLACKLIST] -- Dette vil legge til alle som sier money i en setning.
+money[JOIN TIMEOUT][BLACKLIST] -- This will add anyone saying money to the timeout and blacklist. §money[JOIN TIMEOUT][BLACKLIST] -- legger til alle som sier money i svartelisten og timeout.
+There are 3 special texts for the chatbot:\n[PLAYER_NAME] -- This grabs the player sending the message's name. §Det finnes 3 typer spesiell tekster for chatbot:\n[PLAYER_NAME] -- Dette tar personen som sendte meldingens navn.
+[MY_NAME] -- This gets your name\n[RANDOM_NAME] -- This gets a random player's name. §[MY_NAME] -- Tar ditt navn.\n[RANDOM_NAME] -- Dette tar en tilfeldig spillers navn.
+When adding entries, it's important to know about patterns. A pattern could look like this: %s+money%s+. This would look for people using money in the middle of a sentence. §Når du legger til entries, det er viktig å vite om mønstre. Et mønster kan se sånn ut: %s+money%s+. Den vil se etter for som bruker money i setningen deres. 
+Note that these characters: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" have special meanings. Google "Lua magic characters" to find out what they mean. §Husk at disse karakterene: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" har spesiell betydning. Google "Lua magic characters" for å finne ut hva de betyr.
+For further assistance, join the Kek's menu discord. An invite comes with the script. It is in a file called "Discord invite.txt". §For mer hjelp, join Kek's menu Discorden. En invitasjon kommer med skriptet. Den ligger i en fil kalt "Discord invite.txt".
+Get parachute §Skaff fallskjerm
+Get invite to Kek's menu Discord server §Skaff invitasjon til Kek's menu Discord server
+Invite to the Kek's menu Discord copied to the clipboard. §Invitasjon til Kek's menu Discord er kopiert til utklippstavlen.
+Anti stuck §Anti stuck
+Entry already exists in this profile. §Påføringen finnes allerede i profilen.
+Clear tasks §Clear tasks
+Disable weapons §Skru av våpen
+Mad peds in their car §Sinte peds i deres bil
+Fill §Fyll
+Fill & steal §Fyll & stjel
+Fill, steal & run away §Fyll, stjel & dra
+Display time §Vis tiden
+Type in RGB §Skriv inn RGB
+Opacity §Synlighet
+Type in RGB opacity §Skriv inn RGB synlighet
+Type in the size of the text. §Skriv inn størrelsen på teksten.
+Size §Størrelse
+Font §Font
+time. §gang.
+Outline §Outline
+Hotkey:\nTeleported forward. §Hurtigtast:\nTeleporterte foran.
+Teleport forward §Teleporter foran
+Vehicle blacklist:\nstealing §Kjøretøy svartelist:\nstjeler
+Mount Chiliad & kill §Mount Chiliad og drep
+far away §Lang unna
+Order personal vehicle §Bestill personlige kjøretøy
+Hotkey:\nOrdered personal vehicle. §Hurtigtast:\nBestilte personlige kjøretøy.
+Close to you §I nærheten
+In front of you §Foran deg
+Failed to find spawn location for personal vehicle. §Klarte ikke å finne en spawn for ditt personlige kjøretøy.
+You are already in your personal vehicle. §Du er allerede i ditt personlige kjøretøy.
+This vehicle is already your personal vehicle. §Dette kjøretøyet er allerede din personlige kjøretøy.
+Set personal vehicle §Sett personlig kjøretøy
+Spawn inside §Spawn inni
+Log chat & use as chatbot §Logg chat & bruk some chatbot
+Compacts §Compacts
+Sedans §Sedans
+SUVs §SUVs
+Coupes §Couper
+Muscle §Muskel
+Sports classics §Sports klassikere
+Sports §Sports
+Super §Super
+Motorcycles §Motorsykler
+Off-Road §terreng
+Industrial §industriell
+Utility §Utility
+Vans §Vans
+Cycles §Sykler
+Boats §Båter
+Helicopters §Helikoptere
+Planes §Fly
+Service §Service
+Emergency §utrykningskjøretøy
+Military §Militær 
+Commercial §Reklame
+Trains §Tog
+Open Wheel §Formula
+Menyoo maps §Menyoo baner
+Type in name of menyoo map. §Skriv inn navnet på menyoo bane.
+Found no map to spawn. §Fant ingen bane å spawne.
+Set where you spawn §Sett hvor du spawner
+Teleport to map spawn §Teleporter til map spawn
+Found no spawn. §Fant ingen spawn.
+Failed to load spawn coordinates. §Klarte ikke å laste inn spawn koordinater.
+Unload §Avlast
+Race ghosts §Race ghosts
+Record race §Record race
+Type in name of race ghost. §Skriv inn navnet på race ghost.
+You must be in a vehicle in order to record. §Du må være i ett kjøretøy for å recorde.
+Teleport to start §Teleporter til starten
+has finished lap §har fullført runde
+Failed to load file. §Klarte ikke å laste inn fil.
+Cleared old race & recording a new one. §Fjernte gamle race og filmer en ny en.
+Display notifications §Vis notifikasjoner
+Display 2take1 notifications on screen §Vis 2take1 notifikasjoner
+Number of notifications §Antall notifikasjoner
+Log to console §Loggfør til konsolen
+Filter §Filter
+Still §Stille
+Upwards §Oppover
+Downwards §Nedover
+Stretch §Stretch
+Type in stretch §Skriv inn stretch
+Atomize §Atomiser

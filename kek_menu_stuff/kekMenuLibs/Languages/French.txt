@@ -1,0 +1,589 @@
+Kek's menu §Menu de Kek
+General settings §Option général
+Vehicle §parent §Véhicule
+Self §Vous
+Vehicle peaceful §Véhicule pacifiste
+Vehicle settings §Option de véhicule
+Vehicle blacklist §Véhicule Blacklister 
+Session malicious §Session malicieuse
+Player history §Historique de joueur 
+Scripts §Scripts
+Settings §Optionsss
+Chat §Chat
+Custom chat judger §Custom le chat judger
+Chat bot §Chat bot 
+Chat spamming §Spam de chat 
+Hotkey settings §Option de touche 
+Modder detection §Détection de modder 
+Protections §Protections
+Modder logging settings §Options des logs de modder
+Auto kick tag settings §Option d'auto kick tag 
+Which modder detections are on §Quelle modder detection est activé
+Weapons §Armes 
+Kek's utilities §Kek's utilities
+Script loader §Charger les scripts 
+Language configuration §Configuration de langue
+Kek's menu §Kek's menu
+Vehicle §Véhicule
+Weapons §Armes
+Trolling §Troll
+Malicious §Malicieux
+Scripts §Scripts
+Set §Set
+as default language. §Language par défault
+Empty script loader file §Script de fichier vide
+Add script to auto loader §Auto charge le script 
+Remove script from auto loader §Enlève le script de l'auto loader
+Modded name detection §Détection de nom modded
+Blacklist §Blacklist
+Check people's stats automatically §Check automatiquement les stats du joueur
+Detect any modded spectate §Détecte un modded spectate
+Kick any vote kickers §Kick le vote kickeur
+Add session §Ajoute la session
+Remove session §Enlève la session 
+Get host automatically §Soit host automatiquement
+Log modders with selected tags to blacklist §Log les modders avec le tag sélectionnné de la blacklist
+TO Auto kicker: §À kick automatique
+Ram everyone §Ram tout le monde
+Vehicle fly nearby vehicles §Véhicule vole les véhicules a proximités 
+Disable vehicles §Désactive les véhicules
+Vehicle storm §Véhicule tonnerre
+Copy rid to clipboard §Copie le rid sur le clavier 
+Copy ip to clipboard §Copie l'ip sur le clavier
+Player history §Historique des joueurs
+TO Clear search list §POUR effacer la liste de recherche
+Search §Chercher 
+Vehicle blacklist §Véhicule Blacklister
+Spawn vehicle for everyone §Spawn un véhicule pour tous le monde 
+Max everyone's car §Max le véhicule de tous les joueurs
+TO Current position §A la position actuelle
+TO Waypoint §Au Waypoint  
+Get host §Soit host
+Give session bounty §Met une prime a toute la session
+Never wanted §Jamais recherché
+off the radar §off sur le radar
+Reapply bounty §Remet une prime
+Send to random mission §Envoie a une mission aléatoire
+Perico island §Perico Island
+Apartment invites §Appartement invite
+TO Ban §A Ban
+TO Dismiss §A Renvoyer
+TO Terminate §A Terminer
+Transaction error §Transaction erreur
+Custom chat judge §Custom le chat de juge
+Spam speed, click to type §Spam la vitesse, click le type
+Text to spam, type it in §Texte de spam, type dedans
+Random text from file §Texte aléatoire du fichier
+Echo delay, click to type §Echo delay, click le type
+Echo chat §Echo chat
+Answer delay chatbot §Réponse delay chatbot
+Chat bot §Chat bot
+Max car §Max le véhicule
+Change default vehicle §Change le vehicule par défault
+Change backplate text §Change le backplate texte
+What vehicle to spawn §Quelle véhicule a spawn
+Spawn vehicle §Spawn le véhicule
+Vehicle fly speed, click to type §Véhicule volant vitesse, clique pour changer
+Vehicle fly §Véhicule volant
+Type in what object §Type sur quelle objet
+Object gun §Object gun
+Airstrike gun §Airstrike gun
+What vehicle vehicle gun §Quelle véhicule véhicule gun
+Vehicle gun §Véhicule gun
+Clear entity type §Clear l'entité typer 
+Shoot entity| get model name of entity §Tire sur l'entité| ai le nom du model de l'entité
+TO save to default §POUR sauvegarder par défaut
+Script event crash §Script event crash
+Spawn a ped §Spawn le ped
+Car godmode §Véhicule godmod
+Vehicle fly player §Véhicule volant au joueur
+Spastic car §Spastic car
+What vehicle to spawn §Quelle véhicule a spawn
+Spawn vehicle §Spawn véhicule
+Disable vehicles §Désactive les véhicules
+Off the radar §Off sur le radar
+apply bounty §Met une prime
+Reapply bounty §Remet une prime
+Perico island §Perico Island
+Apartment invites §Appartement invite
+Send to random mission §Envoie a une mission aléatoire
+Transaction error §Transaction erreur
+Ram player with vehicle §Ram le véhicule du joueur
+Hurricane §Hurricane
+Vehicle gun §Véhicule gun
+Delete gun §Delete gun
+Explosion gun §Explosion gun
+was set as the default language. §Mis sur le language par défault
+You're missing a file in kekMenuLibs. Please reinstall Kek's menu. §Tu as oublié un fichier du kekMenuLibs. Réinstalle Kek's menu.
+There's a library file which is the wrong version, please reinstall kek's menu. §Il y a un fichier qui n'ai pas de la bonne version.
+Turned off script loader §Désactive le script loader
+Turned on script loader §Active le script loader
+Emptied script loader §vide le script loader
+Added §Ajoute
+to script loader §au script loader
+is already in the script loader §déja dans le script loader
+Couldn't find file §Pas pu trouver le fichier
+Removed §Enlève
+from script loader §Du script loader
+autoexec doesn't exist §autoexec n'existe pas
+Chat judge:\nBounty set on §Chat juge:\nBounty est activé 
+Chat judge:\nRamming §Chat juge:\nRamming
+with explosive tankers §avec des tanks explosifs
+TO out of their vehicle. §a exclure du véhicule.
+Chat judge:\nKicking §Chat juge:\nKicking
+Chat judge\nCrashing §Chat juge\nCrashing
+sent vote kick. Kicking them... §le vote kickeur. Kick le...
+has: §avais
+has a modded name. §avait un nom modded
+Recognized §Reconnu
+\nDetected: §\nDetecté
+\nTags:\n §\nTags
+Checked blacklist. §Check blacklist
+is spectating §en train de regarder
+Changed the reason this person was added to the blacklist. §Changer la raison de pourquoi il a été ajouté a la blacklist
+Added to blacklist. §Ajouter a la blacklist
+Removed rid. §Enlève le rid
+Couldn't find player. §N'a pas pu trouver le joueur
+Blacklist file doesn't exist. §Blacklist file n'existe pas
+You can't add yourself to the blacklist... §tu ne peux pas t'ajouter toi meme a la blacklist
+One of the people further in host queue is your friend! Cancelled. §Un des joueurs de l'host queue est un de tes amis! Annulé.
+Kicking §Kicking 
+, flags:\n §, flags
+Invalid entry. §Invalid entrée
+Couldn't find entry. §N'a pas pu trouver l'entrée
+Emptied vehicle blacklist. §Vide les véhicules de la blacklist
+Vehicle blacklist:\nEMP'd §Véhicule blacklister
+Vehicle blacklist:\nKicked §Véhicule blacklister
+Vehicle blacklist:\nExploding §Véhicule blacklister
+out of their §hors de leur
+Vehicle blacklist:\nRamming §Véhicule blacklist
+Vehicle blacklist:\nCrashed §Véhicule blacklist
+for using §pour utiliser
+to clipboard. §au clavier
+Cars spawned. §Véhicule spawn
+Maxed everyone's cars. §Max le véhicule de tout le monde
+Please set a waypoint. §Met un waypoint
+Successfully added entry. §Entrée ajoutée avec succès. 
+Removed entry. §Enlève l'entrée 
+is not in a vehicle. §n'est pas dans un véhicule.
+Changed default vehicle. §Change le véhicule par défault.
+Invalid input. Default value remains the same. §Entrée invalide. La valeur par défaut reste la même.
+Invalid object. §Invalid objet
+Hotkey:\nTurned on §Hotkey:\nTurned activé
+Hotkey:\nTurned off §Hotkey:\nTurned désactivé
+Hotkey:\nMaxed vehicle. §Hotkey:\nVéhicule maxé.
+Hotkey:\nSpawned vehicle. §Hotkey:\nSpawn un véhicule.
+Hotkey:\nRepaired vehicle. §Hotkey:\nRépare le véhicule.
+vehicle fly. §Véhicule volant
+vehicle gun. §Véhicule gun
+Hotkey:\nIncreased vehicle fly speed. §Hotkey:\nAugmente la vitesse du véhicule volant.
+Hotkey:\nDecreased vehicle fly speed. §Hotkey:\nRéduit la vitesse du véhicule volant.
+Turned off the keybinding:\n\" §Désactive les raccourcis 
+Keybinding not changed. Empty input or input is the same as existing keybinding. §Les raccourcis n'ont pas changé. Une entrée ou une entrée vide est identique a un raccourcis existant .
+Invalid keybinding.\nIt's case sensitive, get it right. §Raccourcis invalide. \nC'est sensible à la casse, faites-le correctement.
+Most of the keys like, left shift. are written in all caps. Example: LSHIFT. §La plupart des touches comme, left shift sont écrits en majuscules. Exemple: LSHIFT.
+Settings saved! §Option sauvegardé!
+Successfully loaded §Chargé avec succès
+Saved §Sauvegardé
+Saved profile name. §Nom du profil enregistré.
+Successfully loaded Kek's menu. §Menu de Kek chargé avec succès.
+Type in what car to use §Tapez quelle véhicule utiliser 
+Type in the name of the lua script to add. §Tapez le nom du script lua à ajouter. 
+Type in the lua script you want to remove. §Tapez le script lua que vous souhaitez supprimer. 
+TO Type in why you're adding this person. §À Tapez pourquoi vous ajoutez cette personne.
+Type in social club ID, also known as: rid / scid. §Saisissez l'identifiant du club social, également connu sous le nom de: rid / scid. 
+Type in ip. §Tapez l'ip. 
+Type in their name. §Tapez leur nom. 
+TO Type in why you're adding everyone. §À Tapez la raison pour laquelle vous ajoutez tout le monde.
+Type in what player you wanna search for. rid / name / ip §Tapez le joueur que vous souhaitez rechercher. rid / name / ip 
+Type in what to add. §Taper avec quoi l'ajouter. 
+Type in what to remove. §Tapez les éléments à supprimer. 
+Type in which car to spawn §Tapez la voiture à spawn 
+Type in echo delay. §Tapez le délai d'écho. §input
+Type in what the bot will react to. §Tapez ce à quoi le bot va réagir. 
+Type in what the bot will say to what you previously typed in. §Tapez ce que le bot dira à ce que vous avez tapé précédemment. 
+Type in what the text the bot reacts to in the entry you wish to remove. §Tapez le texte auquel le bot réagit dans l'entrée que vous souhaitez supprimer. 
+Type in answer delay. §Tapez le délai de réponse. 
+Type in the name of the ped you want to spawn. §Tapez le nom du ped que vous souhaitez spawn. 
+Type in the vehicle you want to be default. §Tapez le véhicule que vous souhaitez utiliser par défaut.
+Type in the text you want displayed on the backplate of your cars after maxing them.§Tapez le texte que vous souhaitez afficher sur la plaque arrière de vos véhicules après les avoir maxés
+Type in vehicle speed §Saisissez la vitesse du véhicule 
+Type in which car to ram with §Tapez avec quelle voiture vous voulez percuter
+Type in what object to use. §Tapez quel objet utiliser.
+Type in which car to use for vehicle stuff. §Tapez la voiture à utiliser pour le stuff des véhicules.
+Type in what you want the keybinding to be. §Tapez ce que vous voulez que la liaison de touches soit.
+Type in the name of the profile. §Tapez le nom du profil.
+Log: §log:
+Kick: §Kick:
+Max vehicle §Véhicule maxé
+Spawn vehicle §Spawn le véhicule
+Repair vehicle §Répare le véhicule
+Vehicle fly §Véhicule volant
+Vehicle gun §véhicule gun
+Chat judge:\nBlaming §Chat juge:\nBlamer
+for killing session. §pour tuer la session
+Glitch vehicle §glitch son véhicule
+Vehicle blacklist:\nGlitching §Véhicule blacklister:\nGlitcher
+Taze player §Tazer le joueur
+Perma-cage §Perma-cage
+Exclude friends from attacks §Exclure tes amis des attaques
+Self options §Options personnelles
+Max all weapons §Maxer toutes les armes
+Randomize all weapons §Randomizer toutes les armes
+Give all weapons §Donner toutes les armes 
+Random weapon camo §Camouflage d'arme aléatoire
+Has a lot of money. §A beaucoup d'argent.
+Has Negative lvl §A un niveau négatif.
+Has Negative k/d §A un k/d négatif.
+Has a high rank. §A un trop gros niveau.
+Has a high k/d. §A un trop gros k/d.
+Has modded armor. §A de l'armure modder.
+Block areas §Bloque la zone 
+Los santos customs §Los santos customs
+Ammu-Nations §Ammu-Nations
+Casino §Casino
+Rid §Rid
+IP §IP
+Name §Nom
+Successfully gave §Donner avec succès
+vehicle §Véhicule
+godmode. §Godmod.
+Failed to get control of §Échec de la prise de contrôle de
+Set controller hotkeys §Définir les raccourcis clavier du contrôleur
+Press key to set to hotkey. §Appuyez sur la touche pour définir la touche de raccourci. 
+Turned off the hotkey:\n §Désactivé le raccourci clavier
+Changed §Changer
+to §a
+Turned off §Désactivé
+Max kicks for auto host §Max kicks pour l'auto host
+Type in clear distance limit. §Tapez la limite de distance.
+Vehicle clear distance §Véhicule clear distance
+Ped clear distance §Ped clear distance
+Object clear distance §Objet clear distance
+Pickup clear distance §Pickup clear distance
+Dump world §Dump world 
+Make nearby peds hostile §Rendre les peds proches hostiles
+Kick gun §Kick gun
+Kidnap player §Kidnap le joueur
+Teleport nearby personal vehicles §Téléporte le véhicule personnel a proximité 
+Backwards traffic §Trafic en arrière
+Swap nearby cars §Échangez les voitures à proximité
+Notification spam §Notification spam
+Notification spam §Notification spam
+Spawn vehicles maxed §Spawn les véhicules maxés
+Delete old vehicle §Supprimer l'ancien véhicule
+Spawn inside of spawned vehicle §Spawn à l'intérieur du véhicule spawn
+Always spawn with f1 wheels §Toujours apparaître avec les roues F1
+Always ask what vehicle §Demandez toujours quel véhicule
+Spawn air vehicle mid-air §Spawn véhicule aérien dans les airs
+Spawn vehicles in godmode §Spawn les véhicules en godmod
+Vehicle can't be locked on §Le véhicule ne peut pas être verrouillé
+Remove their vehicle §Retirer leur véhicule
+Freeze session §Freeze session
+Ai driving §Conduite IA
+Stop before vehicles §Arrêtez-vous avant les véhicules
+Stop before peds §Arrêtez vous avant les peds
+Avoid vehicles §Évitez les véhicules
+Avoid empty vehicles §Évitez les véhicules vides
+Avoid peds §Évitez les peds
+Avoid objects §Évitez les objets
+Unknown §Inconnu
+Stop at traffic lights §Arrêtez-vous aux feux de circulation
+Use blinkers §Utilise blinkers
+Allow going wrong way §Permettre de se tromper
+Drive in reverse §Conduisez en marche arrière
+Take shortest path §Prenez le chemin le plus court
+Allow overtaking vehicles §Autoriser les véhicules à dépasser
+Ignore roads §Ignorer les routes
+Ignore all pathing §Ignorer tous les chemins
+Avoid highways §Éviter les autoroutes
+waypoint §waypoint
+Follow player §Suivre le joueur
+Wander §Se promener
+Drive speed §Vitesse de conduite
+Sort search from newest §Trier la recherche de la plus récente
+Drive style §Style de conduite
+Max nearby cars §Max les véhicules à proximité 
+Repair nearby cars §Réparer les voitures à proximité
+Give nearby cars godmode §Donner godmode aux voitures à proximité
+Nearby cars have no collision §Les voitures à proximité n'ont pas de collision
+Chaos mode §Chaos mode
+TO Clown vans §Au clow vans
+Clear all owned entities §Effacer toutes les entités spawn
+Take revenge on death §Se venger de la mort
+Aim protection §Aim protection
+Nearby cars have zero gravity §Les voitures à proximité n'ont plus de gravité 
+Entity manager §Gestionnaire d'entité
+Entity manager §Gestionnaire d'entité
+Vehicles §Véhicules
+Peds §Peds
+Objects §Objets
+Unknown_name §Nom_inconnu
+Explode §Explose
+Delete §Effacer
+Resurrect §Ressuciter 
+Godmode §Godmod
+Zero gravity §Zero gravité
+Teleport in front of player §Téléporte devant le joueur 
+Teleport to entity §Téléport a l'entité
+Follow entity §Suivre l'entité
+Set yourself in seat §Mettez-vous dans le siège
+All entities of this type §Toutes les entités de ce type
+Set speed §Régler la vitesse
+Disable ped spawning §Désactive l'apparition des peds
+Disable vehicle spawning §Désactive l'apparition des véhicules
+Cops clear distance §Police clear distance
+Set on fire §Enflammer
+Clear ped tasks §Clear ped tasks
+TO Kek's chopper §Au Kek chopper
+Session trolling §Session trolling
+Vehicles §Véhicules
+Peds §Peds
+Objects §Objets
+Pickups §Pickups
+Peds & vehicles §Peds & véhicules
+All §Tous
+Cops §Police
+Kill player §Tue le joueur 
+Send clown van §Envoie un clown van
+Kick from session §Kick de la session
+Crash §Crash
+Blame for killing session §Blame de tuer la session
+Random §Random
+Bounty §Prime
+Ram §Ram
+Kick from vehicle §Kick du véhicule
+EMP §EMP
+Explode §Explose
+Glitch their vehicle §Glitch son véhicule
+Remove §Enlève
+30k ceo loop §30k ceo loop
+Chat logger §Chat logger
+Type in chat spam speed §Saisissez la vitesse de spam du chat
+Script quick access §Accès rapide aux scripts
+Exclude you from session trolling §Vous exclure de session trolling
+Spam text §Spam texte
+From clipboard §du presse-papiers
+From clipboard & send each line §Du presse-papiers et envoyer chaque ligne
+From file §Du fichier
+From file & send each line §À partir du fichier et envoyer chaque ligne
+Send each line §Envoyez chaque ligne
+Chat commands §Commandes de chat
+Chat commands §Commandes de chat
+Send chat command info every 15th min §Envoyer les informations de commande de chat toutes les 15 minutes
+Remove wanted level §Supprimer le wanted level
+Kill player §Tue le joueur
+Only friends can use commands §Seuls les amis peuvent utiliser les commandes
+Teleport to §Téléport a
+This player can't use chat commands §Ce joueur ne peut pas utiliser les commandes de chat
+Cage player §Cage le joueur
+Kick §Kick
+Crash §Crash
+Send attack chopper §Envoyer un attaque chopper
+Float §Float
+Show host from previous session §Afficher l'host de la session précédente
+Last host §Dernier Host
+TO Type in name of menyoo vehicle. §pour taper le nom du véhicule menyoo
+Search §Chercher
+Crash §Crash 
+Godmode detection §Godmode detection
+is in godmode. §est en godmod.
+Suspicious activity §activité suspicieuse
+bypassed max speed. §au dessus de la vitesse max.
+Kill §Tue
+Clowns §Clowns
+Kill session §Tue la session
+TO Revenge: §Se venger
+Turned off §Désactivé
+Horn boost §Boost de claxone 
+Notifications §Notifications
+Auto kicker notifications §Auto kicker notifications
+Give nearby players horn boost §Donner au joueurs proches de boost du claxone
+Turn everything off §Tout désactivé
+Menyoo vehicle §Menyoo véhicule
+First seen §First seen
+Last seen §Vu pour la dernière fois
+Seen §Vu
+times. §Temps.
+Atomize §Atomize 
+Load §Charger
+Save §Sauvegarder
+Change name §Change le nom
+TO keyboard §Au clavier
+TO controller §A la Manette
+Hotkeys §Raccourcis clavier
+Type in bounty amount §Saisissez le montant de la prime
+The hash was copied to your clipboard, more info in the debug console. §Le hash a été copié sur votre clavier, plus d'informations dans la console de débogage.
+Cage session §Mettre en cage la session
+Modify top speed §Modifié la vitesse maximum
+Modify nearby cars top speed §Modifier la vitesse maximale des voitures à proximité
+Turn all on or off §Tout activer ou désactiver 
+This language file is the wrong version. You can still use it. §Ce fichier est la mauvaise version. Vous pouvez toujours l'utiliser.
+Send command list §Envoyer la liste de commandes
+Friends can't be targeted §Les amis ne peuvent pas être ciblés
+You can't be targeted §Tu ne peux pas être ciblé
+Number of responses §Nombre de réponses
+Hotkey change timed out or failed. §Le changement de raccourci clavier a expiré ou a échoué.
+Turn off §Désactivez
+TO 1 key §A 1 raccourci
+Set hotkey with 2 keys §A 2 raccourcis
+Set hotkey with 3 keys §A 3 raccourcis
+Decrease fly speed §Diminuer la vitesse de vol
+Increase fly speed §Augmenter la vitesse de vol
+Clear entities §Enlève les entités
+Set vehicle §Définir le véhicule
+Tp personal vehicle §Tp a ton véhicule personnel
+Hotkey:\nTeleported into personal vehicle. §Hotkey:\nTéléporté dans le véhicule personnel.
+Auto tp to waypoint §Auto tp au waypoint
+Turn on script loader §Activer le chargeur de script
+Turn off script loader §Désactive le chargeur de script 
+With your name §Avec ton nom
+Anonymous §Anonyme
+Change amount §Modifier le montant
+With random name §Avec un nom aléatoire
+Set bounty §Définir la prime
+Chat judge reaction §Réaction du juge du chat
+Chat spammer §Spameur de chat
+Clear entities §Effacer les entités
+Modify chatbot §Modifier le chatbot
+Hotkey mode §Mode de raccourci
+Driver's seat §Siège du conducteur
+Front passenger seat §Siège passager avant
+Left backseat §banquette arrière gauche
+Right backseat §banquette arrière droite
+Extra seat §Siège supplémentaire
+Disable notifications §Désactiver les notifications
+Commands §Commandes
+CEO §CEO
+Explode with blame §Exploser en blamant 
+Explode §Exploser
+Taze §Taze
+Invite to apartment §Inviter a l'appartemment 
+Cage §Cage
+Give weapon §Donner Armes
+Remove weapon §Enlèver Armes
+Send clipboard to chat §Envoyer le copier coller dans le chat
+Clipboard to chat §Copier Coller dans le chat
+Send to session §Envoie a la session
+Army §Armée
+Teleport session §Teleporte la session 
+Force field §Champ de force
+Force field radius §Rayon du champ de force
+Away from you §Loin de toi
+Towards you §Vers toi
+Entities §Entitées
+position §position
+hash §hash
+pos without dec §pos sans dev
+Copy to clipboard §Copier dans le presse papier
+model name §nom du model
+name §nom
+rid §rid
+ip §ip
+host token §host token
+Add §Ajouter
+Exclude §Exclure
+players §Joueurs
+friends §Amis
+no one §Personne
+Offset §Décalage
+Strength towards you §Force envers toi
+Strength away from you §Force loin de toi
+Block passive §Bloque passif
+Send §Envoie
+Rid §Rid
+IP §IP
+Host token §Host Token
+Position §Position
+Position without dec §Position sans dec
+Misc §divers
+Ped model §Ped model
+Spawn §Spawn
+Vehicle hash §Hash de Véhicule
+Ped hash §Hash de ped
+me §Moi
+far away §Loin
+Vehicle §Vehicule
+Max §Max
+Repair §Réparer
+Xml vehicles §Véhicule xml
+Found no vehicle to save. §N'a pas trouvé un véhicule a sauvegarder
+Existing file found. Please choose another name. §Fichier existant trouvé. Veuillez choisir un autre nom.
+Illegal characters detected. Please try again. Illegal chars: §Caractères illégaux détectés. Veuillez réessayer. Caractères illégaux:
+Refresh list §Rafraîchir la liste
+Found no vehicle to spawn. §Aucun véhicule trouver a spawn 
+Cancelled. §Annulé.
+Too few reactions to add entry. §Trop peu de réactions pour ajouter une entrée.
+Glitch §Glitch
+Unglitch §Déglitch
+Block §Bloquer	
+Unblock §Débloquer
+Type in what to spam in chat §Tapez quoi spammer dans le chat §input
+Xml file is empty. §Le fichier Xml est vide.
+File name §Nom du fichier
+Wrong file extension. §Extension de fichier incorrecte.
+Warning: missing "%" before any of these characters; §Avertissement :"%" manquant avant l'un de ces caractères;
+This is fine, just note that if you don't put the "%" before those characters, they mean something else. §Ca va, notez simplement que si vous ne mettez pas le "%" avant ces caractères, ils signifient autre chose.
+Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §Modèle non valide. Il manque probablement un "[", "]", "(", ")" ou un "%" quelque part. Peut également être "[]", avoir "[]" provoque une erreur.§
+Give §Donnez
+Attackers can't use planes. Cancelled. §Les attaquants ne peuvent pas utiliser d'avions. Annulé.
+Chance to reply §Possibilité de répondre
+Missing necessarry file. Please reinstall. Read the README that comes with the script for more information. §Fichier nécessaire manquant. Veuillez réinstaller. Lisez le fichier README fourni avec le script pour plus d'informations.§
+New profile §Nouveau profil
+Failed to find vehicle. Try again. §Impossible de trouver le véhicule. Réessayer.
+Type in name of vehicle §Tapez le nom du véhicule
+Vehicle name §Nom du véhicule
+Save to custom vehicles §Sauvegarder dans les véhicules customs
+Clone §Clone
+Send Menyoo vehicle attacker §Envoyer l'attaquant du véhicule Menyoo
+Spawn Menyoo vehicle §Spawn le véhicule Menyoo
+Menyoo vehicles §Véhicule Menyoo
+TO Save to Menyoo vehicles §POUR Enregistrer dans les véhicules Menyoo
+Create new judger profile §Créer un nouveau profil de juge
+Warning:\nKeep your distance from victims. This feature is unstable. It will keep sending X to people until limits are reached. It's highly recommended you toggle this off and clear all spawned entities before you join a new session. §Avertissement:\nGardez vos distances avec les victimes. Cette fonctionnalité est instable. Il continuera à envoyer X aux personnes jusqu'à ce que les limites soient atteintes. Il est fortement recommandé de désactiver cette option et d'effacer toutes les entités générées avant de rejoindre une nouvelle session.
+Warning notifications §Notifications d'avertissement
+Create new chatbot profile §Créer un nouveau profil de chatbot
+There can't be a ".." in the name. There also can't be a "." at the end of the name. §Il ne peut pas y avoir de ".." dans le nom. Il ne peut pas non plus y avoir de "." à la fin du nom.
+Unsupported file format. §Format de fichier non pris en charge.
+How to use §Comment utiliser
+Part §Part
+Failed to load profile. Error at line §Échec du chargement du profil. Erreur à la ligne
+There are 2 special texts for the chat judger: [BLACKLIST] = Add people to the blacklist\n[JOIN TIMEOUT] = Add people to 2take1's join timeout. §Il y a 2 textes spéciaux pour le juge du chat : [BLACKLIST] = Ajouter des personnes à la blacklist\n[JOIN TIMEOUT] = Ajouter des personnes au join timeout.
+Examples of how to use:\nmoney[BLACKLIST] -- This will add anyone saying the word money in a sentence to the blacklist §Exemples d'utilisation :\nmoney[BLACKLIST] - Cela ajoutera à la blacklist toute personne disant le mot money dans une phrase.
+money[JOIN TIMEOUT][BLACKLIST] -- This will add anyone saying money to the timeout and blacklist. §money[JOIN TIMEOUT][BLACKLIST] -- Cela ajoutera toute personne disant money au join timeout et a la blacklist
+There are 3 special texts for the chatbot:\n[PLAYER_NAME] -- This grabs the player sending the message's name. §Il y a 3 textes spéciaux pour le chatbot :\n[PLAYER_NAME] -- Cela saisit le nom du joueur qui envoie le message.
+[MY_NAME] -- This gets your name\n[RANDOM_NAME] -- This gets a random player's name. §[MY_NAME] -- Ceci obtient votre nom\n[RANDOM_NAME] -- Ceci obtient le nom d'un joueur aléatoire.
+When adding entries, it's important to know about patterns. A pattern could look like this: %s+money%s+. This would look for people using money in the middle of a sentence. §Lors de l'ajout d'entrées, il est important de connaître les modèles. Un modèle pourrait ressembler à ceci : %s+money%s+. Cela chercherait des personnes utilisant le mot money au milieu d'une phrase.
+Note that these characters: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" have special meanings. Google "Lua magic characters" to find out what they mean. §Notez que ces caractères : "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" ont des significations précises. Google "Lua magic characters" pour savoir ce qu'ils signifient.
+For further assistance, join the Kek's menu discord. An invite comes with the script. It is in a file called "Discord invite.txt". §Pour plus d'aide, rejoignez le discord du menu de Kek. Une invitation vient avec le script. C'est dans un fichier appelé "Discord invite.txt".
+Get parachute §Obtenez un parachute
+Get invite to Kek's menu Discord server §Recevez une invitation sur le serveur Discord du menu de Kek
+Invite to the Kek's menu Discord copied to the clipboard. §Inviter au menu de Kek Discord copié dans le presse-papiers.
+Anti stuck §Anti bloqué
+Entry already exists in this profile. §L'entrée existe déjà dans ce profil.
+Clear tasks §Clear tasks
+Disable weapons §Désactiver les armes
+TO Mad peds in their car §A des pnj fous dans leur voitures
+Fill §Remplir
+Fill & steal §Remplir et voler
+Fill, steal & run away §Remplir, voler et fuir
+Display time §Temps d'affichage
+Type in where horizontally the time is displayed. §Tapez où horizontalement l'heure est affichée.
+Type in where vertically the time is displayed. §Tapez où verticalement l'heure est affichée.
+Type in RGB §Type de RGB
+Display time opacity §Opacité du temps d'affichage
+Opacity §Opacité
+Type in the size of the text. §Tapez la taille du texte.
+Size §Taille
+Font §Police de caractère
+
+
+
+
+
+
+
+
+
+
+ 
