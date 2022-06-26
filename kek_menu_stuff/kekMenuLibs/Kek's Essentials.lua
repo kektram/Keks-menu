@@ -1285,9 +1285,9 @@ function essentials.update_keks_menu()
 						#updated_lib_files + #updated_language_files + 1, 
 						current_file
 					) or lang["Obtaining update information..."], 
-					v2(0.4, 0.45)
+					v2(0.375, 0.445)
 				)
-				ui.draw_rect(0.5, 0.5, 0.25, 0.10, 0, 0, 120, 255)
+				ui.draw_rect(0.5, 0.5, 0.27, 0.12, 0, 0, 120, 255)
 				system.yield(0)
 			end
 		end, nil)
