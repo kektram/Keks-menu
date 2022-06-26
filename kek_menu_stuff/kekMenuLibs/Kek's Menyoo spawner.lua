@@ -617,7 +617,7 @@ local function spawn_xml_map_type_1(info, entities, networked) -- Most menyoo fi
 			},
 			player.get_player_ped(player.player_id())
 		)) do
-			kek_entity.clear_entities(entities)
+			kek_entity.clear_entities(entities, 25)
 		end
 	end
 	if spooner.WeatherToSet and enums.weather[spooner.WeatherToSet] then
@@ -657,9 +657,9 @@ end
 
 local function spawn_xml_map_type_2(info, entities, networked) -- Same as type_1, but missing many properties, such as vehicle mods
 	if player.player_count() > 0 and info.SpoonerPlacements.ClearWorld then
-		kek_entity.clear_entities(kek_entity.remove_player_entities(vehicle.get_all_vehicles()))
-		kek_entity.clear_entities(kek_entity.remove_player_entities(ped.get_all_peds()))
-		kek_entity.clear_entities(object.get_all_objects())
+		kek_entity.clear_entities(kek_entity.remove_player_entities(vehicle.get_all_vehicles()), 25)
+		kek_entity.clear_entities(kek_entity.remove_player_entities(ped.get_all_peds()), 25)
+		kek_entity.clear_entities(object.get_all_objects(), 25)
 	end
 	for _, info in pairs(is_table_logic(info.SpoonerPlacements.Placement)) do
 		local Entity <const> = spawn_entity(info, entities, networked and "is_networked" or "is_not_networked")

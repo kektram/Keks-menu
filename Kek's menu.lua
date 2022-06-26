@@ -1,13 +1,14 @@
--- Kek's menu version 0.4.8.0 beta 11 test
+-- Kek's menu version 0.4.8.0 beta 11
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 11 test"
+__kek_menu_version = "0.4.8.0 beta 11"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
+__kek_menu_check_for_updates = false
 
 menu.create_thread(function()
 
@@ -82,6 +83,9 @@ and utils.file_exists(paths.debugger) then
 		end
 		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
 			__kek_menu_participate_in_betas = true
+		end
+		if str:match("Check for updates=(%a%a%a%a)") == "true" then
+			__kek_menu_check_for_updates = true
 		end
 	end
 else
@@ -175,12 +179,14 @@ if not menu.is_trusted_mode_enabled(1 << 2) then
 	return
 end
 
-if menu.is_trusted_mode_enabled(1 << 3) then
-	if essentials.update_keks_menu() == "has updated" then
-		return
+if __kek_menu_check_for_updates then
+	if menu.is_trusted_mode_enabled(1 << 3) then
+		if essentials.update_keks_menu() == "has updated" then
+			return
+		end
+	else
+		essentials.msg(lang["You must enable trusted mode->http to check for updates."], "blue", true, 3)
 	end
-else
-	essentials.msg(lang["Enable trusted mode->http for automatic updates."], "blue", true, 3)
 end
 
 local player_history <const> = {
@@ -990,6 +996,10 @@ for _, properties in pairs({
 	{
 		setting_name = "Translate your messages into chat type",
 		setting = 0
+	},
+	{
+		setting_name = "Check for updates",
+		setting = true
 	}
 }) do
 	settings:add_setting(properties)
@@ -1831,6 +1841,10 @@ end)
 
 settings.toggle["Participate in betas"] = menu.add_feature(lang["Participate in betas"], "toggle", u.settingsUI.id, function(f)
 	__kek_menu_participate_in_betas = f.on
+end)
+
+settings.toggle["Check for updates"] = menu.add_feature(lang["Check for updates"], "toggle", u.settingsUI.id, function(f)
+	__kek_menu_check_for_updates = f.on
 end)
 
 settings.toggle["Debug mode"] = menu.add_feature(lang["Debug mode"], "toggle", u.debug.id, function(f)

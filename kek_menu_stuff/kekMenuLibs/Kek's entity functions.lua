@@ -1165,7 +1165,7 @@ function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
 		else
 			essentials.assert(not entity.is_an_entity(hash_or_entity) or entity.is_entity_a_vehicle(hash_or_entity), "Expected a vehicle from argument \"hash_or_entity\".")
 		end
-		if entity.is_entity_a_vehicle(Vehicle) then
+		if kek_entity.get_control_of_entity(Vehicle) then
 			vehicle.set_vehicle_out_of_control(Vehicle, false, true)
 			vehicle.set_vehicle_forward_speed(Vehicle, speed)
 			if clear_vehicle_after_ram then

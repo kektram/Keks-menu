@@ -1194,7 +1194,7 @@ function essentials.show_changelog()
 			number_of_lines = number_of_lines + 1
 		end
 		local start_y_pos <const> = math.max(0, 0.5 - (number_of_lines * 0.01))
-		while not controls.is_control_pressed(0, 143) do
+		while not controls.is_control_pressed(0, 143) and not controls.is_disabled_control_pressed(0, 143) do
 			local y_offset_from_top = 0
 			for line in str:gmatch("[^\n]+") do
 				ui.set_text_color(255, 255, 255, 255)
@@ -1233,17 +1233,69 @@ function essentials.update_keks_menu()
 
 	if enums.html_response_codes[version_check_status] ~= "OK" then
 		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
-		goto exit 
+		return "failed to check what is the latest version"
 	end
 	if __kek_menu_version == script_version then
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
-		goto exit
+		return "is latest version"
 	else
+		while controls.is_control_pressed(0, 215) 
+		or controls.is_disabled_control_pressed(0, 215)
+		or controls.is_control_pressed(0, 143) 
+		or controls.is_disabled_control_pressed(0, 143) do
+			system.yield(0)
+		end
+		local time <const> = utils.time_ms() + 25000
+		while not controls.is_control_pressed(0, 143) 
+		and not controls.is_disabled_control_pressed(0, 143) 
+		and not controls.is_control_pressed(0, 215) 
+		and not controls.is_disabled_control_pressed(0, 215)
+		and time > utils.time_ms() do
+			system.yield(0)
+			ui.set_text_color(255, 140, 0, 255)
+			ui.set_text_scale(0.6)
+			ui.set_text_font(0)
+			ui.set_text_outline(true)
+			ui.draw_text(
+				lang["There's a new update for Kek's menu available. Press enter to install it, space to not."], 
+				v2(0.1, 0.45)
+			)
+			ui.set_text_color(0, 255, 255, 255)
+			ui.set_text_scale(0.6)
+			ui.set_text_font(0)
+			ui.set_text_outline(true)
+			ui.draw_text(
+				lang["This message will disappear in 25 seconds and will assume you don't want the update."], 
+				v2(0.1, 0.5)
+			)
+			if utils.time_ms() > time or controls.is_control_pressed(0, 143) or controls.is_disabled_control_pressed(0, 143) then
+				return "Cancelled update"		
+			end
+		end
+		menu.create_thread(function()
+			while update_status ~= "done" do
+				ui.set_text_color(255, 255, 255, 255)
+				ui.set_text_scale(0.8)
+				ui.set_text_font(0)
+				ui.set_text_outline(true)
+				ui.draw_text(
+					updated_lib_files and updated_language_files and string.format(
+						"%i / %i "..lang["files downloaded"].."\n%s", 
+						current_file_num, 
+						#updated_lib_files + #updated_language_files + 1, 
+						current_file
+					) or lang["Obtaining update information..."], 
+					v2(0.4, 0.45)
+				)
+				ui.draw_rect(0.5, 0.5, 0.25, 0.10, 0, 0, 120, 255)
+				system.yield(0)
+			end
+		end, nil)
 		do
-			essentials.msg(lang["There's a new version of Kek's menu, starting update..."], "green", true, 6)
 			if __kek_menu_debug_mode then
 				essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
-				return
+				update_status = "done"
+				return "tried to update with debug mode on"
 			end
 			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs")
 			update_status = enums.html_response_codes[status] == "OK"
@@ -1261,19 +1313,6 @@ function essentials.update_keks_menu()
 			end
 			updated_language_files = essentials.parse_files_from_html(str, "txt")
 		end
-
-		menu.create_thread(function()
-			local file_count <const> = #updated_lib_files + #updated_language_files + 1
-			while update_status ~= "done" do
-				ui.set_text_color(255, 255, 255, 255)
-				ui.set_text_scale(0.8)
-				ui.set_text_font(1)
-				ui.set_text_outline(true)
-				ui.draw_text(string.format("%i / %i "..lang["files downloaded"].."\n%s", current_file_num, file_count, current_file), v2(0.4, 0.45))
-				ui.draw_rect(0.5, 0.5, 0.25, 0.10, 0, 0, 120, 255)
-				system.yield(0)
-			end
-		end, nil)
 	end
 	do
 		current_file = "Kek's menu.lua" -- Download updated files
@@ -1315,6 +1354,7 @@ function essentials.update_keks_menu()
 			__kek_menu_version = nil
 			__kek_menu_debug_mode = nil
 			__kek_menu_participate_in_betas = nil
+			__kek_menu_check_for_updates = nil
 
 			-- Remove old files & undo all changes to the global space
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")) do
