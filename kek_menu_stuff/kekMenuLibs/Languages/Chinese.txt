@@ -803,3 +803,4 @@ Obtaining update information... §获取更新信息中...
 There's a new update for Kek's menu available. Press enter to install it, space to not. §Kek菜单有新的更新. 按 回车 安装或 空格 取消.
 This message will disappear in 25 seconds and will assume you don't want the update. §此信息将在25秒后消失,并假设你不想更新.
 Check for updates §自动检查更新
+Trusted mode->http must be enabled to use translate chat. §必须启用 信任模式 -> http 才能使用翻译聊天.
