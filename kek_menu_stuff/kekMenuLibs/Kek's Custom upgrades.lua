@@ -2,19 +2,19 @@
 
 local custom_upgrades <const> = {version = "1.0.2"}
 
-local essentials <const> = require("Essentials")
+local essentials <const> = require("Kek's Essentials")
 local kek_entity <const> = require("Kek's entity functions")
-local weapon_mapper <const> = require("Weapon mapper")
-local enums <const> = require("Enums")
+local weapon_mapper <const> = require("Kek's Weapon mapper")
+local enums <const> = require("Kek's Enums")
 
 function custom_upgrades.create_combat_ped(...)
 	local Vehicle <const> = ...
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		if vehicle.get_free_seat(Vehicle) ~= -2 then
-			local Ped <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("a_f_y_topless_01"), function()
+			local Ped <const> = kek_entity.spawn_networked_ped(gameplay.get_hash_key("a_f_y_topless_01"), function()
 				return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8), player.get_player_heading(player.player_id())
-			end, false, false, enums.ped_types.civmale)
+			end)
 			kek_entity.set_combat_attributes(Ped, true, {})
 			local weapon_hash <const> = weapon.get_all_weapon_hashes()[math.random(1, #weapon.get_all_weapon_hashes())]
 			weapon.give_delayed_weapon_to_ped(Ped, weapon_hash, 0, 1)

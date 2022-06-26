@@ -2,7 +2,7 @@
 
 local natives <const> = {version = "1.0.1"}
 
-local essentials <const> = require("Essentials")
+local essentials <const> = require("Kek's Essentials")
 
 local ids <const> = {
 	system = {

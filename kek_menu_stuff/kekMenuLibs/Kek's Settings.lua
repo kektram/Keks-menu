@@ -2,7 +2,7 @@
 
 local settings <const> = {version = "1.0.2"}
 
-local language <const> = require("Language")
+local language <const> = require("Kek's Language")
 local lang <const> = language.lang
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}

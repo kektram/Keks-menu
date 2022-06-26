@@ -1,8 +1,8 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = require("Essentials")
-local memoize <const> = require("Memoize")
-local enums <const> = require("Enums")
+local essentials <const> = require("Kek's Essentials")
+local memoize <const> = require("Kek's Memoize")
+local enums <const> = require("Kek's Enums")
 
 local location_mapper <const> = {version = "1.0.2"}
 

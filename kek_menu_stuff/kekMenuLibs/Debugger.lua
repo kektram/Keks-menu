@@ -12,7 +12,7 @@ setmetatable(_G, {
 	end
 })
 
-local essentials <const> = require("Essentials")
+local essentials <const> = require("Kek's Essentials")
 
 local originals_newindexes <const> = essentials.const({
 	menu = getmetatable(menu).__newindex,

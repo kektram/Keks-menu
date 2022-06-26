@@ -1,8 +1,8 @@
 -- Copyright © 2020-2022 Kektram
 
 local admin_mapper <const> = {version = "1.0.4"}
-local essentials <const> = require("Essentials")
-local enums <const> = require("Enums")
+local essentials <const> = require("Kek's Essentials")
+local enums <const> = require("Kek's Enums")
 
 local name_to_scid <const> = essentials.const_all({
 	["Spacer-galore"] = 67241866,

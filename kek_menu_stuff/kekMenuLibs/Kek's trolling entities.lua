@@ -2,16 +2,16 @@
 
 local troll_entity <const> = {version = "1.0.7"}
 
-local weapon_mapper <const> = require("Weapon mapper")
-local location_mapper <const> = require("Location mapper")
-local memoize <const> = require("Memoize")
-local vehicle_mapper <const> = require("Vehicle mapper")
-local ped_mapper <const> = require("Ped mapper")
-local essentials <const> = require("Essentials")
+local weapon_mapper <const> = require("Kek's Weapon mapper")
+local location_mapper <const> = require("Kek's Location mapper")
+local memoize <const> = require("Kek's Memoize")
+local vehicle_mapper <const> = require("Kek's Vehicle mapper")
+local ped_mapper <const> = require("Kek's Ped mapper")
+local essentials <const> = require("Kek's Essentials")
 local kek_entity <const> = require("Kek's entity functions")
-local enums <const> = require("Enums")
-local settings <const> = require("Settings")
-local drive_style_mapper <const> = require("Drive style mapper")
+local enums <const> = require("Kek's Enums")
+local settings <const> = require("Kek's Settings")
+local drive_style_mapper <const> = require("Kek's Drive style mapper")
 
 local tracker <const> = {}
 function troll_entity.spawn_standard(...)
@@ -143,9 +143,9 @@ function troll_entity.setup_peds_and_put_in_seats(...)
 					end
 					kek_entity.clear_entities({Ped, Vehicle})
 				end
-			end, kek_entity.spawn_ped_or_vehicle(hash, function()
+			end, kek_entity.spawn_networked_ped(hash, function()
 				return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 20), 0
-			end, false, false, enums.ped_types.civmale, 15))
+			end))
 		end
 	end
 	return peds
@@ -174,9 +174,10 @@ function troll_entity.send_army(...)
 	end
 	local blip_color <const> = math.random(1, 84)
 	local entities <const> = {}
-	entities.valkyrie = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("valkyrie2"), function()
+	entities.valkyrie = kek_entity.spawn_networked_mission_vehicle(gameplay.get_hash_key("valkyrie2"), function()
 		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true) + memoize.v3(0, 0, 35), 0
-	end, false, true)
+	end)
+
 	kek_entity.set_blip(entities.valkyrie, 481, blip_color)
 	if not entity.is_entity_a_vehicle(entities.valkyrie) then
 		return -2
@@ -188,27 +189,27 @@ function troll_entity.send_army(...)
 		return -2
 	end
 
-	entities.half_track = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("halftrack"), function()
+	entities.half_track = kek_entity.spawn_networked_mission_vehicle(gameplay.get_hash_key("halftrack"), function()
 		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0
-	end, false, true)
+	end)
 	kek_entity.set_blip(entities.half_track, 513, blip_color)
 	if not entity.is_entity_a_vehicle(entities.half_track) then
 		return entities.valkyrie, entities
 	end
 	troll_entity.setup_peds_and_put_in_seats(seats_army.half_track, gameplay.get_hash_key("s_m_y_swat_01"), entities.half_track, pid, false, entities)
 
-	entities.thruster = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("thruster"), function()
+	entities.thruster = kek_entity.spawn_networked_mission_vehicle(gameplay.get_hash_key("thruster"), function()
 		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true) + memoize.v3(0, 0, 35), 0
-	end, false, true)
+	end)
 	kek_entity.set_blip(entities.thruster, 480, blip_color)
 	if not entity.is_entity_a_vehicle(entities.thruster) then
 		return entities.half_track, entities
 	end
 	troll_entity.setup_peds_and_put_in_seats(seats_army.driver, gameplay.get_hash_key("s_m_y_swat_01"), entities.thruster, pid, false, entities)
 
-	entities.khanjali = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("khanjali"), function()
+	entities.khanjali = kek_entity.spawn_networked_mission_vehicle(gameplay.get_hash_key("khanjali"), function()
 		return location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0
-	end, false, true)
+	end)
 	kek_entity.set_blip(entities.khanjali, 421, blip_color)
 	if not entity.is_entity_a_vehicle(entities.khanjali) then
 		return entities.thruster, entities
@@ -246,9 +247,9 @@ function troll_entity.send_attack_chopper(...)
 		return -2
 	end
 	local hash <const> = vehicle_mapper.HELICOPTERS[math.random(1, #vehicle_mapper.HELICOPTERS)]
-	local chopper <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+	local chopper <const> = kek_entity.spawn_networked_mission_vehicle(hash, function()
 		return memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75) + memoize.v3(0, 0, 35), 0
-	end, false, true)
+	end)
 	if not entity.is_entity_a_vehicle(chopper) then
 		return -2
 	end
@@ -257,9 +258,9 @@ function troll_entity.send_attack_chopper(...)
 	vehicle.control_landing_gear(chopper, 3)
 	vehicle.set_vehicle_can_be_locked_on(chopper, false, true)
 	vehicle.set_vehicle_doors_locked_for_all_players(chopper, true)
-	local pilot <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("a_f_y_topless_01"), function() 
+	local pilot <const> = kek_entity.spawn_networked_ped(gameplay.get_hash_key("a_f_y_topless_01"), function() 
 		return memoize.get_player_coords(pid) + memoize.v3(0, 0, 10), 0
-	end, false, false, enums.ped_types.civmale, 15)
+	end)
 	if not ped.set_ped_into_vehicle(pilot, chopper, enums.vehicle_seats.driver) then
 		kek_entity.clear_entities({pilot, chopper})
 		return -2
@@ -318,18 +319,18 @@ function troll_entity.send_kek_chopper(...)
 	or kek_entity.entity_manager.counts.ped > (settings.valuei["Ped limits"].value * 10) - 45 then
 		return -2
 	end
-	local chopper <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("havok"), function() 
+	local chopper <const> = kek_entity.spawn_networked_mission_vehicle(gameplay.get_hash_key("havok"), function() 
 		return memoize.get_player_coords(pid) + v3(math.random(-50, 50), math.random(-50, 50), 30), 0
-	end, false, true)
+	end)
 	kek_entity.set_blip(chopper, 310, 58)
 	if not entity.is_entity_a_vehicle(chopper) then
 		return -2
 	end
 	vehicle.set_heli_blades_full_speed(chopper)
 	vehicle.control_landing_gear(chopper, 3)
-	local pilot <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("s_m_y_swat_01"), function()
+	local pilot <const> = kek_entity.spawn_networked_ped(gameplay.get_hash_key("s_m_y_swat_01"), function()
 		return memoize.get_player_coords(pid) + memoize.v3(0, 0, 20), 0
-	end, false, false, enums.ped_types.civmale, 20)
+	end)
 	kek_entity.set_combat_attributes(
 		pilot, 
 		false, 
@@ -362,7 +363,7 @@ function troll_entity.send_kek_chopper(...)
 				for i = 1, 4 do
 					if not entity.is_entity_a_vehicle(vehicles[i] or 0) then
 						local hash <const> = vehicle_mapper.get_random_vehicle()
-						vehicles[i] = kek_entity.spawn_ped_or_vehicle(hash, function()
+						vehicles[i] = kek_entity.spawn_networked_mission_vehicle(hash, function()
 							return kek_entity.vehicle_get_vec_rel_to_dims(hash, chopper), entity.get_entity_heading(chopper)
 						end)
 						kek_entity.set_blip(vehicles[i], 119, 1)
@@ -467,17 +468,17 @@ function troll_entity.send_clown_van(...)
 	end
 	create_clown_relationship_group()
 	local pos <const> = location_mapper.get_most_accurate_position(memoize.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 35, 100), true)
-	local clown_van <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("speedo2"), function() 
+	local clown_van <const> = kek_entity.spawn_networked_mission_vehicle(gameplay.get_hash_key("speedo2"), function() 
 		return pos, 0
-	end, false, true)
+	end)
 	kek_entity.set_blip(clown_van, 484, math.random(1, 84))
 	if not entity.is_entity_a_vehicle(clown_van) then
 		return -2
 	end
 	vehicle.set_vehicle_mod(clown_van, 14, 2)
-	local driver <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("s_m_y_clown_01"), function()
+	local driver <const> = kek_entity.spawn_networked_ped(gameplay.get_hash_key("s_m_y_clown_01"), function()
 		return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 20), 0
-	end, false, false, enums.ped_types.civmale, 15)
+	end)
 	if not ped.set_ped_into_vehicle(driver, clown_van, enums.vehicle_seats.driver) then
 		kek_entity.clear_entities({driver, clown_van}, 3000)
 		return -2
@@ -603,9 +604,9 @@ function troll_entity.send_clown_van(...)
 				end
 			end
 			kek_entity.clear_entities({clown}, 3000)
-		end, kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key(ped_mapper.LIST_OF_SPECIAL_PEDS[math.random(1, #ped_mapper.LIST_OF_SPECIAL_PEDS)]), function()
+		end, kek_entity.spawn_networked_ped(gameplay.get_hash_key(ped_mapper.LIST_OF_SPECIAL_PEDS[math.random(1, #ped_mapper.LIST_OF_SPECIAL_PEDS)]), function()
 			return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 20), 0
-		end, false, false, enums.ped_types.civmale, 15))
+		end))
 	end
 	return clown_van
 end
@@ -621,13 +622,13 @@ function troll_entity.send_jet(...)
 
 	local pos <const> = essentials.get_player_coords(pid)
 
-	local pilot <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("s_m_y_swat_01"), function()
+	local pilot <const> = kek_entity.spawn_networked_ped(gameplay.get_hash_key("s_m_y_swat_01"), function()
 		return pos + memoize.v3(0, 0, 60), 0
-	end, false, false, enums.ped_types.civmale)
+	end)
 
-	local jet <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("lazer"), function()
+	local jet <const> = kek_entity.spawn_networked_mission_vehicle(gameplay.get_hash_key("lazer"), function()
 		return pos + kek_entity.get_random_offset(-150, 150, 50, 200) + memoize.v3(0, 0, math.random(40, 100)), 0
-	end, false, true)
+	end)
 	vehicle.control_landing_gear(jet, 3)
 	kek_entity.set_blip(jet, 16, blip_color or math.random(1, 84))
 

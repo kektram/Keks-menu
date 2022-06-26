@@ -1,12 +1,13 @@
--- Kek's menu version 0.4.8.0
+-- Kek's menu version 0.4.8.0 beta 11 test
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0"
+__kek_menu_version = "0.4.8.0 beta 11 test"
 __kek_menu_debug_mode = false
+__kek_menu_participate_in_betas = false
 
 menu.create_thread(function()
 
@@ -79,6 +80,9 @@ and utils.file_exists(paths.debugger) then
 			__kek_menu_debug_mode = true
 			dofile(paths.debugger)
 		end
+		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
+			__kek_menu_participate_in_betas = true
+		end
 	end
 else
 	local file <const> = io.open(paths.kek_settings, "w+")
@@ -95,12 +99,12 @@ do -- Makes sure each library is loaded once and that every time one is required
 	local original_require <const> = require
 	require = function(...)
 		local name <const> = ...
-		local lib <const> = package.loaded[name] or original_require(name)
+		local lib = package.loaded[name] or original_require(name)
 		if not lib then
 			menu.notify(string.format("Failed to load %s.", name), "Error", 6, 0xff0000ff)
 			local err <const> = select(2, loadfile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")) -- 2take1's custom require function doesn't let you obtain error.
 			print(err)
-			error(err)
+			error(err or "Unknown error during loading of "..name..".")
 		end
 		if not package.loaded[name] then
 			package.loaded[name] = lib
@@ -109,62 +113,62 @@ do -- Makes sure each library is loaded once and that every time one is required
 	end
 
 	for name, version in pairs({
-		["Language"] = "1.0.0",
-		["Settings"] = "1.0.2",
-		["Essentials"] = "1.4.9",
-		["Memoize"] = "1.0.1",
-		["Enums"] = "1.0.4",
-		["Vehicle mapper"] = "1.3.9", 
-		["Ped mapper"] = "1.2.7",
-		["Object mapper"] = "1.2.7", 
-		["Globals"] = "1.3.5",
-		["Weapon mapper"] = "1.0.5",
-		["Location mapper"] = "1.0.2",
-		["Keys and input"] = "1.0.7",
-		["Drive style mapper"] = "1.0.4",
-		["Menyoo spawner"] = "2.2.5",
-		["Kek's entity functions"] = "1.2.6",
+		["Kek's Language"] = "1.0.0",
+		["Kek's Settings"] = "1.0.2",
+		["Kek's Essentials"] = "1.5.0",
+		["Kek's Memoize"] = "1.0.1",
+		["Kek's Enums"] = "1.0.5",
+		["Kek's Vehicle mapper"] = "1.3.9", 
+		["Kek's Ped mapper"] = "1.2.7",
+		["Kek's Object mapper"] = "1.2.7", 
+		["Kek's Globals"] = "1.3.5",
+		["Kek's Weapon mapper"] = "1.0.5",
+		["Kek's Location mapper"] = "1.0.2",
+		["Kek's Keys and input"] = "1.0.7",
+		["Kek's Drive style mapper"] = "1.0.4",
+		["Kek's Menyoo spawner"] = "2.2.5",
+		["Kek's entity functions"] = "1.2.7",
 		["Kek's trolling entities"] = "1.0.7",
-		["Custom upgrades"] = "1.0.2",
-		["Admin mapper"] = "1.0.4",
-		["Menyoo saver"] = "1.0.9",
-		["Natives"] = "1.0.1"
+		["Kek's Custom upgrades"] = "1.0.2",
+		["Kek's Admin mapper"] = "1.0.4",
+		["Kek's Menyoo saver"] = "1.0.9",
+		["Kek's Natives"] = "1.0.1"
 	}) do
 		if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
-			menu.notify(string.format("%s [%s]", package.loaded["Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
-			error(package.loaded["Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."])
+			menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
+			error(package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."])
 		else
 			require(name)
 		end
 		if package.loaded[name].version ~= version then
-			menu.notify(string.format("%s [%s]", package.loaded["Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
-			error(package.loaded["Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."])
+			menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
+			error(package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."])
 		end
 	end
 	require = original_require
 end
 
-local language <const> = package.loaded["Language"]
-local settings <const> = package.loaded["Settings"]
+local language <const> = package.loaded["Kek's Language"]
+local settings <const> = package.loaded["Kek's Settings"]
 local lang <const> = language.lang
-local essentials <const> = package.loaded["Essentials"]
-local memoize <const> = package.loaded["Memoize"]
-local enums <const> = package.loaded["Enums"]
-local weapon_mapper <const> = package.loaded["Weapon mapper"]
-local location_mapper <const> = package.loaded["Location mapper"]
-local keys_and_input <const> = package.loaded["Keys and input"]
-local drive_style_mapper <const> = package.loaded["Drive style mapper"]
-local globals <const> = package.loaded["Globals"]
-local vehicle_mapper <const> = package.loaded["Vehicle mapper"]
-local ped_mapper <const> = package.loaded["Ped mapper"]
-local object_mapper <const> = package.loaded["Object mapper"]
-local menyoo <const> = package.loaded["Menyoo spawner"]
+local essentials <const> = package.loaded["Kek's Essentials"]
+local memoize <const> = package.loaded["Kek's Memoize"]
+local enums <const> = package.loaded["Kek's Enums"]
+local weapon_mapper <const> = package.loaded["Kek's Weapon mapper"]
+local location_mapper <const> = package.loaded["Kek's Location mapper"]
+local keys_and_input <const> = package.loaded["Kek's Keys and input"]
+local drive_style_mapper <const> = package.loaded["Kek's Drive style mapper"]
+local globals <const> = package.loaded["Kek's Globals"]
+local vehicle_mapper <const> = package.loaded["Kek's Vehicle mapper"]
+local ped_mapper <const> = package.loaded["Kek's Ped mapper"]
+local object_mapper <const> = package.loaded["Kek's Object mapper"]
+local menyoo <const> = package.loaded["Kek's Menyoo spawner"]
 local kek_entity <const> = package.loaded["Kek's entity functions"]
 local troll_entity <const> = package.loaded["Kek's trolling entities"]
-local custom_upgrades <const> = package.loaded["Custom upgrades"]
-local admin_mapper <const> = package.loaded["Admin mapper"]
-local menyoo_saver <const> = package.loaded["Menyoo saver"]
-local natives <const> = package.loaded["Natives"]
+local custom_upgrades <const> = package.loaded["Kek's Custom upgrades"]
+local admin_mapper <const> = package.loaded["Kek's Admin mapper"]
+local menyoo_saver <const> = package.loaded["Kek's Menyoo saver"]
+local natives <const> = package.loaded["Kek's Natives"]
 
 if not menu.is_trusted_mode_enabled(1 << 2) then
 	essentials.msg(lang["You must turn on trusted mode->Natives to use this script."], "red", true, 6)
@@ -392,6 +396,7 @@ u.chat_spammer = menu.add_feature(lang["Chat spamming"], "parent", u.chat_stuff.
 u.custom_chat_judger = menu.add_feature(lang["Custom chat judger"], "parent", u.chat_stuff.id)
 u.chat_bot = menu.add_feature(lang["Chat bot"], "parent", u.chat_stuff.id)
 u.chat_commands = menu.add_feature(lang["Chat commands"], "parent", u.chat_stuff.id)
+u.translate_chat = menu.add_feature(lang["Translate chat"], "parent", u.chat_stuff.id)
 
 for _, properties in pairs({
 	{
@@ -916,15 +921,15 @@ for _, properties in pairs({
 	},
 	{
 		setting_name = "Vehicle limits",
-		setting = 50
+		setting = 80
 	},
 	{
 		setting_name = "Ped limits",
-		setting = 50
+		setting = 80
 	},
 	{
 		setting_name = "Object limits",
-		setting = 210
+		setting = 230
 	},
 	{
 		setting_name = "Draw entity limits",
@@ -949,6 +954,42 @@ for _, properties in pairs({
 	{
 		setting_name = "Is player typing",
 		setting = false
+	},
+	{
+		setting_name = "Participate in betas",
+		setting = false
+	},
+	{
+		setting_name = "Translate chat into language",
+		setting = false
+	},
+	{
+		setting_name = "Translate chat into language option",
+		setting = 0
+	},
+	{
+		setting_name = "Translate chat into language what language",
+		setting = 0
+	},
+	{
+		setting_name = "Translate chat into language what language to detect",
+		setting = 0
+	},
+	{
+		setting_name = "Translate your messages too",
+		setting = false
+	},
+	{
+		setting_name = "Translate your messages into",
+		setting = false
+	},
+	{
+		setting_name = "Translate your messages into option",
+		setting = 0
+	},
+	{
+		setting_name = "Translate your messages into chat type",
+		setting = 0
 	}
 }) do
 	settings:add_setting(properties)
@@ -1287,7 +1328,7 @@ do
 							end
 							if utils.time_ms() > time then
 								essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is in godmode."]), "orange", true)
-								player.set_player_as_modder(pid, keks_custom_modder_flags["Godmode"])
+								player.mark_as_modder(pid, keks_custom_modder_flags["Godmode"])
 								f.data.tracker[scid] = utils.time_ms() + 120000
 							end
 						end
@@ -1387,7 +1428,7 @@ settings.toggle["Blacklist"] = menu.add_feature(lang["Blacklist"], "value_str", 
 						player.set_player_as_modder(pid, flags)
 					end
 					if player.is_player_valid(pid) then
-						player.set_player_as_modder(pid, keks_custom_modder_flags["Blacklist"])
+						player.mark_as_modder(pid, keks_custom_modder_flags["Blacklist"])
 					end
 				end
 			end
@@ -1467,7 +1508,7 @@ do
 				detection_string_cache[hash] = table.concat(str, "\n")
 			end
 			if severity >= 3 then
-				player.set_player_as_modder(pid, keks_custom_modder_flags["Has-Suspicious-Stats"])
+				player.mark_as_modder(pid, keks_custom_modder_flags["Has-Suspicious-Stats"])
 				settings.toggle["Automatically check player stats"].data[player.get_player_scid(pid)] = true
 				essentials.msg(string.format("%s %s\n%s", player.get_player_name(pid), lang["has:"], detection_string_cache[hash]), "orange", true, 6)
 			end
@@ -1555,7 +1596,7 @@ menu.add_player_feature(lang["Blacklist"], "action_value_str", u.player_misc_fea
 			return
 		end
 		add_to_blacklist(player.get_player_name(pid), player.get_player_ip(pid), player.get_player_scid(pid), input, true)
-		player.set_player_as_modder(pid, keks_custom_modder_flags["Blacklist"])
+		player.mark_as_modder(pid, keks_custom_modder_flags["Blacklist"])
 	elseif essentials.is_str(f, "Remove") then
 		remove_from_blacklist(player.get_player_name(pid), player.get_player_ip(pid), player.get_player_scid(pid), true)
 	end
@@ -1713,7 +1754,7 @@ menu.add_feature(lang["Blacklist"], "action_value_str", u.modder_detection.id, f
 		add_to_blacklist(name, ip, scid, reason, true)
 		for pid in essentials.players() do
 			if player.get_player_scid(pid) == scid then
-				player.set_player_as_modder(pid, keks_custom_modder_flags["Blacklist"])
+				player.mark_as_modder(pid, keks_custom_modder_flags["Blacklist"])
 			end
 		end
 	elseif essentials.is_str(f, "Remove") then
@@ -1788,6 +1829,10 @@ menu.add_feature(lang["Show latest update changelog"], "action", u.settingsUI.id
 	end
 end)
 
+settings.toggle["Participate in betas"] = menu.add_feature(lang["Participate in betas"], "toggle", u.settingsUI.id, function(f)
+	__kek_menu_participate_in_betas = f.on
+end)
+
 settings.toggle["Debug mode"] = menu.add_feature(lang["Debug mode"], "toggle", u.debug.id, function(f)
 	if f.on and keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
 		essentials.msg(lang["Save settings and reset lua state to load in debug mode."], "blue", true, 12)
@@ -1846,9 +1891,9 @@ settings.toggle["Draw entity queue"] = menu.add_feature(lang["Draw entity queue"
 		ui.set_text_font(0)
 		ui.set_text_outline(true)
 		ui.draw_text(string.format("%s: %i\n%s: %i", 
-			lang["Num of peds/vehicles in queue"],
+			lang["Num of entities in queue"],
 			#kek_entity.spawn_queue,
-			lang["Num of peds/vehicles spawned"],
+			lang["Num of entities spawned"],
 			kek_entity.spawn_queue_id
 			), 
 		memoize.v2(0.8, 0.7))		
@@ -1910,7 +1955,7 @@ do
 	local f1, f2, f3
 	local feat = menu.add_feature("Spawn object & draw object properties", "toggle", object_testing_parent.id, function(f)
 		local model <const> = settings.user_entity_features.object.feats["Change object testing"]:get_str_data()[1]
-		f.data = kek_entity.spawn_object(object_mapper.get_hash_from_user_input(model), function()
+		f.data = kek_entity.spawn_local_object(object_mapper.get_hash_from_user_input(model), function()
 			return essentials.get_player_coords(player.player_id()) + 2
 		end)
 		f1.on = true -- Update newly spawned object to current set rot
@@ -2159,16 +2204,19 @@ do
 						buf[1] = Vehicle
 						kek_entity.clear_entities(buf)
 						if not entity.is_entity_a_vehicle(Vehicle) then
-							local new_vehicle <const> = kek_entity.spawn_ped_or_vehicle(
+							local new_vehicle <const> = kek_entity.spawn_networked_vehicle(
 								entity.is_entity_in_air(Vehicle) and gameplay.get_hash_key("polmav") or gameplay.get_hash_key(police_vehicle_models[math.random(1, #police_vehicle_models)]), 
 								function()
 									return pos, heading
-								end
-							)
+								end, {
+									godmode = false,
+									max = false,
+									persistent = false
+								})
 							kek_entity.max_car(new_vehicle, true) -- Only maxes performance
-							local police <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key(police_ped_models[math.random(1, #police_ped_models)]), function()
+							local police <const> = kek_entity.spawn_networked_ped(gameplay.get_hash_key(police_ped_models[math.random(1, #police_ped_models)]), function()
 								return essentials.get_player_coords(player.player_id()) + 30, 0
-							end, false, false, enums.ped_types.cop)
+							end, enums.ped_types.cop)
 							kek_entity.set_combat_attributes(police, false, combat_attributes)
 							ped.set_ped_relationship_group_hash(police, enums.relationship_group_hashes.COP) -- Must go after set_combat_attributes. It sets relationship hash to hate_player.
 							ped.set_can_attack_friendly(police, false, false)
@@ -2212,17 +2260,21 @@ settings.user_entity_features.vehicle.feats["Swap nearby cars"] = menu.add_featu
 				and kek_entity.get_control_of_entity(Vehicle, 0) then
 					if not select(2, kek_entity.get_number_of_passengers(Vehicle)) then
 						local velocity = memoize.v3()
-						local car <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+						local car <const> = kek_entity.spawn_networked_vehicle(hash, function()
 							local pos <const>, dir <const> = entity.get_entity_coords(Vehicle), entity.get_entity_heading(Vehicle)
 							velocity = entity.get_entity_velocity(Vehicle)
 							kek_entity.clear_entities({Vehicle})
 							return pos, dir
-						end, entity.get_entity_god_mode(Vehicle), true)
+						end, {
+							godmode = entity.get_entity_god_mode(Vehicle), 
+							max = true,
+							persistent = false
+						})
 						if entity.is_entity_a_vehicle(car) then
 							entity.set_entity_velocity(car, velocity)
-							local Ped <const> = kek_entity.spawn_ped_or_vehicle(ped_mapper.get_random_ped("all peds except animals"), function() 
+							local Ped <const> = kek_entity.spawn_networked_ped(ped_mapper.get_random_ped("all peds except animals"), function() 
 								return essentials.get_player_coords(player.player_id()) + 30, 0
-							end, false, false, enums.ped_types.civmale)
+							end)
 							if entity.is_entity_a_ped(Ped) then
 								ped.set_ped_into_vehicle(Ped, car, enums.vehicle_seats.driver)
 								ai.task_vehicle_drive_wander(Ped, car, 150, settings.in_use["Drive style"])
@@ -2507,7 +2559,7 @@ function player_history.add_features(main_parent, rid, ip, name)
 				add_to_blacklist(name, essentials.ipv4_to_dec(ip), rid, input, true)
 				for pid in essentials.players() do
 					if rid == player.get_player_scid(pid) then
-						player.set_player_as_modder(pid, keks_custom_modder_flags["Blacklist"])
+						player.mark_as_modder(pid, keks_custom_modder_flags["Blacklist"])
 						break
 					end
 				end
@@ -2890,7 +2942,7 @@ settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_playe
 				if not entity.is_entity_a_vehicle(vehicles[i] or 0) then
 					local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 					if streaming.is_model_a_vehicle(hash) then
-						vehicles[i] = kek_entity.spawn_ped_or_vehicle(hash, function()
+						vehicles[i] = kek_entity.spawn_networked_mission_vehicle(hash, function()
 							return essentials.get_player_coords(player.player_id()) + v3(0, 0, essentials.random_real(30, 50)), 0
 						end)
 					end
@@ -3114,9 +3166,13 @@ menu.add_feature(lang["Spawn vehicle for everyone"], "action", u.session_peacefu
 
 	local spawn_count = 0
 	for pid in essentials.players() do
-		local car <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+		local car <const> = kek_entity.spawn_networked_vehicle(hash, function()
 			return essentials.get_player_coords(pid), player.get_player_heading(pid)
-		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
+		end, {
+			godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
+			max = settings.toggle["Spawn #vehicle# maxed"].on,
+			persistent = false
+		})
 		if not entity.is_entity_a_vehicle(car) then
 			essentials.msg(string.format("%s %i / %i %s. %s", lang["Failed to spawn"], player.player_count() - spawn_count, player.player_count(), lang["Vehicles"]:lower(), lang["Vehicle limit was reached."]), "red", true, 6)
 			break
@@ -3158,9 +3214,13 @@ menu.add_player_feature(lang["Kidnap player"], "toggle", u.player_trolling_featu
 			system.yield(0)
 			if not entity.is_entity_dead(player.get_player_ped(pid)) then
 				if not entity.is_entity_a_vehicle(van) then
-					van = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("stockade"), function()
+					van = kek_entity.spawn_networked_vehicle(gameplay.get_hash_key("stockade"), function()
 						return essentials.get_player_coords(pid) + memoize.v3(0, 0, 50), 0
-					end, true, true)
+					end, {
+						godmode = true,
+						max = true,
+						persistent = true
+					})
 					vehicle.set_vehicle_doors_locked_for_all_players(van, true)
 				end
 				if entity.is_entity_a_vehicle(van) and not ped.is_ped_in_vehicle(player.get_player_ped(player.player_id()), van) then
@@ -3238,9 +3298,9 @@ player_feat_ids["Mad peds"] = menu.add_player_feature(lang["Mad peds in their ca
 			end
 			local hash <const> = gameplay.get_hash_key(ped_mapper.LIST_OF_SPECIAL_PEDS[math.random(1, #ped_mapper.LIST_OF_SPECIAL_PEDS)])
 			if essentials.is_str(f, "Fill, steal & run away") and not entity.is_entity_a_ped(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0) then
-				local Ped <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+				local Ped <const> = kek_entity.spawn_networked_ped(hash, function()
 					return essentials.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10), 0
-				end, false, false, enums.ped_types.civmale)
+				end)
 				ped.set_ped_into_vehicle(Ped, Vehicle, enums.vehicle_seats.driver)
 				ped.set_ped_combat_attributes(Ped, 3, false)
 			end
@@ -3263,7 +3323,7 @@ menu.get_player_feature(player_feat_ids["Mad peds"]):set_str_data({
 })
 
 menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, function(f)
-	local initial_pos <const> = essentials.get_player_coords(player.player_id())
+	local initial_pos <const>, threads <const> = essentials.get_player_coords(player.player_id()), {}
 	menu.create_thread(function()
 		while f.on do
 			entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
@@ -3290,10 +3350,17 @@ menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, f
 					break
 				end
 				if essentials.is_not_friend(pid) then
-					local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795), true)
-					if status then
-						globals.disable_vehicle(pid)
-						players[#players + 1] = pid
+					if not essentials.is_in_vehicle(pid) and menu.has_thread_finished(threads[pid] or -1) then
+						threads[pid] = menu.create_thread(function()
+							globals.force_player_into_vehicle(pid)
+						end, nil)
+					end
+					if menu.has_thread_finished(threads[pid] or -1) then
+						local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795), true)
+						if status then
+							globals.disable_vehicle(pid)
+							players[#players + 1] = pid
+						end
 					end
 				end
 			end
@@ -3385,7 +3452,7 @@ do
 			if offsets[i] then
 				offset = offsets[i]
 			end
-			local object <const> = kek_entity.spawn_object(gameplay.get_hash_key(object_model), function()
+			local object <const> = kek_entity.spawn_networked_object(gameplay.get_hash_key(object_model), function()
 				return location - memoize.v3(0, 0, 2) + offset
 			end)
 			if object and entity.is_entity_an_object(object) then
@@ -3598,9 +3665,13 @@ settings.user_entity_features.vehicle.feats["Respawn vehicle"] = menu.add_featur
 				states[scid] = false
 				kek_entity.clear_entities({f.data[scid]})
 				local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
-				f.data[scid] = kek_entity.spawn_ped_or_vehicle(hash, function()
+				f.data[scid] = kek_entity.spawn_networked_vehicle(hash, function()
 					return location_mapper.get_most_accurate_position(kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))), player.get_player_heading(pid)
-				end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
+				end, {
+					godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
+					max = settings.toggle["Spawn #vehicle# maxed"].on,
+					persistent = false
+				})
 			end
 		end
 	end
@@ -3788,6 +3859,120 @@ settings.valuei["Anti chat spam reaction"]:set_str_data({
 	lang["Kick & add to timeout"]
 })
 
+settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.translate_chat.id, function(f)
+	if f.on then
+		if not menu.is_trusted_mode_enabled(1 << 3) then
+			essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
+			f.on = false
+			return
+		end
+		if essentials.listeners["chat"]["translate"] then
+			return
+		end
+		local tracker <const> = {} -- To prevent spamming requests at Google, 1 translation every 500ms per player.
+		essentials.listeners["chat"]["translate"] = essentials.add_chat_event_listener(function(event)
+			if (settings.toggle["Translate your messages too"].on or settings.toggle["Translate your messages into"].on or event.player ~= player.player_id())
+			and event.body:find("^%P") -- chat commands
+			and utils.time_ms() > (tracker[event.player] or 0) then
+				local language_translate_into_setting = 
+					enums.supported_langs_by_google_to_code[
+						enums.supported_langs_by_google[settings.valuei["Translate chat into language what language"].value + 1]
+					]
+				local str, detected_language
+				if player.player_id() == event.player and settings.toggle["Translate your messages into"].on then
+					language_translate_into_setting = enums.supported_langs_by_google_to_code[
+						enums.supported_langs_by_google[settings.valuei["Translate your messages into option"].value + 1]
+					]
+					str, detected_language = 
+						language.translate_text(
+							event.body, 
+							"auto", 
+							language_translate_into_setting
+						)
+				else
+					str, detected_language = 
+						language.translate_text(
+							event.body, 
+							"auto", 
+							language_translate_into_setting
+						)
+				end
+				tracker[event.player] = utils.time_ms() + 500
+				if enums.supported_langs_by_google_to_name[detected_language]
+				and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
+					local is_team_chat = essentials.is_str(f, "Team chat")
+					if event.player == player.player_id() and settings.toggle["Translate your messages into"].on then
+						is_team_chat = essentials.is_str(settings.valuei["Translate your messages into chat type"], "Team chat")
+					end
+					essentials.send_message(
+						lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str, 
+						is_team_chat
+					)
+				end
+			end
+		end)
+	else
+		event.remove_event_listener("chat", essentials.listeners["chat"]["translate"])
+		essentials.listeners["chat"]["translate"] = nil
+	end
+end)
+settings.toggle["Translate chat into language"]:set_str_data({
+	lang["Team chat"],
+	lang["All chat"]
+})
+
+settings.toggle["Translate your messages too"] = menu.add_feature(lang["Translate your messages"], "toggle", u.translate_chat.id)
+
+settings.toggle["Translate your messages into"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id)
+settings.valuei["Translate your messages into option"] = settings.toggle["Translate your messages into"]
+settings.valuei["Translate your messages into option"]:set_str_data(
+	(function()
+		local t = {}
+		for i = 1, #enums.supported_langs_by_google do
+			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
+		end
+		return t
+	end)()
+)
+
+settings.valuei["Translate your messages into chat type"] = menu.add_feature(lang["Your messages chat type"], "action_value_str", u.translate_chat.id)
+settings.valuei["Translate your messages into chat type"]:set_str_data({
+	lang["All chat"],
+	lang["Team chat"]
+})
+
+settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
+
+settings.valuei["Translate chat into language what language"] = menu.add_feature(
+	lang["Translate into"], 
+	"action_value_str", 
+	u.translate_chat.id
+)
+settings.valuei["Translate chat into language what language"]:set_str_data(
+	(function()
+		local t = {}
+		for i = 1, #enums.supported_langs_by_google do
+			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
+		end
+		return t
+	end)()
+)
+
+settings.valuei["Translate chat into language what language to detect"] = menu.add_feature(
+	lang["Translate what is not"], 
+	"action_value_str", 
+	u.translate_chat.id
+)
+settings.valuei["Translate chat into language what language to detect"]:set_str_data(
+	(function()
+		local t = {}
+		for i = 1, #enums.supported_langs_by_google do
+			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
+		end
+		return t
+	end)()
+)
+
 do
 	local function create_anti_stuck_thread(...)
 		local f <const>, wp <const> = ...
@@ -3945,7 +4130,7 @@ do
 		if player.is_player_modder(pid, 1 << f.value) then
 			player.unset_player_as_modder(pid, 1 << f.value)
 		else
-			player.set_player_as_modder(pid, 1 << f.value)
+			player.mark_as_modder(pid, 1 << f.value)
 		end
 	end):set_str_data(flag_names)
 end
@@ -4355,14 +4540,18 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								return
 							end
 							menu.create_thread(function()
-								local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+								local Vehicle <const> = kek_entity.spawn_networked_vehicle(hash, function()
 									local pos = kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))
 									local accurate_pos <const> = location_mapper.get_most_accurate_position_soft(pos)
 									if pos == accurate_pos then -- If ground_z can't be obtained
 										pos = essentials.get_player_coords(pid) 
 									end
 									return pos, player.get_player_heading(pid)
-								end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on, nil, nil, nil, nil, true)
+								end, {
+									godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
+									max = settings.toggle["Spawn #vehicle# maxed"].on,
+									persistent = false
+								})
 								if not entity.is_entity_a_vehicle(Vehicle) then
 									essentials.send_message("[Chat commands]: Vehicle spawn limit is reached. Spawns are disabled.", event.player == player.player_id())
 								end
@@ -4487,14 +4676,10 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							end, nil)
 						elseif settings.in_use["tp #chat command#"] and (str:find("^%ptp [^\32]+") or str:find("^%pteleport [^\32]+")) then
 							str = str:gsub("^%pteleport", "!tp")
-							if pid ~= player.player_id() and not essentials.is_in_vehicle(pid) then
-								essentials.send_message(string.format("[Chat commands]: Failed to tp %s; he isn't in a vehicle.", player.get_player_name(pid)), event.player == player.player_id())
-								return
-							end
 							menu.create_thread(function()
 								local pos
 								if player.is_player_valid(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))) then
-									pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
+									pos = "player_pos" -- forcing player causes out-of-date position, so position is grabbed afterwards
 								end
 								if not pos then
 									local str <const> = str:match("^%ptp (.+)"):lower()
@@ -4518,23 +4703,22 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 										end
 									end
 								end
-								if type(pos) == "userdata" then
+								if pos then
 									if (pid == player.player_id() and not player.is_player_in_any_vehicle(player.player_id())) 
 									or (player.get_player_vehicle(pid) == player.get_player_vehicle(player.player_id()) and player.is_player_in_any_vehicle(pid) and player.is_player_in_any_vehicle(player.player_id())) then
+										if pos == "player_pos" then
+											pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
+										end
 										kek_entity.teleport(kek_entity.get_most_relevant_entity(pid), pos)
 									else
 										menu.create_thread(function()
-											local thread <const> = menu.create_thread(function()
-												local time <const> = utils.time_ms() + 2000
-												while time > utils.time_ms() do
-													entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
-													system.yield(0)
-												end
-											end, nil)
-											kek_entity.teleport_player_and_vehicle_to_position(pid, pos, true)
-											if not menu.has_thread_finished(thread) then
-												essentials.delete_thread(thread)
+											if player.player_id() ~= pid and not essentials.is_in_vehicle(pid) then
+												globals.force_player_into_vehicle(pid)
 											end
+											if pos == "player_pos" then
+												pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
+											end
+											kek_entity.teleport_player_and_vehicle_to_position(pid, pos, true)
 										end, nil)
 									end
 								else
@@ -5128,8 +5312,9 @@ settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang[
 	player.extend_world_boundary_for_player(pos.x, pos.y, pos.z)
 	while f.on do
 		system.yield(0)
-		if player.is_player_spectating(player.player_id()) then
+		if network.network_is_in_spectator_mode() then
 			who_spectating = network.get_player_player_is_spectating(player.player_id()) or who_spectating
+			entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
 			hud.set_minimap_in_spectator_mode(true, player.get_player_ped(who_spectating))
 		elseif who_spectating and who_spectating ~= -1 then
 			hud.set_minimap_in_spectator_mode(false, player.get_player_ped(who_spectating))
@@ -5272,7 +5457,9 @@ do
 		"ZeroMenu",
 		"[Spectating You]",
 		"tried to report you",
-		"SCID: "
+		"SCID: ",
+		"Triggered",
+		"Toggled"
 	})
 	local whitelisted_strings <const> = {
 		lang["is in godmode."],
@@ -5538,9 +5725,9 @@ do
 					essentials.msg(lang["Failed to load file."], "red", true)
 					return
 				end
-				local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(math.tointeger(hash), function()
+				local Vehicle <const> = kek_entity.spawn_local_mission_vehicle(math.tointeger(hash), function()
 					return properties[1].pos, 0 
-				end, true, true, nil, 10, true)
+				end)
 				f.data.vehicle = Vehicle
 				f.data.number_of_laps[Vehicle] = 0
 				entity.set_entity_alpha(Vehicle, 180, true)
@@ -5961,9 +6148,9 @@ end
 settings.user_entity_features.ped.player_feats["Spawn ped"] = menu.add_player_feature(lang["Spawn a ped"], "action_value_str", u.player_misc_features, function(f, pid)
 	local hash <const> = ped_mapper.get_hash_from_user_input(settings.in_use["User ped"])
 	if streaming.is_model_a_ped(hash) then
-		kek_entity.spawn_ped_or_vehicle(hash, function() 
+		kek_entity.spawn_networked_ped(hash, function() 
 			return location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), 7)), 0
-		end, false, false, enums.ped_types.civmale)
+		end)
 	end
 end).id
 
@@ -5981,6 +6168,10 @@ u.max_self_vehicle_loop.max = 975
 u.max_self_vehicle_loop.min = 25
 u.max_self_vehicle_loop.mod = 25
 u.max_self_vehicle_loop.value = 500
+
+menu.add_feature(lang["Max vehicle"], "action", u.gvehicle.id, function(f)
+	kek_entity.max_car(player.get_player_vehicle(player.player_id()), false, true)
+end)
 
 menu.add_feature(lang["Change backplate text"], "action", u.vehicleSettings.id, function(f)
 	local input <const>, status <const> = keys_and_input.get_input(lang["Type in the text you want displayed on the backplate of your cars after maxing them."], "", 128, 0)
@@ -6026,9 +6217,9 @@ u.vehicle_fly = menu.add_feature(lang["Vehicle fly"], "toggle", u.gvehicle.id, f
 			system.yield(0)
 			if menu.has_thread_finished(thread) and player.is_player_in_any_vehicle(player.player_id()) and not entity.is_entity_a_vehicle(fly_entity) then
 				thread = menu.create_thread(function()
-					fly_entity = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("bmx"), function() 
+					fly_entity = kek_entity.spawn_local_mission_vehicle(gameplay.get_hash_key("bmx"), function() 
 						return essentials.get_player_coords(player.player_id()), 0 
-					end, true, false, nil, 0, true, true)
+					end)
 					entity.set_entity_max_speed(fly_entity, 45000)
 					entity.set_entity_visible(fly_entity, false)
 					entity.set_entity_collision(fly_entity, false, false, false)
@@ -6226,6 +6417,18 @@ menu.add_player_feature(lang["Transaction error"], "toggle", u.script_stuff, fun
 end)
 
 menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicle_features, function(f, pid)
+	if essentials.is_str(f, "waypoint") and not hud.is_waypoint_active() then
+		essentials.msg(lang["Please set a waypoint."], "red", true)
+		return
+	end
+	if not essentials.is_in_vehicle(pid) and pid ~= player.player_id() then
+		essentials.msg(lang["Forcing player into vehicle. This can take up to 15 seconds."], "yellow", true, 6)
+		globals.force_player_into_vehicle(pid)
+	end
+	if not essentials.is_in_vehicle(pid) and pid ~= player.player_id() then
+		essentials.msg(lang["Failed to teleport player."], "red", true, 6)
+		return
+	end
 	if essentials.is_str(f, "me") then
 		if pid == player.player_id() then
 			essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
@@ -6233,10 +6436,6 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 		end
 		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true, true)
 	elseif essentials.is_str(f, "waypoint") then
-		if not hud.is_waypoint_active() then
-			essentials.msg(lang["Please set a waypoint."], "red", true)
-			return
-		end
 		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), player.player_id() ~= pid, false, f)
 	elseif essentials.is_str(f, "Mount Chiliad & kill") then
 		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), player.player_id() ~= pid, true) then
@@ -6350,9 +6549,13 @@ settings.user_entity_features.vehicle.player_feats["Spawn vehicle"] = menu.add_p
 			essentials.msg(lang["Failed to spawn vehicle. Vehicle limit was reached"], "red", true, 6)
 			return
 		end
-		kek_entity.spawn_ped_or_vehicle(hash, function()
+		kek_entity.spawn_networked_vehicle(hash, function()
 			return location_mapper.get_most_accurate_position(kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))), player.get_player_heading(pid)
-		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
+		end, {
+			godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
+			max = settings.toggle["Spawn #vehicle# maxed"].on,
+			persistent = false
+		})
 	end
 end).id
 
@@ -6370,9 +6573,13 @@ kek_entity.generate_player_vehicle_list({
 			essentials.msg(lang["Failed to spawn vehicle. Vehicle limit was reached"], "red", true, 6)
 			return
 		end
-		kek_entity.spawn_ped_or_vehicle(f.data, function()
+		kek_entity.spawn_networked_vehicle(f.data, function()
 			return kek_entity.vehicle_get_vec_rel_to_dims(f.data, player.get_player_ped(pid)), player.get_player_heading(pid)
-		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
+		end, {
+			godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
+			max = settings.toggle["Spawn #vehicle# maxed"].on,
+			persistent = false
+		})
 	end,
 	""
 )
@@ -6478,9 +6685,13 @@ settings.user_entity_features.vehicle.player_feats["Respawn vehicle"] = menu.add
 			state = false
 			kek_entity.clear_entities({f.data})
 			local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
-			f.data = kek_entity.spawn_ped_or_vehicle(hash, function()
+			f.data = kek_entity.spawn_networked_vehicle(hash, function()
 				return kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid)), player.get_player_heading(pid)
-			end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
+			end, {
+				godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
+				max = settings.toggle["Spawn #vehicle# maxed"].on,
+				persistent = false
+			})
 		end
 	end
 end).id
@@ -6697,7 +6908,7 @@ menu.add_player_feature(lang["Float"], "value_str", u.player_trolling_features, 
 					kek_entity.clear_entities({objects[i]})
 				end
 			end
-			platform = kek_entity.spawn_object(hash, function()
+			platform = kek_entity.spawn_networked_object(hash, function()
 				pos = essentials.get_player_coords(pid) - memoize.v3(0, 0, -2.5)
 				return pos
 			end)
@@ -6802,7 +7013,7 @@ player_feat_ids["Vehicle gun"] = menu.add_player_feature(lang["Vehicle gun"], "v
 			if f.on and ped.is_ped_shooting(player.get_player_ped(pid)) then
 				local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 				if streaming.is_model_a_vehicle(hash) then
-					local car <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+					local car <const> = kek_entity.spawn_networked_mission_vehicle(hash, function()
 						local distance <const> = kek_entity.get_longest_dimension(hash) + 6 +
 						(entity.is_entity_a_vehicle(player.get_player_vehicle(pid)) 
 							and kek_entity.get_longest_dimension(entity.get_entity_model_hash(player.get_player_vehicle(pid)))
@@ -6877,7 +7088,7 @@ settings.user_entity_features.object.feats["Object gun"] = menu.add_feature(lang
 		if ped.is_ped_shooting(player.get_player_ped(player.player_id())) then
 			local hash <const> = object_mapper.get_hash_from_user_input(settings.in_use["User object"])
 			if streaming.is_model_an_object(hash) then
-				entities[#entities + 1] = kek_entity.spawn_object(hash, function() 
+				entities[#entities + 1] = kek_entity.spawn_networked_object(hash, function() 
 					return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 15), 0
 				end)
 				local pos <const> = kek_entity.get_collision_vector(player.player_id())
@@ -7986,5 +8197,5 @@ essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", fun
 end)
 
 essentials.msg(lang["Successfully loaded Kek's menu."], "green", true)
-
+	
 end, nil)

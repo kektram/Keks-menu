@@ -2,17 +2,17 @@
 
 local menyoo <const> = {version = "2.2.5"}
 
-local language <const> = require("Language")
+local language <const> = require("Kek's Language")
 local lang <const> = language.lang
-local essentials <const> = require("Essentials")
+local essentials <const> = require("Kek's Essentials")
 local kek_entity <const> = require("Kek's entity functions")
-local custom_upgrades <const> = require("Custom upgrades")
-local location_mapper <const> = require("Location mapper")
-local weapon_mapper <const> = require("Weapon mapper")
-local menyoo_saver <const> = require("Menyoo saver")
-local enums <const> = require("Enums")
-local settings <const> = require("Settings")
-local memoize <const> = require("Memoize")
+local custom_upgrades <const> = require("Kek's Custom upgrades")
+local location_mapper <const> = require("Kek's Location mapper")
+local weapon_mapper <const> = require("Kek's Weapon mapper")
+local menyoo_saver <const> = require("Kek's Menyoo saver")
+local enums <const> = require("Kek's Enums")
+local settings <const> = require("Kek's Settings")
+local memoize <const> = require("Kek's Memoize")
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
@@ -351,15 +351,35 @@ local function spawn_entity(info, entities, network_status)
 		update_spawn_counter(entities, 0, 0)
 		return 0
 	end
-	local Entity
-	if streaming.is_model_an_object(info.ModelHash) then
-		Entity = kek_entity.spawn_object(info.ModelHash, function()
+	local Entity = 0
+	if streaming.is_model_an_object(info.ModelHash) and network_status == "is_networked" then
+		Entity = kek_entity.spawn_networked_object(info.ModelHash, function()
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40)
-		end, info.Dynamic == false, network_status == "is_not_networked", 5)
-	else
-		Entity = kek_entity.spawn_ped_or_vehicle(info.ModelHash, function()
+		end, info.Dynamic == false)
+	elseif streaming.is_model_an_object(info.ModelHash) and network_status == "is_not_networked" then
+		Entity = kek_entity.spawn_local_object(info.ModelHash, function()
+			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40)
+		end, info.Dynamic == false)
+	elseif streaming.is_model_a_ped(info.ModelHash) and network_status == "is_networked" then
+		Entity = kek_entity.spawn_networked_ped(info.ModelHash, function()
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
-		end, false, false, enums.ped_types.civmale, 5, network_status == "is_not_networked")
+		end)
+	elseif streaming.is_model_a_ped(info.ModelHash) and network_status == "is_not_networked" then
+		Entity = kek_entity.spawn_local_ped(info.ModelHash, function()
+			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
+		end)
+	elseif streaming.is_model_a_vehicle(info.ModelHash) and network_status == "is_networked" then
+		Entity = kek_entity.spawn_networked_vehicle(info.ModelHash, function()
+			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
+		end, {
+			godmode = false,
+			max = false,
+			persistent = true
+		})
+	elseif streaming.is_model_a_vehicle(info.ModelHash) and network_status == "is_not_networked" then
+		Entity = kek_entity.spawn_local_mission_vehicle(info.ModelHash, function()
+			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
+		end)
 	end
 	if entity.is_an_entity(Entity) then
 		entity.freeze_entity(Entity, true)
@@ -1000,9 +1020,13 @@ local function spawn_type_1_ini(info)
 		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
 		return -1
 	end
-	local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+	local Vehicle <const> = kek_entity.spawn_networked_vehicle(hash, function()
 		return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8), player.get_player_heading(player.player_id())
-	end)
+	end, {
+		godmode = false,
+		max = false,
+		persistent = true
+	})
 	update_spawn_counter(entities, hash, Vehicle)
 	if entity.is_entity_a_vehicle(Vehicle) then
 		vehicle.set_vehicle_bulletproof_tires(Vehicle, is_bulletproof)
@@ -1105,17 +1129,21 @@ local function spawn_entity_for_ini_vehicle(info, entities)
 	local hash <const> = type(info.Model) == "table" and info.Model.Hash or info.Model or info.model or info.hash or info.Hash
 	local Entity
 	if streaming.is_model_a_vehicle(hash) then
-		Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
+		Entity = kek_entity.spawn_networked_vehicle(hash, function()
 			return pos, 0
-		end, false, false, nil, 5)
+		end, {
+			godmode = false,
+			max = false,
+			persistent = true
+		})
 	elseif streaming.is_model_a_ped(hash) then
-		Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
+		Entity = kek_entity.spawn_networked_ped(hash, function()
 			return pos, 0
-		end, false, false, info.PedType or enums.ped_types.civmale, 5)			
+		end, info.PedType)			
 	elseif streaming.is_model_an_object(hash) then
-		Entity = kek_entity.spawn_object(hash, function()
+		Entity = kek_entity.spawn_networked_object(hash, function()
 			return pos
-		end, info.Dynamic == false, false, 6)
+		end, info.Dynamic == false)
 	end
 	update_spawn_counter(entities, hash, Entity or 0)
 	return Entity or 0

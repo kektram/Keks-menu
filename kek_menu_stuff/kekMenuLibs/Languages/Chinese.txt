@@ -12,7 +12,6 @@ Chat §聊天选项
 Custom chat judger §自定义聊天审判
 Chat bot §聊天触发信息回应
 Chat spamming §聊天信息轰炸
-Hotkey settings §快捷键选项
 Modder detection §外挂检测
 Protections §保护功能
 Modder logging settings §作弊者记录设置
@@ -29,7 +28,6 @@ as default language. §作为默认语言
 Empty script loader file §清空脚本加载器
 Add script to auto loader §设置自动加载某个脚本(点击输入脚本名称)
 Remove script from auto loader §取消自动加载某个脚本(点击输入脚本名称)
-Modded name detection §检测虚假名称
 Entity crash protection §检测尝试使用实体崩溃的作弊者
 Blacklist §黑名单
 Kick any vote kickers §自动踢战局内使用投票踢的玩家
@@ -55,7 +53,6 @@ Give session bounty §战局悬赏
 Never wanted §永不通缉
 off the radar §人间蒸发
 Reapply bounty §悬赏循环
-Send to random mission §发送到随机任务
 Apartment invites §公寓邀请
 Ban §禁止注册
 Dismiss §解散
@@ -119,7 +116,6 @@ Chat judge\nCrashing §聊天审判:崩溃玩家
 sent vote kick. Kicking them... §尝试投票踢人.踢出他们...
 tried to crash you. §尝试崩溃你.
 has: §有作弊嫌疑:
-has a modded name. §使用了虚假名称.
 Recognized §检测到黑名单玩家:
 \nDetected: §\n信息:\n
 \nTags:\n §\n添加原因:\n
@@ -149,12 +145,6 @@ Please set a waypoint. §请先设置一个标记点.
 Successfully added entry. §成功添加条目
 Removed entry. §已删除条目
 is not in a vehicle. §不在载具内
-Hotkey:\nTurned on §快捷键:\n已开启
-Hotkey:\nTurned off §快捷键:\n已关闭
-Hotkey:\nMaxed vehicle. §快捷键:\n已最大化升级载具
-Hotkey:\nSpawned vehicle. §快捷键:\n已生成载具
-Hotkey:\nRepaired vehicle. §快捷键:\n已修理载具
-vehicle fly. §载具飞行
 vehicle gun. §载具枪
 Turned off the keybinding:\n\" §关闭了按键绑定:\n\"
 Keybinding not changed. Empty input or input is the same as existing keybinding. §按键绑定没有改变.输入为空或输入与现有的按键绑定冲突.
@@ -190,7 +180,6 @@ Log: §记录
 Kick: §踢出
 Max vehicle §最大化升级载具
 Spawn vehicle §生成载具
-Repair vehicle §修理载具
 Vehicle fly §载具飞行
 Vehicle gun §载具枪
 Glitch vehicle §故障载具
@@ -209,7 +198,6 @@ Has Negative lvl §有不正常的等级
 Has Negative k/d §有不正常的KDA
 Has a high rank. §等级过高
 Has a high k/d. §KDA 过高
-Has modded armor. §进行了护甲数值修改
 Block areas §阻止区域
 Los santos customs §洛圣都改车王
 Ammu-Nations §武装国度商店
@@ -217,10 +205,6 @@ Casino §赌场
 Rid §R*id
 IP §IP
 Name §名称
-Press key to set to hotkey. §请按下要设置为快捷键的键.
-Turned off the hotkey:\n §已关闭快捷键
-Changed §已更改
-to §到
 Turned off §已关闭
 Hotkey:\nloaded §快捷键:\n已加载
 One of the people further in host queue is your friend! Cancelled. §主机队列中在你前一位的玩家是你的好友!已取消.
@@ -351,8 +335,6 @@ times. §次.
 Load §加载
 Save §保存
 Change name §更改名称
-keyboard §键盘
-controller §手柄
 Hotkeys §快捷键
 Type in bounty amount §请输入赏金金额.
 This language file is the wrong version. You can still use it. §该语言文件是错误的版本. 但你仍然可以使用它.
@@ -363,14 +345,7 @@ Send command list §发送命令列表
 Friends can't be targeted §排除好友
 You can't be targeted §排除自己
 Number of responses §回应数
-Hotkey change timed out or failed. §快捷键更改超时或失败
-Turn off §关闭
-1 key §1个按键
-2 keys §2个组合键
-3 keys §3个组合键
 Clear entities §清除实体
-Tp personal vehicle §传送到个人载具
-Hotkey:\nTeleported into personal vehicle. §快捷键:\已传送到个人载具内
 Auto tp to waypoint §自动传送到标记点
 Turn on script loader §开启脚本加载器
 Turn off script loader §关闭脚本加载器
@@ -383,7 +358,6 @@ Chat judge reaction §聊天判断反应
 Chat spammer §聊天轰炸
 Clear entities §清除实体
 Modify chatbot §聊天机器人编辑
-Hotkey mode §快捷键模式
 Driver's seat §驾驶座位
 Front passenger seat §前排乘客座位
 Left backseat §左后座
@@ -397,7 +371,6 @@ Cage §笼子
 Give weapon §给予武器
 Remove weapon §移除武器
 Send clipboard to chat §发送剪贴板内容到聊天窗口
-Clipboard to chat §发送剪贴板内容到聊天框
 Send to session §发送到战局
 Army §军队
 Teleport session §传送战局
@@ -500,8 +473,6 @@ Size §字体大小
 Font §字体
 time. §次
 Outline §字体加粗
-Hotkey:\nTeleported forward. §快捷键:\n向前传送
-Teleport forward §向前传送
 Vehicle blacklist:\nstealing §载具黑名单:\n抢车
 Mount Chiliad & kill §C山山顶 & 击杀
 Log chat & use as chatbot §记录聊天信息并作为聊天机器人使用
@@ -543,7 +514,7 @@ has finished lap §已完成一圈
 Failed to load file. §加载文件失败.
 Cleared old race & recording a new one. §已清除旧比赛记录并开始记录新的比赛
 Save recorded race §保存记录的比赛轨迹
-Teleport to player when spectating §被人观看时自动传送到玩家
+Move mini map to people you spectate §观看别人时同步小地图
 Flamethrower §火焰喷射器
 Display notifications §显示通知
 Number of notifications §通知数量
@@ -686,7 +657,142 @@ Clear owned entities before spawning map §在生成地图前清除拥有的实�
 Notify when typing & stopped typing §当有人在打字时通知
 is typing. §正在打字
 is no longer typing. §已停止打字
-Anti chat spoof & illegal msg §反聊天恶搞 & 非法信息
-sent an illegal message. They are probably the victim of a chat spoof. §发送了一条非法信息. 他可能是聊天恶搞的受害者.
-hide §隐藏
-just detect §只检测
+Debug mode §调试模式
+Draw garbage collection stats §显示垃圾收集统计
+Garbage count §垃圾数量
+Garbage change §垃圾更改
+Jet §天煞
+You must turn on trusted mode->Natives to use this script. §你必须启用 信任模式 -> Natives 才能使用此脚本.
+Draw entity queue §显示实体队列
+Num of entities in queue §队列中的实体数量
+Num of entities spawned §已生成的实体数量
+Save only mission entities §仅保存任务实体
+Wait until the previous map is done spawning. §正在等待上一张地图完成生成.
+You have the latest version of Kek's menu. §当前为最新版本的Kek菜单.
+There's a new version of Kek's menu, starting update... §检测到有新版本的 Kek 菜单,开始更新...
+Update successfully installed. §更新已安装成功.
+Update failed. No files are changed. §更新失败了. 没有文件被更改.
+Failed to check what the latest version of the script is. §检查脚本的最新版本失败.
+files downloaded §文件已下载.
+Enable trusted mode->http for automatic updates. §启用 信任模式 -> http 以进行自动更新.
+Turn off debug mode to use auto-updater. §关闭 调试模式 以使用自动更新.
+Press space to remove this message. §按 空格 移除此信息.
+Show latest update changelog §显示最新的更新日志
+Participate in betas §参与测试
+Trusted mode->http must be enabled to use this. §必须启用 信任模式 -> http 才能使用这个.
+Translate into §翻译成
+Translate chat §翻译聊天到
+Translation §翻译
+Translate what is not §不翻译
+Translate your messages §翻译你的聊天信息
+Afrikaans §南非荷兰语
+Albanian §阿尔巴尼亚语
+Amharic §阿姆哈拉语
+Arabic §阿拉伯语
+Armenian §亚美尼亚
+Azerbaijani §阿塞拜疆语
+Basque §巴斯克语
+Belarusian §白俄罗斯语
+Bengali §孟加拉语
+Bosnian §波斯尼亚语
+Bulgarian §保加利亚语
+Catalan §加泰罗尼亚语
+Cebuano § 宿务语
+Chinese (Simplified) §简体中文
+Chinese (Traditional) §繁体中文
+Corsican §科西嘉岛语
+Croatian §克罗地亚语
+Czech §捷克语
+Danish §丹麦语
+Dutch §荷兰语
+English §英语
+Esperanto §世界语
+Estonian §爱沙尼亚语
+Finnish §芬兰语
+French §法语
+Frisian §弗里斯兰语
+Galician §加利西亚语
+Georgian §格鲁吉亚语
+German §德语
+Greek §希腊语
+Gujarati §古吉拉特语
+Haitian Creole §海地克里奥尔语
+Hausa §豪萨语
+Hawaiian § 夏威夷语
+Hebrew §希伯来语
+Hindi §印地语
+Hmong § 苗族语
+Hungarian §匈牙利语
+Icelandic §冰岛语
+Igbo §伊博语
+Indonesian §印度尼西亚语
+Irish §爱尔兰语
+Italian §意大利语
+Japanese §日语
+Javanese §爪哇语
+Kannada §卡纳达语
+Kazakh §哈萨克语
+Khmer §高棉语
+Kinyarwanda §卢旺达语
+Korean §韩语
+Kurdish §库尔德语
+Kyrgyz §吉尔吉斯斯坦语
+Lao §老挝语
+Latin §拉丁语
+Latvian §拉脱维亚语
+Lithuanian §立陶宛
+Luxembourgish §卢森堡
+Macedonian §马其顿
+Malagasy §马达加斯加语
+Malay §马来语
+Malayalam §马拉雅拉姆语
+Maltese §马耳他语
+Maori §毛利语
+Marathi §马拉地语
+Mongolian §蒙古语
+Myanmar (Burmese) §缅甸语
+Nepali §尼泊尔语
+Norwegian §挪威语
+Nyanja (Chichewa) §奇切瓦
+Odia (Oriya) §奥里亚语
+Pashto §普什图语
+Persian §波斯语
+Polish §抛光语
+Portuguese (Portugal, Brazil) §葡萄牙语
+Punjabi §旁遮普语
+Romanian §罗马尼亚语
+Russian §俄语
+Samoan §萨摩亚语
+Scots Gaelic §苏格兰盖尔语
+Serbian §塞尔维亚语
+Sesotho §塞索托语
+Shona §绍纳语
+Sindhi §信德语
+Sinhala (Sinhalese) §僧伽罗语
+Slovak §斯洛伐克语
+Slovenian §斯洛文尼亚语
+Somali §索马里语
+Spanish §西班牙语
+Sundanese §巽他语
+Swahili §斯瓦希里语
+Swedish §瑞典语
+Tagalog (Filipino) §菲律宾语
+Tajik §塔吉克斯坦语
+Tamil §泰米尔语
+Tatar §鞑靼语
+Telugu §泰卢固语
+Thai §泰语语
+Turkish §土耳其语
+Turkmen §土库曼语
+Ukrainian §乌克兰语
+Urdu §乌尔都语
+Uyghur §维吾尔语
+Uzbek §乌兹别克语
+Vietnamese §越南语
+Welsh §威尔士语
+Xhosa §科萨语
+Yiddish §意第绪语
+Yoruba §约鲁巴语
+Zulu §祖鲁语
+Team chat §团队聊天
+All chat §所有聊天

@@ -1,19 +1,19 @@
 -- Copyright © 2020-2022 Kektram
 
-local kek_entity <const> = {version = "1.2.6"}
+local kek_entity <const> = {version = "1.2.7"}
 
-local language <const> = require("Language")
+local language <const> = require("Kek's Language")
 local lang <const> = language.lang
-local memoize <const> = require("Memoize")
-local location_mapper <const> = require("Location mapper")
-local vehicle_mapper <const> = require("Vehicle mapper")
-local essentials <const> = require("Essentials")
-local enums <const> = require("Enums")
-local keys_and_input <const> = require("Keys and input")
-local object_mapper <const> = require("Object mapper")
-local ped_mapper <const> = require("Ped mapper")
-local settings <const> = require("Settings")
-local globals <const> = require("globals")
+local memoize <const> = require("Kek's Memoize")
+local location_mapper <const> = require("Kek's Location mapper")
+local vehicle_mapper <const> = require("Kek's Vehicle mapper")
+local essentials <const> = require("Kek's Essentials")
+local enums <const> = require("Kek's Enums")
+local keys_and_input <const> = require("Kek's Keys and input")
+local object_mapper <const> = require("Kek's Object mapper")
+local ped_mapper <const> = require("Kek's Ped mapper")
+local settings <const> = require("Kek's Settings")
+local globals <const> = require("Kek's globals")
 
 kek_entity.user_vehicles = {}
 
@@ -182,102 +182,230 @@ function kek_entity.set_wheel_type(Vehicle, wheel_type)
 	end
 end
 
-do
-	kek_entity.spawn_queue, kek_entity.spawn_queue_id = {}, 0
-	function kek_entity.spawn_ped_or_vehicle(...)
-		local hash <const>, 
-		coords_and_heading <const>, 
-		give_godmode <const>, 
-		max_vehicle <const>, 
-		ped_type <const>, 
-		weight <const>, 
-		not_networked <const>,
-		dont_yield <const>,
-		dont_constantize <const> = ...
-		essentials.assert(hash and streaming.is_model_valid(hash), "Tried to use an invalid model hash.", hash)
-		essentials.assert(not streaming.is_model_an_object(hash), "Tried to spawn an object with wrong function.", hash)
-		essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a crash ped.")
-		kek_entity.spawn_queue_id = kek_entity.spawn_queue_id + 1
-		local local_id <const> = kek_entity.spawn_queue_id
-		kek_entity.spawn_queue[#kek_entity.spawn_queue + 1] = local_id
-		while kek_entity.spawn_queue[1] ~= local_id and globals.is_fully_transitioned_into_session() do
-			system.yield(0)
-		end
-		local Entity = 0
-		if globals.is_fully_transitioned_into_session() then -- Clears spawn queue immediately if new session
-			local status <const> = kek_entity.request_model(hash)
-			if status then
-				local coords <const>, dir <const> = coords_and_heading()
-				if streaming.is_model_a_vehicle(hash) then
-					Entity = vehicle.create_vehicle(hash, coords, dir, not_networked ~= true, not_networked == true, weight)
-					if entity.is_entity_a_vehicle(Entity) then
-						if settings.toggle["Always f1 wheels on #vehicle#"].on then
-							kek_entity.set_wheel_type(Entity, enums.wheel_types.f1_wheels)				
-						end
-						if max_vehicle then
-							kek_entity.max_car(Entity)
-						elseif type(settings.in_use["Plate vehicle text"]) == "string" then -- Crashes if plate text is nil
-							vehicle.set_vehicle_number_plate_text(Entity, settings.in_use["Plate vehicle text"])
-						end
-						decorator.decor_set_int(Entity, "MPBitset", 1 << 10) -- Stops the game from kicking people out of the vehicle
-					end
-				elseif streaming.is_model_a_ped(hash) then
-					if not (ped_type >= -1 and ped_type <= 29) then
-						streaming.set_model_as_no_longer_needed(hash)
-						essentials.assert(false, "Invalid ped type.", ped_type, hash)
-					end
-					Entity = ped.create_ped(ped_type, hash, coords, dir, not_networked ~= true, not_networked == true, weight)
-					system.yield(0)
-					ped.clear_ped_tasks_immediately(Entity) -- Peds won't start animation & possibly other problems if not clearing tasks.
-				end
-				if not_networked then
-					entity.set_entity_as_mission_entity(Entity, true, true)
-				elseif not dont_constantize then
-					kek_entity.constantize_network_id(Entity)
-				end
-				if give_godmode then
-					entity.set_entity_god_mode(Entity, true)
-				end
-				if not dont_yield then
-					system.yield(0)
-				end
-			end
-		end
-		streaming.set_model_as_no_longer_needed(hash) -- The game will crash if requesting many hashes and never setting as no longer needed
-		table.remove(kek_entity.spawn_queue, 1)
-		return Entity
+kek_entity.spawn_queue, kek_entity.spawn_queue_id = {}, 0
+local function wait_until_spawn_can_be_done()
+	kek_entity.spawn_queue_id = kek_entity.spawn_queue_id + 1
+	local local_id <const> = kek_entity.spawn_queue_id
+	kek_entity.spawn_queue[#kek_entity.spawn_queue + 1] = local_id
+	while kek_entity.spawn_queue[1] ~= local_id and globals.is_fully_transitioned_into_session() do
+		system.yield(0)
 	end
 end
 
-function kek_entity.spawn_object(...)
-	local hash <const>,
-	coords <const>,
-	not_dynamic_object <const>,
-	not_networked <const>,
-	weight <const> = ...
-	essentials.assert(streaming.is_model_valid(hash), "Tried to use an invalid model hash.", hash)
+function kek_entity.spawn_networked_vehicle(...)
+	local hash <const>, coords_and_heading <const>, properties <const> = ...
+	essentials.assert(hash and streaming.is_model_a_vehicle(hash), "Tried to use an invalid model hash.", hash)
+	wait_until_spawn_can_be_done()
+	local Vehicle = 0
+	if globals.is_fully_transitioned_into_session() then -- Clears spawn queue immediately if new session
+		local status <const> = kek_entity.request_model(hash)
+		if status then
+			local coords <const>, dir <const> = coords_and_heading()
+			Vehicle = vehicle.create_vehicle(hash, coords, dir, true, false, 10)
+			if settings.toggle["Always f1 wheels on #vehicle#"].on then
+				kek_entity.set_wheel_type(Vehicle, enums.wheel_types.f1_wheels)				
+			end
+			if properties.max then
+				kek_entity.max_car(Vehicle)
+			elseif type(settings.in_use["Plate vehicle text"]) == "string" then -- Crashes if plate text is nil
+				vehicle.set_vehicle_number_plate_text(Vehicle, settings.in_use["Plate vehicle text"])
+			end
+			decorator.decor_set_int(Vehicle, "MPBitset", 1 << 10) -- Stops the game from kicking people out of the vehicle
+			if properties.persistent then -- They will never leave memory automatically, only when removed by you or someone.
+				entity.set_entity_as_mission_entity(Vehicle, true, true)
+				entity._set_entity_cleanup_by_engine(Vehicle, false)
+				kek_entity.constantize_network_id(Vehicle)
+			end
+			if properties.godmode then
+				entity.set_entity_god_mode(Vehicle, true)
+			end
+		end
+	end
+	streaming.set_model_as_no_longer_needed(hash) -- The game will crash if requesting many hashes and never setting as no longer needed
+	table.remove(kek_entity.spawn_queue, 1)
+	return Vehicle
+end
+
+function kek_entity.spawn_networked_mission_vehicle(...) -- Players won't be able to drive these vehicles
+	local hash <const>, coords_and_heading <const> = ...
+	essentials.assert(hash and streaming.is_model_a_vehicle(hash), "Tried to use an invalid model hash.", hash)
+	wait_until_spawn_can_be_done()
+	local Vehicle = 0
+	if globals.is_fully_transitioned_into_session() then -- Clears spawn queue immediately if new session
+		local status <const> = kek_entity.request_model(hash)
+		if status then
+			local coords <const>, dir <const> = coords_and_heading()
+			Vehicle = vehicle.create_vehicle(hash, coords, dir, true, false, 10)
+			kek_entity.max_car(Vehicle)
+			entity.set_entity_as_mission_entity(Vehicle, true, true)
+			entity._set_entity_cleanup_by_engine(Vehicle, false)
+			kek_entity.constantize_network_id(Vehicle)
+			network.set_network_id_can_migrate(network.veh_to_net(Vehicle), false)
+		end
+	end
+	streaming.set_model_as_no_longer_needed(hash) -- The game will crash if requesting many hashes and never setting as no longer needed
+	table.remove(kek_entity.spawn_queue, 1)
+	return Vehicle
+end
+
+function kek_entity.spawn_local_mission_vehicle(...) -- Players won't be able to drive these vehicles
+	local hash <const>, coords_and_heading <const> = ...
+	essentials.assert(hash and streaming.is_model_a_vehicle(hash), "Tried to use an invalid model hash.", hash)
+	wait_until_spawn_can_be_done()
+	local Vehicle = 0
+	if globals.is_fully_transitioned_into_session() then -- Clears spawn queue immediately if new session
+		local status <const> = kek_entity.request_model(hash)
+		if status then
+			local coords <const>, dir <const> = coords_and_heading()
+			Vehicle = vehicle.create_vehicle(hash, coords, dir, false, true, 10)
+			kek_entity.max_car(Vehicle)
+			entity.set_entity_as_mission_entity(Vehicle, true, true)
+		end
+	end
+	streaming.set_model_as_no_longer_needed(hash) -- The game will crash if requesting many hashes and never setting as no longer needed
+	table.remove(kek_entity.spawn_queue, 1)
+	return Vehicle
+end
+
+function kek_entity.spawn_networked_ped(...)
+	local hash <const>, coords_and_heading <const>, ped_type <const> = ...
+	essentials.assert(hash and streaming.is_model_a_ped(hash), "Tried to use an invalid model hash.", hash)
+	essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a crash ped.")
+	wait_until_spawn_can_be_done()
+	local Ped = 0
+	if globals.is_fully_transitioned_into_session() then -- Clears spawn queue immediately if new session
+		local status <const> = kek_entity.request_model(hash)
+		if status then
+			local coords <const>, dir <const> = coords_and_heading()
+			Ped = ped.create_ped(
+				ped_type or enums.ped_types.civmale, -- Ped type is irrelevant in most cases
+				hash, 
+				coords, 
+				dir, 
+				true, 
+				false, 
+				15
+			)
+			system.yield(0)
+			ped.clear_ped_tasks_immediately(Ped) -- Peds won't start animation & possibly other problems if not clearing tasks.
+			entity._set_entity_cleanup_by_engine(Ped, false)
+			entity.set_entity_as_mission_entity(Ped, false, false)
+			kek_entity.constantize_network_id(Ped)
+			network.set_network_id_can_migrate(network.ped_to_net(Ped), false)
+		end
+	end
+	streaming.set_model_as_no_longer_needed(hash) -- The game will crash if requesting many hashes and never setting as no longer needed
+	table.remove(kek_entity.spawn_queue, 1)
+	return Ped
+end
+
+function kek_entity.spawn_local_ped(...)
+	local hash <const>, coords_and_heading <const>, ped_type <const> = ...
+	essentials.assert(hash and streaming.is_model_a_ped(hash), "Tried to use an invalid model hash.", hash)
+	essentials.assert(not ped_mapper.BLACKLISTED_PEDS[hash], "Tried to spawn a crash ped.")
+	wait_until_spawn_can_be_done()
+	local Ped = 0
+	if globals.is_fully_transitioned_into_session() then -- Clears spawn queue immediately if new session
+		local status <const> = kek_entity.request_model(hash)
+		if status then
+			local coords <const>, dir <const> = coords_and_heading()
+			Ped = ped.create_ped(
+				ped_type or enums.ped_types.civmale, -- Ped type is irrelevant in most cases
+				hash, 
+				coords, 
+				dir, 
+				false, 
+				true, 
+				10
+			)
+			system.yield(0)
+			ped.clear_ped_tasks_immediately(Ped) -- Peds won't start animation & possibly other problems if not clearing tasks.
+			entity.set_entity_as_mission_entity(Ped, true, true)
+		end
+	end
+	streaming.set_model_as_no_longer_needed(hash) -- The game will crash if requesting many hashes and never setting as no longer needed
+	table.remove(kek_entity.spawn_queue, 1)
+	return Ped
+end
+
+function kek_entity.spawn_networked_object(...)
+	local hash <const>, coords <const>, not_dynamic_object <const> = ...
+	essentials.assert(streaming.is_model_an_object(hash), "Tried to use an invalid model hash.", hash)
+	wait_until_spawn_can_be_done()
 	local Object = 0
 	if globals.is_fully_transitioned_into_session() then
 		local status <const> = kek_entity.request_model(hash)
 		if status then
 			local coords <const> = coords()
 			if streaming.is_model_a_world_object(hash) then
-				Object = object.create_world_object(hash, coords, not_networked ~= true, not not_dynamic_object, weight)
+				Object = object.create_world_object(hash, coords, true, not not_dynamic_object, 10)
 			elseif streaming.is_model_an_object(hash) then
-				Object = object.create_object(hash, coords, not_networked ~= true, not not_dynamic_object, weight)
-			else
-				streaming.set_model_as_no_longer_needed(hash)
-				essentials.assert(false, "Tried to use a non-object hash in spawn_object function.", hash)
+				Object = object.create_object(hash, coords, true, not not_dynamic_object, 10)
 			end
-			if not_networked then
-				entity.set_entity_as_mission_entity(Object, true, true)
-			else
-				kek_entity.constantize_network_id(Object)
-			end
+			entity.set_entity_as_mission_entity(Object, false, true)
+			entity._set_entity_cleanup_by_engine(Object, false)
+			kek_entity.constantize_network_id(Object)
+			network.set_network_id_can_migrate(network.obj_to_net(Object), false)
 		end
 	end
 	streaming.set_model_as_no_longer_needed(hash)
+	table.remove(kek_entity.spawn_queue, 1)
 	return Object
+end
+
+function kek_entity.spawn_local_object(...)
+	local hash <const>, coords <const>, not_dynamic_object <const> = ...
+	essentials.assert(streaming.is_model_an_object(hash), "Tried to use an invalid model hash.", hash)
+	wait_until_spawn_can_be_done()
+	local Object = 0
+	if globals.is_fully_transitioned_into_session() then
+		local status <const> = kek_entity.request_model(hash)
+		if status then
+			local coords <const> = coords()
+			if streaming.is_model_a_world_object(hash) then
+				Object = object.create_world_object(hash, coords, false, not not_dynamic_object, 5)
+			elseif streaming.is_model_an_object(hash) then
+				Object = object.create_object(hash, coords, false, not not_dynamic_object, 5)
+			end
+			entity.set_entity_as_mission_entity(Object, false, true)
+		end
+	end
+	streaming.set_model_as_no_longer_needed(hash)
+	table.remove(kek_entity.spawn_queue, 1)
+	return Object
+end
+
+function kek_entity.get_net_objects()
+	local objects <const> = object.get_all_objects()
+	local net_objects <const> = {}
+	for i = 1, #objects do
+		if network.network_get_entity_is_networked(objects[i]) then
+			net_objects[#net_objects + 1] = objects[i]
+		end
+	end
+	return net_objects
+end
+
+function kek_entity.get_net_peds()
+	local peds <const> = ped.get_all_peds()
+	local net_peds <const> = {}
+	for i = 1, #peds do
+		if network.network_get_entity_is_networked(peds[i]) then
+			net_peds[#net_peds + 1] = peds[i]
+		end
+	end
+	return net_peds
+end
+
+function kek_entity.get_net_vehicles()
+	local vehicles <const> = vehicle.get_all_vehicles()
+	local net_vehicles <const> = {}
+	for i = 1, #vehicles do
+		if network.network_get_entity_is_networked(vehicles[i]) then
+			net_vehicles[#net_vehicles + 1] = vehicles[i]
+		end
+	end
+	return net_vehicles
 end
 
 function kek_entity.is_entity_valid(Entity)
@@ -441,10 +569,8 @@ function kek_entity.clear_entities(...)
 	for Entity, i in essentials.entities(table_of_entities) do
 		essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
 		if entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)) then
+			ui.remove_blip(ui.get_blip_from_entity(Entity))
 			if kek_entity.get_control_of_entity(Entity, timeout > utils.time_ms() and time_to_wait_for_control or 200) then
-				if ui.get_blip_from_entity(Entity) ~= 0 then
-					ui.remove_blip(ui.get_blip_from_entity(Entity))
-				end
 				if entity.is_entity_attached(Entity) then
 					entity.detach_entity(Entity)
 				end
@@ -462,7 +588,6 @@ function kek_entity.clear_entities(...)
 				end
 				count = count + 1
 			end
-			ui.remove_blip(ui.get_blip_from_entity(Entity))
 		end
 		if count % 10 == 0 then
 			system.yield(0)
@@ -513,7 +638,7 @@ function kek_entity.constantize_network_id(Entity)
 		network.network_register_entity_as_networked(Entity)
 	end
 	local net_id <const> = network.network_get_network_id_from_entity(Entity)
-	--network.set_network_id_can_migrate(net_id, false) Caused players unable to drive vehicles
+	-- network.set_network_id_can_migrate(net_id, false) -- Caused players unable to drive vehicles
 	network.set_network_id_exists_on_all_machines(net_id, true)
 	network.set_network_id_always_exists_for_player(net_id, player.player_id(), true)
 	return net_id
@@ -1032,7 +1157,7 @@ function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
 		local spawn_pos
 		if not entity.is_entity_a_vehicle(hash_or_entity) then
 			essentials.assert(streaming.is_model_a_vehicle(hash_or_entity), "Expected a valid vehicle hash.", hash_or_entity)
-			Vehicle = kek_entity.spawn_ped_or_vehicle(hash_or_entity, function()
+			Vehicle = kek_entity.spawn_networked_mission_vehicle(hash_or_entity, function()
 				spawn_pos = kek_entity.get_vector_relative_to_entity(kek_entity.get_most_relevant_entity(pid), distance_from_target, nil, nil, pid)
 				spawn_pos.z = select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f1, memoize.v3())).z
 				return spawn_pos, player.get_player_heading(pid)
@@ -1094,17 +1219,18 @@ function kek_entity.create_cage(...)
 	local pid <const> = ...
 	ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 	system.yield(250)
-	local temp_ped <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("a_f_y_tourist_02"), function() 
+	local temp_ped <const> = kek_entity.spawn_networked_ped(gameplay.get_hash_key("a_f_y_tourist_02"), function() 
 		return select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x3779, memoize.v3())), 0
-	end, true, false, enums.ped_types.civmale)
+	end)
+	kek_entity.modify_entity_godmode(temp_ped, true)
 	if entity.is_entity_a_ped(temp_ped) then
 		entity.set_entity_visible(temp_ped, false)
 		ped.set_ped_config_flag(temp_ped, enums.ped_config_flags.InVehicle, 1)
 		entity.freeze_entity(temp_ped, true)
-		local cage <const> = kek_entity.spawn_object(gameplay.get_hash_key("prop_test_elevator"), function()
+		local cage <const> = kek_entity.spawn_networked_object(gameplay.get_hash_key("prop_test_elevator"), function()
 			return essentials.get_player_coords(pid) + memoize.v3(0, 0, 10)
 		end)
-		local cage_2 <const> = kek_entity.spawn_object(gameplay.get_hash_key("prop_test_elevator"), function()
+		local cage_2 <const> = kek_entity.spawn_networked_object(gameplay.get_hash_key("prop_test_elevator"), function()
 			return essentials.get_player_coords(pid) + memoize.v3(0, 0, 10)
 		end)
 		entity.set_entity_visible(temp_ped, true)
@@ -1204,9 +1330,13 @@ function kek_entity.spawn_car()
 			kek_entity.clear_owned_vehicles()
 		end
 		local velocity <const> = entity.get_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()))
-		local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
+		local Vehicle <const> = kek_entity.spawn_networked_vehicle(hash, function()
 			return get_prefered_vehicle_pos(hash), player.get_player_heading(player.player_id())
-		end, settings.toggle["Spawn #vehicle# in godmode"].on, settings.toggle["Spawn #vehicle# maxed"].on)
+		end, {
+			godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
+			max = settings.toggle["Spawn #vehicle# maxed"].on,
+			persistent = false
+		})
 		if settings.toggle["Always f1 wheels on #vehicle#"].on then
 			kek_entity.set_wheel_type(Vehicle, enums.wheel_types.f1_wheels)
 		end
@@ -1249,22 +1379,29 @@ do
 			essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 			local seat <const> = vehicle.get_free_seat(Vehicle)
 			if seat ~= -2 then
-				local Ped <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("a_f_y_topless_01"), function() 
+				local Ped <const> = kek_entity.spawn_networked_ped(gameplay.get_hash_key("a_f_y_topless_01"), function() 
 					return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 10), 0
-				end, true, false, enums.ped_types.civmale)
+				end)
+				kek_entity.modify_entity_godmode(Ped, true)
 				if entity.is_entity_a_ped(Ped) then
 					entity.set_entity_collision(Ped, false, false, false)
 					entity.set_entity_visible(Ped, false)
 					ped.set_ped_into_vehicle(Ped, Vehicle, seat)
 					local hash <const>, Entity = gameplay.get_hash_key(table_of_glitch_entity_models[math.random(1, #table_of_glitch_entity_models)])
 					if streaming.is_model_an_object(hash) then
-						Entity = kek_entity.spawn_object(hash, function()
+						Entity = kek_entity.spawn_networked_object(hash, function()
 							return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 10)
 						end)
-					else
-						Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
+					elseif streaming.is_model_a_ped(hash) then
+						Entity = kek_entity.spawn_networked_ped(hash, function()
 							return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 10), 0
-						end, true, false, enums.ped_types.civmale)
+						end)
+						kek_entity.modify_entity_godmode(Entity, true)
+					elseif streaming.is_model_a_vehicle(hash) then
+						Entity = kek_entity.spawn_networked_mission_vehicle(hash, function()
+							return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 10), 0
+						end)
+						kek_entity.modify_entity_godmode(Entity, true)
 					end
 					if entity.is_an_entity(Entity) then
 						entity.set_entity_visible(Entity, false)
@@ -1289,44 +1426,76 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 	if f then
 		value = f.value
 	end
-	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid, f)
+	local status <const>, is_in_spectator_mode <const> = essentials.is_in_vehicle(pid), network.network_is_in_spectator_mode()
 	if status then
-		local time <const> = utils.time_ms() + 2000
+		if is_in_spectator_mode then
+			network.network_set_in_spectator_mode(false, player.get_player_ped(pid))
+		end
+		local thread <const> = menu.create_thread(function()
+			while true do
+				local my_entity <const> = kek_entity.get_most_relevant_entity(player.player_id())
+				entity.set_entity_coords_no_offset(my_entity, essentials.get_player_coords(pid) + memoize.v3(0, 0, 8))
+				entity.set_entity_velocity(my_entity, memoize.v3())
+				system.yield(0)
+			end
+		end, nil)
+		local time <const> = utils.time_ms() + 3000
+		while not player.is_player_in_any_vehicle(pid) and time > utils.time_ms() do
+			system.yield(0)
+		end
+		local time <const> = utils.time_ms() + 3000
 		repeat
-			kek_entity.teleport(player.get_player_vehicle(pid), pos)
+			kek_entity.get_control_of_entity(player.get_player_vehicle(pid), 25)
+			system.yield(0)
 		until utils.time_ms() > time 
 		or (f and not f.on)
 		or (f and f.value ~= value)
-		or not entity.is_entity_a_vehicle(player.get_player_vehicle(pid)) 
+		or not essentials.is_in_vehicle(pid)
 		or network.has_control_of_entity(player.get_player_vehicle(pid)) 
 		or not player.is_player_in_any_vehicle(pid)
+		kek_entity.teleport(player.get_player_vehicle(pid), pos, 0)
+		if not menu.has_thread_finished(thread) then
+			essentials.delete_thread(thread)
+		end
+		if is_in_spectator_mode then
+			network.network_set_in_spectator_mode(true, player.get_player_ped(pid))
+		end
 	elseif show_message then
 		essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is not in a vehicle."]), "red", true)
 	end
-	if teleport_you_back_to_original_pos and had_to_teleport then
+	if teleport_you_back_to_original_pos then
 		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
 	return status
 end
 
-function kek_entity.teleport_session(...)
-	local pos <const>, f <const> = ...
-	local pids <const> = {}
-	for pid in essentials.players() do
-		if essentials.is_in_vehicle(pid)
-		and memoize.get_player_coords(pid):magnitude(pos) > 50
-		and essentials.is_not_friend(pid) then
-			pids[#pids + 1] = pid
+do
+	local threads <const> = {}
+	function kek_entity.teleport_session(...)
+		local pos <const>, f <const> = ...
+		local pids <const> = {}
+		for pid in essentials.players() do
+			if memoize.get_player_coords(pid):magnitude(pos) > 50 and essentials.is_not_friend(pid) then
+				pids[#pids + 1] = pid
+			end
 		end
-	end
-	local value <const> = f.value
-	while #pids > 0 and f.on and f.value == value do
-		local my_ped <const> = player.get_player_ped(player.player_id())
-		table.sort(pids, function(a, b) -- Makes sure closest player is teleported at all times. Needs to be updated on each iteration.
-			return (memoize.get_distance_between(player.get_player_ped(a), my_ped) < memoize.get_distance_between(player.get_player_ped(b), my_ped)) 
-		end)
-		kek_entity.teleport_player_and_vehicle_to_position(pids[1], pos, nil, nil, f)
-		table.remove(pids, 1)
+		local value <const> = f.value
+		while #pids > 0 and f.on and f.value == value do
+			local my_ped <const> = player.get_player_ped(player.player_id())
+			table.sort(pids, function(a, b) -- Makes sure closest player is teleported at all times. Needs to be updated on each iteration.
+				return (memoize.get_distance_between(player.get_player_ped(a), my_ped) < memoize.get_distance_between(player.get_player_ped(b), my_ped)) 
+			end)
+			if not essentials.is_in_vehicle(pids[1]) and (menu.has_thread_finished(threads[pids[1]] or -1)) then
+				local pid <const> = pids[1]
+				threads[pid] = menu.create_thread(function()
+					globals.force_player_into_vehicle(pid)
+				end, nil)
+			end
+			if menu.has_thread_finished(threads[pids[1]] or -1) then
+				kek_entity.teleport_player_and_vehicle_to_position(pids[1], pos, nil, nil, f)
+			end
+			table.remove(pids, 1)
+		end
 	end
 end
 
