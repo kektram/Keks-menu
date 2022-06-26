@@ -1351,10 +1351,6 @@ function essentials.update_keks_menu()
 		if update_status then
 			__kek_menu_version = script_version
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
-			__kek_menu_version = nil
-			__kek_menu_debug_mode = nil
-			__kek_menu_participate_in_betas = nil
-			__kek_menu_check_for_updates = nil
 
 			-- Remove old files & undo all changes to the global space
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")) do
@@ -1383,6 +1379,11 @@ function essentials.update_keks_menu()
 
 			update_status = "done"
 			essentials.show_changelog()
+			system.yield(0) -- show_changelog creates a thread
+			__kek_menu_version = nil
+			__kek_menu_debug_mode = nil
+			__kek_menu_participate_in_betas = nil
+			__kek_menu_check_for_updates = nil
 			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
 		else
