@@ -1255,18 +1255,20 @@ function essentials.update_keks_menu()
 			ui.set_text_color(255, 140, 0, 255)
 			ui.set_text_scale(0.6)
 			ui.set_text_font(0)
+			ui.set_text_centre(true)
 			ui.set_text_outline(true)
 			ui.draw_text(
 				lang["There's a new update for Kek's menu available. Press enter to install it, space to not."], 
-				v2(0.1, 0.45)
+				v2(0.5, 0.45)
 			)
 			ui.set_text_color(0, 255, 255, 255)
 			ui.set_text_scale(0.6)
 			ui.set_text_font(0)
+			ui.set_text_centre(true)
 			ui.set_text_outline(true)
 			ui.draw_text(
 				lang["This message will disappear in 25 seconds and will assume you don't want the update."], 
-				v2(0.1, 0.5)
+				v2(0.5, 0.5)
 			)
 			if utils.time_ms() > time or controls.is_control_pressed(0, 143) or controls.is_disabled_control_pressed(0, 143) then
 				return "Cancelled update"		
@@ -1277,6 +1279,7 @@ function essentials.update_keks_menu()
 				ui.set_text_color(255, 255, 255, 255)
 				ui.set_text_scale(0.8)
 				ui.set_text_font(0)
+				ui.set_text_centre(true)
 				ui.set_text_outline(true)
 				ui.draw_text(
 					updated_lib_files and updated_language_files and string.format(
@@ -1285,9 +1288,9 @@ function essentials.update_keks_menu()
 						#updated_lib_files + #updated_language_files + 1, 
 						current_file
 					) or lang["Obtaining update information..."], 
-					v2(0.375, 0.445)
+					v2(0.5, 0.445)
 				)
-				ui.draw_rect(0.5, 0.5, 0.27, 0.12, 0, 0, 120, 255)
+				ui.draw_rect(0.5, 0.5, 0.35, 0.12, 0, 0, 120, 255)
 				system.yield(0)
 			end
 		end, nil)
