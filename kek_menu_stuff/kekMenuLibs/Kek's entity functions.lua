@@ -1277,7 +1277,8 @@ function kek_entity.vehicle_preferences(...)
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		kek_entity.user_vehicles[player.get_player_vehicle(player.player_id())] = player.get_player_vehicle(player.player_id())
 		if settings.toggle["Delete old #vehicle#"].on then
-			kek_entity.clear_owned_vehicles()
+			menu.create_thread(kek_entity.clear_owned_vehicles, nil)
+			system.yield(0)
 		end
 		if entity.is_entity_a_vehicle(Vehicle) then
 			essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
@@ -1327,7 +1328,8 @@ function kek_entity.spawn_car()
 		end
 		kek_entity.user_vehicles[player.get_player_vehicle(player.player_id())] = player.get_player_vehicle(player.player_id())
 		if settings.toggle["Delete old #vehicle#"].on then
-			kek_entity.clear_owned_vehicles()
+			menu.create_thread(kek_entity.clear_owned_vehicles, nil)
+			system.yield(0)
 		end
 		local velocity <const> = entity.get_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()))
 		local Vehicle <const> = kek_entity.spawn_networked_vehicle(hash, function()

@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.8.0 beta 12 test 3
+-- Kek's menu version 0.4.8.0 beta 13
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 12 test 3"
+__kek_menu_version = "0.4.8.0 beta 13"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -179,13 +179,14 @@ if not menu.is_trusted_mode_enabled(1 << 2) then
 	return
 end
 
+if not menu.is_trusted_mode_enabled(1 << 3) then
+	essentials.msg(lang["You must turn on trusted mode->Http to use this script."], "red", true, 6)
+	return
+end
+
 if __kek_menu_check_for_updates then
-	if menu.is_trusted_mode_enabled(1 << 3) then
-		if essentials.update_keks_menu() == "has updated" then
-			return
-		end
-	else
-		essentials.msg(lang["You must enable trusted mode->http to check for updates."], "blue", true, 3)
+	if essentials.update_keks_menu() == "has updated" then
+		return
 	end
 end
 
@@ -1832,11 +1833,7 @@ end)
 menu.add_feature(lang["Set to \"?\" to make it random."], "action", u.settingsUI.id)
 
 menu.add_feature(lang["Show latest update changelog"], "action", u.settingsUI.id, function(f)
-	if menu.is_trusted_mode_enabled(1 << 3) then
-		essentials.show_changelog()
-	else
-		essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
-	end
+	essentials.show_changelog()
 end)
 
 settings.toggle["Participate in betas"] = menu.add_feature(lang["Participate in betas"], "toggle", u.settingsUI.id, function(f)
@@ -3875,11 +3872,6 @@ settings.valuei["Anti chat spam reaction"]:set_str_data({
 
 settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.translate_chat.id, function(f)
 	if f.on then
-		if not menu.is_trusted_mode_enabled(1 << 3) then
-			essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
-			f.on = false
-			return
-		end
 		if essentials.listeners["chat"]["translate"] then
 			return
 		end
@@ -4718,23 +4710,25 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 									end
 								end
 								if pos then
-									if (pid == player.player_id() and not player.is_player_in_any_vehicle(player.player_id())) 
-									or (player.get_player_vehicle(pid) == player.get_player_vehicle(player.player_id()) and player.is_player_in_any_vehicle(pid) and player.is_player_in_any_vehicle(player.player_id())) then
+									menu.create_thread(function()
+										if player.player_id() ~= pid and not essentials.is_in_vehicle(pid) then
+											globals.force_player_into_vehicle(pid)
+										end
 										if pos == "player_pos" then
 											pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
 										end
-										kek_entity.teleport(kek_entity.get_most_relevant_entity(pid), pos)
-									else
-										menu.create_thread(function()
-											if player.player_id() ~= pid and not essentials.is_in_vehicle(pid) then
-												globals.force_player_into_vehicle(pid)
-											end
-											if pos == "player_pos" then
-												pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
-											end
-											kek_entity.teleport_player_and_vehicle_to_position(pid, pos, true)
-										end, nil)
-									end
+										kek_entity.teleport_player_and_vehicle_to_position(
+											pid, 
+											pos, not ((
+												pid == player.player_id() 
+												and not player.is_player_in_any_vehicle(player.player_id())
+											) or (
+												player.get_player_vehicle(pid) == player.get_player_vehicle(player.player_id()) 
+												and player.is_player_in_any_vehicle(pid) 
+												and player.is_player_in_any_vehicle(player.player_id())
+											))
+										)
+									end, nil)
 								else
 									essentials.send_message("[Chat commands]: Failed to find out where you wanted to teleport to.", event.player == player.player_id())
 								end
@@ -8211,5 +8205,5 @@ essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", fun
 end)
 
 essentials.msg(lang["Successfully loaded Kek's menu."], "green", true)
-	
+
 end, nil)

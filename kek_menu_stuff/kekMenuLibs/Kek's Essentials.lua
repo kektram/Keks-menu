@@ -1181,7 +1181,6 @@ function essentials.parse_files_from_html(str, extension)
 end
 
 function essentials.show_changelog()
-	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to show changelog without http permissions.")
 	menu.create_thread(function()
 		local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
 		local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md")
@@ -1215,7 +1214,6 @@ function essentials.show_changelog()
 end
 
 function essentials.update_keks_menu()
-	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to update Kek's menu without http permissions.")
 	local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
