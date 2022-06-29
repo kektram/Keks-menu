@@ -5,7 +5,7 @@ if __kek_menu_version then
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 14"
+__kek_menu_version = "0.4.8.0 beta 14 test updater"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
