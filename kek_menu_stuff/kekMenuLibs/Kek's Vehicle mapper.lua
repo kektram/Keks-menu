@@ -1,8 +1,8 @@
 -- Copyright © 2020-2022 Kektram
 
 local vehicle_mapper <const> = {version = "1.3.9"}
-local essentials <const> = require("Essentials")
-local enums <const> = require("Enums")
+local essentials <const> = require("Kek's Essentials")
+local enums <const> = require("Kek's Enums")
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"

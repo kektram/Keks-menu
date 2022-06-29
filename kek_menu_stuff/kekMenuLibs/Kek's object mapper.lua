@@ -1,8 +1,8 @@
 -- Copyright © 2020-2022 Kektram
 
 local object_mapper <const> = {version = "1.2.7"}
-local essentials <const> = require("Essentials")
-local enums <const> = require("Enums")
+local essentials <const> = require("Kek's Essentials")
+local enums <const> = require("Kek's Enums")
 
 local model_names <const> = essentials.const({
 	[446398] = "ba_prop_glass_garage_opaque",

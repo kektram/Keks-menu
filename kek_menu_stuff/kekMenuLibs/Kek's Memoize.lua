@@ -6,7 +6,7 @@
 
 local memoize <const> = {version = "1.0.1"}
 
-local essentials <const> = require("Essentials")
+local essentials <const> = require("Kek's Essentials")
 
 --[[ v3 & v2 memoize documentation
 
@@ -101,7 +101,7 @@ do
 	for func_name, func_table_name in pairs({
 		get_entity_coords = "entity",
 		get_player_coords = "player",
-		is_in_vehicle = "Essentials"
+		is_in_vehicle = "Kek's Essentials"
 
 	}) do
 		local memoized <const> = setmetatable({}, {__mode = "vk"})

@@ -1,8 +1,8 @@
 -- Copyright © 2020-2022 Kektram
 
 local ped_mapper <const> = {version = "1.2.7"}
-local essentials <const> = require("Essentials")
-local enums <const> = require("Enums")
+local essentials <const> = require("Kek's Essentials")
+local enums <const> = require("Kek's Enums")
 
 local ped_models <const> = essentials.const({
 	[10751269] = "a_f_y_clubcust_03",

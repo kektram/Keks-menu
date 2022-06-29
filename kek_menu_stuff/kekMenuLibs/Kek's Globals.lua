@@ -2,10 +2,10 @@
 
 local globals <const> = {version = "1.3.5"}
 
-local essentials <const> = require("Essentials")
-local enums <const> = require("Enums")
-local settings <const> = require("settings")
-local memoize <const> = require("Memoize")
+local essentials <const> = require("Kek's Essentials")
+local enums <const> = require("Kek's Enums")
+local settings <const> = require("Kek's settings")
+local memoize <const> = require("Kek's Memoize")
 
 local offsets <const> = essentials.const({
 	["MAIN"] = 1853131,
@@ -398,9 +398,9 @@ end
 
 function globals.force_player_into_vehicle(pid) -- Creds to RulyPancake the 5th#1345 for logging this from stand menu
 	globals.send_script_event("Force player into vehicle", pid, {pid, 1, 32, network.network_hash_from_player(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1})
-	system.yield(3000)
 	local time <const> = utils.time_ms() + 15000
-	while player.is_player_god(pid) and time > utils.time_ms() do
+	system.yield(5000)
+	while not player.is_player_dead(pid) and (player.is_player_god(pid) or not essentials.is_in_vehicle(pid)) and time > utils.time_ms() do
 		system.yield(0)
 	end
 end

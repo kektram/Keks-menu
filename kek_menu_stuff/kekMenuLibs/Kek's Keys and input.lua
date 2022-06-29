@@ -1,12 +1,12 @@
 -- Copyright © 2020-2022 Kektram
 
-local enums <const> = require("Enums")
-local language <const> = require("Language")
+local enums <const> = require("Kek's Enums")
+local language <const> = require("Kek's Language")
 local lang <const> = language.lang
-local essentials <const> = require("Essentials")
-local vehicle_mapper <const> = require("Vehicle mapper")
-local object_mapper <const> = require("Object mapper")
-local ped_mapper <const> = require("Ped mapper")
+local essentials <const> = require("Kek's Essentials")
+local vehicle_mapper <const> = require("Kek's Vehicle mapper")
+local object_mapper <const> = require("Kek's Object mapper")
+local ped_mapper <const> = require("Kek's Ped mapper")
 
 local keys_and_input <const> = {version = "1.0.7"}
 

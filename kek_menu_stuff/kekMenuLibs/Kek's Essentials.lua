@@ -2,10 +2,10 @@
 
 local essentials <const> = {version = "1.5.0"}
 
-local language <const> = require("Language")
+local language <const> = require("Kek's Language")
 local lang <const> = language.lang
-local enums <const> = require("Enums")
-local settings <const> = require("Settings")
+local enums <const> = require("Kek's Enums")
+local settings <const> = require("Kek's Settings")
 
 do 
 --[[
@@ -467,38 +467,24 @@ function essentials.deep_copy(Table, keep_meta, timeout)
 end
 
 do
-	local memoized <const> = {}
 	local is_valid <const> = player.is_player_valid
 	function essentials.players(me)
 		local pid = -1
 		if not me then
 			me = player.player_id()
 		end
-		if #memoized == 0 then
-			local func
-			func = function()
-				repeat
-					pid = pid + 1
-				until pid == 32 or (me ~= pid and is_valid(pid))
-				if pid ~= 32 then
-					return pid
-				end
-				table.insert(memoized, func)
+		return function()
+			repeat
+				pid = pid + 1
+			until pid == 32 or (me ~= pid and is_valid(pid))
+			if pid ~= 32 then
+				return pid
 			end
-			return func
-		else
-			local i <const> = #memoized
-			local func <const> = memoized[i]
-			table.remove(memoized, i)
-			essentials.assert(debug.getupvalue(func, 2) == "me" and debug.setupvalue(func, 2, me), "FAILED TO SET UPVALUE: me")
-			essentials.assert(debug.getupvalue(func, 1) == "pid" and debug.setupvalue(func, 1, -1), "FAILED TO SET UPVALUE: pid")
-			return func
 		end
 	end
 end
 
 do
-	local memoized <const> = {}
 	local is_entity <const> = entity.is_an_entity
 	local math_type <const> = math.type
 	local next <const> = next
@@ -507,28 +493,14 @@ do
 		if mt and mt.__is_const then
 			Table = mt.__index
 		end
-		local key
-		if #memoized == 0 then
-			local func
-			func = function()
-				local Entity
-				repeat
-					key, Entity = next(Table, key)
-				until key == nil 
-				or (math_type(Entity) == "integer" and is_entity(Entity)) 
-				or (math_type(key) == "integer" and is_entity(key))
-				if key == nil then
-					table.insert(memoized, func)
-				end
-				return Entity, key
-			end
-			return func
-		else
-			local i <const> = #memoized
-			local func <const> = memoized[i]
-			table.remove(memoized, i)
-			essentials.assert(debug.getupvalue(func, 3) == "Table" and debug.setupvalue(func, 3, Table), "FAILED TO SET UPVALUE: Table")
-			return func
+		local key, Entity
+		return function()
+			repeat
+				key, Entity = next(Table, key)
+			until key == nil 
+			or (math_type(Entity) == "integer" and is_entity(Entity)) 
+			or (math_type(key) == "integer" and is_entity(key))
+			return Entity, key
 		end
 	end
 end
@@ -1209,7 +1181,6 @@ function essentials.parse_files_from_html(str, extension)
 end
 
 function essentials.show_changelog()
-	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to show changelog without http permissions.")
 	menu.create_thread(function()
 		local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
 		local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md")
@@ -1222,7 +1193,7 @@ function essentials.show_changelog()
 			number_of_lines = number_of_lines + 1
 		end
 		local start_y_pos <const> = math.max(0, 0.5 - (number_of_lines * 0.01))
-		while not controls.is_control_pressed(0, 143) do
+		while not controls.is_control_pressed(0, 143) and not controls.is_disabled_control_pressed(0, 143) do
 			local y_offset_from_top = 0
 			for line in str:gmatch("[^\n]+") do
 				ui.set_text_color(255, 255, 255, 255)
@@ -1243,7 +1214,6 @@ function essentials.show_changelog()
 end
 
 function essentials.update_keks_menu()
-	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to update Kek's menu without http permissions.")
 	local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
@@ -1261,17 +1231,72 @@ function essentials.update_keks_menu()
 
 	if enums.html_response_codes[version_check_status] ~= "OK" then
 		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
-		goto exit 
+		return "failed to check what is the latest version"
 	end
 	if __kek_menu_version == script_version then
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
-		goto exit
+		return "is latest version"
 	else
+		while controls.is_control_pressed(0, 215) 
+		or controls.is_disabled_control_pressed(0, 215)
+		or controls.is_control_pressed(0, 143) 
+		or controls.is_disabled_control_pressed(0, 143) do
+			system.yield(0)
+		end
+		local time <const> = utils.time_ms() + 25000
+		while not controls.is_control_pressed(0, 143) 
+		and not controls.is_disabled_control_pressed(0, 143) 
+		and not controls.is_control_pressed(0, 215) 
+		and not controls.is_disabled_control_pressed(0, 215)
+		and time > utils.time_ms() do
+			system.yield(0)
+			ui.set_text_color(255, 140, 0, 255)
+			ui.set_text_scale(0.6)
+			ui.set_text_font(0)
+			ui.set_text_centre(true)
+			ui.set_text_outline(true)
+			ui.draw_text(
+				lang["There's a new update for Kek's menu available. Press enter to install it, space to not."], 
+				v2(0.5, 0.45)
+			)
+			ui.set_text_color(0, 255, 255, 255)
+			ui.set_text_scale(0.6)
+			ui.set_text_font(0)
+			ui.set_text_centre(true)
+			ui.set_text_outline(true)
+			ui.draw_text(
+				lang["This message will disappear in 25 seconds and will assume you don't want the update."], 
+				v2(0.5, 0.5)
+			)
+			if utils.time_ms() > time or controls.is_control_pressed(0, 143) or controls.is_disabled_control_pressed(0, 143) then
+				return "Cancelled update"		
+			end
+		end
+		menu.create_thread(function()
+			while update_status ~= "done" do
+				ui.set_text_color(255, 255, 255, 255)
+				ui.set_text_scale(0.8)
+				ui.set_text_font(0)
+				ui.set_text_centre(true)
+				ui.set_text_outline(true)
+				ui.draw_text(
+					updated_lib_files and updated_language_files and string.format(
+						"%i / %i "..lang["files downloaded"].."\n%s", 
+						current_file_num, 
+						#updated_lib_files + #updated_language_files + 1, 
+						current_file
+					) or lang["Obtaining update information..."], 
+					v2(0.5, 0.445)
+				)
+				ui.draw_rect(0.5, 0.5, 0.35, 0.12, 0, 0, 120, 255)
+				system.yield(0)
+			end
+		end, nil)
 		do
-			essentials.msg(lang["There's a new version of Kek's menu, starting update..."], "green", true, 6)
 			if __kek_menu_debug_mode then
 				essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
-				return
+				update_status = "done"
+				return "tried to update with debug mode on"
 			end
 			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs")
 			update_status = enums.html_response_codes[status] == "OK"
@@ -1289,19 +1314,6 @@ function essentials.update_keks_menu()
 			end
 			updated_language_files = essentials.parse_files_from_html(str, "txt")
 		end
-
-		menu.create_thread(function()
-			local file_count <const> = #updated_lib_files + #updated_language_files + 1
-			while update_status ~= "done" do
-				ui.set_text_color(255, 255, 255, 255)
-				ui.set_text_scale(0.8)
-				ui.set_text_font(1)
-				ui.set_text_outline(true)
-				ui.draw_text(string.format("%i / %i "..lang["files downloaded"].."\n%s", current_file_num, file_count, current_file), v2(0.4, 0.45))
-				ui.draw_rect(0.5, 0.5, 0.25, 0.10, 0, 0, 120, 255)
-				system.yield(0)
-			end
-		end, nil)
 	end
 	do
 		current_file = "Kek's menu.lua" -- Download updated files
@@ -1340,9 +1352,6 @@ function essentials.update_keks_menu()
 		if update_status then
 			__kek_menu_version = script_version
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
-			__kek_menu_version = nil
-			__kek_menu_debug_mode = nil
-			__kek_menu_participate_in_betas = nil
 
 			-- Remove old files & undo all changes to the global space
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")) do
@@ -1371,6 +1380,11 @@ function essentials.update_keks_menu()
 
 			update_status = "done"
 			essentials.show_changelog()
+			system.yield(0) -- show_changelog creates a thread
+			__kek_menu_version = nil
+			__kek_menu_debug_mode = nil
+			__kek_menu_participate_in_betas = nil
+			__kek_menu_check_for_updates = nil
 			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
 		else

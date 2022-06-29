@@ -1,11 +1,11 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = require("Essentials")
+local essentials <const> = require("Kek's Essentials")
 local kek_entity <const> = require("Kek's entity functions")
-local enums <const> = require("Enums")
-local memoize <const> = require("Memoize")
-local settings <const> = require("settings")
-local language <const> = require("Language")
+local enums <const> = require("Kek's Enums")
+local memoize <const> = require("Kek's Memoize")
+local settings <const> = require("Kek's settings")
+local language <const> = require("Kek's Language")
 local lang <const> = language.lang
 
 local menyoo_saver <const> = {version = "1.0.9"}

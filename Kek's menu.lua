@@ -1,13 +1,14 @@
--- Kek's menu version 0.4.8.0 beta 10
+-- Kek's menu version 0.4.8.0 beta 14
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 10"
+__kek_menu_version = "0.4.8.0 beta 14 test updater"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
+__kek_menu_check_for_updates = false
 
 menu.create_thread(function()
 
@@ -65,6 +66,9 @@ paths.chat_spam_text = paths.kek_menu_stuff.."kekMenuData\\Spam text.txt"
 paths.chat_bot = paths.kek_menu_stuff.."kekMenuData\\Kek's chat bot.txt"
 paths.chat_judger = paths.kek_menu_stuff.."kekMenuData\\custom_chat_judge_data.txt"
 paths.debugger = paths.kek_menu_stuff.."kekMenuLibs\\Debugger.lua"
+paths.ini_vehicles = paths.home.."scripts\\Ini vehicles"
+paths.menyoo_vehicles = paths.home.."scripts\\Menyoo vehicles"
+paths.menyoo_maps = paths.home.."scripts\\Menyoo maps"
 
 if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1, true) then
 	package.path = paths.kek_menu_stuff.."kekMenuLibs\\?.lua;"..package.path
@@ -83,6 +87,9 @@ and utils.file_exists(paths.debugger) then
 		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
 			__kek_menu_participate_in_betas = true
 		end
+		if str:match("Check for updates=(%a%a%a%a)") == "true" then
+			__kek_menu_check_for_updates = true
+		end
 	end
 else
 	local file <const> = io.open(paths.kek_settings, "w+")
@@ -99,12 +106,12 @@ do -- Makes sure each library is loaded once and that every time one is required
 	local original_require <const> = require
 	require = function(...)
 		local name <const> = ...
-		local lib <const> = package.loaded[name] or original_require(name)
+		local lib = package.loaded[name] or original_require(name)
 		if not lib then
 			menu.notify(string.format("Failed to load %s.", name), "Error", 6, 0xff0000ff)
 			local err <const> = select(2, loadfile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")) -- 2take1's custom require function doesn't let you obtain error.
 			print(err)
-			error(err)
+			error(err or "Unknown error during loading of "..name..".")
 		end
 		if not package.loaded[name] then
 			package.loaded[name] = lib
@@ -113,74 +120,77 @@ do -- Makes sure each library is loaded once and that every time one is required
 	end
 
 	for name, version in pairs({
-		["Language"] = "1.0.0",
-		["Settings"] = "1.0.2",
-		["Essentials"] = "1.5.0",
-		["Memoize"] = "1.0.1",
-		["Enums"] = "1.0.5",
-		["Vehicle mapper"] = "1.3.9", 
-		["Ped mapper"] = "1.2.7",
-		["Object mapper"] = "1.2.7", 
-		["Globals"] = "1.3.5",
-		["Weapon mapper"] = "1.0.5",
-		["Location mapper"] = "1.0.2",
-		["Keys and input"] = "1.0.7",
-		["Drive style mapper"] = "1.0.4",
-		["Menyoo spawner"] = "2.2.5",
+		["Kek's Language"] = "1.0.0",
+		["Kek's Settings"] = "1.0.2",
+		["Kek's Essentials"] = "1.5.0",
+		["Kek's Memoize"] = "1.0.1",
+		["Kek's Enums"] = "1.0.5",
+		["Kek's Vehicle mapper"] = "1.3.9", 
+		["Kek's Ped mapper"] = "1.2.7",
+		["Kek's Object mapper"] = "1.2.7", 
+		["Kek's Globals"] = "1.3.5",
+		["Kek's Weapon mapper"] = "1.0.5",
+		["Kek's Location mapper"] = "1.0.2",
+		["Kek's Keys and input"] = "1.0.7",
+		["Kek's Drive style mapper"] = "1.0.4",
+		["Kek's Menyoo spawner"] = "2.2.5",
 		["Kek's entity functions"] = "1.2.7",
 		["Kek's trolling entities"] = "1.0.7",
-		["Custom upgrades"] = "1.0.2",
-		["Admin mapper"] = "1.0.4",
-		["Menyoo saver"] = "1.0.9",
-		["Natives"] = "1.0.1"
+		["Kek's Custom upgrades"] = "1.0.2",
+		["Kek's Admin mapper"] = "1.0.4",
+		["Kek's Menyoo saver"] = "1.0.9",
+		["Kek's Natives"] = "1.0.1"
 	}) do
 		if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
-			menu.notify(string.format("%s [%s]", package.loaded["Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
-			error(package.loaded["Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."])
+			menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
+			error(package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."])
 		else
 			require(name)
 		end
 		if package.loaded[name].version ~= version then
-			menu.notify(string.format("%s [%s]", package.loaded["Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
-			error(package.loaded["Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."])
+			menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
+			error(package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."])
 		end
 	end
 	require = original_require
 end
 
-local language <const> = package.loaded["Language"]
-local settings <const> = package.loaded["Settings"]
+local language <const> = package.loaded["Kek's Language"]
+local settings <const> = package.loaded["Kek's Settings"]
 local lang <const> = language.lang
-local essentials <const> = package.loaded["Essentials"]
-local memoize <const> = package.loaded["Memoize"]
-local enums <const> = package.loaded["Enums"]
-local weapon_mapper <const> = package.loaded["Weapon mapper"]
-local location_mapper <const> = package.loaded["Location mapper"]
-local keys_and_input <const> = package.loaded["Keys and input"]
-local drive_style_mapper <const> = package.loaded["Drive style mapper"]
-local globals <const> = package.loaded["Globals"]
-local vehicle_mapper <const> = package.loaded["Vehicle mapper"]
-local ped_mapper <const> = package.loaded["Ped mapper"]
-local object_mapper <const> = package.loaded["Object mapper"]
-local menyoo <const> = package.loaded["Menyoo spawner"]
+local essentials <const> = package.loaded["Kek's Essentials"]
+local memoize <const> = package.loaded["Kek's Memoize"]
+local enums <const> = package.loaded["Kek's Enums"]
+local weapon_mapper <const> = package.loaded["Kek's Weapon mapper"]
+local location_mapper <const> = package.loaded["Kek's Location mapper"]
+local keys_and_input <const> = package.loaded["Kek's Keys and input"]
+local drive_style_mapper <const> = package.loaded["Kek's Drive style mapper"]
+local globals <const> = package.loaded["Kek's Globals"]
+local vehicle_mapper <const> = package.loaded["Kek's Vehicle mapper"]
+local ped_mapper <const> = package.loaded["Kek's Ped mapper"]
+local object_mapper <const> = package.loaded["Kek's Object mapper"]
+local menyoo <const> = package.loaded["Kek's Menyoo spawner"]
 local kek_entity <const> = package.loaded["Kek's entity functions"]
 local troll_entity <const> = package.loaded["Kek's trolling entities"]
-local custom_upgrades <const> = package.loaded["Custom upgrades"]
-local admin_mapper <const> = package.loaded["Admin mapper"]
-local menyoo_saver <const> = package.loaded["Menyoo saver"]
-local natives <const> = package.loaded["Natives"]
+local custom_upgrades <const> = package.loaded["Kek's Custom upgrades"]
+local admin_mapper <const> = package.loaded["Kek's Admin mapper"]
+local menyoo_saver <const> = package.loaded["Kek's Menyoo saver"]
+local natives <const> = package.loaded["Kek's Natives"]
 
 if not menu.is_trusted_mode_enabled(1 << 2) then
 	essentials.msg(lang["You must turn on trusted mode->Natives to use this script."], "red", true, 6)
 	return
 end
 
-if menu.is_trusted_mode_enabled(1 << 3) then
+if not menu.is_trusted_mode_enabled(1 << 3) then
+	essentials.msg(lang["You must turn on trusted mode->Http to use this script."], "red", true, 6)
+	return
+end
+
+if __kek_menu_check_for_updates then
 	if essentials.update_keks_menu() == "has updated" then
 		return
 	end
-else
-	essentials.msg(lang["Enable trusted mode->http for automatic updates."], "blue", true, 3)
 end
 
 local player_history <const> = {
@@ -400,7 +410,7 @@ u.translate_chat = menu.add_feature(lang["Translate chat"], "parent", u.chat_stu
 
 for _, properties in pairs({
 	{
-		folder = paths.home.."scripts\\Menyoo vehicles",
+		folder = paths.menyoo_vehicles,
 		folder_name = "Menyoo vehicles",
 		extension = "xml",
 		parent = u.gvehicle,
@@ -413,7 +423,7 @@ for _, properties in pairs({
 		}
 	},
 	{
-		folder = paths.home.."scripts\\Ini vehicles",
+		folder = paths.ini_vehicles,
 		folder_name = "Ini vehicles",
 		extension = "ini",
 		parent = u.gvehicle,
@@ -921,15 +931,15 @@ for _, properties in pairs({
 	},
 	{
 		setting_name = "Vehicle limits",
-		setting = 50
+		setting = 80
 	},
 	{
 		setting_name = "Ped limits",
-		setting = 50
+		setting = 80
 	},
 	{
 		setting_name = "Object limits",
-		setting = 210
+		setting = 230
 	},
 	{
 		setting_name = "Draw entity limits",
@@ -978,6 +988,22 @@ for _, properties in pairs({
 	{
 		setting_name = "Translate your messages too",
 		setting = false
+	},
+	{
+		setting_name = "Translate your messages into",
+		setting = false
+	},
+	{
+		setting_name = "Translate your messages into option",
+		setting = 0
+	},
+	{
+		setting_name = "Translate your messages into chat type",
+		setting = 0
+	},
+	{
+		setting_name = "Check for updates",
+		setting = true
 	}
 }) do
 	settings:add_setting(properties)
@@ -1203,7 +1229,7 @@ do
 				"		local script_name <const> = scripts[#scripts - i]",
 				"		local file_path <const> = appdata_path..\"scripts\\\\\"..script_name",
 				"		if utils.file_exists(file_path) then",
-				"			if not require(script_name:gsub(\"%.lua$\", \"\")) then",
+				"			if require(script_name:gsub(\"%.lua$\", \"\")) then",
 				"				menu.notify(\"Failed to load \"..script_name, \"error\", 6)",
 				"				local err <const> = select(2, loadfile(file_path))",
 				"				print(err)",
@@ -1810,15 +1836,15 @@ end)
 menu.add_feature(lang["Set to \"?\" to make it random."], "action", u.settingsUI.id)
 
 menu.add_feature(lang["Show latest update changelog"], "action", u.settingsUI.id, function(f)
-	if menu.is_trusted_mode_enabled(1 << 3) then
-		essentials.show_changelog()
-	else
-		essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
-	end
+	essentials.show_changelog()
 end)
 
 settings.toggle["Participate in betas"] = menu.add_feature(lang["Participate in betas"], "toggle", u.settingsUI.id, function(f)
 	__kek_menu_participate_in_betas = f.on
+end)
+
+settings.toggle["Check for updates"] = menu.add_feature(lang["Check for updates"], "toggle", u.settingsUI.id, function(f)
+	__kek_menu_check_for_updates = f.on
 end)
 
 settings.toggle["Debug mode"] = menu.add_feature(lang["Debug mode"], "toggle", u.debug.id, function(f)
@@ -3344,7 +3370,7 @@ menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, f
 						end, nil)
 					end
 					if menu.has_thread_finished(threads[pid] or -1) then
-						local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795), true)
+						local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795))
 						if status then
 							globals.disable_vehicle(pid)
 							players[#players + 1] = pid
@@ -3849,36 +3875,48 @@ settings.valuei["Anti chat spam reaction"]:set_str_data({
 
 settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.translate_chat.id, function(f)
 	if f.on then
-		if not menu.is_trusted_mode_enabled(1 << 3) then
-			essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
-			f.on = false
-			return
-		end
 		if essentials.listeners["chat"]["translate"] then
 			return
 		end
 		local tracker <const> = {} -- To prevent spamming requests at Google, 1 translation every 500ms per player.
 		essentials.listeners["chat"]["translate"] = essentials.add_chat_event_listener(function(event)
-			if (settings.toggle["Translate your messages too"].on or event.player ~= player.player_id())
+			if (settings.toggle["Translate your messages too"].on or settings.toggle["Translate your messages into"].on or event.player ~= player.player_id())
 			and event.body:find("^%P") -- chat commands
 			and utils.time_ms() > (tracker[event.player] or 0) then
-				local language_translate_into_setting <const> = 
+				local language_translate_into_setting = 
 					enums.supported_langs_by_google_to_code[
 						enums.supported_langs_by_google[settings.valuei["Translate chat into language what language"].value + 1]
 					]
-
-				local str <const>, detected_language <const> = 
-					language.translate_text(
-						event.body, 
-						"auto", 
-						language_translate_into_setting
-					)
+				local str, detected_language
+				if player.player_id() == event.player and settings.toggle["Translate your messages into"].on then
+					language_translate_into_setting = enums.supported_langs_by_google_to_code[
+						enums.supported_langs_by_google[settings.valuei["Translate your messages into option"].value + 1]
+					]
+					str, detected_language = 
+						language.translate_text(
+							event.body, 
+							"auto", 
+							language_translate_into_setting
+						)
+				else
+					str, detected_language = 
+						language.translate_text(
+							event.body, 
+							"auto", 
+							language_translate_into_setting
+						)
+				end
 				tracker[event.player] = utils.time_ms() + 500
-				if enums.supported_langs_by_google_to_name[detected_language] 
-				and detected_language ~= enums.supported_langs_by_google_to_code[settings.valuei["Translate chat into language what language to detect"].
-				str_data[settings.valuei["Translate chat into language what language to detect"].value + 1]]
+				if enums.supported_langs_by_google_to_name[detected_language]
 				and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
-					essentials.send_message(lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str, essentials.is_str(f, "Team"))
+					local is_team_chat = essentials.is_str(f, "Team chat")
+					if event.player == player.player_id() and settings.toggle["Translate your messages into"].on then
+						is_team_chat = essentials.is_str(settings.valuei["Translate your messages into chat type"], "Team chat")
+					end
+					essentials.send_message(
+						lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str, 
+						is_team_chat
+					)
 				end
 			end
 		end)
@@ -3893,6 +3931,24 @@ settings.toggle["Translate chat into language"]:set_str_data({
 })
 
 settings.toggle["Translate your messages too"] = menu.add_feature(lang["Translate your messages"], "toggle", u.translate_chat.id)
+
+settings.toggle["Translate your messages into"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id)
+settings.valuei["Translate your messages into option"] = settings.toggle["Translate your messages into"]
+settings.valuei["Translate your messages into option"]:set_str_data(
+	(function()
+		local t = {}
+		for i = 1, #enums.supported_langs_by_google do
+			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
+		end
+		return t
+	end)()
+)
+
+settings.valuei["Translate your messages into chat type"] = menu.add_feature(lang["Your messages chat type"], "action_value_str", u.translate_chat.id)
+settings.valuei["Translate your messages into chat type"]:set_str_data({
+	lang["All chat"],
+	lang["Team chat"]
+})
 
 settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
 
@@ -4630,12 +4686,9 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 						elseif settings.in_use["tp #chat command#"] and (str:find("^%ptp [^\32]+") or str:find("^%pteleport [^\32]+")) then
 							str = str:gsub("^%pteleport", "!tp")
 							menu.create_thread(function()
-								if player.player_id() ~= pid and not player.is_player_in_any_vehicle(pid) then
-									globals.force_player_into_vehicle(pid)
-								end
 								local pos
 								if player.is_player_valid(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))) then
-									pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
+									pos = "player_pos" -- forcing player causes out-of-date position, so position is grabbed afterwards
 								end
 								if not pos then
 									local str <const> = str:match("^%ptp (.+)"):lower()
@@ -4659,25 +4712,19 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 										end
 									end
 								end
-								if type(pos) == "userdata" then
-									if (pid == player.player_id() and not player.is_player_in_any_vehicle(player.player_id())) 
-									or (player.get_player_vehicle(pid) == player.get_player_vehicle(player.player_id()) and player.is_player_in_any_vehicle(pid) and player.is_player_in_any_vehicle(player.player_id())) then
-										kek_entity.teleport(kek_entity.get_most_relevant_entity(pid), pos)
-									else
-										menu.create_thread(function()
-											local thread <const> = menu.create_thread(function()
-												local time <const> = utils.time_ms() + 2000
-												while time > utils.time_ms() do
-													entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
-													system.yield(0)
-												end
-											end, nil)
-											kek_entity.teleport_player_and_vehicle_to_position(pid, pos, true)
-											if not menu.has_thread_finished(thread) then
-												essentials.delete_thread(thread)
-											end
-										end, nil)
-									end
+								if pos then
+									menu.create_thread(function()
+										if player.player_id() ~= pid and not essentials.is_in_vehicle(pid) then
+											globals.force_player_into_vehicle(pid)
+										end
+										if pos == "player_pos" then
+											pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
+										end
+										kek_entity.teleport_player_and_vehicle_to_position(
+											pid, 
+											pos
+										)
+									end, nil)
 								else
 									essentials.send_message("[Chat commands]: Failed to find out where you wanted to teleport to.", event.player == player.player_id())
 								end
@@ -5269,8 +5316,9 @@ settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang[
 	player.extend_world_boundary_for_player(pos.x, pos.y, pos.z)
 	while f.on do
 		system.yield(0)
-		if player.is_player_spectating(player.player_id()) then
+		if network.network_is_in_spectator_mode() then
 			who_spectating = network.get_player_player_is_spectating(player.player_id()) or who_spectating
+			entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
 			hud.set_minimap_in_spectator_mode(true, player.get_player_ped(who_spectating))
 		elseif who_spectating and who_spectating ~= -1 then
 			hud.set_minimap_in_spectator_mode(false, player.get_player_ped(who_spectating))
@@ -5901,10 +5949,10 @@ do
 				return
 			end
 			spawning_active = true
-			menyoo.spawn_xml_map(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml", true)
+			menyoo.spawn_xml_map(paths.menyoo_maps.."\\"..f.name..".xml", true)
 			spawning_active = false
 		elseif essentials.is_str(f, "Teleport to map spawn") then
-			local info <const> = essentials.parse_xml(essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml"))
+			local info <const> = essentials.parse_xml(essentials.get_file_string(paths.menyoo_maps.."\\"..f.name..".xml"))
 			if info.SpoonerPlacements and info.SpoonerPlacements.ReferenceCoords then
 				kek_entity.teleport(
 					kek_entity.get_most_relevant_entity(player.player_id()), 
@@ -5923,9 +5971,9 @@ do
 				essentials.msg(lang["Failed to load spawn coordinates."], "red", true, 6)
 			end
 		elseif essentials.is_str(f, "Set where you spawn") then
-			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
+			if utils.file_exists(paths.menyoo_maps.."\\"..f.name..".xml") then
 				local pos <const> = essentials.get_player_coords(player.player_id())
-				local file_path <const> = paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml"
+				local file_path <const> = paths.menyoo_maps.."\\"..f.name..".xml"
 				local str, new_str = essentials.get_file_string(file_path)
 				str = str:gsub("\r\n", "\n")
 				essentials.assert(str ~= "", "Tried to replace menyoo map with an empty string.")
@@ -5970,8 +6018,8 @@ do
 				file:flush()
 			end
 		elseif essentials.is_str(f, "Delete") then
-			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
-				io.remove(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml")
+			if utils.file_exists(paths.menyoo_maps.."\\"..f.name..".xml") then
+				io.remove(paths.menyoo_maps.."\\"..f.name..".xml")
 			end
 			feat_name_map[f.name..".xml"] = nil
 			essentials.delete_feature(f.id)
@@ -5986,7 +6034,7 @@ do
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..input..".xml") then
+				if utils.file_exists(paths.menyoo_maps.."\\"..input..".xml") then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -5998,7 +6046,7 @@ do
 				::skip::
 				system.yield(0)
 			end
-			essentials.rename_file(paths.home.."scripts\\Menyoo Maps\\", f.name, input, "xml")
+			essentials.rename_file(paths.menyoo_maps.."\\", f.name, input, "xml")
 			feat_name_map[f.name..".xml"] = nil
 			f.name = input
 			feat_name_map[f.name..".xml"] = true
@@ -6047,7 +6095,7 @@ do
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..input..".xml") then
+				if utils.file_exists(paths.menyoo_maps.."\\"..input..".xml") then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -6059,7 +6107,7 @@ do
 				::skip::
 				system.yield(0)
 			end
-			menyoo_saver.save_map(paths.home.."scripts\\Menyoo Maps\\"..input..".xml", essentials.is_str(f, "Save only mission entities"))
+			menyoo_saver.save_map(paths.menyoo_maps.."\\"..input..".xml", essentials.is_str(f, "Save only mission entities"))
 			create_custom_map_feature(input)
 		elseif essentials.is_str(f, "Refresh list") then
 			local children <const> = custom_maps_parent.children
@@ -6069,7 +6117,7 @@ do
 					essentials.delete_feature(feat.id)
 				end
 			end
-			local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")
+			local files <const> = utils.get_all_files_in_directory(paths.menyoo_maps, "xml")
 			feat_name_map = {}
 			for i = 1, #files do
 				create_custom_map_feature(files[i]:sub(1, -5))
@@ -6090,7 +6138,7 @@ do
 
 	settings.toggle["Clear before spawning xml map"] = menu.add_feature(lang["Clear owned entities before spawning map"], "toggle", custom_maps_parent.id)
 
-	local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")
+	local files <const> = utils.get_all_files_in_directory(paths.menyoo_maps, "xml")
 	for i = 1, #files do
 		create_custom_map_feature(files[i]:sub(1, -5))
 	end
@@ -6377,10 +6425,12 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 		essentials.msg(lang["Please set a waypoint."], "red", true)
 		return
 	end
-	if not essentials.is_in_vehicle(pid) then
+	if not essentials.is_in_vehicle(pid) and pid ~= player.player_id() then
+		essentials.msg(lang["Forcing player into vehicle. This can take up to 15 seconds."], "yellow", true, 6)
 		globals.force_player_into_vehicle(pid)
 	end
-	if not essentials.is_in_vehicle(pid) then
+	if not essentials.is_in_vehicle(pid) and pid ~= player.player_id() then
+		essentials.msg(lang["Failed to teleport player."], "red", true, 6)
 		return
 	end
 	if essentials.is_str(f, "me") then
@@ -6388,11 +6438,11 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 			essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
 			return
 		end
-		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true, true)
+		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true)
 	elseif essentials.is_str(f, "waypoint") then
-		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), player.player_id() ~= pid, false, f)
+		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), false, f)
 	elseif essentials.is_str(f, "Mount Chiliad & kill") then
-		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), player.player_id() ~= pid, true) then
+		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), true) then
 			globals.disable_vehicle(pid)
 			system.yield(1500)
 			for i = 1, 20 do
@@ -6401,7 +6451,7 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 			end
 		end
 	elseif essentials.is_str(f, "far away") then
-		kek_entity.teleport_player_and_vehicle_to_position(pid, v3(math.random(20000, 25000), math.random(-25000, -20000), math.random(-2400, 2400)), player.player_id() ~= pid, true)
+		kek_entity.teleport_player_and_vehicle_to_position(pid, v3(math.random(20000, 25000), math.random(-25000, -20000), math.random(-2400, 2400)), true)
 	end
 end):set_str_data({
 	lang["me"],
@@ -6719,9 +6769,9 @@ menu.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player
 	if status == 2 then
 		return
 	end
-	for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
+	for _, file_name in pairs(utils.get_all_files_in_directory(paths.menyoo_vehicles, "xml")) do
 		if file_name:lower():find(input:lower(), 1, true) then
-			local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..file_name, pid)
+			local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.menyoo_vehicles.."\\"..file_name, pid)
 			if entity.is_entity_a_vehicle(Vehicle) then
 				if streaming.is_model_a_plane(entity.get_entity_model_hash(Vehicle)) then
 					essentials.msg(lang["Attackers can't use planes. Cancelled."], "red", true)

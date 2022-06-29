@@ -2,16 +2,16 @@
 
 local troll_entity <const> = {version = "1.0.7"}
 
-local weapon_mapper <const> = require("Weapon mapper")
-local location_mapper <const> = require("Location mapper")
-local memoize <const> = require("Memoize")
-local vehicle_mapper <const> = require("Vehicle mapper")
-local ped_mapper <const> = require("Ped mapper")
-local essentials <const> = require("Essentials")
+local weapon_mapper <const> = require("Kek's Weapon mapper")
+local location_mapper <const> = require("Kek's Location mapper")
+local memoize <const> = require("Kek's Memoize")
+local vehicle_mapper <const> = require("Kek's Vehicle mapper")
+local ped_mapper <const> = require("Kek's Ped mapper")
+local essentials <const> = require("Kek's Essentials")
 local kek_entity <const> = require("Kek's entity functions")
-local enums <const> = require("Enums")
-local settings <const> = require("Settings")
-local drive_style_mapper <const> = require("Drive style mapper")
+local enums <const> = require("Kek's Enums")
+local settings <const> = require("Kek's Settings")
+local drive_style_mapper <const> = require("Kek's Drive style mapper")
 
 local tracker <const> = {}
 function troll_entity.spawn_standard(...)
