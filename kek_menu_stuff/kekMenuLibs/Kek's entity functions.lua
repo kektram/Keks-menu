@@ -69,7 +69,7 @@ do
 	function kek_entity.entity_manager:clear()
 		self:update()
 		for _, Entity in essentials.entities(essentials.deep_copy(self.entities)) do
-			if not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(Entity), player.get_player_vehicle(player.player_id())) and kek_entity.get_control_of_entity(Entity) then
+			if kek_entity.get_control_of_entity(Entity) then
 				kek_entity.hard_remove_entity_and_its_attachments(Entity)
 			end
 		end
@@ -167,7 +167,7 @@ function kek_entity.get_control_of_entity(...)
 end
 
 function kek_entity.set_wheel_type(Vehicle, wheel_type)
-	essentials.assert(wheel_type >= 0 and wheel_type <= enums.wheel_types.track, "Invalid wheel type.")
+	essentials.assert(wheel_type >= -1 and wheel_type <= enums.wheel_types.track, "Invalid wheel type.", wheel_type)
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		if kek_entity.get_control_of_entity(Vehicle) then
@@ -258,7 +258,6 @@ function kek_entity.spawn_local_mission_vehicle(...) -- Players won't be able to
 		if status then
 			local coords <const>, dir <const> = coords_and_heading()
 			Vehicle = vehicle.create_vehicle(hash, coords, dir, false, true, 10)
-			kek_entity.max_car(Vehicle)
 			entity.set_entity_as_mission_entity(Vehicle, true, true)
 		end
 	end
@@ -646,6 +645,9 @@ end
 
 function kek_entity.request_model(...)
 	local model_hash <const> = ...
+	while streaming.get_number_of_streaming_requests() > 0 do
+		system.yield(0)
+	end
 	local is_hash_already_loaded <const> = not streaming.has_model_loaded(model_hash)
 	essentials.assert(streaming.is_model_valid(model_hash), "Tried to request invalid model hash.", model_hash)
 	if is_hash_already_loaded then
@@ -1420,29 +1422,43 @@ end
 function kek_entity.teleport_player_and_vehicle_to_position(...)
 	local pid <const>,
 	pos <const>,
-	teleport_you_back_to_original_pos <const>,
 	show_message <const>,
 	f <const> = ...
+
+	local teleport_you_back_to_original_pos = false
+	if pid ~= player.player_id() then
+		teleport_you_back_to_original_pos = not (
+			player.get_player_vehicle(pid) == player.get_player_vehicle(player.player_id()) 
+			and player.is_player_in_any_vehicle(pid)
+			and player.is_player_in_any_vehicle(player.player_id())
+		)
+	end
+
 	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	local value
 	if f then
 		value = f.value
 	end
-	local status <const>, is_in_spectator_mode <const> = essentials.is_in_vehicle(pid), network.network_is_in_spectator_mode()
-	if status then
+	local is_player_in_vehicle <const>, is_in_spectator_mode <const> = essentials.is_in_vehicle(pid) or player.player_id() == pid, network.network_is_in_spectator_mode()
+	if is_player_in_vehicle then
 		if is_in_spectator_mode then
 			network.network_set_in_spectator_mode(false, player.get_player_ped(pid))
 		end
-		local thread <const> = menu.create_thread(function()
-			while true do
-				local my_entity <const> = kek_entity.get_most_relevant_entity(player.player_id())
-				entity.set_entity_coords_no_offset(my_entity, essentials.get_player_coords(pid) + memoize.v3(0, 0, 8))
-				entity.set_entity_velocity(my_entity, memoize.v3())
-				system.yield(0)
-			end
-		end, nil)
-		local time <const> = utils.time_ms() + 3000
-		while not player.is_player_in_any_vehicle(pid) and time > utils.time_ms() do
+		local thread
+		if player.player_id() ~= pid and (not player.is_player_in_any_vehicle(player.player_id()) 
+		or not player.is_player_in_any_vehicle(pid) 
+		or player.get_player_vehicle(player.player_id()) ~= player.get_player_vehicle(pid)) then
+			thread = menu.create_thread(function()
+				while true do
+					local my_entity <const> = kek_entity.get_most_relevant_entity(player.player_id())
+					entity.set_entity_coords_no_offset(my_entity, essentials.get_player_coords(pid) + memoize.v3(0, 0, 6))
+					entity.set_entity_velocity(my_entity, memoize.v3())
+					system.yield(0)
+				end
+			end, nil)
+		end
+		local time <const> = utils.time_ms() + 3000 -- Waits for their vehicle to load into memory
+		while not player.is_player_in_any_vehicle(pid) and essentials.is_in_vehicle(pid) and time > utils.time_ms() do
 			system.yield(0)
 		end
 		local time <const> = utils.time_ms() + 3000
@@ -1455,8 +1471,13 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 		or not essentials.is_in_vehicle(pid)
 		or network.has_control_of_entity(player.get_player_vehicle(pid)) 
 		or not player.is_player_in_any_vehicle(pid)
-		kek_entity.teleport(player.get_player_vehicle(pid), pos, 0)
-		if not menu.has_thread_finished(thread) then
+		kek_entity.teleport(
+			player.player_id() == pid and kek_entity.get_most_relevant_entity(player.player_id())
+			or player.get_player_vehicle(pid), 
+			pos, 
+			0
+		)
+		if thread then
 			essentials.delete_thread(thread)
 		end
 		if is_in_spectator_mode then
@@ -1468,7 +1489,7 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 	if teleport_you_back_to_original_pos then
 		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
-	return status
+	return is_player_in_vehicle
 end
 
 do
@@ -1494,7 +1515,7 @@ do
 				end, nil)
 			end
 			if menu.has_thread_finished(threads[pids[1]] or -1) then
-				kek_entity.teleport_player_and_vehicle_to_position(pids[1], pos, nil, nil, f)
+				kek_entity.teleport_player_and_vehicle_to_position(pids[1], pos, nil, f)
 			end
 			table.remove(pids, 1)
 		end

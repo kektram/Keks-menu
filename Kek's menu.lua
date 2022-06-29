@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.8.0 beta 13
+-- Kek's menu version 0.4.8.0 beta 14
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 13"
+__kek_menu_version = "0.4.8.0 beta 14"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -66,6 +66,9 @@ paths.chat_spam_text = paths.kek_menu_stuff.."kekMenuData\\Spam text.txt"
 paths.chat_bot = paths.kek_menu_stuff.."kekMenuData\\Kek's chat bot.txt"
 paths.chat_judger = paths.kek_menu_stuff.."kekMenuData\\custom_chat_judge_data.txt"
 paths.debugger = paths.kek_menu_stuff.."kekMenuLibs\\Debugger.lua"
+paths.ini_vehicles = paths.home.."scripts\\Ini vehicles"
+paths.menyoo_vehicles = paths.home.."scripts\\Menyoo vehicles"
+paths.menyoo_maps = paths.home.."scripts\\Menyoo maps"
 
 if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1, true) then
 	package.path = paths.kek_menu_stuff.."kekMenuLibs\\?.lua;"..package.path
@@ -407,7 +410,7 @@ u.translate_chat = menu.add_feature(lang["Translate chat"], "parent", u.chat_stu
 
 for _, properties in pairs({
 	{
-		folder = paths.home.."scripts\\Menyoo vehicles",
+		folder = paths.menyoo_vehicles,
 		folder_name = "Menyoo vehicles",
 		extension = "xml",
 		parent = u.gvehicle,
@@ -420,7 +423,7 @@ for _, properties in pairs({
 		}
 	},
 	{
-		folder = paths.home.."scripts\\Ini vehicles",
+		folder = paths.ini_vehicles,
 		folder_name = "Ini vehicles",
 		extension = "ini",
 		parent = u.gvehicle,
@@ -1226,7 +1229,7 @@ do
 				"		local script_name <const> = scripts[#scripts - i]",
 				"		local file_path <const> = appdata_path..\"scripts\\\\\"..script_name",
 				"		if utils.file_exists(file_path) then",
-				"			if not require(script_name:gsub(\"%.lua$\", \"\")) then",
+				"			if require(script_name:gsub(\"%.lua$\", \"\")) then",
 				"				menu.notify(\"Failed to load \"..script_name, \"error\", 6)",
 				"				local err <const> = select(2, loadfile(file_path))",
 				"				print(err)",
@@ -3367,7 +3370,7 @@ menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, f
 						end, nil)
 					end
 					if menu.has_thread_finished(threads[pid] or -1) then
-						local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795), true)
+						local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795))
 						if status then
 							globals.disable_vehicle(pid)
 							players[#players + 1] = pid
@@ -4719,14 +4722,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 										end
 										kek_entity.teleport_player_and_vehicle_to_position(
 											pid, 
-											pos, not ((
-												pid == player.player_id() 
-												and not player.is_player_in_any_vehicle(player.player_id())
-											) or (
-												player.get_player_vehicle(pid) == player.get_player_vehicle(player.player_id()) 
-												and player.is_player_in_any_vehicle(pid) 
-												and player.is_player_in_any_vehicle(player.player_id())
-											))
+											pos
 										)
 									end, nil)
 								else
@@ -5953,10 +5949,10 @@ do
 				return
 			end
 			spawning_active = true
-			menyoo.spawn_xml_map(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml", true)
+			menyoo.spawn_xml_map(paths.menyoo_maps.."\\"..f.name..".xml", true)
 			spawning_active = false
 		elseif essentials.is_str(f, "Teleport to map spawn") then
-			local info <const> = essentials.parse_xml(essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml"))
+			local info <const> = essentials.parse_xml(essentials.get_file_string(paths.menyoo_maps.."\\"..f.name..".xml"))
 			if info.SpoonerPlacements and info.SpoonerPlacements.ReferenceCoords then
 				kek_entity.teleport(
 					kek_entity.get_most_relevant_entity(player.player_id()), 
@@ -5975,9 +5971,9 @@ do
 				essentials.msg(lang["Failed to load spawn coordinates."], "red", true, 6)
 			end
 		elseif essentials.is_str(f, "Set where you spawn") then
-			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
+			if utils.file_exists(paths.menyoo_maps.."\\"..f.name..".xml") then
 				local pos <const> = essentials.get_player_coords(player.player_id())
-				local file_path <const> = paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml"
+				local file_path <const> = paths.menyoo_maps.."\\"..f.name..".xml"
 				local str, new_str = essentials.get_file_string(file_path)
 				str = str:gsub("\r\n", "\n")
 				essentials.assert(str ~= "", "Tried to replace menyoo map with an empty string.")
@@ -6022,8 +6018,8 @@ do
 				file:flush()
 			end
 		elseif essentials.is_str(f, "Delete") then
-			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
-				io.remove(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml")
+			if utils.file_exists(paths.menyoo_maps.."\\"..f.name..".xml") then
+				io.remove(paths.menyoo_maps.."\\"..f.name..".xml")
 			end
 			feat_name_map[f.name..".xml"] = nil
 			essentials.delete_feature(f.id)
@@ -6038,7 +6034,7 @@ do
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..input..".xml") then
+				if utils.file_exists(paths.menyoo_maps.."\\"..input..".xml") then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -6050,7 +6046,7 @@ do
 				::skip::
 				system.yield(0)
 			end
-			essentials.rename_file(paths.home.."scripts\\Menyoo Maps\\", f.name, input, "xml")
+			essentials.rename_file(paths.menyoo_maps.."\\", f.name, input, "xml")
 			feat_name_map[f.name..".xml"] = nil
 			f.name = input
 			feat_name_map[f.name..".xml"] = true
@@ -6099,7 +6095,7 @@ do
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..input..".xml") then
+				if utils.file_exists(paths.menyoo_maps.."\\"..input..".xml") then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -6111,7 +6107,7 @@ do
 				::skip::
 				system.yield(0)
 			end
-			menyoo_saver.save_map(paths.home.."scripts\\Menyoo Maps\\"..input..".xml", essentials.is_str(f, "Save only mission entities"))
+			menyoo_saver.save_map(paths.menyoo_maps.."\\"..input..".xml", essentials.is_str(f, "Save only mission entities"))
 			create_custom_map_feature(input)
 		elseif essentials.is_str(f, "Refresh list") then
 			local children <const> = custom_maps_parent.children
@@ -6121,7 +6117,7 @@ do
 					essentials.delete_feature(feat.id)
 				end
 			end
-			local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")
+			local files <const> = utils.get_all_files_in_directory(paths.menyoo_maps, "xml")
 			feat_name_map = {}
 			for i = 1, #files do
 				create_custom_map_feature(files[i]:sub(1, -5))
@@ -6142,7 +6138,7 @@ do
 
 	settings.toggle["Clear before spawning xml map"] = menu.add_feature(lang["Clear owned entities before spawning map"], "toggle", custom_maps_parent.id)
 
-	local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")
+	local files <const> = utils.get_all_files_in_directory(paths.menyoo_maps, "xml")
 	for i = 1, #files do
 		create_custom_map_feature(files[i]:sub(1, -5))
 	end
@@ -6442,11 +6438,11 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 			essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
 			return
 		end
-		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true, true)
+		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true)
 	elseif essentials.is_str(f, "waypoint") then
-		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), player.player_id() ~= pid, false, f)
+		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), false, f)
 	elseif essentials.is_str(f, "Mount Chiliad & kill") then
-		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), player.player_id() ~= pid, true) then
+		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), true) then
 			globals.disable_vehicle(pid)
 			system.yield(1500)
 			for i = 1, 20 do
@@ -6455,7 +6451,7 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 			end
 		end
 	elseif essentials.is_str(f, "far away") then
-		kek_entity.teleport_player_and_vehicle_to_position(pid, v3(math.random(20000, 25000), math.random(-25000, -20000), math.random(-2400, 2400)), player.player_id() ~= pid, true)
+		kek_entity.teleport_player_and_vehicle_to_position(pid, v3(math.random(20000, 25000), math.random(-25000, -20000), math.random(-2400, 2400)), true)
 	end
 end):set_str_data({
 	lang["me"],
@@ -6773,9 +6769,9 @@ menu.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player
 	if status == 2 then
 		return
 	end
-	for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
+	for _, file_name in pairs(utils.get_all_files_in_directory(paths.menyoo_vehicles, "xml")) do
 		if file_name:lower():find(input:lower(), 1, true) then
-			local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..file_name, pid)
+			local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.menyoo_vehicles.."\\"..file_name, pid)
 			if entity.is_entity_a_vehicle(Vehicle) then
 				if streaming.is_model_a_plane(entity.get_entity_model_hash(Vehicle)) then
 					essentials.msg(lang["Attackers can't use planes. Cancelled."], "red", true)
