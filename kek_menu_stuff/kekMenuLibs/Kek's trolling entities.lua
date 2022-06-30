@@ -13,7 +13,7 @@ local enums <const> = require("Kek's Enums")
 local settings <const> = require("Kek's Settings")
 local drive_style_mapper <const> = require("Kek's Drive style mapper")
 
-local tracker <const> = {}
+local troll_entities <const> = {}
 function troll_entity.spawn_standard(...)
 	local f <const>, grief_function <const> = ...
 	local value <const> = f.value
@@ -21,16 +21,12 @@ function troll_entity.spawn_standard(...)
 	for pid in essentials.players(true) do
 		if f.on and essentials.is_not_friend(pid) then
 			local scid <const> = player.get_player_scid(pid)
-			if not tracker[scid] then
-				tracker[scid] = essentials.const({time = 0, vehicle = 0})
-			end
-			if (not entity.is_entity_a_vehicle(tracker[scid].vehicle) or ped.is_ped_a_player(vehicle.get_ped_in_vehicle_seat(tracker[scid].vehicle, enums.vehicle_seats.driver)))
-			and utils.time_ms() > tracker[scid].time
+			if (not entity.is_entity_a_vehicle(troll_entities[scid] or 0) or ped.is_ped_a_player(vehicle.get_ped_in_vehicle_seat(troll_entities[scid] or 0, enums.vehicle_seats.driver)))
 			and essentials.is_not_friend(pid)
 			and (not settings.toggle["Exclude yourself from trolling"].on or player.player_id() ~= pid) then
 				local Vehicle, Table = grief_function(pid)
 				if player.is_player_valid(pid) and f.on and f.value == value and kek_entity.is_entity_valid(Vehicle) then
-					tracker[scid] = essentials.const({time = utils.time_ms() + 30000, vehicle = Vehicle})
+					troll_entities[scid] = Vehicle
 					entities = entities or {} -- Only create table if needed to spare memory
 					entities[#entities + 1] = Table or Vehicle
 				end
@@ -43,18 +39,14 @@ end
 function troll_entity.spawn_standard_alone(...)
 	local f <const>, pid <const>, grief_function <const> = ...
 	local scid <const> = player.get_player_scid(pid)
-	if not tracker[scid] then
-		tracker[scid] = essentials.const({time = 0, vehicle = 0})
-	end
-	if (not entity.is_entity_a_vehicle(tracker[scid].vehicle) or ped.is_ped_a_player(vehicle.get_ped_in_vehicle_seat(tracker[scid].vehicle, enums.vehicle_seats.driver)))
-	and utils.time_ms() > tracker[scid].time then
+	if (not entity.is_entity_a_vehicle(troll_entities[scid] or 0) or ped.is_ped_a_player(vehicle.get_ped_in_vehicle_seat(troll_entities[scid] or 0, enums.vehicle_seats.driver))) then
 		local Vehicle, Table
 		repeat
 			system.yield(0)
 			Vehicle, Table = grief_function(pid)
 		until not player.is_player_valid(pid) or not f.on or kek_entity.is_entity_valid(Vehicle) or Vehicle == -1
 		if player.is_player_valid(pid) and f.on and kek_entity.is_entity_valid(Vehicle) then
-			tracker[scid] = essentials.const({time = utils.time_ms() + 30000, vehicle = Vehicle})
+			troll_entities[scid] = Vehicle
 		end
 		return Table or Vehicle
 	end
@@ -126,7 +118,6 @@ function troll_entity.setup_peds_and_put_in_seats(...)
 						end
 					end
 					if dont_clear_vehicle then
-						entity.detach_entity(ped.get_vehicle_ped_is_using(Ped) or 0)
 						kek_entity.clear_entities({Ped})
 					else
 						kek_entity.clear_entities({Ped})

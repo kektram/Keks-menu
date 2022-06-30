@@ -35,6 +35,7 @@ function custom_upgrades.vehicle_turret(...)
 			while entity.is_entity_an_object(turret) and entity.is_entity_a_vehicle(Vehicle) do
 				if player.get_player_vehicle(player.player_id()) == Vehicle and player.is_player_in_any_vehicle(player.player_id()) then
 					entity.attach_entity_to_entity(turret, Vehicle, 0, offset, cam.get_gameplay_cam_rot() + v3(cam.get_gameplay_cam_rot().x * -2, 0, 180), false, true, false, 0, false)
+					entity.process_entity_attachments(Vehicle)
 					if controls.is_disabled_control_pressed(0, enums.inputs["RIGHT MOUSE BUTTON A"]) then
 						gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_in_front_of_me(0.5), kek_entity.get_vector_in_front_of_me(2000), 100, gameplay.get_hash_key("weapon_heavysniper_mk2"), player.get_player_ped(player.player_id()), true, false, 3000)
 					end

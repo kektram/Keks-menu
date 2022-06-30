@@ -136,6 +136,7 @@ local function get_properties(...)
 			EngineHealth = vehicle.get_vehicle_engine_health(Entity),
 			LightsOn = select(2, vehicle.get_vehicle_lights_state(Entity)),
 			WindowTint = vehicle.get_vehicle_window_tint(Entity),
+			ModExtras = {},
 			Neons = essentials.const({
 				R = neon_r,
 				G = neon_g,
@@ -147,6 +148,11 @@ local function get_properties(...)
 			}),
 			Mods = {}
 		}
+		for i = 1, 20 do
+			if vehicle.does_extra_exist(Entity, i) then 
+				info.VehicleProperties.ModExtras["_"..i] = vehicle.is_vehicle_extra_turned_on(Entity, i)
+			end
+		end
 		for i = 0, vehicle.get_vehicle_wheel_count(Entity) - 1 do
 			info.VehicleProperties["Wheel_"..i] = essentials.const({
 				TireRadius = vehicle.get_vehicle_wheel_tire_radius(Entity, i),

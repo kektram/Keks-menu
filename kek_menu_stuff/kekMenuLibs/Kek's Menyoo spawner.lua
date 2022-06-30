@@ -576,7 +576,7 @@ local function is_table_logic(Table)
 end
 
 function menyoo.spawn_xml_vehicle(...)
-	local file_path <const>, pid <const> = ...
+	local file_path <const>, pid <const>, force_local <const> = ...
 	if not utils.file_exists(file_path) then
 		essentials.msg(lang["This file doesn't exist or has an invalid file name."], "red", true, 6)
 		return 0
@@ -595,11 +595,15 @@ function menyoo.spawn_xml_vehicle(...)
 	)
 	counts.vehicle = counts.vehicle + 1 -- Parent vehicle isn't accounted for in the get counts function
 
-	local network_status <const> = 
+	local network_status = 
 		counts.object <= network.get_max_num_network_objects() - #kek_entity.get_net_objects() 
 		and counts.ped <= network.get_max_num_network_peds() - #kek_entity.get_net_peds() 
 		and counts.vehicle <= get_max_networked_vehicles() - #kek_entity.get_net_vehicles()
 		and "is_networked" or "is_not_networked"
+
+	if force_local then
+		network_status = "is_not_networked"
+	end
 
 	if is_spawn_too_many_entities(counts, network_status) then
 		return 0
@@ -637,7 +641,9 @@ function menyoo.spawn_xml_vehicle(...)
 	end
 	kek_entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
 	send_spawn_counter_msg(counts)
-	send_is_networked_msg(counts, network_status)
+	if not force_local then
+		send_is_networked_msg(counts, network_status)
+	end
 	return parent_entity
 end
 

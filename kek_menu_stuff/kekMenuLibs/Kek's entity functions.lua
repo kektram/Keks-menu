@@ -539,8 +539,8 @@ function kek_entity.hard_remove_entity_and_its_attachments(...)
 	if entity.is_an_entity(Entity) then
 		Entity = kek_entity.get_parent_of_attachment(Entity)
 		if entity.is_an_entity(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
-			kek_entity.clear_entities(kek_entity.get_all_attached_entities(Entity))
-			kek_entity.clear_entities({Entity})
+			kek_entity.clear_entities(kek_entity.get_all_attached_entities(Entity), 5000)
+			kek_entity.clear_entities({Entity}, 5000)
 		end
 	end
 end
@@ -632,10 +632,17 @@ function kek_entity.is_player_in_vehicle(...)
 	return player_in_vehicle, friend_in_vehicle
 end
 
-function kek_entity.constantize_network_id(Entity)
-	if not network.network_get_entity_is_networked(Entity) then
+function kek_entity.set_entity_as_networked(Entity, time)
+	local time <const> = utils.time_ms() + (time or 1500)
+	while time > utils.time_ms() and not network.network_get_entity_is_networked(Entity) do
 		network.network_register_entity_as_networked(Entity)
+		system.yield(0)
 	end
+	return network.network_get_entity_is_networked(Entity)
+end
+
+function kek_entity.constantize_network_id(Entity)
+	kek_entity.set_entity_as_networked(Entity, 25)
 	local net_id <const> = network.network_get_network_id_from_entity(Entity)
 	-- network.set_network_id_can_migrate(net_id, false) -- Caused players unable to drive vehicles
 	network.set_network_id_exists_on_all_machines(net_id, true)
@@ -1217,39 +1224,64 @@ function kek_entity.set_combat_attributes(...)
 	end
 end
 
+local tracker <const> = {}
 function kek_entity.create_cage(...)
 	local pid <const> = ...
+	if tracker[pid] then
+		return -1
+	end
+	tracker[pid] = true
+
 	ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 	system.yield(250)
-	local temp_ped <const> = kek_entity.spawn_networked_ped(gameplay.get_hash_key("a_f_y_tourist_02"), function() 
-		return select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x3779, memoize.v3())), 0
+	local mother_ped <const> = kek_entity.spawn_networked_ped(ped_mapper.get_hash_from_user_input("?"), function() 
+		return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10), 0
 	end)
+	kek_entity.modify_entity_godmode(mother_ped, true)
+	local temp_ped <const> = kek_entity.spawn_networked_ped(ped_mapper.get_hash_from_user_input("?"), function() 
+		return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10), 0
+	end)
+	ped.set_ped_config_flag(temp_ped, enums.ped_config_flags.InVehicle, 1)
 	kek_entity.modify_entity_godmode(temp_ped, true)
-	if entity.is_entity_a_ped(temp_ped) then
-		entity.set_entity_visible(temp_ped, false)
-		ped.set_ped_config_flag(temp_ped, enums.ped_config_flags.InVehicle, 1)
-		entity.freeze_entity(temp_ped, true)
+	entity.attach_entity_to_entity(temp_ped, mother_ped, 0, memoize.v3(), memoize.v3(), false, true, true, 0, true)
+
+	if entity.is_entity_a_ped(mother_ped) and entity.is_entity_a_ped(temp_ped) then
+		entity.set_entity_visible(mother_ped, false)
+		ped.set_ped_config_flag(mother_ped, enums.ped_config_flags.InVehicle, 1)
+		entity.freeze_entity(mother_ped, true)
 		local cage <const> = kek_entity.spawn_networked_object(gameplay.get_hash_key("prop_test_elevator"), function()
-			return essentials.get_player_coords(pid) + memoize.v3(0, 0, 10)
+			return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10)
 		end)
 		local cage_2 <const> = kek_entity.spawn_networked_object(gameplay.get_hash_key("prop_test_elevator"), function()
-			return essentials.get_player_coords(pid) + memoize.v3(0, 0, 10)
+			return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10)
 		end)
-		entity.set_entity_visible(temp_ped, true)
+		entity.set_entity_visible(mother_ped, true)
 		entity.attach_entity_to_entity(cage, temp_ped, 0, memoize.v3(), memoize.v3(), false, true, true, 0, true)
+		entity.process_entity_attachments(mother_ped)
 		entity.attach_entity_to_entity(cage_2, cage, 0, memoize.v3(), memoize.v3(0, 0, 90), false, true, false, 0, true)
-		entity.set_entity_visible(temp_ped, false)
+		entity.process_entity_attachments(cage)
+		entity.set_entity_visible(mother_ped, false)
+
+		kek_entity.teleport(mother_ped, select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x3779, memoize.v3())))
 		menu.create_thread(function()
-			while player.is_player_valid(pid) and entity.is_entity_a_ped(temp_ped) do
-				kek_entity.get_control_of_entity(temp_ped, 0)
-				ped.clear_ped_tasks_immediately(temp_ped)
+			while player.is_player_valid(pid)
+			and entity.is_entity_a_ped(mother_ped)
+			and entity.is_entity_a_ped(temp_ped)
+			and entity.is_entity_an_object(cage)
+			and entity.is_entity_an_object(cage_2)
+			and essentials.get_player_coords(pid):magnitude(entity.get_entity_coords(mother_ped)) < 5 do
+				ped.clear_ped_tasks_immediately(mother_ped)
 				system.yield(0)
 			end
-			kek_entity.hard_remove_entity_and_its_attachments(temp_ped)
+			kek_entity.clear_entities({cage, cage_2, mother_ped, temp_ped}, 5000)
+			tracker[pid] = false
 		end, nil)
-		return temp_ped
+		return mother_ped
+	else
+		kek_entity.clear_entities({temp_ped, mother_ped})
 	end
-	return 0
+	tracker[pid] = false
+	return -2
 end
 
 local function get_prefered_vehicle_pos(...)
@@ -1410,6 +1442,7 @@ do
 					if entity.is_an_entity(Entity) then
 						entity.set_entity_visible(Entity, false)
 						entity.attach_entity_to_entity(Entity, Ped, 0, memoize.v3(), v3(math.random(0, 180), math.random(0, 180), math.random(0, 180)), false, true, entity.is_entity_a_ped(Entity), 0, false)
+						entity.process_entity_attachments(Ped)
 					else
 						kek_entity.clear_entities({Ped, Entity})
 					end
