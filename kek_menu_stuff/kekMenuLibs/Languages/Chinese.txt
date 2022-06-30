@@ -313,7 +313,7 @@ Kill player §击杀玩家
 Only friends can use commands §仅对好友生效
 Teleport to §传送到
 This player can't use chat commands §禁用聊天命令
-Send command list every § §每隔一段时间发送命令列表
+Send command list every §每隔一段时间发送命令列表
 Cage player §套笼子
 Kick §踢出战局
 Send attack chopper §派出攻击直升机
@@ -566,10 +566,6 @@ What is known for §已知的内容有
 This player already have a bounty set on them. §该玩家已被设置了赏金.
 Team §团队
 Spawned §已生成
-invalid models §无效模型
-Reached ped spawn limit. Cancelling menyoo spawn. §已达到NPC生成限制.已取消menyoo生成.
-Reached vehicle spawn limit. Cancelling menyoo spawn. §已达到载具生成限制.已取消menyoo生成.
-Reached object spawn limit. Cancelling menyoo spawn. §已达到物体生成限制.已取消menyoo生成.
 Object limit §物体限制
 Ped limit §NPC限制
 Vehicle limit §载具限制
@@ -651,8 +647,6 @@ Locked their car. §已锁住他的车
 Unlock / lock inside §解锁 / 锁 在里面
 Killed their engine. §已熄灭他的引擎
 Revived their engine. §已恢复他的引擎
-The map won't be visible to other people. It has too many objects. Networked maps supports up to 80 objects. §这个地图其他人看不到. 物体太多了. 联网地图最多只支持80个物体.
-The map will be visible to other people. §这个地图其他人可以看到.
 Clear owned entities before spawning map §在生成地图前清除拥有的实体
 Notify when typing & stopped typing §当有人在打字时通知
 is typing. §正在打字
@@ -669,19 +663,16 @@ Num of entities spawned §已生成的实体数量
 Save only mission entities §仅保存任务实体
 Wait until the previous map is done spawning. §正在等待上一张地图完成生成.
 You have the latest version of Kek's menu. §当前为最新版本的Kek菜单.
-There's a new version of Kek's menu, starting update... §检测到有新版本的 Kek 菜单,开始更新...
 Update successfully installed. §更新已安装成功.
 Update failed. No files are changed. §更新失败了. 没有文件被更改.
 Failed to check what the latest version of the script is. §检查脚本的最新版本失败.
 files downloaded §文件已下载.
-Enable trusted mode->http for automatic updates. §启用 信任模式 -> http 以进行自动更新.
 Turn off debug mode to use auto-updater. §关闭 调试模式 以使用自动更新.
 Press space to remove this message. §按 空格 移除此信息.
 Show latest update changelog §显示最新的更新日志
 Participate in betas §参与测试
-Trusted mode->http must be enabled to use this. §必须启用 信任模式 -> http 才能使用这个.
 Translate into §翻译成
-Translate chat §翻译聊天到
+Translate chat §翻译聊天
 Translation §翻译
 Translate what is not §不翻译
 Translate your messages §翻译你的聊天信息
@@ -698,8 +689,8 @@ Bosnian §波斯尼亚语
 Bulgarian §保加利亚语
 Catalan §加泰罗尼亚语
 Cebuano § 宿务语
-Chinese (Simplified) §简体中文
-Chinese (Traditional) §繁体中文
+Chinese (Simplified) §简中
+Chinese (Traditional) §繁中
 Corsican §科西嘉岛语
 Croatian §克罗地亚语
 Czech §捷克语
@@ -796,3 +787,21 @@ Yoruba §约鲁巴语
 Zulu §祖鲁语
 Team chat §团队聊天
 All chat §所有聊天
+Forcing player into vehicle. This can take up to 15 seconds. §强制玩家进入载具中...最多可能需要15秒.
+Failed to teleport player. §传送玩家失败.
+Translate your messages into §翻译你的聊天信息
+Your messages chat type §你的信息聊天类型
+Obtaining update information... §获取更新信息中...
+There's a new update for Kek's menu available. Press enter to install it, space to not. §Kek菜单有新的更新. 按 回车 安装或 空格 取消.
+This message will disappear in 25 seconds and will assume you don't want the update. §此信息将在25秒后消失,并假设你不想更新.
+Check for updates §自动检查更新
+You must turn on trusted mode->Http to use this script. §你必须打开 信任模式 -> Http 才能使用此脚本.
+Requires %i more peds than can be spawned. There are peds taking up space; clear them to spawn the map/vehicle. §需要生成的NPC比可以生成的多%i.有NPC占用了空间;清除它们以生成地图/载具.
+Requires %i more vehicles than can be spawned. There are vehicles taking up space; clear them to spawn the map/vehicle. §需要生成的载具比可以生成的多%i.有载具占用了空间;清除它们以生成地图/载具.
+Requires %i more objects than can be spawned. There are objects taking up space; clear them to spawn the map/vehicle. §需要生成的物体比可以生成的多%i.有物体占用了空间;清除它们以生成地图/载具.
+The map/vehicle won't be visible to other players, it has too many entities. Networked maps/vehicles supports max:\n%i objects\n%i vehicles\n%i peds. §这个 地图/载具 其他玩家看不到,它有太多实体. 联网地图/载具最多支持: \n%i 个物体\n%i 辆载具\n%i 个NPC.
+The map/vehicle will be visible to other people. §这个 地图/载具 其他人可以看到.
+The map/vehicle can be networked if you clear all entities. Currently there are other networked entities taking up space. §如果你清除掉所有实体,地图/载具 将可以联网. 目前还有其他网络实体占用空间.
+Where to send translations §发送翻译到
+To chat §聊天
+Notification §通知
