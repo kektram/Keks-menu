@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.8.0 beta 14
+-- Kek's menu version 0.4.8.0 beta 15
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 14 test updater"
+__kek_menu_version = "0.4.8.0 beta 15"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -982,14 +982,6 @@ for _, properties in pairs({
 		setting = 0
 	},
 	{
-		setting_name = "Translate chat into language what language to detect",
-		setting = 0
-	},
-	{
-		setting_name = "Translate your messages too",
-		setting = false
-	},
-	{
 		setting_name = "Translate your messages into",
 		setting = false
 	},
@@ -998,7 +990,7 @@ for _, properties in pairs({
 		setting = 0
 	},
 	{
-		setting_name = "Translate your messages into chat type",
+		setting_name = "Where to send translations",
 		setting = 0
 	},
 	{
@@ -1510,7 +1502,7 @@ do
 			or weapon.has_ped_got_weapon(Ped, gameplay.get_hash_key("weapon_fireextinguisher"))
 			or weapon.has_ped_got_weapon(Ped, gameplay.get_hash_key("weapon_bzgas")) then
 				severity = severity + 2
-				hash = hash | 1 << 6
+				hash = hash | 1 << 5
 			end
 			if not detection_string_cache[hash] then
 				local str <const> = {}
@@ -2566,6 +2558,10 @@ function player_history.add_features(main_parent, rid, ip, name)
 
 		menu.add_feature(lang["Blacklist"], "action_value_str", main_parent.id, function(f)
 			if essentials.is_str(f, "Add") then
+				if name == player.get_player_name(player.player_id()) then
+					essentials.msg(lang["You can't add yourself to the blacklist..."], "red", true)
+					return
+				end
 				local input <const>, status <const> = keys_and_input.get_input(lang["Type in why you're adding this person."], "", 128, 0)
 				if status == 2 then
 					return
@@ -2900,21 +2896,34 @@ menu.add_player_feature(lang["Crash"], "action", u.malicious_player_features, fu
 		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
 		return
 	end
-	local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.kek_menu_stuff.."kekMenuLibs\\data\\Truck.xml", player.player_id())
+	local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.kek_menu_stuff.."kekMenuLibs\\data\\Truck.xml", player.player_id(), true)
+	kek_entity.set_entity_as_networked(Vehicle) -- regular networked spawns exists on all machines. This would crash everyone. It spawns it as local.
+	local net_id <const> = network.network_get_network_id_from_entity(Vehicle)
+	network.set_network_id_can_migrate(net_id, false)
+	network.set_network_id_always_exists_for_player(net_id, player.player_id(), true)
+	network.set_network_id_always_exists_for_player(net_id, pid, true)
+
+	for _, Entity in pairs(kek_entity.get_all_attached_entities(Vehicle)) do
+		kek_entity.set_entity_as_networked(Entity)
+		local net_id <const> = network.network_get_network_id_from_entity(Entity)
+		network.set_network_id_can_migrate(net_id, false)
+		network.set_network_id_always_exists_for_player(net_id, player.player_id(), true)
+		network.set_network_id_always_exists_for_player(net_id, pid, true)
+	end
+
 	if entity.is_entity_a_vehicle(Vehicle) then
 		entity.set_entity_visible(Vehicle, false)
 		entity.set_entity_collision(Vehicle, false, false, false)
 		entity.freeze_entity(Vehicle, true)
-		local time <const> = utils.time_ms() + 1500
+		local time <const> = utils.time_ms() + 5000
 		while time > utils.time_ms() and entity.is_entity_a_vehicle(Vehicle) and player.is_player_valid(pid) do
-			kek_entity.teleport(Vehicle, essentials.get_player_coords(pid))
+			kek_entity.teleport(Vehicle, essentials.get_player_coords(pid), 5000)
 			system.yield(0)
 		end
 		if not entity.is_entity_a_vehicle(Vehicle) then
 			essentials.msg(lang["Crash entity went out of memory before it could be cleaned up."], "red", true, 6)
 			return
 		end
-		kek_entity.teleport(Vehicle, v3(math.random(20000, 24000), math.random(20000, 24000), math.random(-2400, 2400)))
 		kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
 		if entity.is_entity_a_vehicle(Vehicle) then
 			essentials.msg(lang["Failed to cleanup crash entity while it is still in memory."], "red", true, 6)
@@ -2994,13 +3003,11 @@ menu.add_player_feature(lang["Perma-cage"], "toggle", u.malicious_player_feature
 	local Ped = 0
 	while f.on and player.player_count() > 0 do
 		system.yield(0)
-		if not kek_entity.get_control_of_entity(Ped) then
-			kek_entity.hard_remove_entity_and_its_attachments(Ped)
+		if not entity.is_entity_a_ped(Ped) then -- Prevents spam spawning of cages in case the clean up of previous cage failed
 			Ped = kek_entity.create_cage(pid)
 		end
-		if memoize.get_distance_between(player.get_player_ped(pid), Ped) > 5 then
-			ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
-			kek_entity.teleport(Ped, essentials.get_player_coords(pid))
+		if essentials.get_player_coords(pid):magnitude(entity.get_entity_coords(Ped)) > 5 then
+			kek_entity.hard_remove_entity_and_its_attachments(Ped) -- The create_cage function already clears, but this is an additional clear in case the clean up failed
 		end
 	end
 	f.on = false
@@ -3461,6 +3468,7 @@ do
 		offsets <const>,
 		locations <const>,
 		object_model <const> = ...
+		local objects <const> = {}
 		for i, location in pairs(locations) do
 			local offset = memoize.v3()
 			if offsets[i] then
@@ -3473,30 +3481,10 @@ do
 				if angles[i] then
 					entity.set_entity_heading(object, angles[i])
 				end
+				objects[#objects + 1] = object
 			end
 		end
-	end
-
-	local function unblock_area(...)
-		local model <const>, positions <const> = ...
-		essentials.assert(streaming.is_model_valid(gameplay.get_hash_key(model)), "Invalid model.", model)
-		local initial_pos <const> = essentials.get_player_coords(player.player_id())
-		local had_to_teleport
-		for _, pos in pairs(positions) do
-			if essentials.get_player_coords(player.player_id()):magnitude(pos) > 200 then
-				kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), pos)
-				had_to_teleport = true
-				system.yield(100)
-			end
-			for Object in essentials.entities(object.get_all_objects()) do
-				if entity.get_entity_model_hash(Object) == gameplay.get_hash_key(model) then
-					kek_entity.clear_entities({Object})
-				end
-			end
-		end
-		if had_to_teleport then
-			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
-		end
+		return objects
 	end
 
 	menu.add_feature(lang["Los santos customs"], "action_value_str", block_area_parent.id, function(f)
@@ -3509,9 +3497,10 @@ do
 				70, 
 				0
 			})
-			block_area(angles, {}, location_mapper.LSC_POSITIONS, "v_ilev_cin_screen")
-		elseif essentials.is_str(f, "Unblock") then
-			unblock_area("v_ilev_cin_screen", location_mapper.LSC_POSITIONS)
+			f.data = f.data or block_area(angles, {}, location_mapper.LSC_POSITIONS, "v_ilev_cin_screen")
+		elseif essentials.is_str(f, "Unblock") and f.data then
+			kek_entity.clear_entities(f.data, 3000)
+			f.data = nil
 		end
 	end):set_str_data({
 		lang["Block"],
@@ -3520,9 +3509,10 @@ do
 
 	menu.add_feature(lang["Ammu-Nations"], "action_value_str", block_area_parent.id, function(f)
 		if essentials.is_str(f, "Block") then
-			block_area({}, {}, location_mapper.AMMU_NATION_POSITIONS, "prop_air_monhut_03_cr")
-		elseif essentials.is_str(f, "Unblock") then
-			unblock_area("prop_air_monhut_03_cr", location_mapper.AMMU_NATION_POSITIONS)
+			f.data = f.data or block_area({}, {}, location_mapper.AMMU_NATION_POSITIONS, "prop_air_monhut_03_cr")
+		elseif essentials.is_str(f, "Unblock") and f.data then
+			kek_entity.clear_entities(f.data, 3000)
+			f.data = nil
 		end
 	end):set_str_data({
 		lang["Block"],
@@ -3542,9 +3532,10 @@ do
 				-34, 
 				-32
 			})
-			block_area(angles, offsets, location_mapper.CASINO_POSITIONS, "prop_sluicegater")
-		elseif essentials.is_str(f, "Unblock") then
-			unblock_area("prop_sluicegater", location_mapper.CASINO_POSITIONS)
+			f.data = f.data or block_area(angles, offsets, location_mapper.CASINO_POSITIONS, "prop_sluicegater")
+		elseif essentials.is_str(f, "Unblock") and f.data then
+			kek_entity.clear_entities(f.data, 3000)
+			f.data = nil
 		end
 	end):set_str_data({
 		lang["Block"],
@@ -3674,10 +3665,11 @@ settings.user_entity_features.vehicle.feats["Respawn vehicle"] = menu.add_featur
 		system.yield(0)
 		for pid in essentials.players() do
 			local scid <const> = player.get_player_scid(pid)
-			states[scid] = states[scid] or entity.is_entity_dead(player.get_player_ped(pid))
-			if states[scid] and player.get_player_coords(pid).z > -10 and not entity.is_entity_dead(player.get_player_ped(pid)) then
+			states[scid] = states[scid] or player.is_player_dead(pid)
+			if states[scid] and player.get_player_coords(pid).z > -10 and not player.is_player_dead(pid) then
 				states[scid] = false
 				kek_entity.clear_entities({f.data[scid]})
+				system.yield(500) -- It gets the heading player had when their ped was dead if this isn't here
 				local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 				f.data[scid] = kek_entity.spawn_networked_vehicle(hash, function()
 					return location_mapper.get_most_accurate_position(kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))), player.get_player_heading(pid)
@@ -3873,114 +3865,134 @@ settings.valuei["Anti chat spam reaction"]:set_str_data({
 	lang["Kick & add to timeout"]
 })
 
-settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.translate_chat.id, function(f)
-	if f.on then
-		if essentials.listeners["chat"]["translate"] then
-			return
-		end
-		local tracker <const> = {} -- To prevent spamming requests at Google, 1 translation every 500ms per player.
-		essentials.listeners["chat"]["translate"] = essentials.add_chat_event_listener(function(event)
-			if (settings.toggle["Translate your messages too"].on or settings.toggle["Translate your messages into"].on or event.player ~= player.player_id())
-			and event.body:find("^%P") -- chat commands
-			and utils.time_ms() > (tracker[event.player] or 0) then
-				local language_translate_into_setting = 
-					enums.supported_langs_by_google_to_code[
-						enums.supported_langs_by_google[settings.valuei["Translate chat into language what language"].value + 1]
-					]
-				local str, detected_language
-				if player.player_id() == event.player and settings.toggle["Translate your messages into"].on then
-					language_translate_into_setting = enums.supported_langs_by_google_to_code[
-						enums.supported_langs_by_google[settings.valuei["Translate your messages into option"].value + 1]
-					]
-					str, detected_language = 
-						language.translate_text(
-							event.body, 
-							"auto", 
-							language_translate_into_setting
-						)
-				else
-					str, detected_language = 
-						language.translate_text(
-							event.body, 
-							"auto", 
-							language_translate_into_setting
-						)
-				end
-				tracker[event.player] = utils.time_ms() + 500
-				if enums.supported_langs_by_google_to_name[detected_language]
-				and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
-					local is_team_chat = essentials.is_str(f, "Team chat")
-					if event.player == player.player_id() and settings.toggle["Translate your messages into"].on then
-						is_team_chat = essentials.is_str(settings.valuei["Translate your messages into chat type"], "Team chat")
-					end
-					essentials.send_message(
-						lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str, 
-						is_team_chat
-					)
-				end
-			end
-		end)
-	else
-		event.remove_event_listener("chat", essentials.listeners["chat"]["translate"])
-		essentials.listeners["chat"]["translate"] = nil
+do
+	local excluded_languages <const> = {}
+	local language_names = {}
+	for i = 1, #enums.supported_langs_by_google do
+		language_names[#language_names + 1] = lang[enums.supported_langs_by_google[i]]
 	end
-end)
-settings.toggle["Translate chat into language"]:set_str_data({
-	lang["Team chat"],
-	lang["All chat"]
-})
 
-settings.toggle["Translate your messages too"] = menu.add_feature(lang["Translate your messages"], "toggle", u.translate_chat.id)
-
-settings.toggle["Translate your messages into"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id)
-settings.valuei["Translate your messages into option"] = settings.toggle["Translate your messages into"]
-settings.valuei["Translate your messages into option"]:set_str_data(
-	(function()
-		local t = {}
-		for i = 1, #enums.supported_langs_by_google do
-			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
+	settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.translate_chat.id, function(f)
+		if f.on then
+			if essentials.listeners["chat"]["translate"] then
+				return
+			end
+			local tracker <const> = {} -- To prevent spamming requests at Google, 1 translation every 500ms per player.
+			essentials.listeners["chat"]["translate"] = essentials.add_chat_event_listener(function(event)
+				if (settings.toggle["Translate your messages into"].on or event.player ~= player.player_id())
+				and event.body:find("^%P") -- chat commands
+				and player.is_player_valid(event.player)
+				and utils.time_ms() > (tracker[event.player] or 0) then
+					local language_translate_into_setting = 
+						enums.supported_langs_by_google_to_code[
+							enums.supported_langs_by_google[settings.valuei["Translate chat into language what language"].value + 1]
+						]
+					local str, detected_language
+					if player.player_id() == event.player and settings.toggle["Translate your messages into"].on then
+						language_translate_into_setting = enums.supported_langs_by_google_to_code[
+							enums.supported_langs_by_google[settings.valuei["Translate your messages into option"].value + 1]
+						]
+						str, detected_language = 
+							language.translate_text(
+								event.body, 
+								"auto", 
+								language_translate_into_setting
+							)
+					else
+						str, detected_language = 
+							language.translate_text(
+								event.body, 
+								"auto", 
+								language_translate_into_setting
+							)
+					end
+					tracker[event.player] = utils.time_ms() + 500
+					if ((settings.toggle["Translate your messages into"].on and event.player == player.player_id()) or not excluded_languages[detected_language])
+					and enums.supported_langs_by_google_to_name[detected_language]
+					and player.is_player_valid(event.player) -- Translation can take enough time for the player to become invalid in that time
+					and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
+						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str
+						if essentials.is_str(settings.valuei["Where to send translations"], "To chat") 
+						or (event.player == player.player_id() and settings.toggle["Translate your messages into"].on) then
+							essentials.send_message(
+								str, 
+								essentials.is_str(f, "Team chat")
+							)
+						elseif player.player_id() ~= event.player then
+							essentials.msg("["..player.get_player_name(event.player).."]: "..str, "blue", true, 11)
+						end
+					end
+				end
+			end)
+		else
+			event.remove_event_listener("chat", essentials.listeners["chat"]["translate"])
+			essentials.listeners["chat"]["translate"] = nil
 		end
-		return t
-	end)()
-)
+	end)
+	settings.toggle["Translate chat into language"]:set_str_data({
+		lang["Send to team chat"],
+		lang["Send to all chat"]
+	})
 
-settings.valuei["Translate your messages into chat type"] = menu.add_feature(lang["Your messages chat type"], "action_value_str", u.translate_chat.id)
-settings.valuei["Translate your messages into chat type"]:set_str_data({
-	lang["All chat"],
-	lang["Team chat"]
-})
+	settings.toggle["Translate your messages into"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id)
+	settings.valuei["Translate your messages into option"] = settings.toggle["Translate your messages into"]
+	settings.valuei["Translate your messages into option"]:set_str_data(language_names)
 
-settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
+	local excluded_languages_from_translation <const> = menu.add_feature(lang["Languages to not translate"], "parent", u.translate_chat.id)
+	for _, name in pairs(enums.supported_langs_by_google) do
+		local code <const> = enums.supported_langs_by_google_to_code[name]
+		settings:add_setting({
+			setting_name = "Excluded "..name.." from translation",
+			setting = false
+		})
 
-settings.valuei["Translate chat into language what language"] = menu.add_feature(
-	lang["Translate into"], 
-	"action_value_str", 
-	u.translate_chat.id
-)
-settings.valuei["Translate chat into language what language"]:set_str_data(
-	(function()
-		local t = {}
-		for i = 1, #enums.supported_langs_by_google do
-			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
-		end
-		return t
-	end)()
-)
+		settings.toggle["Excluded "..name.." from translation"] = menu.add_feature(lang[name], "toggle", excluded_languages_from_translation.id, function(f)
+			excluded_languages[code] = f.on
+		end)
+	end
 
-settings.valuei["Translate chat into language what language to detect"] = menu.add_feature(
-	lang["Translate what is not"], 
-	"action_value_str", 
-	u.translate_chat.id
-)
-settings.valuei["Translate chat into language what language to detect"]:set_str_data(
-	(function()
-		local t = {}
-		for i = 1, #enums.supported_langs_by_google do
-			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
-		end
-		return t
-	end)()
-)
+	settings.valuei["Where to send translations"] = menu.add_feature(lang["Where to send translations"], "action_value_str", u.translate_chat.id)
+	settings.valuei["Where to send translations"]:set_str_data({
+		lang["Notification"],
+		lang["To chat"]
+	})
+
+	settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
+
+	settings.valuei["Translate chat into language what language"] = menu.add_feature(
+		lang["Translate into"], 
+		"action_value_str", 
+		u.translate_chat.id
+	)
+	settings.valuei["Translate chat into language what language"]:set_str_data(language_names)
+
+	menu.add_feature(lang["Tip: set hotkeys for the translate inputs below"], "action", u.translate_chat.id)
+	for i = 1, 10 do
+		settings:add_setting(
+			{
+				setting_name = "Input text to translate to chat "..i,
+				setting = i - 1
+			}
+		)
+		settings.valuei["Input text to translate to chat "..i] = menu.add_feature(lang["Translate input"].." "..i, "action_value_str", u.translate_chat.id, function(f)
+			local text <const>, status <const> = keys_and_input.get_input(lang["Type in what to translate."].. " ["..lang[enums.supported_langs_by_google[f.value + 1]].."]", "", 128, 0)
+			if status == 2 then
+				return
+			end
+			local str <const>, detected_language <const> = 
+				language.translate_text(
+					text, 
+					"auto", 
+					enums.supported_langs_by_google_to_code[enums.supported_langs_by_google[f.value + 1]]
+				)
+			essentials.send_message(
+				str, 
+				essentials.is_str(settings.toggle["Translate chat into language"], "Team chat")
+			)
+		end)
+		settings.valuei["Input text to translate to chat "..i]:set_str_data(language_names)
+	end
+end
 
 do
 	local function create_anti_stuck_thread(...)
@@ -4633,8 +4645,13 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							if update.is_object_limit_not_breached and update.is_ped_limit_not_breached then
 								menu.create_thread(function()
 									local Ped <const> = kek_entity.create_cage(pid)
+									if Ped == -1 then
+										essentials.send_message("[Chat commands]: This player already have a cage on them.", event.player == player.player_id())
+										return
+									end
 									if not entity.is_entity_a_ped(Ped) then
 										essentials.send_message("[Chat commands]: Failed to spawn cage. Entity limits are reached.", event.player == player.player_id())
+										return
 									end
 								end, nil)
 							else
@@ -4767,7 +4784,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								return
 							end
 							globals.set_bounty(pid, false, true, amount)
-						elseif str:find("^%phelp$") then
+						elseif str:find("^%phelp$") or str:find("^%pcommands$") then
 							if not admin_mapper.is_there_admin_in_session() then
 								f.data.send_chat_commands()
 							end
@@ -4881,7 +4898,8 @@ do
 		tracker = {},
 		command_strings = {
 			teleport = true,
-			help = true
+			help = true,
+			commands = true
 		},
 		player_chat_command_blacklist = {},
 		send_chat_commands = function(send_to_team)
@@ -6684,10 +6702,11 @@ settings.user_entity_features.vehicle.player_feats["Respawn vehicle"] = menu.add
 	local state = false
 	while f.on do
 		system.yield(0)
-		state = state or entity.is_entity_dead(player.get_player_ped(pid))
-		if state and player.get_player_coords(pid).z > -10 and not entity.is_entity_dead(player.get_player_ped(pid)) then
+		state = state or player.is_player_dead(pid)
+		if state and essentials.get_player_coords(pid).z > -10 and not player.is_player_dead(pid) then
 			state = false
 			kek_entity.clear_entities({f.data})
+			system.yield(500) -- It gets the heading player had when their ped was dead if this isn't here
 			local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 			f.data = kek_entity.spawn_networked_vehicle(hash, function()
 				return kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid)), player.get_player_heading(pid)
@@ -6793,6 +6812,7 @@ menu.add_player_feature(lang["Send"], "value_str", u.player_trolling_features, f
 		return
 	end
 	local Entity, temp
+	local value = f.value
 	while f.on do
 		if essentials.is_str(f, "Clown vans") then
 			temp = troll_entity.spawn_standard_alone(f, pid, troll_entity.send_clown_van)
@@ -6807,6 +6827,10 @@ menu.add_player_feature(lang["Send"], "value_str", u.player_trolling_features, f
 		system.yield(0)
 		if player.player_count() == 0 then
 			f.on = false
+		end
+		if value ~= f.value and entity.is_an_entity(type(Entity) == "table" and Entity[1] or Entity or 0) then
+			kek_entity.clear_entities(type(Entity) == "table" and Entity or {Entity}, 5000)
+			value = f.value
 		end
 	end
 	kek_entity.clear_entities(type(Entity) == "table" and Entity or {Entity})
@@ -6860,6 +6884,11 @@ end):set_str_data({
 })
 
 menu.add_player_feature(lang["Taze player"], "toggle", u.player_trolling_features, function(f, pid)
+	if player.player_id() == pid then
+		essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
+		f.on = false
+		return
+	end
 	while f.on do
 		gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), essentials.random_real(-0.5, 0.5)) + v3(0, 0, essentials.random_real(0, 1)), select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f2, memoize.v3())), 0, gameplay.get_hash_key("weapon_stungun"), player.get_player_ped(player.player_id()), true, false, 2000)
 		system.yield(1000)
@@ -7097,9 +7126,7 @@ settings.user_entity_features.object.feats["Object gun"] = menu.add_feature(lang
 				end)
 				local pos <const> = kek_entity.get_collision_vector(player.player_id())
 				kek_entity.set_entity_rotation(entities[#entities], cam.get_gameplay_cam_rot())
-				for i = 1, 10 do
-					entity.apply_force_to_entity(entities[#entities], 3, pos.x, pos.y, pos.z, 0, 0, 0, true, true)
-				end
+				entity.set_entity_velocity(entities[#entities], entity.get_entity_forward_vector(player.get_player_ped(player.player_id())) * 200)
 				if #entities > 10 then
 					kek_entity.clear_entities({entities[1]})
 					table.remove(entities, 1)
@@ -7116,7 +7143,9 @@ u.airstrike_gun = menu.add_feature(lang["Airstrike gun"], "toggle", u.weapons_se
 		system.yield(0)
 		if ped.is_ped_shooting(player.get_player_ped(player.player_id())) then
 			local pos <const> = kek_entity.get_collision_vector(player.player_id())
-			gameplay.shoot_single_bullet_between_coords(pos + memoize.v3(0, 0, 15), pos, 1000, gameplay.get_hash_key("weapon_airstrike_rocket"), player.get_player_ped(player.player_id()), true, false, 250)
+			if pos:magnitude(player.get_player_coords(player.player_id())) > 0.5 then -- Defaults to your position if failing to find impact of bullet
+				gameplay.shoot_single_bullet_between_coords(pos + memoize.v3(0, 0, 15), pos, 1000, gameplay.get_hash_key("weapon_airstrike_rocket"), player.get_player_ped(player.player_id()), true, false, 250)
+			end
 		end
 	end
 end)
@@ -7433,7 +7462,7 @@ do
 					speed_set.value = 100
 					menu.add_feature(lang["Toggle engine"], "action_value_str", parent.id, function(f)
 						for Vehicle in entities_ite(i) do
-							if essentials.is_str(f, "Kick engine") then
+							if essentials.is_str(f, "Kill engine") then
 								vehicle.set_vehicle_engine_health(Vehicle, -4000)
 							elseif essentials.is_str(f, "Heal engine") then
 								vehicle.set_vehicle_engine_health(Vehicle, 1000)
@@ -7543,6 +7572,7 @@ do
 							end
 							if kek_entity.get_control_of_entity(player.get_player_vehicle(f.data[f.value + 1]), nil, nil, true) then
 								entity.attach_entity_to_entity(player.get_player_vehicle(f.data[f.value + 1]), parent.data.entity, 0, memoize.v3(offset_x.value, offset_y.value, offset_z.value), memoize.v3(rot_x.value, rot_y.value, rot_z.value), false, collision.on, false, 0, true)
+								entity.process_entity_attachments(parent.data.entity)
 							end
 							::exit::
 							if had_to_teleport then
@@ -7569,6 +7599,7 @@ do
 								end
 								if kek_entity.get_control_of_entity(player.get_player_vehicle(f.data[f.value + 1])) then
 									entity.attach_entity_to_entity(player.get_player_vehicle(f.data[f.value + 1]), parent.data.entity, 0, memoize.v3(offset_x.value, offset_y.value, offset_z.value), memoize.v3(rot_x.value, rot_y.value, rot_z.value), false, collision.on, false, 0, true)
+									entity.process_entity_attachments(parent.data.entity)
 								end
 							end
 						end
