@@ -729,8 +729,8 @@ Kyrgyz §吉尔吉斯斯坦语
 Lao §老挝语
 Latin §拉丁语
 Latvian §拉脱维亚语
-Lithuanian §立陶宛
-Luxembourgish §卢森堡
+Lithuanian §立陶宛语
+Luxembourgish §卢森堡语
 Macedonian §马其顿
 Malagasy §马达加斯加语
 Malay §马来语
@@ -742,7 +742,7 @@ Mongolian §蒙古语
 Myanmar (Burmese) §缅甸语
 Nepali §尼泊尔语
 Norwegian §挪威语
-Nyanja (Chichewa) §奇切瓦
+Nyanja (Chichewa) §奇切瓦语
 Odia (Oriya) §奥里亚语
 Pashto §普什图语
 Persian §波斯语
@@ -770,7 +770,7 @@ Tajik §塔吉克斯坦语
 Tamil §泰米尔语
 Tatar §鞑靼语
 Telugu §泰卢固语
-Thai §泰语语
+Thai §泰语
 Turkish §土耳其语
 Turkmen §土库曼语
 Ukrainian §乌克兰语
@@ -806,3 +806,4 @@ Translate input §翻译输入
 Send to team chat §发送到团队聊天
 Send to all chat §发送到所有聊天
 Tip: set hotkeys for the translate inputs below §提示: 为下面的翻译输入设置快捷键
+Translate your messages §翻译你的信息
