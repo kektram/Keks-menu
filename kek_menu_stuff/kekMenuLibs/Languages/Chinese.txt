@@ -804,6 +804,6 @@ Languages to not translate §不翻译的语言
 Type in what to translate. §输入要翻译的内容.
 Translate input §翻译输入
 Send to team chat §发送到团队聊天
-Send to all chat §发送到所有聊天
+Send to all chat §发送到全部聊天
 Tip: set hotkeys for the translate inputs below §提示: 为下面的翻译输入设置快捷键
 Translate your messages §翻译你的信息
