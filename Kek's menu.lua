@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.8.0 beta 14
+-- Kek's menu version 0.4.8.0 beta 16
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 14"
+__kek_menu_version = "0.4.8.0 beta 16"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
