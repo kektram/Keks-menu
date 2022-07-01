@@ -48,22 +48,29 @@ if language.what_language ~= "English.txt" and utils.file_exists(paths.what_lang
 	end
 end
 
--- "https://translate.googleapis.com/translate_a/single?client=gtx&sl="..translate_from.."&tl="..translate_to.."&dt=t&q="..encode_url(str)) ENDPOINT 1; this one provides more info, splits sentences into multiple objects.
--- "https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl="..translate_from.."&tl="..translate_to.."&q="..encode_url(str) ENDPOINT 2; this one is easier to work with. If there are limits, this one is probably less likely to hit them since less data.
+-- "https://translate.googleapis.com/translate_a/single?client=gtx&sl="..translate_from.."&tl="..translate_to.."&dt=t&dj=1&source=input&q="..encode_url(str)) ENDPOINT 1; this one provides more info, splits sentences into multiple objects.
+-- "https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl="..translate_from.."&tl="..translate_to.."&q="..encode_url(str) ENDPOINT 2; this one is easier to work with. If there are limits, this one is probably less likely to hit them since less data. Has worse translations.
 function language.translate_text(str, translate_from, translate_to)
-	local 
+	str = str:gsub("[\n\r]+", "<code>0</code>")
+	local
 		status <const>,
-		str <const> = web.get("https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl="..translate_from.."&tl="..translate_to.."&q="..web.urlencode(str))
-
-	if status == 200 then
-		local translation, detected_language <const> = str:match("%[%[\"(.-)\",\"(.-)\"%]%]")
-		translation = translation:gsub("\\n", "\n")
-		translation = translation:gsub("\\r", "\r")
-		translation = translation:gsub("\\\"", "\"")
-		return translation, detected_language
-	else
+		str = web.get("https://translate.googleapis.com/translate_a/single?client=gtx&sl="..translate_from.."&tl="..translate_to.."&dt=t&dj=1&source=input&q="..web.urlencode(str))
+	if status ~= 200 then
 		return "REQUEST FAILED", "FAILED"
 	end
+
+	local detected_language = str:match("\"src\":\"([^\"]+)\"")
+	local sentences <const> = {}
+	for sentence in str:gmatch("trans\":\"(.-)\",\"orig\":") do
+		sentences[#sentences + 1] = sentence:gsub("\\u(%x%x%x%x)", function(unicode)
+			return utf8.char(tonumber(unicode, 16))
+		end)
+	end
+	local translation = table.concat(sentences)
+	if translation:find(" <code> 0 </code> ", 1, true) then
+		translation = translation:gsub(" <code> 0 </code> ", "\n")
+	end
+	return translation, detected_language
 end
 
 setmetatable(language.lang, {

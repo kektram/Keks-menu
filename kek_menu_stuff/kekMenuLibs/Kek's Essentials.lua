@@ -520,7 +520,9 @@ essentials.FEATURE_ID_MAP = essentials.const({ -- The table keys are derived fro
 	[1 << 1 | 1 << 7 | 1 << 10] = "autoaction_value_f",
 	[1 << 1 | 1 << 3 | 1 << 10] = "autoaction_value_i",
 	[1 << 1 | 1 << 5 | 1 << 9 ] = "action_value_str",
+	[1 << 1 | 1 << 4 | 1 << 9 ] = "action_value_str",
 	[1 << 0 | 1 << 1 | 1 << 5 ] = "value_str",
+	[1 << 0 | 1 << 14] = "value_str",
 -- Regular feat types
 
 	[1 << 11] = "parent", -- Both player feat & regular feat type have same id
@@ -547,11 +549,13 @@ essentials.FEATURE_ID_MAP = essentials.const({ -- The table keys are derived fro
 	1 << 1 == Not a parent, toggle or regular action feature?
 	1 << 2 == slider flag
 	1 << 3 == value_i flag
+	1 << 4 == Seems to be show info, like properties of a fake friend. Only available in menu features
 	1 << 5 == value_str flag
 	1 << 7 == value_f flag
 	1 << 9 == action flag
 	1 << 10 == autoaction flag
 	1 << 11 == parent flag
+	1 << 14 == player_feat flag
 	1 << 15 == player_feat flag
 --]]
 
@@ -1119,6 +1123,31 @@ function essentials.get_player_descendants(...)
 		Table[#Table + 1] = parent
 	end
 	return Table
+end
+
+function essentials.get_feat_hierarchy(feat, tab)
+	local str <const>, parent = {}, feat.parent
+	while parent do
+		local encoded_parent_name = parent.name:gsub("[%s%p%c]", "_")
+		table.insert(str, 1, encoded_parent_name)
+		parent = parent.parent
+	end
+	local encoded_feat_name = feat.name:gsub("[%s%p%c]", "_")
+	table.insert(str, 1, tab or "local")
+	str[#str + 1] = encoded_feat_name
+	return table.concat(str, ".")
+end
+
+function essentials.player_feat_to_pid(feat)
+	local player_name_map <const> = {}
+	for pid in essentials.players(true) do
+		player_name_map[player.get_player_name(pid)] = pid
+	end
+	local parent = feat.parent
+	while parent and not player_name_map[parent.name] do
+		parent = parent.parent
+	end
+	return player_name_map[parent and parent.name]
 end
 
 function essentials.name_to_pid(name)
