@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.8.0 beta 16
+-- Kek's menu version 0.4.8.0 beta 16 test
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 16"
+__kek_menu_version = "0.4.8.0 beta 16 test"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -434,7 +434,7 @@ for _, properties in pairs({
 				io.remove(properties.folder.."\\"..f.name.."."..properties.extension)
 			end
 			feat_name_map[f.name.."."..properties.extension] = nil
-			essentials.delete_feature(f.id)
+			menu.delete_feature(f.id)
 		elseif essentials.is_str(f, "Change name") then
 			local input, status = f.name
 			while true do
@@ -493,7 +493,7 @@ for _, properties in pairs({
 			for i = 1, #children do -- 3x faster to delete all then reconstruct than using utils.file_exists
 				local feat <const> = children[i]
 				if feat.data == "MENYOO" then
-					essentials.delete_feature(feat.id)
+					menu.delete_feature(feat.id)
 				end
 			end
 			local files <const> = utils.get_all_files_in_directory(properties.folder, properties.extension)
@@ -2735,7 +2735,7 @@ do
 		elseif essentials.is_str(f, "Clear search list") then
 			for i, parent in pairs(player_history.searched_players) do
 				for _, child in pairs(essentials.get_descendants(parent, {}, true)) do
-					essentials.delete_feature(child.id)
+					menu.delete_feature(child.id)
 				end
 				player_history.searched_players[i] = nil
 			end
@@ -3046,7 +3046,7 @@ do
 			if feat == settings.valuei["vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(feat.data)] then
 				settings.valuei["vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(feat.data)] = nil
 			end
-			essentials.delete_feature(feat.id)
+			menu.delete_feature(feat.id)
 			f.data[i] = nil
 		end
 		input = essentials.make_string_case_insensitive(input)
@@ -5834,7 +5834,7 @@ do
 					count = count + 1
 				end
 			until count == 0
-			essentials.delete_feature(f.id)
+			menu.delete_feature(f.id)
 		elseif essentials.is_str(f, "Change name") then
 			local input, status = f.name
 			while true do
@@ -6028,7 +6028,7 @@ do
 				io.remove(paths.menyoo_maps.."\\"..f.name..".xml")
 			end
 			feat_name_map[f.name..".xml"] = nil
-			essentials.delete_feature(f.id)
+			menu.delete_feature(f.id)
 		elseif essentials.is_str(f, "Change name") then
 			local input, status = f.name
 			while true do
@@ -6120,7 +6120,7 @@ do
 			for i = 1, #children do -- 3x faster to delete all then reconstruct than using utils.file_exists
 				local feat <const> = children[i]
 				if feat.data == "MENYOO" then
-					essentials.delete_feature(feat.id)
+					menu.delete_feature(feat.id)
 				end
 			end
 			local files <const> = utils.get_all_files_in_directory(paths.menyoo_maps, "xml")
@@ -8011,7 +8011,7 @@ u.search_features = menu.add_feature(lang["Search"], "action_value_str", u.searc
 	local children <const> = u.search_menu_features.children
 	for i = 1, #children do
 		if children[i].data ~= "dont_delete" then
-			essentials.delete_feature(children[i].id)
+			menu.delete_feature(children[i].id)
 		end
 	end
 	if input == "" then

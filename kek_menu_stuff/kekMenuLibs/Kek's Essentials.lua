@@ -29,8 +29,6 @@ essentials.listeners = {
 	exit = {}
 }
 essentials.nethooks = {}
-essentials.feats = {}
-essentials.player_feats = {}
 essentials.number_of_explosion_types = 82
 essentials.init_delay = utils.time_ms() + 1000 -- For notifications that should only display if user toggles on the feature (toggles being turned on due to settings and such)
 
@@ -354,20 +352,6 @@ function essentials.are_all_lines_pattern_valid(str, pattern)
 	return true
 end
 
-function essentials.delete_feature(id)
-	essentials.assert(essentials.feats[id], "Tried to delete a feature that was already deleted.")
-	essentials.assert(menu.delete_feature(id), "Failed to delete feature.", essentials.feats[id].name)
-	essentials.feats[id] = nil
-	return true
-end
-
-function essentials.delete_player_feature(id)
-	essentials.assert(essentials.player_feats[id], "Attempted to delete player feature that was already deleted.")
-	essentials.assert(menu.delete_player_feature(id), "Failed to delete player feature.", menu.get_player_feature(id).feats[0].name)
-	essentials.player_feats[id] = nil
-	return true
-end
-
 function essentials.delete_thread(id)
 	essentials.assert(not menu.has_thread_finished(id) and menu.delete_thread(id), "Attempted to delete a finished thread.")
 end
@@ -409,7 +393,6 @@ do
 			"line:",
 			debug.getinfo(2, "l").currentline
 		)
-		essentials.feats[feat.id] = feat
 		return feat
 	end
 	menu.add_player_feature = function(...)
@@ -440,7 +423,6 @@ do
 			"line:",
 			debug.getinfo(2, "l").currentline
 		)
-		essentials.player_feats[feat.id] = feat.id
 		return feat
 	end
 	getmetatable(menu).__newindex = originals.menu_newindex
