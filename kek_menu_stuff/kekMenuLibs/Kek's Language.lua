@@ -54,7 +54,7 @@ function language.translate_text(str, translate_from, translate_to)
 	str = str:gsub("[\n\r]+", "<code>0</code>")
 	local
 		status <const>,
-		str = web.get("https://translate.googleapis.com/translate_a/single?client=gtx&sl="..translate_from.."&tl="..translate_to.."&dt=t&dj=1&source=input&q="..web.urlencode(str))
+		str <const> = web.get("https://translate.googleapis.com/translate_a/single?client=gtx&sl="..translate_from.."&tl="..translate_to.."&dt=t&dj=1&source=input&q="..web.urlencode(str))
 	if status ~= 200 then
 		return "REQUEST FAILED", "FAILED"
 	end

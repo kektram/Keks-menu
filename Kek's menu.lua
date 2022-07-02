@@ -5308,10 +5308,9 @@ settings.toggle["Clever bot"].data = {}
 settings.toggle["Auto tp to waypoint"] = menu.add_feature(lang["Auto tp to waypoint"], "toggle", u.self_options.id, function(f)
 	while f.on do
 		system.yield(0)
-		if hud.is_waypoint_active() then
-			local pos <const> = ui.get_waypoint_coord()
-			ui.set_waypoint_off()
-			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), location_mapper.get_most_accurate_position(v3(pos.x, pos.y, -50)))
+		if hud.is_waypoint_active() and kek_entity.get_control_of_entity(kek_entity.get_most_relevant_entity(player.player_id())) then
+			menu.get_feature_by_hierarchy_key("local.teleport.waypoint"):toggle()
+			system.yield(1000)
 		end
 	end
 end)
@@ -5319,7 +5318,6 @@ end)
 settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang["Move mini map to people you spectate"], "toggle", u.self_options.id, function(f)
 	local who_spectating
 	local pos <const> = player.get_player_coords(player.player_id())
-	player.extend_world_boundary_for_player(pos.x, pos.y, pos.z)
 	while f.on do
 		system.yield(0)
 		if network.network_is_in_spectator_mode() then
@@ -5331,7 +5329,6 @@ settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang[
 			who_spectating = -1
 		end
 	end
-	player.reset_world_boundary_for_player()
 end)
 
 local function display_settings(...)
@@ -8020,49 +8017,61 @@ u.search_features = menu.add_feature(lang["Search"], "action_value_str", u.searc
 	end
 
 	local find <const>, lower <const> = string.find, string.lower
+	local children <const> = {}
 	for tab, parents in pairs(enums.menu_feature_hierarchy) do
 		for parent_i = 1, #parents do
 			if (essentials.is_str(f, "Lua features") and parents[parent_i] == "script_features") 
 			or (essentials.is_str(f, "Menu features") and parents[parent_i] ~= "script_features") then
 				local parent <const> = menu.get_feature_by_hierarchy_key(tab.."."..parents[parent_i])
-				local children <const> = essentials.get_descendants(parent, {})
-				for children_i = 1, #children do
-					local menu_feat <const> = children[children_i]
-					if menu_feat.name ~= ""
-					and (essentials.is_str(f, "Menu features") or menu_feat.data ~= "don't search me!")
-					and find(lower(menu_feat.name), input, 1, true) then
-						local hierarchy_string <const> = essentials.get_feat_hierarchy(menu_feat, tab)
-						local feat <const> = menu.add_feature(menu_feat.name, "action_value_str", u.search_menu_features.id, function(f)
-							local menu_feat <const> = menu.get_feature_by_hierarchy_key(hierarchy_string)
-							if essentials.is_str(f, "Go to") then
-								if menu_feat then
-									menu_feat.parent:toggle()
-									menu_feat:select()
-								else
-									essentials.msg(lang["Failed to go to feature."], "red", true, 6)
-								end
-							elseif essentials.is_str(f, "Where") then
-								essentials.msg(
-									hierarchy_string:gsub(
-										".", 
-										{
-											["."] = " >> ",
-											["_"] = " "
-										}
-									), 
-									"green", 
-									true, 
-									12
-								)
-							end
-						end)
-						feat:set_str_data({
-							lang["Go to"],
-							lang["Where"]
-						})
-						feat.data = "don't search me!"
+				essentials.get_descendants(parent, children)
+			end
+		end
+	end
+	table.sort(children, function(a, b)
+		return a.name < b.name
+	end)
+	for children_i = 1, #children do
+		if children[children_i].name ~= "" and children[children_i].type & 1 << 11 == 0 then
+			local menu_feat = children[children_i]
+			if find(lower(menu_feat.name), input, 1, true) then
+				local feat <const> = menu.add_feature(menu_feat.name, "action_value_str", u.search_menu_features.id, function(f)
+					local hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "local")
+					local menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
+					if not menu_feat then
+						hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "online")
+						menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
 					end
-				end
+					if not menu_feat then
+						hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "spawn")
+						menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
+					end
+					menu_feat = menu_feat or children[children_i]
+					if essentials.is_str(f, "Go to") then
+						if menu_feat then
+							menu_feat.parent:toggle()
+							menu_feat:select()
+						else
+							essentials.msg(lang["Failed to go to feature."], "red", true, 6)
+						end
+					elseif essentials.is_str(f, "Where") then
+						essentials.msg(
+							hierarchy_string:gsub(
+								".", 
+								{
+									["."] = " >> ",
+									["_"] = " "
+								}
+							), 
+							"green", 
+							true, 
+							12
+						)
+					end
+				end)
+				feat:set_str_data({
+					lang["Go to"],
+					lang["Where"]
+				})
 			end
 		end
 	end
