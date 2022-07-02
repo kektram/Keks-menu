@@ -385,6 +385,9 @@ return {
 			"editor"
 		}
 	},
+	interiors = {
+		casino = 275201
+	},
 	html_response_codes = {
 		[100] = "Continue",
 		[101] = "Switching Protocols",

@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.8.0 beta 16 test 2
+-- Kek's menu version 0.4.8.0 beta 16 test 3
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 16 test 2"
+__kek_menu_version = "0.4.8.0 beta 16 test 3"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -297,7 +297,12 @@ do -- Extra functionality to api functions
 
 	network.request_control_of_entity = function(...)
 		local Entity <const>, no_condition <const> = ...
-		if no_condition or kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]] then
+
+		local is_entity_limit_breached <const> = kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]]
+
+		if no_condition 
+		or kek_entity.entity_manager.entities[Entity] -- Is entity accounted for, but you don't have control?
+		or is_entity_limit_breached then
 			return originals.request_control_of_entity(Entity)
 		else
 			return false
@@ -6920,12 +6925,6 @@ menu.add_player_feature(lang["Float"], "value_str", u.player_trolling_features, 
 	while f.on and player.player_count() > 0 do
 		system.yield(0)
 		if not entity.is_entity_an_object(platform) then
-			local objects <const> = memoize.get_all_objects()
-			for i = 1, #objects do
-				if entity.get_entity_model_hash(objects[i]) == hash and memoize.get_distance_between(objects[i], player.get_player_ped(pid)) < 75 then
-					kek_entity.clear_entities({objects[i]})
-				end
-			end
 			platform = kek_entity.spawn_networked_object(hash, function()
 				pos = essentials.get_player_coords(pid) - memoize.v3(0, 0, -2.5)
 				return pos
@@ -7824,7 +7823,10 @@ do
 				end
 				local entities <const> = entity_getters[parent_i]()
 				for i2 = 1, #entities do
-					if not parents_in_use[parent_i][entities[i2]] and is_an_entity(entities[i2]) and (parent_i ~= 2 or not is_ped_a_player(entities[i2])) then
+					if not parents_in_use[parent_i][entities[i2]]
+					and #free_parents[parent_i] > 0 
+					and is_an_entity(entities[i2]) 
+					and (parent_i ~= 2 or not is_ped_a_player(entities[i2])) then
 						parents_in_use[parent_i][entities[i2]] = free_parents[parent_i][#free_parents[parent_i]]
 						free_parents[parent_i][#free_parents[parent_i]] = nil
 						local entity_name <const> = get_names[parent_i](get_entity_model_hash(entities[i2]))
@@ -8120,5 +8122,5 @@ essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", fun
 end)
 
 essentials.msg(lang["Successfully loaded Kek's menu."], "green", true)
-
+	
 end, nil)
