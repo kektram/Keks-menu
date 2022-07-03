@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.8.0 beta 15
+-- Kek's menu version 0.4.8.0 beta 16 test 3
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 15"
+__kek_menu_version = "0.4.8.0 beta 16 test 3"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -107,12 +107,6 @@ do -- Makes sure each library is loaded once and that every time one is required
 	require = function(...)
 		local name <const> = ...
 		local lib = package.loaded[name] or original_require(name)
-		if not lib then
-			menu.notify(string.format("Failed to load %s.", name), "Error", 6, 0xff0000ff)
-			local err <const> = select(2, loadfile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")) -- 2take1's custom require function doesn't let you obtain error.
-			print(err)
-			error(err or "Unknown error during loading of "..name..".")
-		end
 		if not package.loaded[name] then
 			package.loaded[name] = lib
 		end
@@ -303,7 +297,12 @@ do -- Extra functionality to api functions
 
 	network.request_control_of_entity = function(...)
 		local Entity <const>, no_condition <const> = ...
-		if no_condition or kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]] then
+
+		local is_entity_limit_breached <const> = kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]]
+
+		if no_condition 
+		or kek_entity.entity_manager.entities[Entity] -- Is entity accounted for, but you don't have control?
+		or is_entity_limit_breached then
 			return originals.request_control_of_entity(Entity)
 		else
 			return false
@@ -378,25 +377,7 @@ u.player_history = menu.add_feature(lang["Player history"], "parent", u.kekMenu)
 u.gvehicle = menu.add_feature(lang["Vehicle"], "parent", u.kekMenu)
 u.self_options = menu.add_feature(lang["Self options"], "parent", u.kekMenu)
 u.weapons_self = menu.add_feature(lang["Weapons"], "parent", u.self_options.id)
-u.search_features = menu.add_feature(lang["Search features from all luas loaded"], "parent", u.kekMenu, function(f)
-	if utils.time_ms() < (f.data.has_informed or math.maxinteger) then -- In case people see the message just as it disappears and tries to see it again before it won't show up anymore
-		essentials.msg(lang["If the search doesn't find the features you expect, make sure you load Kek's menu before you load all your other scripts."], "green", true, 6)
-		essentials.rawset(f.data, "has_informed", utils.time_ms() + 10000) -- f.data is a const table
-	end
-	if f.child_count > 1 then
-		for _, fake_feat in pairs(f.children) do
-			if type(fake_feat.data) == "table" and type(fake_feat.data.real_feat) == "userdata" then
-				if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
-					fake_feat.on = fake_feat.data.real_feat.on
-				end
-				if fake_feat.value then
-					fake_feat.value = fake_feat.data.real_feat.value
-				end
-				fake_feat.name = fake_feat.data.real_feat.name
-			end
-		end
-	end
-end)
+u.search_menu_features = menu.add_feature(lang["Search features"], "parent", 0)
 u.chat_stuff = menu.add_feature(lang["Chat"], "parent", u.kekMenu)
 menu.add_feature(lang["Send clipboard to chat"], "action", u.chat_stuff.id, function()
 	essentials.send_message(utils.from_clipboard())
@@ -458,7 +439,7 @@ for _, properties in pairs({
 				io.remove(properties.folder.."\\"..f.name.."."..properties.extension)
 			end
 			feat_name_map[f.name.."."..properties.extension] = nil
-			essentials.delete_feature(f.id)
+			menu.delete_feature(f.id)
 		elseif essentials.is_str(f, "Change name") then
 			local input, status = f.name
 			while true do
@@ -517,7 +498,7 @@ for _, properties in pairs({
 			for i = 1, #children do -- 3x faster to delete all then reconstruct than using utils.file_exists
 				local feat <const> = children[i]
 				if feat.data == "MENYOO" then
-					essentials.delete_feature(feat.id)
+					menu.delete_feature(feat.id)
 				end
 			end
 			local files <const> = utils.get_all_files_in_directory(properties.folder, properties.extension)
@@ -994,6 +975,10 @@ for _, properties in pairs({
 		setting = 0
 	},
 	{
+		setting_name = "Where to send your translated messages",
+		setting = 0
+	},
+	{
 		setting_name = "Check for updates",
 		setting = true
 	}
@@ -1221,11 +1206,7 @@ do
 				"		local script_name <const> = scripts[#scripts - i]",
 				"		local file_path <const> = appdata_path..\"scripts\\\\\"..script_name",
 				"		if utils.file_exists(file_path) then",
-				"			if require(script_name:gsub(\"%.lua$\", \"\")) then",
-				"				menu.notify(\"Failed to load \"..script_name, \"error\", 6)",
-				"				local err <const> = select(2, loadfile(file_path))",
-				"				print(err)",
-				"			end",
+				"			require(script_name:gsub(\"%.lua$\", \"\"))",
 				"		end",
 				"	end",
 				"end, nil)"
@@ -2759,7 +2740,7 @@ do
 		elseif essentials.is_str(f, "Clear search list") then
 			for i, parent in pairs(player_history.searched_players) do
 				for _, child in pairs(essentials.get_descendants(parent, {}, true)) do
-					essentials.delete_feature(child.id)
+					menu.delete_feature(child.id)
 				end
 				player_history.searched_players[i] = nil
 			end
@@ -3070,7 +3051,7 @@ do
 			if feat == settings.valuei["vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(feat.data)] then
 				settings.valuei["vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(feat.data)] = nil
 			end
-			essentials.delete_feature(feat.id)
+			menu.delete_feature(feat.id)
 			f.data[i] = nil
 		end
 		input = essentials.make_string_case_insensitive(input)
@@ -3912,11 +3893,17 @@ do
 					and player.is_player_valid(event.player) -- Translation can take enough time for the player to become invalid in that time
 					and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
 						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str
+						local is_team_chat = essentials.is_str(f, "Send to team chat")
+
+						if event.player == player.player_id() and settings.toggle["Translate your messages into"].on then
+							is_team_chat = essentials.is_str(settings.valuei["Where to send your translated messages"], "Send to team chat")
+						end
+
 						if essentials.is_str(settings.valuei["Where to send translations"], "To chat") 
 						or (event.player == player.player_id() and settings.toggle["Translate your messages into"].on) then
 							essentials.send_message(
 								str, 
-								essentials.is_str(f, "Team chat")
+								is_team_chat
 							)
 						elseif player.player_id() ~= event.player then
 							essentials.msg("["..player.get_player_name(event.player).."]: "..str, "blue", true, 11)
@@ -3937,6 +3924,12 @@ do
 	settings.toggle["Translate your messages into"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id)
 	settings.valuei["Translate your messages into option"] = settings.toggle["Translate your messages into"]
 	settings.valuei["Translate your messages into option"]:set_str_data(language_names)
+
+	settings.valuei["Where to send your translated messages"] = menu.add_feature(lang["Translate your messages"], "action_value_str", u.translate_chat.id)
+	settings.valuei["Where to send your translated messages"]:set_str_data({
+		lang["Send to all chat"],
+		lang["Send to team chat"]
+	})
 
 	local excluded_languages_from_translation <const> = menu.add_feature(lang["Languages to not translate"], "parent", u.translate_chat.id)
 	for _, name in pairs(enums.supported_langs_by_google) do
@@ -3987,7 +3980,7 @@ do
 				)
 			essentials.send_message(
 				str, 
-				essentials.is_str(settings.toggle["Translate chat into language"], "Team chat")
+				essentials.is_str(settings.toggle["Translate chat into language"], "Send to team chat")
 			)
 		end)
 		settings.valuei["Input text to translate to chat "..i]:set_str_data(language_names)
@@ -5320,10 +5313,9 @@ settings.toggle["Clever bot"].data = {}
 settings.toggle["Auto tp to waypoint"] = menu.add_feature(lang["Auto tp to waypoint"], "toggle", u.self_options.id, function(f)
 	while f.on do
 		system.yield(0)
-		if hud.is_waypoint_active() then
-			local pos <const> = ui.get_waypoint_coord()
-			ui.set_waypoint_off()
-			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), location_mapper.get_most_accurate_position(v3(pos.x, pos.y, -50)))
+		if hud.is_waypoint_active() and kek_entity.get_control_of_entity(kek_entity.get_most_relevant_entity(player.player_id())) then
+			menu.get_feature_by_hierarchy_key("local.teleport.waypoint"):toggle()
+			system.yield(1000)
 		end
 	end
 end)
@@ -5331,7 +5323,6 @@ end)
 settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang["Move mini map to people you spectate"], "toggle", u.self_options.id, function(f)
 	local who_spectating
 	local pos <const> = player.get_player_coords(player.player_id())
-	player.extend_world_boundary_for_player(pos.x, pos.y, pos.z)
 	while f.on do
 		system.yield(0)
 		if network.network_is_in_spectator_mode() then
@@ -5343,7 +5334,6 @@ settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang[
 			who_spectating = -1
 		end
 	end
-	player.reset_world_boundary_for_player()
 end)
 
 local function display_settings(...)
@@ -5846,7 +5836,7 @@ do
 					count = count + 1
 				end
 			until count == 0
-			essentials.delete_feature(f.id)
+			menu.delete_feature(f.id)
 		elseif essentials.is_str(f, "Change name") then
 			local input, status = f.name
 			while true do
@@ -6040,7 +6030,7 @@ do
 				io.remove(paths.menyoo_maps.."\\"..f.name..".xml")
 			end
 			feat_name_map[f.name..".xml"] = nil
-			essentials.delete_feature(f.id)
+			menu.delete_feature(f.id)
 		elseif essentials.is_str(f, "Change name") then
 			local input, status = f.name
 			while true do
@@ -6132,7 +6122,7 @@ do
 			for i = 1, #children do -- 3x faster to delete all then reconstruct than using utils.file_exists
 				local feat <const> = children[i]
 				if feat.data == "MENYOO" then
-					essentials.delete_feature(feat.id)
+					menu.delete_feature(feat.id)
 				end
 			end
 			local files <const> = utils.get_all_files_in_directory(paths.menyoo_maps, "xml")
@@ -6935,12 +6925,6 @@ menu.add_player_feature(lang["Float"], "value_str", u.player_trolling_features, 
 	while f.on and player.player_count() > 0 do
 		system.yield(0)
 		if not entity.is_entity_an_object(platform) then
-			local objects <const> = memoize.get_all_objects()
-			for i = 1, #objects do
-				if entity.get_entity_model_hash(objects[i]) == hash and memoize.get_distance_between(objects[i], player.get_player_ped(pid)) < 75 then
-					kek_entity.clear_entities({objects[i]})
-				end
-			end
 			platform = kek_entity.spawn_networked_object(hash, function()
 				pos = essentials.get_player_coords(pid) - memoize.v3(0, 0, -2.5)
 				return pos
@@ -7839,7 +7823,10 @@ do
 				end
 				local entities <const> = entity_getters[parent_i]()
 				for i2 = 1, #entities do
-					if not parents_in_use[parent_i][entities[i2]] and is_an_entity(entities[i2]) and (parent_i ~= 2 or not is_ped_a_player(entities[i2])) then
+					if not parents_in_use[parent_i][entities[i2]]
+					and #free_parents[parent_i] > 0 
+					and is_an_entity(entities[i2]) 
+					and (parent_i ~= 2 or not is_ped_a_player(entities[i2])) then
 						parents_in_use[parent_i][entities[i2]] = free_parents[parent_i][#free_parents[parent_i]]
 						free_parents[parent_i][#free_parents[parent_i]] = nil
 						local entity_name <const> = get_names[parent_i](get_entity_model_hash(entities[i2]))
@@ -8013,192 +8000,95 @@ do
 	end
 end
 
-u.search_features.data = essentials.const({
-	has_informed = false,
-	feat_logic = function(...)
-		local real_feat, fake_feat = ...
-		if essentials.FEATURE_ID_MAP[fake_feat.type] == "action" then
-			real_feat.on = true
-		end
-		if fake_feat.value then
-			if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
-				real_feat.on = true
-				real_feat.value = fake_feat.value
-				local real_value = real_feat.value
-				local fake_value = fake_feat.value
-				while fake_feat.on and real_feat.on do
-					system.yield(0)
-					if fake_feat.value ~= fake_value then
-						real_feat.value = fake_feat.value
-						fake_value = fake_feat.value
-						real_value = fake_feat.value
-					elseif real_feat.value ~= real_value then
-						fake_feat.value = real_feat.value
-						fake_value = real_feat.value
-						real_value = real_feat.value
-					end
-				end
-				fake_feat.on = false
-				real_feat.on = false
-			else
-				real_feat.value = fake_feat.value
-				if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
-					real_feat.on = true
-				end
-			end
-		elseif essentials.FEATURE_ID_MAP[fake_feat.type] == "toggle" then
-			real_feat.on = true
-			while fake_feat.on and real_feat.on do
-				system.yield(0)
-			end
-			real_feat.on = false
-			fake_feat.on = false
-		end
-	end,
-	player_feat_logic = function(...)
-		local real_feat, 
-		fake_feat,
-		pid <const> = ...
-		if essentials.FEATURE_ID_MAP[fake_feat.type] == "action" then
-			menu.get_player_feature(real_feat.id).feats[pid].on = true
-		end
-		if fake_feat.value then
-			if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
-				menu.get_player_feature(real_feat.id).feats[pid].on = true
-				menu.get_player_feature(real_feat.id).feats[pid].value = fake_feat.value
-				local real_value = menu.get_player_feature(real_feat.id).feats[pid].value
-				local fake_value = fake_feat.value
-				while fake_feat.on and menu.get_player_feature(real_feat.id).feats[pid].on do
-					system.yield(0)
-					if fake_feat.value ~= fake_value then
-						menu.get_player_feature(real_feat.id).feats[pid].value = fake_feat.value
-						fake_value = fake_feat.value
-						real_value = fake_feat.value
-					elseif menu.get_player_feature(real_feat.id).feats[pid].value ~= real_value then
-						fake_feat.value = menu.get_player_feature(real_feat.id).feats[pid].value
-						fake_value = menu.get_player_feature(real_feat.id).feats[pid].value
-						real_value = menu.get_player_feature(real_feat.id).feats[pid].value
-					end
-				end
-				fake_feat.on = false
-				menu.get_player_feature(real_feat.id).feats[pid].on = false
-			else
-				real_feat.value = fake_feat.value
-				if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
-					real_feat.on = true
-				end
-			end
-		elseif essentials.FEATURE_ID_MAP[fake_feat.type] == "toggle" then
-			real_feat.on = true
-			while fake_feat.on and real_feat.on do
-				system.yield(0)
-			end
-			real_feat.on = false
-			fake_feat.on = false
-		end
-	end,
-	set_feat_properties = function(...)
-		local real_feat <const>,
-		fake_feat,
-		real_feat_player_if_relevant <const> = ...
-		if fake_feat.value then
-			if essentials.FEATURE_ID_MAP[fake_feat.type]:find("str", 1, true) then
-				fake_feat:set_str_data((real_feat_player_if_relevant or real_feat):get_str_data())
-			else
-				fake_feat.min = real_feat.min
-				fake_feat.max = real_feat.max
-				fake_feat.mod = real_feat.mod
-			end
-			fake_feat.value = real_feat.value
-		end
-		if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
-			fake_feat.on = real_feat.on
-		end
-	end
-})
-
-menu.add_feature(lang["Search"], "action", u.search_features.id, function()
-	local input, status <const> = keys_and_input.get_input(lang["Type in name of a player or regular feature."], "", 128, 0)
+u.search_features = menu.add_feature(lang["Search"], "action_value_str", u.search_menu_features.id, function(f)
+	local input, status <const> = keys_and_input.get_input(lang["Type in name of feature."], "", 128, 0)
 	if status == 2 then
 		return
 	end
 	input = input:lower()
-	for _, fake_feat in pairs(u.search_features.children) do
-		if fake_feat.data ~= "isn't searchable" then
-			fake_feat.data = "isn't searchable"
-			if fake_feat.type == 2048 and fake_feat.child_count > 0 then
-				for _, child in pairs(fake_feat.children) do
-					if child.data ~= "isn't searchable" then
-						child.data = "isn't searchable"
-						essentials.delete_feature(child.id)
-					end
-				end
-			end
-			essentials.delete_feature(fake_feat.id)
+	u.hotkey_feat_for_search.hidden = true
+	local children <const> = u.search_menu_features.children
+	for i = 1, #children do
+		if children[i].data ~= "dont_delete" then
+			menu.delete_feature(children[i].id)
 		end
 	end
-	local map <const> = essentials.const_all({
-		feats = essentials.deep_copy(essentials.feats),
-		player_feats = essentials.deep_copy(essentials.player_feats)
-	})
-	for type_of_feature, features in pairs(map) do
-		for _, FEAT in pairs(features) do
-			local real_feat
-			if type_of_feature == "player_feats" then
-				FEAT = menu.get_player_feature(FEAT)
-				real_feat = FEAT.feats[0]
-			else
-				real_feat = FEAT
+	if input == "" then
+		u.hotkey_feat_for_search.hidden = false
+		return
+	end
+
+	local find <const>, lower <const> = string.find, string.lower
+	local children <const> = {}
+	for tab, parents in pairs(enums.menu_feature_hierarchy) do
+		for parent_i = 1, #parents do
+			if (essentials.is_str(f, "Lua features") and parents[parent_i] == "script_features") 
+			or (essentials.is_str(f, "Menu features") and parents[parent_i] ~= "script_features") then
+				local parent <const> = menu.get_feature_by_hierarchy_key(tab.."."..parents[parent_i])
+				essentials.get_descendants(parent, children)
 			end
-			if real_feat.type ~= 2048
-			and not real_feat.hidden
-			and real_feat.data ~= "isn't searchable"
-			and (not essentials.FEATURE_ID_MAP[real_feat.type]:find("str", 1, true) or FEAT:get_str_data())
-			and real_feat.name:lower():find(input, 1, true) then
-				if type_of_feature == "player_feats" then
-					menu.add_feature(menu.get_player_feature(real_feat.id).feats[0].name, "parent", u.search_features.id, function(fake_feat)
-						if fake_feat.child_count == 0 then
-							for pid = 0, 31 do
-								local feat_type = essentials.FEATURE_ID_MAP[menu.get_player_feature(real_feat.id).feats[pid].type]
-								if feat_type:find("action", 1, true) and not feat_type:find("auto", 1, true) and feat_type ~= "action" then
-									feat_type = "auto"..feat_type
-								end
-								local fake_feat = menu.add_feature(player.get_player_name(pid) or "", feat_type, fake_feat.id, function(fake_feat)
-									u.search_features.data.player_feat_logic(menu.get_player_feature(real_feat.id).feats[pid], fake_feat, pid)
-								end)
-								fake_feat.hidden = not player.is_player_valid(pid)
-								u.search_features.data.set_feat_properties(menu.get_player_feature(real_feat.id).feats[pid], fake_feat, menu.get_player_feature(real_feat.id))
-							end
+		end
+	end
+	table.sort(children, function(a, b)
+		return a.name < b.name
+	end)
+	for children_i = 1, #children do
+		if children[children_i].name ~= "" and children[children_i].type & 1 << 11 == 0 then
+			local menu_feat = children[children_i]
+			if find(lower(menu_feat.name), input, 1, true) then
+				local feat <const> = menu.add_feature(menu_feat.name, "action_value_str", u.search_menu_features.id, function(f)
+					local hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "local")
+					local menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
+					if not menu_feat then
+						hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "online")
+						menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
+					end
+					if not menu_feat then
+						hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "spawn")
+						menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
+					end
+					menu_feat = menu_feat or children[children_i]
+					if essentials.is_str(f, "Go to") then
+						if menu_feat then
+							menu_feat.parent:toggle()
+							menu_feat:select()
 						else
-							for pid, child in pairs(fake_feat.children) do
-								child.hidden = not player.is_player_valid(pid - 1)
-								if player.is_player_valid(pid - 1) then
-									child.name = player.get_player_name(pid - 1)
-								end
-								if not essentials.FEATURE_ID_MAP[child.type]:find("action", 1, true) then
-									child.on = menu.get_player_feature(real_feat.id).feats[pid - 1].on
-								end
-								if child.value then
-									child.value = menu.get_player_feature(real_feat.id).feats[pid - 1].value
-								end
-							end
+							essentials.msg(lang["Failed to go to feature."], "red", true, 6)
 						end
-					end)
-				else
-					local feat_type = essentials.FEATURE_ID_MAP[real_feat.type]
-					if feat_type:find("action", 1, true) and not feat_type:find("auto", 1, true) and feat_type ~= "action" then
-						feat_type = "auto"..feat_type
+					elseif essentials.is_str(f, "Where") then
+						essentials.msg(
+							hierarchy_string:gsub(
+								".", 
+								{
+									["."] = " >> ",
+									["_"] = " "
+								}
+							), 
+							"green", 
+							true, 
+							12
+						)
 					end
-					local fake_feat = menu.add_feature(real_feat.name, feat_type, u.search_features.id, function(fake_feat)
-						u.search_features.data.feat_logic(real_feat, fake_feat)
-					end)
-					u.search_features.data.set_feat_properties(real_feat, fake_feat)
-					fake_feat.data = real_feat
-				end
+				end)
+				feat:set_str_data({
+					lang["Go to"],
+					lang["Where"]
+				})
 			end
 		end
 	end
-end).data = "isn't searchable"
+end)
+u.search_features:set_str_data({
+	lang["Menu features"],
+	lang["Lua features"]
+})
+u.search_features.data = "dont_delete"
+
+u.hotkey_feat_for_search = menu.add_feature(lang["Set hotkey on this to go here"], "action", u.search_menu_features.id, function(f)
+	u.search_menu_features:toggle()
+	u.search_features:select()
+end)
+u.hotkey_feat_for_search.data = "dont_delete"
 
 settings:initialize(paths.home.."scripts\\kek_menu_stuff\\keksettings.ini")
 
@@ -8232,5 +8122,5 @@ essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", fun
 end)
 
 essentials.msg(lang["Successfully loaded Kek's menu."], "green", true)
-
+	
 end, nil)

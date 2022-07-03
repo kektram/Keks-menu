@@ -73,6 +73,7 @@ do
 				kek_entity.hard_remove_entity_and_its_attachments(Entity)
 			end
 		end
+		kek_entity.entity_manager:update()
 	end
 end
 

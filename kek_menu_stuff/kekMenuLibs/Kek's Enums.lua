@@ -335,6 +335,59 @@ return {
 		"Yoruba",
 		"Zulu"
 	},
+	menu_feature_hierarchy = {
+		["local"] = {
+			"player_options",
+			"vehicle_options",
+			"model_changer",
+			"outfits",
+			"outfitter",
+			"animations",
+			"ptfx",
+			"teleport",
+			"aim_assist",
+			"weapons",
+			"weather_and_time",
+			--"scripts", don't have access to this
+			"script_features",
+			"asi_plugins",
+			"misc",
+			"settings"
+		},
+		["online"] = {
+			--"online_players", can only be accessed via .children property, not directly with hierarchy function
+			"all_players",
+			"lobby",
+			"services",
+			"session_browser",
+			"sc_browser",
+			"join_timeout",
+			"player_spoofer",
+			"join_redirect",
+			"net_sync_spoof",
+			"fake_friends",
+			"radar",
+			"esp",
+			"modder_detection",
+			"protections",
+			"event_hooks",
+			"tunables",
+			"recovery",
+			"casino_perico_heist",
+			"business",
+			"casino",
+			"chat_commands"
+		},
+		["spawn"] = {
+			"vehicles",
+			"peds",
+			"objects",
+			"editor"
+		}
+	},
+	interiors = {
+		casino = 275201
+	},
 	html_response_codes = {
 		[100] = "Continue",
 		[101] = "Switching Protocols",
