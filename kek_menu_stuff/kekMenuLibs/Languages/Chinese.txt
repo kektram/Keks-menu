@@ -543,7 +543,6 @@ Show sphere §显示球面
 Anti chat spam §反聊天刷屏
 kicked for spamming chat. §因聊天轰炸已踢出战局.
 Kick & add to timeout §踢出并添加到加入超时
-Type in name of a player or regular feature. §输入玩家或通用功能的名称
 Has modded weapons. §拥有作弊者武器.
 Type in name of entity. §请输入实体名称.
 Kill engine §破坏引擎
@@ -603,7 +602,6 @@ Peaceful §友好
 Add entry §添加条目
 Remove entry §删除条目
 Delete profile §删除配置
-Search features from all luas loaded §从所有已加载的lua中搜索功能
 For chat to show here, chat logger must be on. You can find chat logger in script features > Chat §要在此处显示聊天信息,必须打开聊天记录器.你可以在 脚本功能 > 聊天选项 中找到记录聊天信息到日志
 Gravity §重力
 Swap nearby vehicles to police §将附近的载具变成警车并为警察驾驶
@@ -631,7 +629,6 @@ Reset offset §重置偏移
 Player is not in a vehicle. §玩家不在载具中.
 Clear attachments §清除附加
 Collision §碰撞
-If the search doesn't find the features you expect, make sure you load Kek's menu before you load all your other scripts. §如果搜索结果中没有找到你期望寻找的功能,请确保在加载所有其他脚本之前已经了加载 Kek 的菜单.
 Log flags below to blacklist §将以下标志记录到黑名单
 Notifications on §开启通知
 Notifications off §关闭通知
@@ -807,3 +804,11 @@ Send to team chat §发送到团队聊天
 Send to all chat §发送到全部聊天
 Tip: set hotkeys for the translate inputs below §提示: 为下面的翻译输入设置快捷键
 Translate your messages §翻译你的信息
+Menu features §菜单功能
+Lua features §Lua 功能
+Type in name of feature. §输入功能名称.
+Failed to go to feature. §无法跳转到功能.
+Go to §跳转
+Where §在哪
+Set hotkey on this to go here §可在此设置快捷键以跳转到这里.
+Search features §搜索功能
