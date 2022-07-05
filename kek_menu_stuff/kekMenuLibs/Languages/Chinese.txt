@@ -785,7 +785,7 @@ Failed to teleport player. §传送玩家失败.
 Translate your messages into §翻译你的聊天信息
 Obtaining update information... §获取更新信息中...
 There's a new update for Kek's menu available. Press enter to install it, space to not. §Kek菜单有新的更新. 按 回车 安装或 空格 取消.
-This message will disappear in 25 seconds and will assume you don't want the update. §此信息将在25秒后消失,并假设你不想更新.
+This message will disappear in %i seconds and will assume you don't want the update. §此信息将在%i秒后消失,并假设你不想更新.
 Check for updates §自动检查更新
 You must turn on trusted mode->Http to use this script. §你必须打开 信任模式 -> Http 才能使用此脚本.
 Requires %i more peds than can be spawned. There are peds taking up space; clear them to spawn the map/vehicle. §需要生成的NPC比可以生成的多%i.有NPC占用了空间;清除它们以生成地图/载具.
