@@ -1138,14 +1138,13 @@ function kek_entity.remove_player_vehicle(...)
 			system.yield(0)
 			ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 		end
-		if kek_entity.get_control_of_entity(player.get_player_vehicle(pid)) then
-			kek_entity.hard_remove_entity_and_its_attachments(player.get_player_vehicle(pid))
-		end
+		kek_entity.clear_entities({player.get_player_vehicle(pid)}, 5000)
 	end
+	local was_succesful <const> = not entity.is_entity_a_vehicle(player.get_player_vehicle(pid))
 	if had_to_teleport then
 		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
-	return not essentials.is_in_vehicle(pid)
+	return was_succesful
 end
 
 function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
