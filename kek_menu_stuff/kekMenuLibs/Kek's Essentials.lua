@@ -1276,7 +1276,7 @@ function essentials.update_keks_menu()
 			ui.set_text_centre(true)
 			ui.set_text_outline(true)
 			ui.draw_text(
-				lang["This message will disappear in 25 seconds and will assume you don't want the update."], 
+				lang["This message will disappear in %i seconds and will assume you don't want the update."]:format(math.ceil((time - utils.time_ms()) / 1000)), 
 				v2(0.5, 0.5)
 			)
 			if utils.time_ms() > time or controls.is_control_pressed(0, 143) or controls.is_disabled_control_pressed(0, 143) then

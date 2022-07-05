@@ -1,11 +1,11 @@
--- Kek's menu version 0.4.8.0 beta 16 test 3
+-- Kek's menu version 0.4.8.0 beta 16 test
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 16 test 3"
+__kek_menu_version = "0.4.8.0 beta 17"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -122,7 +122,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Kek's Vehicle mapper"] = "1.3.9", 
 		["Kek's Ped mapper"] = "1.2.7",
 		["Kek's Object mapper"] = "1.2.7", 
-		["Kek's Globals"] = "1.3.5",
+		["Kek's Globals"] = "1.3.6",
 		["Kek's Weapon mapper"] = "1.0.5",
 		["Kek's Location mapper"] = "1.0.2",
 		["Kek's Keys and input"] = "1.0.7",
@@ -1676,7 +1676,7 @@ settings.toggle["Aim protection"] = menu.add_feature(lang["Aim protection"], "va
 						system.yield(75)
 					end
 				elseif essentials.is_str(f, "Invite to apartment") then
-					globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 113), 1, 1, 1}, true)
+					globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1)
 				end
 			end
 		end
@@ -3096,7 +3096,7 @@ do
 								if setting == "EMP" then
 									essentials.msg(string.format("%s %s's' %s.", lang["Vehicle blacklist:\nEMP'd"], name, veh_name), "orange", notif_on)
 									local pos <const> = essentials.get_player_coords(pid)
-									globals.send_script_event("Vehicle EMP", pid, {pid, essentials.round(pos.x), essentials.round(pos.y), essentials.round(pos.z), 0}, false, true)
+									globals.send_script_event(pid, "Vehicle EMP", {priority = true}, essentials.round(pos.x), essentials.round(pos.y), essentials.round(pos.z), 0)
 								elseif setting == "Kick from vehicle" then
 									essentials.msg(string.format("%s %s %s %s.", lang["Vehicle blacklist:\nKicked"], name, lang["out of their"], veh_name), "orange", notif_on)
 									globals.disable_vehicle(pid)
@@ -3584,11 +3584,13 @@ end):set_str_data({
 
 menu.add_feature(lang["Never wanted"], "toggle", u.session_peaceful.id, function(f)
 	while f.on do
+		local bits = 0
 		for pid in essentials.players() do
 			if player.get_player_wanted_level(pid) > 0 and player.is_player_playing(pid) and not player.is_player_modder(pid, -1) then
-				globals.send_script_event("Generic event", pid, {pid, globals.GENERIC_ARG_HASHES.clear_wanted})
+				bits = bits | 1 << pid
 			end
 		end
+		globals.send_script_event(bits, "Generic event", {send_to_multiple_people = true}, globals.GENERIC_ARG_HASHES.clear_wanted)
 		system.yield(1000)
 	end
 end)
@@ -3597,7 +3599,7 @@ menu.add_feature(lang["off the radar"], "toggle", u.session_peaceful.id, functio
 	while f.on do
 		for pid in essentials.players() do
 			if globals.get_player_global("otr_status", pid) ~= 1 and player.is_player_playing(pid) and not player.is_player_modder(pid, -1) then
-				globals.send_script_event("Give OTR or ghost organization", pid, {pid, utils.time() - 60, utils.time(), 1, 1, globals.get_player_global("generic", pid)})
+				globals.send_script_event(pid, "Give OTR or ghost organization", nil, utils.time() - 60, utils.time(), 1, 1, globals.get_player_global("generic", pid))
 			end
 		end
 		system.yield(1000)
@@ -3605,36 +3607,27 @@ menu.add_feature(lang["off the radar"], "toggle", u.session_peaceful.id, functio
 end)
 
 u.send_30k_to_session = menu.add_feature(lang["30k ceo loop"], "toggle", u.session_peaceful.id, function(f)
-	menu.get_player_feature(player_feat_ids["30k ceo"]).on = false
+	essentials.set_all_player_feats_except(player_feat_ids["30k ceo"], false, {[player.player_id()] = true})
 	menu.create_thread(function()
 		while f.on do
 			for pid in essentials.players() do
 				if globals.get_player_global("organization_associate_hash", pid) ~= -1 then
-					globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 0, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
+					globals.send_script_event(pid, "CEO money", nil, 10000, -1292453789, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"))
 				end
 			end
-			essentials.wait_conditional(20000, function() 
-				return f.on 
-			end)
-			if f.on then
-				for pid in essentials.players() do
-					if globals.get_player_global("organization_associate_hash", pid) ~= -1 then
-						globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
-					end
-				end
-			end
-			essentials.wait_conditional(20000, function() 
+			essentials.wait_conditional(40000, function() 
 				return f.on 
 			end)
 		end
 	end, nil)
+
 	while f.on do
 		for pid in essentials.players() do
 			if globals.get_player_global("organization_associate_hash", pid) ~= -1 then
-				globals.send_script_event("CEO money", pid, {pid, 30000, 198210293, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
+				globals.send_script_event(pid, "CEO money", nil, 30000, 198210293, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"))
 			end
 		end
-		essentials.wait_conditional(120000, function() 
+		essentials.wait_conditional(150000, function() 
 			return f.on 
 		end)
 	end
@@ -3685,47 +3678,57 @@ settings.toggle["Is player typing"].data = {}
 
 menu.add_feature(lang["Block passive mode"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
+		local bits = 0
 		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) and player.is_player_playing(pid) then
-				globals.send_script_event("Block passive", pid, {pid, 1}, true)
+			if not player.is_player_modder(pid, -1) and player.is_player_playing(pid) and essentials.is_not_friend(pid) then
+				bits = bits | 1 << pid
 			end
 		end
+		globals.send_script_event(bits, "Block passive", {send_to_multiple_people = true}, 1)
 		system.yield(1000)
 	end
+	local bits = 0
 	for pid in essentials.players() do
-		if not player.is_player_modder(pid, -1) then
-			globals.send_script_event("Block passive", pid, {pid, 0}, true)
+		if not player.is_player_modder(pid, -1) and player.is_player_playing(pid) and essentials.is_not_friend(pid) then
+			bits = bits | 1 << pid
 		end
 	end
+	globals.send_script_event(bits, "Block passive", {send_to_multiple_people = true}, 0)
 end)
 
 menu.add_feature(lang["Teleport to Perico island"], "action", u.session_trolling.id, function(f)
+	local bits = 0
 	for pid in essentials.players() do
-		if not player.is_player_modder(pid, -1) then
-			globals.send_script_event("Send to Perico island", pid, {pid, globals.get_script_event_hash("Send to Perico island"), 0, 0}, true)
+		if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
+			bits = bits | 1 << pid
 		end
 	end
+	globals.send_script_event(bits, "Send to Perico island", {send_to_multiple_people = true}, globals.get_script_event_hash("Send to Perico island"), 0, 0)
 end)
 
 menu.add_feature(lang["Organization"], "action_value_str", u.session_trolling.id, function(f)
+	local bits = 0
 	if essentials.is_str(f, "Ban") then
 		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) then
-				globals.send_script_event("CEO ban", pid, {pid, 1}, true)
+			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
+				bits = bits | 1 << pid
 			end
 		end
+		globals.send_script_event(bits, "CEO ban", {send_to_multiple_people = true}, 1)
 	elseif essentials.is_str(f, "Dismiss") then
 		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) then
-				globals.send_script_event("Dismiss or terminate from CEO", pid, {pid, 1, 5}, true)
+			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
+				bits = bits | 1 << pid
 			end
 		end
+		globals.send_script_event(bits, "Dismiss or terminate from CEO", {send_to_multiple_people = true}, 1, 5)
 	elseif essentials.is_str(f, "Terminate") then
 		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) then
-				globals.send_script_event("Dismiss or terminate from CEO", pid, {pid, 1, 6}, true)
+			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
+				bits = bits | 1 << pid
 			end
 		end
+		globals.send_script_event(bits, "Dismiss or terminate from CEO", {send_to_multiple_people = true}, 1, 6)
 	end
 end):set_str_data({
 	lang["Ban"],
@@ -3735,28 +3738,30 @@ end):set_str_data({
 
 menu.add_feature(lang["Notification spam"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
-		local exclusion_table <const> = {[player.player_id()] = true}
+		local bits = 0
 		for pid in essentials.players() do
-			local rand_pid <const> = essentials.get_random_player_except(exclusion_table)
-			globals.send_script_event("Notifications", pid, {
-				pid, 
-				globals.NOTIFICATION_HASHES_RAW[math.random(1, #globals.NOTIFICATION_HASHES_RAW)], 
-				math.random(-2147483647, 2147483647),
-				1, 0, 0, 0, 0, 0, pid, 
-				player.player_id(), 
-				rand_pid, 
-				essentials.get_random_player_except({[player.player_id()] = true, [rand_pid] = true})
-			})
+			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
+				bits = bits | 1 << pid
+			end
 		end
-		system.yield(500)
+		local rand_pid <const> = essentials.get_random_player_except({[player.player_id()] = true})
+		globals.send_script_event(bits, "Notifications", {send_to_multiple_people = true},
+			globals.NOTIFICATION_HASHES_RAW[math.random(1, #globals.NOTIFICATION_HASHES_RAW)], 
+			math.random(-2147483647, 2147483647),
+			1, 0, 0, 0, 0, 0, pid, 
+			player.player_id(), 
+			rand_pid, 
+			essentials.get_random_player_except({[player.player_id()] = true, [rand_pid] = true})
+		)
+		system.yield(1000)
 	end
 end)
 
 menu.add_feature(lang["Transaction error"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
 		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) and player.is_player_playing(pid) then
-				globals.send_script_event("Transaction error", pid, {pid, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1}, true)
+			if not player.is_player_modder(pid, -1) then
+				globals.send_script_event(pid, "Transaction error", {friend_condition = true}, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1)
 			end
 		end
 		system.yield(1000)
@@ -4745,7 +4750,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								essentials.send_message("[Chat commands]: Invalid apartment id. Must be between 1 and 113.", event.player == player.player_id())
 								return
 							end
-							globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, apartment_id, 1, 1, 1})
+							globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, apartment_id, 1, 1, 1)
 						elseif settings.in_use["offtheradar #chat command#"] and str:find("^%pofftheradar") then
 							if not str:match("%pofftheradar (%a+)") then
 								essentials.send_message("[Chat commands]: Missing argument <on/off>")
@@ -6301,7 +6306,7 @@ end)
 player_feat_ids["player otr"] = menu.add_player_feature(lang["Off the radar"], "toggle", u.player_peaceful, function(f, pid)
 	while f.on do
 		if globals.get_player_global("otr_status", pid) ~= 1 then
-			globals.send_script_event("Give OTR or ghost organization", pid, {pid, utils.time() - 60, utils.time(), 1, 1, globals.get_player_global("generic", pid)})
+			globals.send_script_event(pid, "Give OTR or ghost organization", nil, utils.time() - 60, utils.time(), 1, 1, globals.get_player_global("generic", pid))
 			system.yield(1000)
 		end
 		system.yield(0)
@@ -6311,15 +6316,27 @@ end).id
 player_feat_ids["Never wanted"] = menu.add_player_feature(lang["Never wanted"], "toggle", u.player_peaceful, function(f, pid)
 	while f.on do
 		if player.is_player_valid(pid) and player.get_player_wanted_level(pid) > 0 then
-			globals.send_script_event("Generic event", pid, {pid, globals.GENERIC_ARG_HASHES.clear_wanted})
+			globals.send_script_event(pid, "Generic event", nil, globals.GENERIC_ARG_HASHES.clear_wanted)
 			system.yield(1000)
 		end
 		system.yield(0)
 	end
 end).id
 
+--[[
+-81613951 == vehicle special cargo\
+								   :You can't use these 2 at the same time, it causes transaction error [max 10k]
+-1292453789 == vehicle cargo 	  /
+
+198210293 == CEO sell goods [max 30k]
+
+-1292453789 [but arg 4 as 0]\
+				  -1905128202\ 
+							  : paid for being an associate, shows message but doesn't give money after it successfully gave money once, unless you wait a long time to give again [max 10k]
+				  1160415507 /
+]]
 player_feat_ids["30k ceo"] = menu.add_player_feature(lang["30k ceo loop"], "toggle", u.player_peaceful, function(f, pid)
-	if u.send_30k_to_session.on then
+	if u.send_30k_to_session.on and player.player_id() ~= pid then
 		essentials.msg(lang["The 30k loop for session is already toggled on."], "red", true, 6)
 		f.on = false
 		return
@@ -6329,23 +6346,19 @@ player_feat_ids["30k ceo"] = menu.add_player_feature(lang["30k ceo loop"], "togg
 		f.on = false
 		return
 	end
+
 	menu.create_thread(function()
 		while f.on do
-			globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 0, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
-			essentials.wait_conditional(20000, function() 
-				return f.on and globals.get_player_global("organization_associate_hash", pid) ~= -1
-			end)
-			if f.on then
-				globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
-			end
-			essentials.wait_conditional(20000, function() 
+			globals.send_script_event(pid, "CEO money", nil, 10000, -1292453789, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"))
+			essentials.wait_conditional(40000, function() 
 				return f.on and globals.get_player_global("organization_associate_hash", pid) ~= -1
 			end)
 		end
 	end, nil)
+
 	while f.on and globals.get_player_global("organization_associate_hash", pid) ~= -1 do
-		globals.send_script_event("CEO money", pid, {pid, 30000, 198210293, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
-		essentials.wait_conditional(120000, function() 
+		globals.send_script_event(pid, "CEO money", nil, 30000, 198210293, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"))
+		essentials.wait_conditional(150000, function() 
 			return f.on and globals.get_player_global("organization_associate_hash", pid) ~= -1
 		end)
 	end
@@ -6387,43 +6400,42 @@ end):set_str_data({
 
 
 menu.add_player_feature(lang["Teleport to Perico island"], "action", u.script_stuff, function(f, pid)
-	globals.send_script_event("Send to Perico island", pid, {pid, globals.get_script_event_hash("Send to Perico island"), 0, 0})
+	globals.send_script_event(pid, "Send to Perico island", nil, globals.get_script_event_hash("Send to Perico island"), 0, 0)
 end)
 
 menu.add_player_feature(lang["Apartment invites"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
-		globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 113), 1, 1, 1})
+		globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1)
 		system.yield(5000)
 	end
 end)
 
 menu.add_player_feature(lang["Block passive mode"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
-		globals.send_script_event("Block passive", pid, {pid, 1})
+		globals.send_script_event(pid, "Block passive", nil, 1)
 		system.yield(1000)
 	end
-	globals.send_script_event("Block passive", pid, {pid, 0})
+	globals.send_script_event(pid, "Block passive", nil, 0)
 end)
 
 menu.add_player_feature(lang["Notification spam"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
 		local rand_pid <const> = essentials.get_random_player_except({[player.player_id()] = true})
-		globals.send_script_event("Notifications", pid, {
-			pid, 
+		globals.send_script_event(pid, "Notifications", nil, 
 			globals.NOTIFICATION_HASHES_RAW[math.random(1, #globals.NOTIFICATION_HASHES_RAW)], 
 			math.random(-2147483647, 2147483647),
 			1, 0, 0, 0, 0, 0, pid, 
 			player.player_id(), 
 			rand_pid, 
 			essentials.get_random_player_except({[player.player_id()] = true, [rand_pid] = true})
-		})
-		system.yield(500)
+		)
+		system.yield(1000)
 	end
 end)
 
 menu.add_player_feature(lang["Transaction error"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
-		globals.send_script_event("Transaction error", pid, {pid, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1})
+		globals.send_script_event(pid, "Transaction error", nil, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1)
 		system.yield(500)
 	end
 end)
@@ -6518,7 +6530,6 @@ do
 					end
 				end
 			elseif essentials.is_str(f, "Remove") then
-				globals.send_script_event("Destroy personal vehicle", pid, {pid, pid})
 				kek_entity.remove_player_vehicle(pid)
 			elseif essentials.is_str(f, "Clone") then
 				if player.player_count() == 0 then
@@ -8122,5 +8133,5 @@ essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", fun
 end)
 
 essentials.msg(lang["Successfully loaded Kek's menu."], "green", true)
-	
+
 end, nil)

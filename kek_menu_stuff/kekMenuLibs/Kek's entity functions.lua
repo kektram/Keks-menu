@@ -1129,6 +1129,7 @@ end
 
 function kek_entity.remove_player_vehicle(...)
 	local pid <const> = ...
+	globals.send_script_event(pid, "Destroy personal vehicle", nil, pid)
 	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
 	if status then
@@ -1144,7 +1145,7 @@ function kek_entity.remove_player_vehicle(...)
 	if had_to_teleport then
 		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
-	return not entity.is_entity_a_vehicle(player.get_player_vehicle(pid))
+	return not essentials.is_in_vehicle(pid)
 end
 
 function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
