@@ -124,7 +124,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Kek's Vehicle mapper"] = "1.3.9", 
 		["Kek's Ped mapper"] = "1.2.7",
 		["Kek's Object mapper"] = "1.2.7", 
-		["Kek's Globals"] = "1.3.6",
+		["Kek's Globals"] = "1.3.7",
 		["Kek's Weapon mapper"] = "1.0.5",
 		["Kek's Location mapper"] = "1.0.2",
 		["Kek's Keys and input"] = "1.0.7",
