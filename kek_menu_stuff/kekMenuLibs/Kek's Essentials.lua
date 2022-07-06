@@ -1468,7 +1468,7 @@ function essentials.update_keks_menu()
 
 			-- Remove old files & undo all changes to the global space
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")) do
-				package.loaded[file_name:gsub("%.lua", "")] = nil
+				package.loaded[file_name:sub(1, -5)] = nil
 				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name)
 			end
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages", "txt")) do
