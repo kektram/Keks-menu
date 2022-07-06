@@ -1,11 +1,10 @@
--- Kek's menu version 0.4.8.0 beta 16 test
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 17 test"
+__kek_menu_version = "0.4.8.0 beta 18"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -109,7 +108,11 @@ do -- Makes sure each library is loaded once and that every time one is required
 		local name <const> = ...
 		assert(utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua"), "Tried to require a file that doesn't exist.")
 		assert(name:find("^Kek's %u"), "Invalid library name. [kekMenuLibs\\"..name.."]: format should be \"Kek's <Uppercase letter><rest of lib name>\"")
-		local lib = package.loaded[name] or dofile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")
+		
+		local lib = package.loaded[name] 
+		or __kek_menu_has_done_update and dofile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")
+		or original_require(name)
+
 		if not package.loaded[name] then
 			package.loaded[name] = lib
 		end
@@ -125,7 +128,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Kek's Vehicle mapper"] = "1.3.9", 
 		["Kek's Ped mapper"] = "1.2.7",
 		["Kek's Object mapper"] = "1.2.7", 
-		["Kek's Globals"] = "1.3.7",
+		["Kek's Globals"] = "1.3.6",
 		["Kek's Weapon mapper"] = "1.0.5",
 		["Kek's Location mapper"] = "1.0.2",
 		["Kek's Keys and input"] = "1.0.7",
@@ -145,7 +148,6 @@ do -- Makes sure each library is loaded once and that every time one is required
 			require(name)
 		end
 		if package.loaded[name].version ~= version then
-			print(name, package.loaded[name].version)
 			menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
 			error(package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."])
 		end
