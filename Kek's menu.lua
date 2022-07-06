@@ -1,11 +1,10 @@
--- Kek's menu version 0.4.8.0 beta 16 test
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 17 test"
+__kek_menu_version = "0.4.8.0 beta 18"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -87,11 +86,12 @@ and utils.file_exists(paths.debugger) then
 		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
 			__kek_menu_participate_in_betas = true
 		end
-		if str:match("Check for updates=(%a%a%a%a)") == nil or str:match("Check for updates=(%a%a%a%a)") == "true" then
+		if str:match("Check for updates=(%a%a%a%a)") == "true" then
 			__kek_menu_check_for_updates = true
 		end
 	end
 else
+	__kek_menu_check_for_updates = true
 	local file <const> = io.open(paths.kek_settings, "w+")
 	file:close()
 end
@@ -108,7 +108,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		local name <const> = ...
 		assert(utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua"), "Tried to require a file that doesn't exist.")
 		assert(name:find("^Kek's %u"), "Invalid library name. [kekMenuLibs\\"..name.."]: format should be \"Kek's <Uppercase letter><rest of lib name>\"")
-		local lib = package.loaded[name] or original_require(name)
+		local lib = package.loaded[name] or dofile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") -- Uses dofile because require cause issues with auto updater
 		if not package.loaded[name] then
 			package.loaded[name] = lib
 		end
