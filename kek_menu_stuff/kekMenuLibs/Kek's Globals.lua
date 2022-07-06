@@ -1,10 +1,10 @@
 -- Copyright © 2020-2022 Kektram, Sainan
 
-local globals <const> = {version = "1.3.5"}
+local globals <const> = {version = "1.3.6"}
 
 local essentials <const> = require("Kek's Essentials")
 local enums <const> = require("Kek's Enums")
-local settings <const> = require("Kek's settings")
+local settings <const> = require("Kek's Settings")
 local memoize <const> = require("Kek's Memoize")
 
 local offsets <const> = essentials.const({
@@ -397,7 +397,7 @@ function globals.get_global(global_name)
 end
 
 function globals.force_player_into_vehicle(pid) -- Creds to RulyPancake the 5th#1345 for logging this from stand menu
-	globals.send_script_event("Force player into vehicle", pid, {pid, 1, 32, network.network_hash_from_player(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1})
+	globals.send_script_event(pid, "Force player into vehicle", nil, 1, 32, network.network_hash_from_player(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 	local time <const> = utils.time_ms() + 15000
 	system.yield(5000)
 	while not player.is_player_dead(pid) and (player.is_player_god(pid) or not essentials.is_in_vehicle(pid)) and time > utils.time_ms() do
@@ -432,34 +432,47 @@ globals.script_event_tracker = setmetatable({count = 0, id = 0}, {
 		return next, getmetatable(Table).__index
 	end
 })
-function globals.send_script_event(...)
-	local name <const>,
-	pid <const>,
-	args <const>,
-	friend_condition <const>,
-	priority <const>, -- Some script events like emp will not work if delayed too much. 12 se in one frame is far below the the dangerous threshold of 20.
-	cant_yield <const> = ... -- Like priority events, this can send if current count is under 12. This allows for most events of this kind to send immediately.
-	if player.is_player_valid(pid)
-	and (not friend_condition or essentials.is_not_friend(pid)) then
-		repeat
-			for i, time in pairs(globals.script_event_tracker) do
-				if time < utils.time_ms() then
-					globals.script_event_tracker[i] = nil
+
+do
+	local empty_table <const> = essentials.const({})
+	function globals.send_script_event(pid_or_bits, script_hash_name, properties, ...)
+		-- Priority: Some script events like emp will not work if delayed too much. 12 se in one frame is far below the the dangerous threshold of 20.
+		-- Can't yield: Like priority events, this can send if current count is under 12. This allows for most events of this kind to send immediately.
+		-- You need to specify if it's bits by passing send_to_multiple_people to true in the properties table
+		properties = properties or empty_table
+		if (properties.send_to_multiple_people or player.is_player_valid(pid_or_bits))
+		and (not properties.friend_condition or essentials.is_not_friend(pid_or_bits)) then
+			repeat
+				for i, time in pairs(globals.script_event_tracker) do
+					if time < utils.time_ms() then
+						globals.script_event_tracker[i] = nil
+					end
 				end
+				if not properties.cant_yield 
+				and (
+					globals.script_event_tracker.count >= 10 
+					and (not properties.priority or globals.script_event_tracker.count < 12)
+				) then
+					system.yield(0)
+				end
+			until properties.cant_yield 
+			or (globals.script_event_tracker.count < 10 
+			or (properties.priority and globals.script_event_tracker.count < 12))
+
+			if (properties.send_to_multiple_people or player.is_player_valid(pid_or_bits)) and globals.script_event_tracker.count < 12 then
+				globals.script_event_tracker[true] = utils.time_ms() + math.ceil(2000 * gameplay.get_frame_time())
+				script.trigger_script_event_2(
+					properties.send_to_multiple_people and pid_or_bits or 1 << pid_or_bits, 
+					globals.get_script_event_hash(script_hash_name), 
+					player.player_id(), ...
+				)
+				return true
 			end
-			if not cant_yield and (globals.script_event_tracker.count >= 10 and (not priority or globals.script_event_tracker.count < 12)) then
-				system.yield(0)
-			end
-		until cant_yield or (globals.script_event_tracker.count < 10 or (priority and globals.script_event_tracker.count < 12))
-		if player.is_player_valid(pid) and globals.script_event_tracker.count < 12 then
-			globals.script_event_tracker[true] = utils.time_ms() + math.ceil(2000 * gameplay.get_frame_time())
-			script.trigger_script_event_2(1 << pid, globals.get_script_event_hash(name), table.unpack(args))
-			return true
+		elseif not properties.cant_yield then
+			system.yield(0)
 		end
-	elseif not cant_yield then
-		system.yield(0)
+		return false
 	end
-	return false
 end
 
 function globals.is_fully_transitioned_into_session()
@@ -477,30 +490,31 @@ function globals.set_bounty(...)
 	and player.is_player_playing(script_target) 
 	and (not friend_relevant or essentials.is_not_friend(script_target)) then
 		amount = amount or math.tointeger(settings.in_use["Bounty amount"]) or 10000
+		local bits = 0
 		for pid in essentials.players(true) do
-			globals.send_script_event(
-				"Bounty", 
-				pid, 
-				{
-					pid, 
-					script_target, 
-					3, 
-					amount > 0 and amount or 10000, 
-					1,
-					anonymous and 1 or 0, 
-					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-					globals.get_global("current"), globals.get_global("previous")
-				}
-			)
+			bits = bits | 1 << pid
 		end
+		globals.send_script_event(
+			bits, 
+			"Bounty",
+			{send_to_multiple_people = true},
+			script_target, 
+			3, 
+			amount > 0 and amount or 10000, 
+			1,
+			anonymous and 1 or 0, 
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+			globals.get_global("current"), globals.get_global("previous")
+			
+		)
 	end
 end
 
 function globals.disable_vehicle(...)
 	local pid <const>, friend_condition <const> = ...
 	if memoize.get_player_coords(pid).z == -50 or player.is_player_in_any_vehicle(pid) then
-		globals.send_script_event("Destroy personal vehicle", pid, {pid, pid}, friend_condition)
-		globals.send_script_event("Kick out of vehicle", pid, {pid, 0, 0, 0, 0, 1, pid, math.min(2147483647, gameplay.get_frame_count())}, friend_condition)
+		globals.send_script_event(pid, "Destroy personal vehicle", {friend_condition = friend_condition}, pid)
+		globals.send_script_event(pid, "Kick out of vehicle", {friend_condition = friend_condition}, 0, 0, 0, 0, 1, pid, math.min(2147483647, gameplay.get_frame_count()))
 	end
 end
 
@@ -509,7 +523,6 @@ function globals.script_event_crash(...)
 	if player.is_player_valid(pid) and player.player_id() ~= pid then
 		for i = 1, 19 do
 			local parameters <const> = {
-				pid, 
 				-1774405356, 
 				math.random(0, 4), 
 				math.random(0, 1)
@@ -518,16 +531,14 @@ function globals.script_event_crash(...)
 				parameters[#parameters + 1] = math.random(-2147483647, 2147483647)
 			end
 			parameters[10] = pid
-			globals.send_script_event("Notifications", pid, parameters)
+			globals.send_script_event(pid, "Notifications", nil, table.unpack(parameters))
 		end
 		for _, script_name in pairs(globals.CRASH_NAMES) do
-			local parameters <const> = {
-				pid
-			}
+			local parameters <const> = {}
 			for i = 2, 10 do
 				parameters[#parameters + 1] = math.random(-2147483647, 2147483647)
 			end
-			globals.send_script_event(script_name, pid, parameters)
+			globals.send_script_event(pid, script_name, nil, table.unpack(parameters))
 		end
 	end
 end

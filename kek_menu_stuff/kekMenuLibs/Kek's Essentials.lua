@@ -29,8 +29,6 @@ essentials.listeners = {
 	exit = {}
 }
 essentials.nethooks = {}
-essentials.feats = {}
-essentials.player_feats = {}
 essentials.number_of_explosion_types = 82
 essentials.init_delay = utils.time_ms() + 1000 -- For notifications that should only display if user toggles on the feature (toggles being turned on due to settings and such)
 
@@ -141,8 +139,8 @@ do
 	end
 end
 
-function essentials.get_rgb(r, g, b)
-	return (b << 16) | (g << 8) | r
+function essentials.get_rgb(r, g, b, a)
+	return ((a or 0) << 24) | (b << 16) | (g << 8) | r
 end
 
 function essentials.rgb_to_bytes(uint32_rgb)
@@ -354,20 +352,6 @@ function essentials.are_all_lines_pattern_valid(str, pattern)
 	return true
 end
 
-function essentials.delete_feature(id)
-	essentials.assert(essentials.feats[id], "Tried to delete a feature that was already deleted.")
-	essentials.assert(menu.delete_feature(id), "Failed to delete feature.", essentials.feats[id].name)
-	essentials.feats[id] = nil
-	return true
-end
-
-function essentials.delete_player_feature(id)
-	essentials.assert(essentials.player_feats[id], "Attempted to delete player feature that was already deleted.")
-	essentials.assert(menu.delete_player_feature(id), "Failed to delete player feature.", menu.get_player_feature(id).feats[0].name)
-	essentials.player_feats[id] = nil
-	return true
-end
-
 function essentials.delete_thread(id)
 	essentials.assert(not menu.has_thread_finished(id) and menu.delete_thread(id), "Attempted to delete a finished thread.")
 end
@@ -409,7 +393,6 @@ do
 			"line:",
 			debug.getinfo(2, "l").currentline
 		)
-		essentials.feats[feat.id] = feat
 		return feat
 	end
 	menu.add_player_feature = function(...)
@@ -440,7 +423,6 @@ do
 			"line:",
 			debug.getinfo(2, "l").currentline
 		)
-		essentials.player_feats[feat.id] = feat.id
 		return feat
 	end
 	getmetatable(menu).__newindex = originals.menu_newindex
@@ -520,7 +502,9 @@ essentials.FEATURE_ID_MAP = essentials.const({ -- The table keys are derived fro
 	[1 << 1 | 1 << 7 | 1 << 10] = "autoaction_value_f",
 	[1 << 1 | 1 << 3 | 1 << 10] = "autoaction_value_i",
 	[1 << 1 | 1 << 5 | 1 << 9 ] = "action_value_str",
+	[1 << 1 | 1 << 4 | 1 << 9 ] = "action_value_str",
 	[1 << 0 | 1 << 1 | 1 << 5 ] = "value_str",
+	[1 << 0 | 1 << 14] = "value_str",
 -- Regular feat types
 
 	[1 << 11] = "parent", -- Both player feat & regular feat type have same id
@@ -547,11 +531,13 @@ essentials.FEATURE_ID_MAP = essentials.const({ -- The table keys are derived fro
 	1 << 1 == Not a parent, toggle or regular action feature?
 	1 << 2 == slider flag
 	1 << 3 == value_i flag
+	1 << 4 == Seems to be show info, like properties of a fake friend. Only available in menu features
 	1 << 5 == value_str flag
 	1 << 7 == value_f flag
 	1 << 9 == action flag
 	1 << 10 == autoaction flag
 	1 << 11 == parent flag
+	1 << 14 == player_feat flag
 	1 << 15 == player_feat flag
 --]]
 
@@ -1121,6 +1107,31 @@ function essentials.get_player_descendants(...)
 	return Table
 end
 
+function essentials.get_feat_hierarchy(feat, tab)
+	local str <const>, parent = {}, feat.parent
+	while parent do
+		local encoded_parent_name = parent.name:gsub("[%s%p%c]", "_")
+		table.insert(str, 1, encoded_parent_name)
+		parent = parent.parent
+	end
+	local encoded_feat_name = feat.name:gsub("[%s%p%c]", "_")
+	table.insert(str, 1, tab or "local")
+	str[#str + 1] = encoded_feat_name
+	return table.concat(str, ".")
+end
+
+function essentials.player_feat_to_pid(feat)
+	local player_name_map <const> = {}
+	for pid in essentials.players(true) do
+		player_name_map[player.get_player_name(pid)] = pid
+	end
+	local parent = feat.parent
+	while parent and not player_name_map[parent.name] do
+		parent = parent.parent
+	end
+	return player_name_map[parent and parent.name]
+end
+
 function essentials.name_to_pid(name)
 	if type(name) == "string" then
 		name = name:lower()
@@ -1167,6 +1178,17 @@ function essentials.is_any_true(...)
 	return false
 end
 
+function essentials.is_any_virtual_key_pressed(...)
+	for i = 1, select("#", ...) do
+		local Key <const> = MenuKey()
+		Key:push_str(select(i, ...))
+		if Key:is_down_stepped() then
+			return true
+		end
+	end
+	return false
+end
+
 function essentials.parse_files_from_html(str, extension)
 	local files <const> = {}
 	for file_name in str:gmatch("title=\"([^\"]+%."..extension..")\"") do
@@ -1180,45 +1202,91 @@ function essentials.parse_files_from_html(str, extension)
 	return files
 end
 
+function essentials.draw_auto_adjusted_text(...)
+	local text <const>, rgba <const>, scale <const>, y_pos <const> = ...
+
+	local size <const> = scriptdraw.get_text_size(text, scale or 0.7, nil)
+	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
+	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
+
+	local pos <const> = v2(-size.x, size.y) / 2
+	pos.y = y_pos or pos.y
+
+	scriptdraw.draw_text(
+		text, 
+		pos,
+		size,
+		scale or 0.7,
+		rgba,
+		enums.scriptdraw_flags.shadow,
+		nil
+	)
+
+	local number_of_lines = 1
+	for _ in text:gmatch("[^\n]+") do
+		number_of_lines = number_of_lines + 1
+	end
+	return pos.y - size.y - (size.y / number_of_lines)
+end
+
+essentials.is_changelog_currently_shown = false
 function essentials.show_changelog()
-	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to show changelog without http permissions.")
-	menu.create_thread(function()
-		local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
-		local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md")
-		if enums.html_response_codes[status] ~= "OK" then
-			return
-		end
-		local max_lines_before_shrinking <const> = 50
-		local number_of_lines = 0
-		for line in str:gmatch("[^\n]+") do
-			number_of_lines = number_of_lines + 1
-		end
-		local start_y_pos <const> = math.max(0, 0.5 - (number_of_lines * 0.01))
-		while not controls.is_control_pressed(0, 143) do
-			local y_offset_from_top = 0
-			for line in str:gmatch("[^\n]+") do
-				ui.set_text_color(255, 255, 255, 255)
-				ui.set_text_scale(number_of_lines <= max_lines_before_shrinking and 0.275 or 0.275 / (number_of_lines / max_lines_before_shrinking))
-				ui.set_text_font(0)
-				ui.set_text_outline(true)
-				ui.draw_text(line, v2(0.3, start_y_pos + y_offset_from_top))
-				y_offset_from_top = y_offset_from_top + (number_of_lines <= max_lines_before_shrinking and 0.018 or 0.018 / (number_of_lines / max_lines_before_shrinking))
+	if not essentials.is_changelog_currently_shown then
+		essentials.is_changelog_currently_shown = true
+		menu.create_thread(function()
+			while essentials.is_any_virtual_key_pressed(
+				"LCONTROL",
+				"RCONTROL",
+				"SPACE"
+			) do
+				system.yield(0)
 			end
-			ui.set_text_color(255, 0, 0, 255)
-			ui.set_text_scale(0.4)
-			ui.set_text_font(0)
-			ui.set_text_outline(true)
-			ui.draw_text(lang["Press space to remove this message."], v2(0.3, start_y_pos + y_offset_from_top + 0.005))
-			system.yield(0)
-		end
-	end, nil)
+			local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
+			local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md")
+			if enums.html_response_codes[status] ~= "OK" then
+				essentials.is_changelog_currently_shown = false
+				return
+			end
+
+			local str_t <const> = {}
+			for line in str:gmatch("[^\n]+") do
+				str_t[#str_t + 1] = line
+			end
+
+			local str <const> = table.concat(str_t, "\n")
+			while not essentials.is_any_virtual_key_pressed(
+				"LCONTROL",
+				"RCONTROL",
+				"SPACE"
+			) do
+				local y_pos <const> = essentials.draw_auto_adjusted_text(str, essentials.get_rgb(255, 140, 0, 255), 0.7)
+				essentials.draw_auto_adjusted_text(lang["Press space or ctrl to remove this message."], essentials.get_rgb(255, 0, 0, 255), 0.7, y_pos)
+				system.yield(0)
+			end
+			while essentials.is_any_virtual_key_pressed(
+				"LCONTROL",
+				"RCONTROL",
+				"SPACE"
+			) do
+				system.yield(0)
+			end
+			essentials.is_changelog_currently_shown = false
+		end, nil)
+	end
 end
 
 function essentials.update_keks_menu()
-	essentials.assert(menu.is_trusted_mode_enabled(1 << 3), "Tried to update Kek's menu without http permissions.")
 	local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
+	local version_check_draw_thread <const> = menu.create_thread(function()
+		while true do
+			essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
+			system.yield(0)
+		end
+	end, nil)
+
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
+	menu.delete_thread(version_check_draw_thread)
 	local script_version <const> = script_version:gsub("[^%w\32.]", "")
 	local
 		update_status,
@@ -1233,17 +1301,79 @@ function essentials.update_keks_menu()
 
 	if enums.html_response_codes[version_check_status] ~= "OK" then
 		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
-		goto exit 
+		return "failed to check what is the latest version"
 	end
 	if __kek_menu_version == script_version then
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
-		goto exit
+		return "is latest version"
 	else
+		if __kek_menu_has_done_update then
+			essentials.msg(lang["Kektram messed up the version strings. You have the latest version. Prevented infinite update loop."], "green", true, 8)
+			return "already updated"
+		end
+		while essentials.is_any_virtual_key_pressed( -- Prevent accidental presses
+			"ALT",
+			"LCONTROL",
+			"RCONTROL",
+			"SPACE",
+			"RETURN",
+			"LSHIFT",
+			"RSHIFT",
+			"TAB"
+		) do
+			system.yield(0)
+		end
+
+		local time = utils.time_ms() + 25000
+		while not essentials.is_any_virtual_key_pressed("ALT", "RETURN") and time > utils.time_ms() do
+
+			local y_pos <const> = essentials.draw_auto_adjusted_text(lang["A new update for Kek's menu is available. Press alt or enter to install it, space or ctrl to not."], essentials.get_rgb(255, 140, 0, 255), 1.0)
+			local y_pos <const> = essentials.draw_auto_adjusted_text(lang["Press shift or tab to show changelog."], essentials.get_rgb(255, 0, 0, 255), 1.0, y_pos)
+			essentials.draw_auto_adjusted_text(lang["This message will disappear in %i seconds and will assume you don't want the update."]:format(math.ceil((time - utils.time_ms()) / 1000)), essentials.get_rgb(255, 140, 0, 255), 1.0, y_pos)
+
+			if essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") then
+				while essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") do
+					system.yield(0)
+				end
+				essentials.show_changelog()
+				while essentials.is_changelog_currently_shown do
+					system.yield(0)
+				end
+				while essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") do
+					system.yield(0)
+				end
+				time = utils.time_ms() + 25000
+			end
+			if essentials.is_any_virtual_key_pressed("SPACE", "LCONTROL", "RCONTROL") then
+				return "Cancelled update"
+			end
+			system.yield(0)
+		end
+		if not essentials.is_any_virtual_key_pressed("ALT", "RETURN") then
+			return "Cancelled update"
+		end
+
+		menu.create_thread(function()
+			while update_status ~= "done" do
+				essentials.draw_auto_adjusted_text(
+					updated_lib_files and updated_language_files and string.format(
+						"%i / %i "..lang["files downloaded"].."\n%s", 
+						current_file_num, 
+						#updated_lib_files + #updated_language_files + 1, 
+						current_file
+					) or lang["Obtaining update information..."],
+					essentials.get_rgb(0, 255, 0, 255), 
+					1.2, 
+					y_pos
+				)
+				system.yield(0)
+			end
+		end, nil)
 		do
-			essentials.msg(lang["There's a new version of Kek's menu, starting update..."], "green", true, 6)
 			if __kek_menu_debug_mode then
 				essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
-				return
+				update_status = "done"
+				return "tried to update with debug mode on"
 			end
 			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs")
 			update_status = enums.html_response_codes[status] == "OK"
@@ -1261,19 +1391,6 @@ function essentials.update_keks_menu()
 			end
 			updated_language_files = essentials.parse_files_from_html(str, "txt")
 		end
-
-		menu.create_thread(function()
-			local file_count <const> = #updated_lib_files + #updated_language_files + 1
-			while update_status ~= "done" do
-				ui.set_text_color(255, 255, 255, 255)
-				ui.set_text_scale(0.8)
-				ui.set_text_font(1)
-				ui.set_text_outline(true)
-				ui.draw_text(string.format("%i / %i "..lang["files downloaded"].."\n%s", current_file_num, file_count, current_file), v2(0.4, 0.45))
-				ui.draw_rect(0.5, 0.5, 0.25, 0.10, 0, 0, 120, 255)
-				system.yield(0)
-			end
-		end, nil)
 	end
 	do
 		current_file = "Kek's menu.lua" -- Download updated files
@@ -1307,23 +1424,56 @@ function essentials.update_keks_menu()
 		language_file_strings[properties.system_file_name] = str
 		current_file_num = current_file_num + 1
 	end
+
 	::exit::
 	if __kek_menu_version ~= script_version then
 		if update_status then
+			do -- Checks if there's write permissions to all files that needs to be overwritten.
+				local msg <const> = lang["Missing write permissions for \"%s\". Update cancelled, no files changed."]
+				local file <close> = io.open(paths.home.."scripts\\Kek's menu.lua", "a")
+				if utils.file_exists(paths.home.."scripts\\Kek's menu.lua") and not file then
+					essentials.msg(msg:format("Kek's menu.lua"), "red", true, 10)
+					update_status = "done"
+					return "missing write permissions"
+				end
+
+				for file_name in pairs(lib_file_strings) do
+					local file_path <const> = paths.kek_menu_stuff.."kekMenuLibs\\"..file_name
+					if utils.file_exists(file_path) then
+						local file <close> = io.open(file_path, "a")
+						if not file then
+							essentials.msg(msg:format(file_name), "red", true, 10)
+							update_status = "done"
+							return "missing write permissions"
+						end
+					end
+				end
+
+				for file_name in pairs(language_file_strings) do
+					local file_path <const> = paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name
+					if utils.file_exists(file_path) then
+						local file <close> = io.open(file_path, "a")
+						if not file and language_file_strings[file_name] then
+							essentials.msg(msg:format(file_name), "red", true, 10)
+							update_status = "done"
+							return "missing write permissions"
+						end
+					end
+				end
+			end
+
 			__kek_menu_version = script_version
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
-			__kek_menu_version = nil
-			__kek_menu_debug_mode = nil
-			__kek_menu_participate_in_betas = nil
 
 			-- Remove old files & undo all changes to the global space
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")) do
-				package.loaded[file_name:gsub("%.lua", "")] = nil
+				package.loaded[file_name:sub(1, -5)] = nil
 				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name)
 			end
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages", "txt")) do
 				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name)
 			end
+
 			local file <close> = io.open(paths.home.."scripts\\Kek's menu.lua", "w+b")
 			file:write(kek_menu_file_string)
 			file:flush()
@@ -1343,6 +1493,12 @@ function essentials.update_keks_menu()
 
 			update_status = "done"
 			essentials.show_changelog()
+			system.yield(0) -- show_changelog creates a thread
+			__kek_menu_version = nil
+			__kek_menu_debug_mode = nil
+			__kek_menu_participate_in_betas = nil
+			__kek_menu_check_for_updates = nil
+			__kek_menu_has_done_update = true
 			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
 		else

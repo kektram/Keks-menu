@@ -1,2 +1,8 @@
-### You can now toggle whether to translate your messages
-### Fixed translator not being able to translate newlines
+# **Kek's menu 0.4.8.0**
+
+## **Improvements**```md
+### Removed
+> Anti chat spoof
+> Modded name detection
+> Hotkeys
+> Send to random mission

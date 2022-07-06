@@ -1,5 +1,4 @@
 -- Copyright © 2020-2022 Kektram
-
 local natives <const> = {version = "1.0.1"}
 
 local essentials <const> = require("Kek's Essentials")
@@ -828,7 +827,7 @@ local ids <const> = {
 		is_entity_waiting_for_world_collision = {type = "bool", id = 0xd05bff0c0a12c68f, pars = "entity entity"},
 		apply_force_to_entity_center_of_mass = {type = "void", id = 0x18ff00fc7eff559e, pars = "entity entity, int forcetype, float x, float y, float z, bool p5, bool isdirectionrel, bool isforcerel, bool p8"},
 		apply_force_to_entity = {type = "void", id = 0xc5f68be9613e2d18, pars = "entity entity, int forceflags, float x, float y, float z, float offx, float offy, float offz, int boneindex, bool isdirectionrel, bool ignoreupvec, bool isforcerel, bool p12, bool p13"},
-		attach_entity_to_entity = {type = "void", id = 0x6b9bbd38ab0796df, pars = "entity entity1, entity entity2, int boneindex, float xpos, float ypos, float zpos, float xrot, float yrot, float zrot, bool p9, bool usesoftpinning, bool collision, bool isped, int vertexindex, bool fixedrot"},
+		attach_entity_to_entity__native = {type = "void", id = 0x6b9bbd38ab0796df, pars = "entity entity1, entity entity2, int boneindex, float xpos, float ypos, float zpos, float xrot, float yrot, float zrot, bool p9, bool usesoftpinning, bool collision, bool isped, int rotationorder, bool fixedrot"},
 		_attach_entity_bone_to_entity_bone = {type = "void", id = 0x5c48b75732c8456c, pars = "entity entity1, entity entity2, int boneindex1, int boneindex2, bool p4, bool p5"},
 		_attach_entity_bone_to_entity_bone_physically = {type = "void", id = 0xfd1695c5d3b05439, pars = "entity entity1, entity entity2, int boneindex1, int boneindex2, bool p4, bool p5"},
 		attach_entity_to_entity_physically = {type = "void", id = 0xc3675780c92f90f9, pars = "entity entity1, entity entity2, int boneindex1, int boneindex2, float xpos1, float ypos1, float zpos1, float xpos2, float ypos2, float zpos2, float xrot, float yrot, float zrot, float breakforce, bool fixedrot, bool p15, bool collision, bool p17, int p18"},
@@ -5625,7 +5624,7 @@ local ids <const> = {
 		is_ped_cuffed = {type = "bool", id = 0x74e559b3bc910685, pars = "ped ped"},
 	},
 	vehicle = {
-		create_vehicle = {type = "vehicle", id = 0xaf35d0d2583051b0, pars = "hash modelhash, float x, float y, float z, float heading, bool isnetwork, bool bscripthostveh, bool p7"},
+		create_vehicle__native = {type = "vehicle", id = 0xaf35d0d2583051b0, pars = "hash modelhash, float x, float y, float z, float heading, bool isnetwork, bool bscripthostveh, bool p7"},
 		delete_vehicle = {type = "void", id = 0xea386986e786a54f, pars = "vehicle* vehicle", buffer_needed = true},
 		_0x7d6f9a3ef26136a0 = {type = "void", id = 0x7d6f9a3ef26136a0, pars = "vehicle vehicle, bool toggle, bool p2"},
 		_set_vehicle_can_be_locked_on = {type = "void", id = 0x1dda078d12879eee, pars = "vehicle vehicle, bool canbelockedon, bool unk"},
@@ -6591,7 +6590,6 @@ do
 		for native_name, info in pairs(category) do
 			_G[category_name][native_name] = _G[category_name][native_name] 
 			or info.buffer_needed and not info.pars:find("any*", 1, true) and function(...)
-				essentials.assert(menu.is_trusted_mode_enabled(1 << 2), "Tried to call a native without trusted mode enabled.", category_name, native_name)
 				local args <const>, buffers <const> = parse_parameters(info.pars, ...)
 				local return_value
 				if info.type == "any" then
@@ -6620,7 +6618,6 @@ do
 				end
 			end 
 			or function(...)
-				essentials.assert(menu.is_trusted_mode_enabled(1 << 2), "Tried to call a native without trusted mode enabled.", category_name, native_name)
 				if info.type == "any" then
 					return native.call(info.id, ...)
 				else

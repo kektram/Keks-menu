@@ -1,13 +1,14 @@
--- Kek's menu version 0.4.8.0
+-- Kek's menu version 0.4.8.0 beta 16 test
 -- Copyright © 2020-2022 Kektram
 if __kek_menu_version then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0"
+__kek_menu_version = "0.4.8.0 beta 17 test"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
+__kek_menu_check_for_updates = false
 
 menu.create_thread(function()
 
@@ -65,6 +66,9 @@ paths.chat_spam_text = paths.kek_menu_stuff.."kekMenuData\\Spam text.txt"
 paths.chat_bot = paths.kek_menu_stuff.."kekMenuData\\Kek's chat bot.txt"
 paths.chat_judger = paths.kek_menu_stuff.."kekMenuData\\custom_chat_judge_data.txt"
 paths.debugger = paths.kek_menu_stuff.."kekMenuLibs\\Debugger.lua"
+paths.ini_vehicles = paths.home.."scripts\\Ini vehicles"
+paths.menyoo_vehicles = paths.home.."scripts\\Menyoo vehicles"
+paths.menyoo_maps = paths.home.."scripts\\Menyoo maps"
 
 if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1, true) then
 	package.path = paths.kek_menu_stuff.."kekMenuLibs\\?.lua;"..package.path
@@ -83,6 +87,9 @@ and utils.file_exists(paths.debugger) then
 		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
 			__kek_menu_participate_in_betas = true
 		end
+		if str:match("Check for updates=(%a%a%a%a)") == nil or str:match("Check for updates=(%a%a%a%a)") == "true" then
+			__kek_menu_check_for_updates = true
+		end
 	end
 else
 	local file <const> = io.open(paths.kek_settings, "w+")
@@ -99,13 +106,9 @@ do -- Makes sure each library is loaded once and that every time one is required
 	local original_require <const> = require
 	require = function(...)
 		local name <const> = ...
+		assert(utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua"), "Tried to require a file that doesn't exist.")
+		assert(name:find("^Kek's %u"), "Invalid library name. [kekMenuLibs\\"..name.."]: format should be \"Kek's <Uppercase letter><rest of lib name>\"")
 		local lib = package.loaded[name] or original_require(name)
-		if not lib then
-			menu.notify(string.format("Failed to load %s.", name), "Error", 6, 0xff0000ff)
-			local err <const> = select(2, loadfile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")) -- 2take1's custom require function doesn't let you obtain error.
-			print(err)
-			error(err or "Unknown error during loading of "..name..".")
-		end
 		if not package.loaded[name] then
 			package.loaded[name] = lib
 		end
@@ -121,14 +124,14 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Kek's Vehicle mapper"] = "1.3.9", 
 		["Kek's Ped mapper"] = "1.2.7",
 		["Kek's Object mapper"] = "1.2.7", 
-		["Kek's Globals"] = "1.3.5",
+		["Kek's Globals"] = "1.3.6",
 		["Kek's Weapon mapper"] = "1.0.5",
 		["Kek's Location mapper"] = "1.0.2",
 		["Kek's Keys and input"] = "1.0.7",
 		["Kek's Drive style mapper"] = "1.0.4",
 		["Kek's Menyoo spawner"] = "2.2.5",
-		["Kek's entity functions"] = "1.2.7",
-		["Kek's trolling entities"] = "1.0.7",
+		["Kek's Entity functions"] = "1.2.7",
+		["Kek's Trolling entities"] = "1.0.7",
 		["Kek's Custom upgrades"] = "1.0.2",
 		["Kek's Admin mapper"] = "1.0.4",
 		["Kek's Menyoo saver"] = "1.0.9",
@@ -163,8 +166,8 @@ local vehicle_mapper <const> = package.loaded["Kek's Vehicle mapper"]
 local ped_mapper <const> = package.loaded["Kek's Ped mapper"]
 local object_mapper <const> = package.loaded["Kek's Object mapper"]
 local menyoo <const> = package.loaded["Kek's Menyoo spawner"]
-local kek_entity <const> = package.loaded["Kek's entity functions"]
-local troll_entity <const> = package.loaded["Kek's trolling entities"]
+local kek_entity <const> = package.loaded["Kek's Entity functions"]
+local troll_entity <const> = package.loaded["Kek's Trolling entities"]
 local custom_upgrades <const> = package.loaded["Kek's Custom upgrades"]
 local admin_mapper <const> = package.loaded["Kek's Admin mapper"]
 local menyoo_saver <const> = package.loaded["Kek's Menyoo saver"]
@@ -175,12 +178,15 @@ if not menu.is_trusted_mode_enabled(1 << 2) then
 	return
 end
 
-if menu.is_trusted_mode_enabled(1 << 3) then
+if not menu.is_trusted_mode_enabled(1 << 3) then
+	essentials.msg(lang["You must turn on trusted mode->Http to use this script."], "red", true, 6)
+	return
+end
+
+if __kek_menu_check_for_updates then
 	if essentials.update_keks_menu() == "has updated" then
 		return
 	end
-else
-	essentials.msg(lang["Enable trusted mode->http for automatic updates."], "blue", true, 3)
 end
 
 local player_history <const> = {
@@ -293,7 +299,12 @@ do -- Extra functionality to api functions
 
 	network.request_control_of_entity = function(...)
 		local Entity <const>, no_condition <const> = ...
-		if no_condition or kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]] then
+
+		local is_entity_limit_breached <const> = kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]]
+
+		if no_condition 
+		or kek_entity.entity_manager.entities[Entity] -- Is entity accounted for, but you don't have control?
+		or is_entity_limit_breached then
 			return originals.request_control_of_entity(Entity)
 		else
 			return false
@@ -368,25 +379,7 @@ u.player_history = menu.add_feature(lang["Player history"], "parent", u.kekMenu)
 u.gvehicle = menu.add_feature(lang["Vehicle"], "parent", u.kekMenu)
 u.self_options = menu.add_feature(lang["Self options"], "parent", u.kekMenu)
 u.weapons_self = menu.add_feature(lang["Weapons"], "parent", u.self_options.id)
-u.search_features = menu.add_feature(lang["Search features from all luas loaded"], "parent", u.kekMenu, function(f)
-	if utils.time_ms() < (f.data.has_informed or math.maxinteger) then -- In case people see the message just as it disappears and tries to see it again before it won't show up anymore
-		essentials.msg(lang["If the search doesn't find the features you expect, make sure you load Kek's menu before you load all your other scripts."], "green", true, 6)
-		essentials.rawset(f.data, "has_informed", utils.time_ms() + 10000) -- f.data is a const table
-	end
-	if f.child_count > 1 then
-		for _, fake_feat in pairs(f.children) do
-			if type(fake_feat.data) == "table" and type(fake_feat.data.real_feat) == "userdata" then
-				if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
-					fake_feat.on = fake_feat.data.real_feat.on
-				end
-				if fake_feat.value then
-					fake_feat.value = fake_feat.data.real_feat.value
-				end
-				fake_feat.name = fake_feat.data.real_feat.name
-			end
-		end
-	end
-end)
+u.search_menu_features = menu.add_feature(lang["Search features"], "parent", u.kekMenu)
 u.chat_stuff = menu.add_feature(lang["Chat"], "parent", u.kekMenu)
 menu.add_feature(lang["Send clipboard to chat"], "action", u.chat_stuff.id, function()
 	essentials.send_message(utils.from_clipboard())
@@ -400,7 +393,7 @@ u.translate_chat = menu.add_feature(lang["Translate chat"], "parent", u.chat_stu
 
 for _, properties in pairs({
 	{
-		folder = paths.home.."scripts\\Menyoo vehicles",
+		folder = paths.menyoo_vehicles,
 		folder_name = "Menyoo vehicles",
 		extension = "xml",
 		parent = u.gvehicle,
@@ -413,7 +406,7 @@ for _, properties in pairs({
 		}
 	},
 	{
-		folder = paths.home.."scripts\\Ini vehicles",
+		folder = paths.ini_vehicles,
 		folder_name = "Ini vehicles",
 		extension = "ini",
 		parent = u.gvehicle,
@@ -448,7 +441,7 @@ for _, properties in pairs({
 				io.remove(properties.folder.."\\"..f.name.."."..properties.extension)
 			end
 			feat_name_map[f.name.."."..properties.extension] = nil
-			essentials.delete_feature(f.id)
+			menu.delete_feature(f.id)
 		elseif essentials.is_str(f, "Change name") then
 			local input, status = f.name
 			while true do
@@ -507,7 +500,7 @@ for _, properties in pairs({
 			for i = 1, #children do -- 3x faster to delete all then reconstruct than using utils.file_exists
 				local feat <const> = children[i]
 				if feat.data == "MENYOO" then
-					essentials.delete_feature(feat.id)
+					menu.delete_feature(feat.id)
 				end
 			end
 			local files <const> = utils.get_all_files_in_directory(properties.folder, properties.extension)
@@ -972,14 +965,6 @@ for _, properties in pairs({
 		setting = 0
 	},
 	{
-		setting_name = "Translate chat into language what language to detect",
-		setting = 0
-	},
-	{
-		setting_name = "Translate your messages too",
-		setting = false
-	},
-	{
 		setting_name = "Translate your messages into",
 		setting = false
 	},
@@ -988,8 +973,16 @@ for _, properties in pairs({
 		setting = 0
 	},
 	{
-		setting_name = "Translate your messages into chat type",
+		setting_name = "Where to send translations",
 		setting = 0
+	},
+	{
+		setting_name = "Where to send your translated messages",
+		setting = 0
+	},
+	{
+		setting_name = "Check for updates",
+		setting = true
 	}
 }) do
 	settings:add_setting(properties)
@@ -1215,11 +1208,7 @@ do
 				"		local script_name <const> = scripts[#scripts - i]",
 				"		local file_path <const> = appdata_path..\"scripts\\\\\"..script_name",
 				"		if utils.file_exists(file_path) then",
-				"			if not require(script_name:gsub(\"%.lua$\", \"\")) then",
-				"				menu.notify(\"Failed to load \"..script_name, \"error\", 6)",
-				"				local err <const> = select(2, loadfile(file_path))",
-				"				print(err)",
-				"			end",
+				"			require(script_name:gsub(\"%.lua$\", \"\"))",
 				"		end",
 				"	end",
 				"end, nil)"
@@ -1496,7 +1485,7 @@ do
 			or weapon.has_ped_got_weapon(Ped, gameplay.get_hash_key("weapon_fireextinguisher"))
 			or weapon.has_ped_got_weapon(Ped, gameplay.get_hash_key("weapon_bzgas")) then
 				severity = severity + 2
-				hash = hash | 1 << 6
+				hash = hash | 1 << 5
 			end
 			if not detection_string_cache[hash] then
 				local str <const> = {}
@@ -1689,7 +1678,7 @@ settings.toggle["Aim protection"] = menu.add_feature(lang["Aim protection"], "va
 						system.yield(75)
 					end
 				elseif essentials.is_str(f, "Invite to apartment") then
-					globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 113), 1, 1, 1}, true)
+					globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1)
 				end
 			end
 		end
@@ -1822,15 +1811,15 @@ end)
 menu.add_feature(lang["Set to \"?\" to make it random."], "action", u.settingsUI.id)
 
 menu.add_feature(lang["Show latest update changelog"], "action", u.settingsUI.id, function(f)
-	if menu.is_trusted_mode_enabled(1 << 3) then
-		essentials.show_changelog()
-	else
-		essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
-	end
+	essentials.show_changelog()
 end)
 
 settings.toggle["Participate in betas"] = menu.add_feature(lang["Participate in betas"], "toggle", u.settingsUI.id, function(f)
 	__kek_menu_participate_in_betas = f.on
+end)
+
+settings.toggle["Check for updates"] = menu.add_feature(lang["Check for updates"], "toggle", u.settingsUI.id, function(f)
+	__kek_menu_check_for_updates = f.on
 end)
 
 settings.toggle["Debug mode"] = menu.add_feature(lang["Debug mode"], "toggle", u.debug.id, function(f)
@@ -2552,6 +2541,10 @@ function player_history.add_features(main_parent, rid, ip, name)
 
 		menu.add_feature(lang["Blacklist"], "action_value_str", main_parent.id, function(f)
 			if essentials.is_str(f, "Add") then
+				if name == player.get_player_name(player.player_id()) then
+					essentials.msg(lang["You can't add yourself to the blacklist..."], "red", true)
+					return
+				end
 				local input <const>, status <const> = keys_and_input.get_input(lang["Type in why you're adding this person."], "", 128, 0)
 				if status == 2 then
 					return
@@ -2749,7 +2742,7 @@ do
 		elseif essentials.is_str(f, "Clear search list") then
 			for i, parent in pairs(player_history.searched_players) do
 				for _, child in pairs(essentials.get_descendants(parent, {}, true)) do
-					essentials.delete_feature(child.id)
+					menu.delete_feature(child.id)
 				end
 				player_history.searched_players[i] = nil
 			end
@@ -2886,21 +2879,34 @@ menu.add_player_feature(lang["Crash"], "action", u.malicious_player_features, fu
 		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
 		return
 	end
-	local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.kek_menu_stuff.."kekMenuLibs\\data\\Truck.xml", player.player_id())
+	local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.kek_menu_stuff.."kekMenuLibs\\data\\Truck.xml", player.player_id(), true)
+	kek_entity.set_entity_as_networked(Vehicle) -- regular networked spawns exists on all machines. This would crash everyone. It spawns it as local.
+	local net_id <const> = network.network_get_network_id_from_entity(Vehicle)
+	network.set_network_id_can_migrate(net_id, false)
+	network.set_network_id_always_exists_for_player(net_id, player.player_id(), true)
+	network.set_network_id_always_exists_for_player(net_id, pid, true)
+
+	for _, Entity in pairs(kek_entity.get_all_attached_entities(Vehicle)) do
+		kek_entity.set_entity_as_networked(Entity)
+		local net_id <const> = network.network_get_network_id_from_entity(Entity)
+		network.set_network_id_can_migrate(net_id, false)
+		network.set_network_id_always_exists_for_player(net_id, player.player_id(), true)
+		network.set_network_id_always_exists_for_player(net_id, pid, true)
+	end
+
 	if entity.is_entity_a_vehicle(Vehicle) then
 		entity.set_entity_visible(Vehicle, false)
 		entity.set_entity_collision(Vehicle, false, false, false)
 		entity.freeze_entity(Vehicle, true)
-		local time <const> = utils.time_ms() + 1500
+		local time <const> = utils.time_ms() + 5000
 		while time > utils.time_ms() and entity.is_entity_a_vehicle(Vehicle) and player.is_player_valid(pid) do
-			kek_entity.teleport(Vehicle, essentials.get_player_coords(pid))
+			kek_entity.teleport(Vehicle, essentials.get_player_coords(pid), 5000)
 			system.yield(0)
 		end
 		if not entity.is_entity_a_vehicle(Vehicle) then
 			essentials.msg(lang["Crash entity went out of memory before it could be cleaned up."], "red", true, 6)
 			return
 		end
-		kek_entity.teleport(Vehicle, v3(math.random(20000, 24000), math.random(20000, 24000), math.random(-2400, 2400)))
 		kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
 		if entity.is_entity_a_vehicle(Vehicle) then
 			essentials.msg(lang["Failed to cleanup crash entity while it is still in memory."], "red", true, 6)
@@ -2980,13 +2986,11 @@ menu.add_player_feature(lang["Perma-cage"], "toggle", u.malicious_player_feature
 	local Ped = 0
 	while f.on and player.player_count() > 0 do
 		system.yield(0)
-		if not kek_entity.get_control_of_entity(Ped) then
-			kek_entity.hard_remove_entity_and_its_attachments(Ped)
+		if not entity.is_entity_a_ped(Ped) then -- Prevents spam spawning of cages in case the clean up of previous cage failed
 			Ped = kek_entity.create_cage(pid)
 		end
-		if memoize.get_distance_between(player.get_player_ped(pid), Ped) > 5 then
-			ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
-			kek_entity.teleport(Ped, essentials.get_player_coords(pid))
+		if essentials.get_player_coords(pid):magnitude(entity.get_entity_coords(Ped)) > 5 then
+			kek_entity.hard_remove_entity_and_its_attachments(Ped) -- The create_cage function already clears, but this is an additional clear in case the clean up failed
 		end
 	end
 	f.on = false
@@ -3049,7 +3053,7 @@ do
 			if feat == settings.valuei["vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(feat.data)] then
 				settings.valuei["vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(feat.data)] = nil
 			end
-			essentials.delete_feature(feat.id)
+			menu.delete_feature(feat.id)
 			f.data[i] = nil
 		end
 		input = essentials.make_string_case_insensitive(input)
@@ -3094,7 +3098,7 @@ do
 								if setting == "EMP" then
 									essentials.msg(string.format("%s %s's' %s.", lang["Vehicle blacklist:\nEMP'd"], name, veh_name), "orange", notif_on)
 									local pos <const> = essentials.get_player_coords(pid)
-									globals.send_script_event("Vehicle EMP", pid, {pid, essentials.round(pos.x), essentials.round(pos.y), essentials.round(pos.z), 0}, false, true)
+									globals.send_script_event(pid, "Vehicle EMP", {priority = true}, essentials.round(pos.x), essentials.round(pos.y), essentials.round(pos.z), 0)
 								elseif setting == "Kick from vehicle" then
 									essentials.msg(string.format("%s %s %s %s.", lang["Vehicle blacklist:\nKicked"], name, lang["out of their"], veh_name), "orange", notif_on)
 									globals.disable_vehicle(pid)
@@ -3356,7 +3360,7 @@ menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, f
 						end, nil)
 					end
 					if menu.has_thread_finished(threads[pid] or -1) then
-						local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795), true)
+						local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795))
 						if status then
 							globals.disable_vehicle(pid)
 							players[#players + 1] = pid
@@ -3447,6 +3451,7 @@ do
 		offsets <const>,
 		locations <const>,
 		object_model <const> = ...
+		local objects <const> = {}
 		for i, location in pairs(locations) do
 			local offset = memoize.v3()
 			if offsets[i] then
@@ -3459,30 +3464,10 @@ do
 				if angles[i] then
 					entity.set_entity_heading(object, angles[i])
 				end
+				objects[#objects + 1] = object
 			end
 		end
-	end
-
-	local function unblock_area(...)
-		local model <const>, positions <const> = ...
-		essentials.assert(streaming.is_model_valid(gameplay.get_hash_key(model)), "Invalid model.", model)
-		local initial_pos <const> = essentials.get_player_coords(player.player_id())
-		local had_to_teleport
-		for _, pos in pairs(positions) do
-			if essentials.get_player_coords(player.player_id()):magnitude(pos) > 200 then
-				kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), pos)
-				had_to_teleport = true
-				system.yield(100)
-			end
-			for Object in essentials.entities(object.get_all_objects()) do
-				if entity.get_entity_model_hash(Object) == gameplay.get_hash_key(model) then
-					kek_entity.clear_entities({Object})
-				end
-			end
-		end
-		if had_to_teleport then
-			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
-		end
+		return objects
 	end
 
 	menu.add_feature(lang["Los santos customs"], "action_value_str", block_area_parent.id, function(f)
@@ -3495,9 +3480,10 @@ do
 				70, 
 				0
 			})
-			block_area(angles, {}, location_mapper.LSC_POSITIONS, "v_ilev_cin_screen")
-		elseif essentials.is_str(f, "Unblock") then
-			unblock_area("v_ilev_cin_screen", location_mapper.LSC_POSITIONS)
+			f.data = f.data or block_area(angles, {}, location_mapper.LSC_POSITIONS, "v_ilev_cin_screen")
+		elseif essentials.is_str(f, "Unblock") and f.data then
+			kek_entity.clear_entities(f.data, 3000)
+			f.data = nil
 		end
 	end):set_str_data({
 		lang["Block"],
@@ -3506,9 +3492,10 @@ do
 
 	menu.add_feature(lang["Ammu-Nations"], "action_value_str", block_area_parent.id, function(f)
 		if essentials.is_str(f, "Block") then
-			block_area({}, {}, location_mapper.AMMU_NATION_POSITIONS, "prop_air_monhut_03_cr")
-		elseif essentials.is_str(f, "Unblock") then
-			unblock_area("prop_air_monhut_03_cr", location_mapper.AMMU_NATION_POSITIONS)
+			f.data = f.data or block_area({}, {}, location_mapper.AMMU_NATION_POSITIONS, "prop_air_monhut_03_cr")
+		elseif essentials.is_str(f, "Unblock") and f.data then
+			kek_entity.clear_entities(f.data, 3000)
+			f.data = nil
 		end
 	end):set_str_data({
 		lang["Block"],
@@ -3528,9 +3515,10 @@ do
 				-34, 
 				-32
 			})
-			block_area(angles, offsets, location_mapper.CASINO_POSITIONS, "prop_sluicegater")
-		elseif essentials.is_str(f, "Unblock") then
-			unblock_area("prop_sluicegater", location_mapper.CASINO_POSITIONS)
+			f.data = f.data or block_area(angles, offsets, location_mapper.CASINO_POSITIONS, "prop_sluicegater")
+		elseif essentials.is_str(f, "Unblock") and f.data then
+			kek_entity.clear_entities(f.data, 3000)
+			f.data = nil
 		end
 	end):set_str_data({
 		lang["Block"],
@@ -3598,11 +3586,13 @@ end):set_str_data({
 
 menu.add_feature(lang["Never wanted"], "toggle", u.session_peaceful.id, function(f)
 	while f.on do
+		local bits = 0
 		for pid in essentials.players() do
 			if player.get_player_wanted_level(pid) > 0 and player.is_player_playing(pid) and not player.is_player_modder(pid, -1) then
-				globals.send_script_event("Generic event", pid, {pid, globals.GENERIC_ARG_HASHES.clear_wanted})
+				bits = bits | 1 << pid
 			end
 		end
+		globals.send_script_event(bits, "Generic event", {send_to_multiple_people = true}, globals.GENERIC_ARG_HASHES.clear_wanted)
 		system.yield(1000)
 	end
 end)
@@ -3611,7 +3601,7 @@ menu.add_feature(lang["off the radar"], "toggle", u.session_peaceful.id, functio
 	while f.on do
 		for pid in essentials.players() do
 			if globals.get_player_global("otr_status", pid) ~= 1 and player.is_player_playing(pid) and not player.is_player_modder(pid, -1) then
-				globals.send_script_event("Give OTR or ghost organization", pid, {pid, utils.time() - 60, utils.time(), 1, 1, globals.get_player_global("generic", pid)})
+				globals.send_script_event(pid, "Give OTR or ghost organization", nil, utils.time() - 60, utils.time(), 1, 1, globals.get_player_global("generic", pid))
 			end
 		end
 		system.yield(1000)
@@ -3619,36 +3609,27 @@ menu.add_feature(lang["off the radar"], "toggle", u.session_peaceful.id, functio
 end)
 
 u.send_30k_to_session = menu.add_feature(lang["30k ceo loop"], "toggle", u.session_peaceful.id, function(f)
-	menu.get_player_feature(player_feat_ids["30k ceo"]).on = false
+	essentials.set_all_player_feats_except(player_feat_ids["30k ceo"], false, {[player.player_id()] = true})
 	menu.create_thread(function()
 		while f.on do
 			for pid in essentials.players() do
 				if globals.get_player_global("organization_associate_hash", pid) ~= -1 then
-					globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 0, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
+					globals.send_script_event(pid, "CEO money", nil, 10000, -1292453789, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"))
 				end
 			end
-			essentials.wait_conditional(20000, function() 
-				return f.on 
-			end)
-			if f.on then
-				for pid in essentials.players() do
-					if globals.get_player_global("organization_associate_hash", pid) ~= -1 then
-						globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
-					end
-				end
-			end
-			essentials.wait_conditional(20000, function() 
+			essentials.wait_conditional(40000, function() 
 				return f.on 
 			end)
 		end
 	end, nil)
+
 	while f.on do
 		for pid in essentials.players() do
 			if globals.get_player_global("organization_associate_hash", pid) ~= -1 then
-				globals.send_script_event("CEO money", pid, {pid, 30000, 198210293, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
+				globals.send_script_event(pid, "CEO money", nil, 30000, 198210293, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"))
 			end
 		end
-		essentials.wait_conditional(120000, function() 
+		essentials.wait_conditional(150000, function() 
 			return f.on 
 		end)
 	end
@@ -3660,10 +3641,11 @@ settings.user_entity_features.vehicle.feats["Respawn vehicle"] = menu.add_featur
 		system.yield(0)
 		for pid in essentials.players() do
 			local scid <const> = player.get_player_scid(pid)
-			states[scid] = states[scid] or entity.is_entity_dead(player.get_player_ped(pid))
-			if states[scid] and player.get_player_coords(pid).z > -10 and not entity.is_entity_dead(player.get_player_ped(pid)) then
+			states[scid] = states[scid] or player.is_player_dead(pid)
+			if states[scid] and player.get_player_coords(pid).z > -10 and not player.is_player_dead(pid) then
 				states[scid] = false
 				kek_entity.clear_entities({f.data[scid]})
+				system.yield(500) -- It gets the heading player had when their ped was dead if this isn't here
 				local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 				f.data[scid] = kek_entity.spawn_networked_vehicle(hash, function()
 					return location_mapper.get_most_accurate_position(kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))), player.get_player_heading(pid)
@@ -3698,47 +3680,57 @@ settings.toggle["Is player typing"].data = {}
 
 menu.add_feature(lang["Block passive mode"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
+		local bits = 0
 		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) and player.is_player_playing(pid) then
-				globals.send_script_event("Block passive", pid, {pid, 1}, true)
+			if not player.is_player_modder(pid, -1) and player.is_player_playing(pid) and essentials.is_not_friend(pid) then
+				bits = bits | 1 << pid
 			end
 		end
+		globals.send_script_event(bits, "Block passive", {send_to_multiple_people = true}, 1)
 		system.yield(1000)
 	end
+	local bits = 0
 	for pid in essentials.players() do
-		if not player.is_player_modder(pid, -1) then
-			globals.send_script_event("Block passive", pid, {pid, 0}, true)
+		if not player.is_player_modder(pid, -1) and player.is_player_playing(pid) and essentials.is_not_friend(pid) then
+			bits = bits | 1 << pid
 		end
 	end
+	globals.send_script_event(bits, "Block passive", {send_to_multiple_people = true}, 0)
 end)
 
 menu.add_feature(lang["Teleport to Perico island"], "action", u.session_trolling.id, function(f)
+	local bits = 0
 	for pid in essentials.players() do
-		if not player.is_player_modder(pid, -1) then
-			globals.send_script_event("Send to Perico island", pid, {pid, globals.get_script_event_hash("Send to Perico island"), 0, 0}, true)
+		if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
+			bits = bits | 1 << pid
 		end
 	end
+	globals.send_script_event(bits, "Send to Perico island", {send_to_multiple_people = true}, globals.get_script_event_hash("Send to Perico island"), 0, 0)
 end)
 
 menu.add_feature(lang["Organization"], "action_value_str", u.session_trolling.id, function(f)
+	local bits = 0
 	if essentials.is_str(f, "Ban") then
 		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) then
-				globals.send_script_event("CEO ban", pid, {pid, 1}, true)
+			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
+				bits = bits | 1 << pid
 			end
 		end
+		globals.send_script_event(bits, "CEO ban", {send_to_multiple_people = true}, 1)
 	elseif essentials.is_str(f, "Dismiss") then
 		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) then
-				globals.send_script_event("Dismiss or terminate from CEO", pid, {pid, 1, 5}, true)
+			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
+				bits = bits | 1 << pid
 			end
 		end
+		globals.send_script_event(bits, "Dismiss or terminate from CEO", {send_to_multiple_people = true}, 1, 5)
 	elseif essentials.is_str(f, "Terminate") then
 		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) then
-				globals.send_script_event("Dismiss or terminate from CEO", pid, {pid, 1, 6}, true)
+			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
+				bits = bits | 1 << pid
 			end
 		end
+		globals.send_script_event(bits, "Dismiss or terminate from CEO", {send_to_multiple_people = true}, 1, 6)
 	end
 end):set_str_data({
 	lang["Ban"],
@@ -3748,28 +3740,30 @@ end):set_str_data({
 
 menu.add_feature(lang["Notification spam"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
-		local exclusion_table <const> = {[player.player_id()] = true}
+		local bits = 0
 		for pid in essentials.players() do
-			local rand_pid <const> = essentials.get_random_player_except(exclusion_table)
-			globals.send_script_event("Notifications", pid, {
-				pid, 
-				globals.NOTIFICATION_HASHES_RAW[math.random(1, #globals.NOTIFICATION_HASHES_RAW)], 
-				math.random(-2147483647, 2147483647),
-				1, 0, 0, 0, 0, 0, pid, 
-				player.player_id(), 
-				rand_pid, 
-				essentials.get_random_player_except({[player.player_id()] = true, [rand_pid] = true})
-			})
+			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
+				bits = bits | 1 << pid
+			end
 		end
-		system.yield(500)
+		local rand_pid <const> = essentials.get_random_player_except({[player.player_id()] = true})
+		globals.send_script_event(bits, "Notifications", {send_to_multiple_people = true},
+			globals.NOTIFICATION_HASHES_RAW[math.random(1, #globals.NOTIFICATION_HASHES_RAW)], 
+			math.random(-2147483647, 2147483647),
+			1, 0, 0, 0, 0, 0, pid, 
+			player.player_id(), 
+			rand_pid, 
+			essentials.get_random_player_except({[player.player_id()] = true, [rand_pid] = true})
+		)
+		system.yield(1000)
 	end
 end)
 
 menu.add_feature(lang["Transaction error"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
 		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) and player.is_player_playing(pid) then
-				globals.send_script_event("Transaction error", pid, {pid, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1}, true)
+			if not player.is_player_modder(pid, -1) then
+				globals.send_script_event(pid, "Transaction error", {friend_condition = true}, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1)
 			end
 		end
 		system.yield(1000)
@@ -3859,119 +3853,146 @@ settings.valuei["Anti chat spam reaction"]:set_str_data({
 	lang["Kick & add to timeout"]
 })
 
-settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.translate_chat.id, function(f)
-	if f.on then
-		if not menu.is_trusted_mode_enabled(1 << 3) then
-			essentials.msg(lang["Trusted mode->http must be enabled to use this."], "red", true, 6)
-			f.on = false
-			return
-		end
-		if essentials.listeners["chat"]["translate"] then
-			return
-		end
-		local tracker <const> = {} -- To prevent spamming requests at Google, 1 translation every 500ms per player.
-		essentials.listeners["chat"]["translate"] = essentials.add_chat_event_listener(function(event)
-			if (settings.toggle["Translate your messages too"].on or settings.toggle["Translate your messages into"].on or event.player ~= player.player_id())
-			and event.body:find("^%P") -- chat commands
-			and utils.time_ms() > (tracker[event.player] or 0) then
-				local language_translate_into_setting = 
-					enums.supported_langs_by_google_to_code[
-						enums.supported_langs_by_google[settings.valuei["Translate chat into language what language"].value + 1]
-					]
-				local str, detected_language
-				if player.player_id() == event.player and settings.toggle["Translate your messages into"].on then
-					language_translate_into_setting = enums.supported_langs_by_google_to_code[
-						enums.supported_langs_by_google[settings.valuei["Translate your messages into option"].value + 1]
-					]
-					str, detected_language = 
-						language.translate_text(
-							event.body, 
-							"auto", 
-							language_translate_into_setting
-						)
-				else
-					str, detected_language = 
-						language.translate_text(
-							event.body, 
-							"auto", 
-							language_translate_into_setting
-						)
-				end
-				tracker[event.player] = utils.time_ms() + 500
-				if enums.supported_langs_by_google_to_name[detected_language]
-				and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
-					local is_team_chat = essentials.is_str(f, "Team chat")
-					if event.player == player.player_id() and settings.toggle["Translate your messages into"].on then
-						is_team_chat = essentials.is_str(settings.valuei["Translate your messages into chat type"], "Team chat")
-					end
-					essentials.send_message(
-						lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str, 
-						is_team_chat
-					)
-				end
-			end
-		end)
-	else
-		event.remove_event_listener("chat", essentials.listeners["chat"]["translate"])
-		essentials.listeners["chat"]["translate"] = nil
+do
+	local excluded_languages <const> = {}
+	local language_names = {}
+	for i = 1, #enums.supported_langs_by_google do
+		language_names[#language_names + 1] = lang[enums.supported_langs_by_google[i]]
 	end
-end)
-settings.toggle["Translate chat into language"]:set_str_data({
-	lang["Team chat"],
-	lang["All chat"]
-})
 
-settings.toggle["Translate your messages too"] = menu.add_feature(lang["Translate your messages"], "toggle", u.translate_chat.id)
+	settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.translate_chat.id, function(f)
+		if f.on then
+			if essentials.listeners["chat"]["translate"] then
+				return
+			end
+			local tracker <const> = {} -- To prevent spamming requests at Google, 1 translation every 500ms per player.
+			essentials.listeners["chat"]["translate"] = essentials.add_chat_event_listener(function(event)
+				if (settings.toggle["Translate your messages into"].on or event.player ~= player.player_id())
+				and event.body:find("^%P") -- chat commands
+				and player.is_player_valid(event.player)
+				and utils.time_ms() > (tracker[event.player] or 0) then
+					local language_translate_into_setting = 
+						enums.supported_langs_by_google_to_code[
+							enums.supported_langs_by_google[settings.valuei["Translate chat into language what language"].value + 1]
+						]
+					local str, detected_language
+					if player.player_id() == event.player and settings.toggle["Translate your messages into"].on then
+						language_translate_into_setting = enums.supported_langs_by_google_to_code[
+							enums.supported_langs_by_google[settings.valuei["Translate your messages into option"].value + 1]
+						]
+						str, detected_language = 
+							language.translate_text(
+								event.body, 
+								"auto", 
+								language_translate_into_setting
+							)
+					else
+						str, detected_language = 
+							language.translate_text(
+								event.body, 
+								"auto", 
+								language_translate_into_setting
+							)
+					end
+					tracker[event.player] = utils.time_ms() + 500
+					if ((settings.toggle["Translate your messages into"].on and event.player == player.player_id()) or not excluded_languages[detected_language])
+					and enums.supported_langs_by_google_to_name[detected_language]
+					and player.is_player_valid(event.player) -- Translation can take enough time for the player to become invalid in that time
+					and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
+						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str
+						local is_team_chat = essentials.is_str(f, "Send to team chat")
 
-settings.toggle["Translate your messages into"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id)
-settings.valuei["Translate your messages into option"] = settings.toggle["Translate your messages into"]
-settings.valuei["Translate your messages into option"]:set_str_data(
-	(function()
-		local t = {}
-		for i = 1, #enums.supported_langs_by_google do
-			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
+						if event.player == player.player_id() and settings.toggle["Translate your messages into"].on then
+							is_team_chat = essentials.is_str(settings.valuei["Where to send your translated messages"], "Send to team chat")
+						end
+
+						if essentials.is_str(settings.valuei["Where to send translations"], "To chat") 
+						or (event.player == player.player_id() and settings.toggle["Translate your messages into"].on) then
+							essentials.send_message(
+								str, 
+								is_team_chat
+							)
+						elseif player.player_id() ~= event.player then
+							essentials.msg("["..player.get_player_name(event.player).."]: "..str, "blue", true, 11)
+						end
+					end
+				end
+			end)
+		else
+			event.remove_event_listener("chat", essentials.listeners["chat"]["translate"])
+			essentials.listeners["chat"]["translate"] = nil
 		end
-		return t
-	end)()
-)
+	end)
+	settings.toggle["Translate chat into language"]:set_str_data({
+		lang["Send to team chat"],
+		lang["Send to all chat"]
+	})
 
-settings.valuei["Translate your messages into chat type"] = menu.add_feature(lang["Your messages chat type"], "action_value_str", u.translate_chat.id)
-settings.valuei["Translate your messages into chat type"]:set_str_data({
-	lang["All chat"],
-	lang["Team chat"]
-})
+	settings.toggle["Translate your messages into"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id)
+	settings.valuei["Translate your messages into option"] = settings.toggle["Translate your messages into"]
+	settings.valuei["Translate your messages into option"]:set_str_data(language_names)
 
-settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
+	settings.valuei["Where to send your translated messages"] = menu.add_feature(lang["Translate your messages"], "action_value_str", u.translate_chat.id)
+	settings.valuei["Where to send your translated messages"]:set_str_data({
+		lang["Send to all chat"],
+		lang["Send to team chat"]
+	})
 
-settings.valuei["Translate chat into language what language"] = menu.add_feature(
-	lang["Translate into"], 
-	"action_value_str", 
-	u.translate_chat.id
-)
-settings.valuei["Translate chat into language what language"]:set_str_data(
-	(function()
-		local t = {}
-		for i = 1, #enums.supported_langs_by_google do
-			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
-		end
-		return t
-	end)()
-)
+	local excluded_languages_from_translation <const> = menu.add_feature(lang["Languages to not translate"], "parent", u.translate_chat.id)
+	for _, name in pairs(enums.supported_langs_by_google) do
+		local code <const> = enums.supported_langs_by_google_to_code[name]
+		settings:add_setting({
+			setting_name = "Excluded "..name.." from translation",
+			setting = false
+		})
 
-settings.valuei["Translate chat into language what language to detect"] = menu.add_feature(
-	lang["Translate what is not"], 
-	"action_value_str", 
-	u.translate_chat.id
-)
-settings.valuei["Translate chat into language what language to detect"]:set_str_data(
-	(function()
-		local t = {}
-		for i = 1, #enums.supported_langs_by_google do
-			t[#t + 1] = lang[enums.supported_langs_by_google[i]]
-		end
-		return t
-	end)()
-)
+		settings.toggle["Excluded "..name.." from translation"] = menu.add_feature(lang[name], "toggle", excluded_languages_from_translation.id, function(f)
+			excluded_languages[code] = f.on
+		end)
+	end
+
+	settings.valuei["Where to send translations"] = menu.add_feature(lang["Where to send translations"], "action_value_str", u.translate_chat.id)
+	settings.valuei["Where to send translations"]:set_str_data({
+		lang["Notification"],
+		lang["To chat"]
+	})
+
+	settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
+
+	settings.valuei["Translate chat into language what language"] = menu.add_feature(
+		lang["Translate into"], 
+		"action_value_str", 
+		u.translate_chat.id
+	)
+	settings.valuei["Translate chat into language what language"]:set_str_data(language_names)
+
+	menu.add_feature(lang["Tip: set hotkeys for the translate inputs below"], "action", u.translate_chat.id)
+	for i = 1, 10 do
+		settings:add_setting(
+			{
+				setting_name = "Input text to translate to chat "..i,
+				setting = i - 1
+			}
+		)
+		settings.valuei["Input text to translate to chat "..i] = menu.add_feature(lang["Translate input"].." "..i, "action_value_str", u.translate_chat.id, function(f)
+			local text <const>, status <const> = keys_and_input.get_input(lang["Type in what to translate."].. " ["..lang[enums.supported_langs_by_google[f.value + 1]].."]", "", 128, 0)
+			if status == 2 then
+				return
+			end
+			local str <const>, detected_language <const> = 
+				language.translate_text(
+					text, 
+					"auto", 
+					enums.supported_langs_by_google_to_code[enums.supported_langs_by_google[f.value + 1]]
+				)
+			essentials.send_message(
+				str, 
+				essentials.is_str(settings.toggle["Translate chat into language"], "Send to team chat")
+			)
+		end)
+		settings.valuei["Input text to translate to chat "..i]:set_str_data(language_names)
+	end
+end
 
 do
 	local function create_anti_stuck_thread(...)
@@ -4624,8 +4645,13 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							if update.is_object_limit_not_breached and update.is_ped_limit_not_breached then
 								menu.create_thread(function()
 									local Ped <const> = kek_entity.create_cage(pid)
+									if Ped == -1 then
+										essentials.send_message("[Chat commands]: This player already have a cage on them.", event.player == player.player_id())
+										return
+									end
 									if not entity.is_entity_a_ped(Ped) then
 										essentials.send_message("[Chat commands]: Failed to spawn cage. Entity limits are reached.", event.player == player.player_id())
+										return
 									end
 								end, nil)
 							else
@@ -4704,23 +4730,18 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 									end
 								end
 								if pos then
-									if (pid == player.player_id() and not player.is_player_in_any_vehicle(player.player_id())) 
-									or (player.get_player_vehicle(pid) == player.get_player_vehicle(player.player_id()) and player.is_player_in_any_vehicle(pid) and player.is_player_in_any_vehicle(player.player_id())) then
+									menu.create_thread(function()
+										if player.player_id() ~= pid and not essentials.is_in_vehicle(pid) then
+											globals.force_player_into_vehicle(pid)
+										end
 										if pos == "player_pos" then
 											pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
 										end
-										kek_entity.teleport(kek_entity.get_most_relevant_entity(pid), pos)
-									else
-										menu.create_thread(function()
-											if player.player_id() ~= pid and not essentials.is_in_vehicle(pid) then
-												globals.force_player_into_vehicle(pid)
-											end
-											if pos == "player_pos" then
-												pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
-											end
-											kek_entity.teleport_player_and_vehicle_to_position(pid, pos, true)
-										end, nil)
-									end
+										kek_entity.teleport_player_and_vehicle_to_position(
+											pid, 
+											pos
+										)
+									end, nil)
 								else
 									essentials.send_message("[Chat commands]: Failed to find out where you wanted to teleport to.", event.player == player.player_id())
 								end
@@ -4731,7 +4752,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								essentials.send_message("[Chat commands]: Invalid apartment id. Must be between 1 and 113.", event.player == player.player_id())
 								return
 							end
-							globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, apartment_id, 1, 1, 1})
+							globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, apartment_id, 1, 1, 1)
 						elseif settings.in_use["offtheradar #chat command#"] and str:find("^%pofftheradar") then
 							if not str:match("%pofftheradar (%a+)") then
 								essentials.send_message("[Chat commands]: Missing argument <on/off>")
@@ -4763,7 +4784,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								return
 							end
 							globals.set_bounty(pid, false, true, amount)
-						elseif str:find("^%phelp$") then
+						elseif str:find("^%phelp$") or str:find("^%pcommands$") then
 							if not admin_mapper.is_there_admin_in_session() then
 								f.data.send_chat_commands()
 							end
@@ -4877,7 +4898,8 @@ do
 		tracker = {},
 		command_strings = {
 			teleport = true,
-			help = true
+			help = true,
+			commands = true
 		},
 		player_chat_command_blacklist = {},
 		send_chat_commands = function(send_to_team)
@@ -5298,10 +5320,9 @@ settings.toggle["Clever bot"].data = {}
 settings.toggle["Auto tp to waypoint"] = menu.add_feature(lang["Auto tp to waypoint"], "toggle", u.self_options.id, function(f)
 	while f.on do
 		system.yield(0)
-		if hud.is_waypoint_active() then
-			local pos <const> = ui.get_waypoint_coord()
-			ui.set_waypoint_off()
-			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), location_mapper.get_most_accurate_position(v3(pos.x, pos.y, -50)))
+		if hud.is_waypoint_active() and kek_entity.get_control_of_entity(kek_entity.get_most_relevant_entity(player.player_id())) then
+			menu.get_feature_by_hierarchy_key("local.teleport.waypoint"):toggle()
+			system.yield(1000)
 		end
 	end
 end)
@@ -5309,7 +5330,6 @@ end)
 settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang["Move mini map to people you spectate"], "toggle", u.self_options.id, function(f)
 	local who_spectating
 	local pos <const> = player.get_player_coords(player.player_id())
-	player.extend_world_boundary_for_player(pos.x, pos.y, pos.z)
 	while f.on do
 		system.yield(0)
 		if network.network_is_in_spectator_mode() then
@@ -5321,7 +5341,6 @@ settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang[
 			who_spectating = -1
 		end
 	end
-	player.reset_world_boundary_for_player()
 end)
 
 local function display_settings(...)
@@ -5824,7 +5843,7 @@ do
 					count = count + 1
 				end
 			until count == 0
-			essentials.delete_feature(f.id)
+			menu.delete_feature(f.id)
 		elseif essentials.is_str(f, "Change name") then
 			local input, status = f.name
 			while true do
@@ -5945,10 +5964,10 @@ do
 				return
 			end
 			spawning_active = true
-			menyoo.spawn_xml_map(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml", true)
+			menyoo.spawn_xml_map(paths.menyoo_maps.."\\"..f.name..".xml", true)
 			spawning_active = false
 		elseif essentials.is_str(f, "Teleport to map spawn") then
-			local info <const> = essentials.parse_xml(essentials.get_file_string(paths.home.."scripts\\Menyoo maps\\"..f.name..".xml"))
+			local info <const> = essentials.parse_xml(essentials.get_file_string(paths.menyoo_maps.."\\"..f.name..".xml"))
 			if info.SpoonerPlacements and info.SpoonerPlacements.ReferenceCoords then
 				kek_entity.teleport(
 					kek_entity.get_most_relevant_entity(player.player_id()), 
@@ -5967,9 +5986,9 @@ do
 				essentials.msg(lang["Failed to load spawn coordinates."], "red", true, 6)
 			end
 		elseif essentials.is_str(f, "Set where you spawn") then
-			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
+			if utils.file_exists(paths.menyoo_maps.."\\"..f.name..".xml") then
 				local pos <const> = essentials.get_player_coords(player.player_id())
-				local file_path <const> = paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml"
+				local file_path <const> = paths.menyoo_maps.."\\"..f.name..".xml"
 				local str, new_str = essentials.get_file_string(file_path)
 				str = str:gsub("\r\n", "\n")
 				essentials.assert(str ~= "", "Tried to replace menyoo map with an empty string.")
@@ -6014,11 +6033,11 @@ do
 				file:flush()
 			end
 		elseif essentials.is_str(f, "Delete") then
-			if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml") then
-				io.remove(paths.home.."scripts\\Menyoo Maps\\"..f.name..".xml")
+			if utils.file_exists(paths.menyoo_maps.."\\"..f.name..".xml") then
+				io.remove(paths.menyoo_maps.."\\"..f.name..".xml")
 			end
 			feat_name_map[f.name..".xml"] = nil
-			essentials.delete_feature(f.id)
+			menu.delete_feature(f.id)
 		elseif essentials.is_str(f, "Change name") then
 			local input, status = f.name
 			while true do
@@ -6030,7 +6049,7 @@ do
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..input..".xml") then
+				if utils.file_exists(paths.menyoo_maps.."\\"..input..".xml") then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -6042,7 +6061,7 @@ do
 				::skip::
 				system.yield(0)
 			end
-			essentials.rename_file(paths.home.."scripts\\Menyoo Maps\\", f.name, input, "xml")
+			essentials.rename_file(paths.menyoo_maps.."\\", f.name, input, "xml")
 			feat_name_map[f.name..".xml"] = nil
 			f.name = input
 			feat_name_map[f.name..".xml"] = true
@@ -6091,7 +6110,7 @@ do
 					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
 					goto skip
 				end
-				if utils.file_exists(paths.home.."scripts\\Menyoo Maps\\"..input..".xml") then
+				if utils.file_exists(paths.menyoo_maps.."\\"..input..".xml") then
 					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
 					goto skip
 				end
@@ -6103,17 +6122,17 @@ do
 				::skip::
 				system.yield(0)
 			end
-			menyoo_saver.save_map(paths.home.."scripts\\Menyoo Maps\\"..input..".xml", essentials.is_str(f, "Save only mission entities"))
+			menyoo_saver.save_map(paths.menyoo_maps.."\\"..input..".xml", essentials.is_str(f, "Save only mission entities"))
 			create_custom_map_feature(input)
 		elseif essentials.is_str(f, "Refresh list") then
 			local children <const> = custom_maps_parent.children
 			for i = 1, #children do -- 3x faster to delete all then reconstruct than using utils.file_exists
 				local feat <const> = children[i]
 				if feat.data == "MENYOO" then
-					essentials.delete_feature(feat.id)
+					menu.delete_feature(feat.id)
 				end
 			end
-			local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")
+			local files <const> = utils.get_all_files_in_directory(paths.menyoo_maps, "xml")
 			feat_name_map = {}
 			for i = 1, #files do
 				create_custom_map_feature(files[i]:sub(1, -5))
@@ -6134,7 +6153,7 @@ do
 
 	settings.toggle["Clear before spawning xml map"] = menu.add_feature(lang["Clear owned entities before spawning map"], "toggle", custom_maps_parent.id)
 
-	local files <const> = utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Maps", "xml")
+	local files <const> = utils.get_all_files_in_directory(paths.menyoo_maps, "xml")
 	for i = 1, #files do
 		create_custom_map_feature(files[i]:sub(1, -5))
 	end
@@ -6289,7 +6308,7 @@ end)
 player_feat_ids["player otr"] = menu.add_player_feature(lang["Off the radar"], "toggle", u.player_peaceful, function(f, pid)
 	while f.on do
 		if globals.get_player_global("otr_status", pid) ~= 1 then
-			globals.send_script_event("Give OTR or ghost organization", pid, {pid, utils.time() - 60, utils.time(), 1, 1, globals.get_player_global("generic", pid)})
+			globals.send_script_event(pid, "Give OTR or ghost organization", nil, utils.time() - 60, utils.time(), 1, 1, globals.get_player_global("generic", pid))
 			system.yield(1000)
 		end
 		system.yield(0)
@@ -6299,15 +6318,27 @@ end).id
 player_feat_ids["Never wanted"] = menu.add_player_feature(lang["Never wanted"], "toggle", u.player_peaceful, function(f, pid)
 	while f.on do
 		if player.is_player_valid(pid) and player.get_player_wanted_level(pid) > 0 then
-			globals.send_script_event("Generic event", pid, {pid, globals.GENERIC_ARG_HASHES.clear_wanted})
+			globals.send_script_event(pid, "Generic event", nil, globals.GENERIC_ARG_HASHES.clear_wanted)
 			system.yield(1000)
 		end
 		system.yield(0)
 	end
 end).id
 
+--[[
+-81613951 == vehicle special cargo\
+								   :You can't use these 2 at the same time, it causes transaction error [max 10k]
+-1292453789 == vehicle cargo 	  /
+
+198210293 == CEO sell goods [max 30k]
+
+-1292453789 [but arg 4 as 0]\
+				  -1905128202\ 
+							  : paid for being an associate, shows message but doesn't give money after it successfully gave money once, unless you wait a long time to give again [max 10k]
+				  1160415507 /
+]]
 player_feat_ids["30k ceo"] = menu.add_player_feature(lang["30k ceo loop"], "toggle", u.player_peaceful, function(f, pid)
-	if u.send_30k_to_session.on then
+	if u.send_30k_to_session.on and player.player_id() ~= pid then
 		essentials.msg(lang["The 30k loop for session is already toggled on."], "red", true, 6)
 		f.on = false
 		return
@@ -6317,23 +6348,19 @@ player_feat_ids["30k ceo"] = menu.add_player_feature(lang["30k ceo loop"], "togg
 		f.on = false
 		return
 	end
+
 	menu.create_thread(function()
 		while f.on do
-			globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 0, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
-			essentials.wait_conditional(20000, function() 
-				return f.on and globals.get_player_global("organization_associate_hash", pid) ~= -1
-			end)
-			if f.on then
-				globals.send_script_event("CEO money", pid, {pid, 10000, -1292453789, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
-			end
-			essentials.wait_conditional(20000, function() 
+			globals.send_script_event(pid, "CEO money", nil, 10000, -1292453789, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"))
+			essentials.wait_conditional(40000, function() 
 				return f.on and globals.get_player_global("organization_associate_hash", pid) ~= -1
 			end)
 		end
 	end, nil)
+
 	while f.on and globals.get_player_global("organization_associate_hash", pid) ~= -1 do
-		globals.send_script_event("CEO money", pid, {pid, 30000, 198210293, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous")})
-		essentials.wait_conditional(120000, function() 
+		globals.send_script_event(pid, "CEO money", nil, 30000, 198210293, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"))
+		essentials.wait_conditional(150000, function() 
 			return f.on and globals.get_player_global("organization_associate_hash", pid) ~= -1
 		end)
 	end
@@ -6375,43 +6402,42 @@ end):set_str_data({
 
 
 menu.add_player_feature(lang["Teleport to Perico island"], "action", u.script_stuff, function(f, pid)
-	globals.send_script_event("Send to Perico island", pid, {pid, globals.get_script_event_hash("Send to Perico island"), 0, 0})
+	globals.send_script_event(pid, "Send to Perico island", nil, globals.get_script_event_hash("Send to Perico island"), 0, 0)
 end)
 
 menu.add_player_feature(lang["Apartment invites"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
-		globals.send_script_event("Apartment invite", pid, {pid, pid, 1, 0, math.random(1, 113), 1, 1, 1})
+		globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1)
 		system.yield(5000)
 	end
 end)
 
 menu.add_player_feature(lang["Block passive mode"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
-		globals.send_script_event("Block passive", pid, {pid, 1})
+		globals.send_script_event(pid, "Block passive", nil, 1)
 		system.yield(1000)
 	end
-	globals.send_script_event("Block passive", pid, {pid, 0})
+	globals.send_script_event(pid, "Block passive", nil, 0)
 end)
 
 menu.add_player_feature(lang["Notification spam"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
 		local rand_pid <const> = essentials.get_random_player_except({[player.player_id()] = true})
-		globals.send_script_event("Notifications", pid, {
-			pid, 
+		globals.send_script_event(pid, "Notifications", nil, 
 			globals.NOTIFICATION_HASHES_RAW[math.random(1, #globals.NOTIFICATION_HASHES_RAW)], 
 			math.random(-2147483647, 2147483647),
 			1, 0, 0, 0, 0, 0, pid, 
 			player.player_id(), 
 			rand_pid, 
 			essentials.get_random_player_except({[player.player_id()] = true, [rand_pid] = true})
-		})
-		system.yield(500)
+		)
+		system.yield(1000)
 	end
 end)
 
 menu.add_player_feature(lang["Transaction error"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
-		globals.send_script_event("Transaction error", pid, {pid, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1})
+		globals.send_script_event(pid, "Transaction error", nil, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1)
 		system.yield(500)
 	end
 end)
@@ -6434,11 +6460,11 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 			essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
 			return
 		end
-		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true, true)
+		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true)
 	elseif essentials.is_str(f, "waypoint") then
-		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), player.player_id() ~= pid, false, f)
+		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), false, f)
 	elseif essentials.is_str(f, "Mount Chiliad & kill") then
-		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), player.player_id() ~= pid, true) then
+		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), true) then
 			globals.disable_vehicle(pid)
 			system.yield(1500)
 			for i = 1, 20 do
@@ -6447,7 +6473,7 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 			end
 		end
 	elseif essentials.is_str(f, "far away") then
-		kek_entity.teleport_player_and_vehicle_to_position(pid, v3(math.random(20000, 25000), math.random(-25000, -20000), math.random(-2400, 2400)), player.player_id() ~= pid, true)
+		kek_entity.teleport_player_and_vehicle_to_position(pid, v3(math.random(20000, 25000), math.random(-25000, -20000), math.random(-2400, 2400)), true)
 	end
 end):set_str_data({
 	lang["me"],
@@ -6506,7 +6532,6 @@ do
 					end
 				end
 			elseif essentials.is_str(f, "Remove") then
-				globals.send_script_event("Destroy personal vehicle", pid, {pid, pid})
 				kek_entity.remove_player_vehicle(pid)
 			elseif essentials.is_str(f, "Clone") then
 				if player.player_count() == 0 then
@@ -6680,10 +6705,11 @@ settings.user_entity_features.vehicle.player_feats["Respawn vehicle"] = menu.add
 	local state = false
 	while f.on do
 		system.yield(0)
-		state = state or entity.is_entity_dead(player.get_player_ped(pid))
-		if state and player.get_player_coords(pid).z > -10 and not entity.is_entity_dead(player.get_player_ped(pid)) then
+		state = state or player.is_player_dead(pid)
+		if state and essentials.get_player_coords(pid).z > -10 and not player.is_player_dead(pid) then
 			state = false
 			kek_entity.clear_entities({f.data})
+			system.yield(500) -- It gets the heading player had when their ped was dead if this isn't here
 			local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 			f.data = kek_entity.spawn_networked_vehicle(hash, function()
 				return kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid)), player.get_player_heading(pid)
@@ -6765,9 +6791,9 @@ menu.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player
 	if status == 2 then
 		return
 	end
-	for _, file_name in pairs(utils.get_all_files_in_directory(paths.home.."scripts\\Menyoo Vehicles", "xml")) do
+	for _, file_name in pairs(utils.get_all_files_in_directory(paths.menyoo_vehicles, "xml")) do
 		if file_name:lower():find(input:lower(), 1, true) then
-			local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.home.."scripts\\Menyoo Vehicles\\"..file_name, pid)
+			local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.menyoo_vehicles.."\\"..file_name, pid)
 			if entity.is_entity_a_vehicle(Vehicle) then
 				if streaming.is_model_a_plane(entity.get_entity_model_hash(Vehicle)) then
 					essentials.msg(lang["Attackers can't use planes. Cancelled."], "red", true)
@@ -6789,6 +6815,7 @@ menu.add_player_feature(lang["Send"], "value_str", u.player_trolling_features, f
 		return
 	end
 	local Entity, temp
+	local value = f.value
 	while f.on do
 		if essentials.is_str(f, "Clown vans") then
 			temp = troll_entity.spawn_standard_alone(f, pid, troll_entity.send_clown_van)
@@ -6803,6 +6830,10 @@ menu.add_player_feature(lang["Send"], "value_str", u.player_trolling_features, f
 		system.yield(0)
 		if player.player_count() == 0 then
 			f.on = false
+		end
+		if value ~= f.value and entity.is_an_entity(type(Entity) == "table" and Entity[1] or Entity or 0) then
+			kek_entity.clear_entities(type(Entity) == "table" and Entity or {Entity}, 5000)
+			value = f.value
 		end
 	end
 	kek_entity.clear_entities(type(Entity) == "table" and Entity or {Entity})
@@ -6856,6 +6887,11 @@ end):set_str_data({
 })
 
 menu.add_player_feature(lang["Taze player"], "toggle", u.player_trolling_features, function(f, pid)
+	if player.player_id() == pid then
+		essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
+		f.on = false
+		return
+	end
 	while f.on do
 		gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_relative_to_entity(player.get_player_ped(pid), essentials.random_real(-0.5, 0.5)) + v3(0, 0, essentials.random_real(0, 1)), select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x60f2, memoize.v3())), 0, gameplay.get_hash_key("weapon_stungun"), player.get_player_ped(player.player_id()), true, false, 2000)
 		system.yield(1000)
@@ -6902,12 +6938,6 @@ menu.add_player_feature(lang["Float"], "value_str", u.player_trolling_features, 
 	while f.on and player.player_count() > 0 do
 		system.yield(0)
 		if not entity.is_entity_an_object(platform) then
-			local objects <const> = memoize.get_all_objects()
-			for i = 1, #objects do
-				if entity.get_entity_model_hash(objects[i]) == hash and memoize.get_distance_between(objects[i], player.get_player_ped(pid)) < 75 then
-					kek_entity.clear_entities({objects[i]})
-				end
-			end
 			platform = kek_entity.spawn_networked_object(hash, function()
 				pos = essentials.get_player_coords(pid) - memoize.v3(0, 0, -2.5)
 				return pos
@@ -7093,9 +7123,7 @@ settings.user_entity_features.object.feats["Object gun"] = menu.add_feature(lang
 				end)
 				local pos <const> = kek_entity.get_collision_vector(player.player_id())
 				kek_entity.set_entity_rotation(entities[#entities], cam.get_gameplay_cam_rot())
-				for i = 1, 10 do
-					entity.apply_force_to_entity(entities[#entities], 3, pos.x, pos.y, pos.z, 0, 0, 0, true, true)
-				end
+				entity.set_entity_velocity(entities[#entities], entity.get_entity_forward_vector(player.get_player_ped(player.player_id())) * 200)
 				if #entities > 10 then
 					kek_entity.clear_entities({entities[1]})
 					table.remove(entities, 1)
@@ -7112,7 +7140,9 @@ u.airstrike_gun = menu.add_feature(lang["Airstrike gun"], "toggle", u.weapons_se
 		system.yield(0)
 		if ped.is_ped_shooting(player.get_player_ped(player.player_id())) then
 			local pos <const> = kek_entity.get_collision_vector(player.player_id())
-			gameplay.shoot_single_bullet_between_coords(pos + memoize.v3(0, 0, 15), pos, 1000, gameplay.get_hash_key("weapon_airstrike_rocket"), player.get_player_ped(player.player_id()), true, false, 250)
+			if pos:magnitude(player.get_player_coords(player.player_id())) > 0.5 then -- Defaults to your position if failing to find impact of bullet
+				gameplay.shoot_single_bullet_between_coords(pos + memoize.v3(0, 0, 15), pos, 1000, gameplay.get_hash_key("weapon_airstrike_rocket"), player.get_player_ped(player.player_id()), true, false, 250)
+			end
 		end
 	end
 end)
@@ -7429,7 +7459,7 @@ do
 					speed_set.value = 100
 					menu.add_feature(lang["Toggle engine"], "action_value_str", parent.id, function(f)
 						for Vehicle in entities_ite(i) do
-							if essentials.is_str(f, "Kick engine") then
+							if essentials.is_str(f, "Kill engine") then
 								vehicle.set_vehicle_engine_health(Vehicle, -4000)
 							elseif essentials.is_str(f, "Heal engine") then
 								vehicle.set_vehicle_engine_health(Vehicle, 1000)
@@ -7539,6 +7569,7 @@ do
 							end
 							if kek_entity.get_control_of_entity(player.get_player_vehicle(f.data[f.value + 1]), nil, nil, true) then
 								entity.attach_entity_to_entity(player.get_player_vehicle(f.data[f.value + 1]), parent.data.entity, 0, memoize.v3(offset_x.value, offset_y.value, offset_z.value), memoize.v3(rot_x.value, rot_y.value, rot_z.value), false, collision.on, false, 0, true)
+								entity.process_entity_attachments(parent.data.entity)
 							end
 							::exit::
 							if had_to_teleport then
@@ -7565,6 +7596,7 @@ do
 								end
 								if kek_entity.get_control_of_entity(player.get_player_vehicle(f.data[f.value + 1])) then
 									entity.attach_entity_to_entity(player.get_player_vehicle(f.data[f.value + 1]), parent.data.entity, 0, memoize.v3(offset_x.value, offset_y.value, offset_z.value), memoize.v3(rot_x.value, rot_y.value, rot_z.value), false, collision.on, false, 0, true)
+									entity.process_entity_attachments(parent.data.entity)
 								end
 							end
 						end
@@ -7804,7 +7836,10 @@ do
 				end
 				local entities <const> = entity_getters[parent_i]()
 				for i2 = 1, #entities do
-					if not parents_in_use[parent_i][entities[i2]] and is_an_entity(entities[i2]) and (parent_i ~= 2 or not is_ped_a_player(entities[i2])) then
+					if not parents_in_use[parent_i][entities[i2]]
+					and #free_parents[parent_i] > 0 
+					and is_an_entity(entities[i2]) 
+					and (parent_i ~= 2 or not is_ped_a_player(entities[i2])) then
 						parents_in_use[parent_i][entities[i2]] = free_parents[parent_i][#free_parents[parent_i]]
 						free_parents[parent_i][#free_parents[parent_i]] = nil
 						local entity_name <const> = get_names[parent_i](get_entity_model_hash(entities[i2]))
@@ -7978,192 +8013,95 @@ do
 	end
 end
 
-u.search_features.data = essentials.const({
-	has_informed = false,
-	feat_logic = function(...)
-		local real_feat, fake_feat = ...
-		if essentials.FEATURE_ID_MAP[fake_feat.type] == "action" then
-			real_feat.on = true
-		end
-		if fake_feat.value then
-			if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
-				real_feat.on = true
-				real_feat.value = fake_feat.value
-				local real_value = real_feat.value
-				local fake_value = fake_feat.value
-				while fake_feat.on and real_feat.on do
-					system.yield(0)
-					if fake_feat.value ~= fake_value then
-						real_feat.value = fake_feat.value
-						fake_value = fake_feat.value
-						real_value = fake_feat.value
-					elseif real_feat.value ~= real_value then
-						fake_feat.value = real_feat.value
-						fake_value = real_feat.value
-						real_value = real_feat.value
-					end
-				end
-				fake_feat.on = false
-				real_feat.on = false
-			else
-				real_feat.value = fake_feat.value
-				if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
-					real_feat.on = true
-				end
-			end
-		elseif essentials.FEATURE_ID_MAP[fake_feat.type] == "toggle" then
-			real_feat.on = true
-			while fake_feat.on and real_feat.on do
-				system.yield(0)
-			end
-			real_feat.on = false
-			fake_feat.on = false
-		end
-	end,
-	player_feat_logic = function(...)
-		local real_feat, 
-		fake_feat,
-		pid <const> = ...
-		if essentials.FEATURE_ID_MAP[fake_feat.type] == "action" then
-			menu.get_player_feature(real_feat.id).feats[pid].on = true
-		end
-		if fake_feat.value then
-			if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
-				menu.get_player_feature(real_feat.id).feats[pid].on = true
-				menu.get_player_feature(real_feat.id).feats[pid].value = fake_feat.value
-				local real_value = menu.get_player_feature(real_feat.id).feats[pid].value
-				local fake_value = fake_feat.value
-				while fake_feat.on and menu.get_player_feature(real_feat.id).feats[pid].on do
-					system.yield(0)
-					if fake_feat.value ~= fake_value then
-						menu.get_player_feature(real_feat.id).feats[pid].value = fake_feat.value
-						fake_value = fake_feat.value
-						real_value = fake_feat.value
-					elseif menu.get_player_feature(real_feat.id).feats[pid].value ~= real_value then
-						fake_feat.value = menu.get_player_feature(real_feat.id).feats[pid].value
-						fake_value = menu.get_player_feature(real_feat.id).feats[pid].value
-						real_value = menu.get_player_feature(real_feat.id).feats[pid].value
-					end
-				end
-				fake_feat.on = false
-				menu.get_player_feature(real_feat.id).feats[pid].on = false
-			else
-				real_feat.value = fake_feat.value
-				if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
-					real_feat.on = true
-				end
-			end
-		elseif essentials.FEATURE_ID_MAP[fake_feat.type] == "toggle" then
-			real_feat.on = true
-			while fake_feat.on and real_feat.on do
-				system.yield(0)
-			end
-			real_feat.on = false
-			fake_feat.on = false
-		end
-	end,
-	set_feat_properties = function(...)
-		local real_feat <const>,
-		fake_feat,
-		real_feat_player_if_relevant <const> = ...
-		if fake_feat.value then
-			if essentials.FEATURE_ID_MAP[fake_feat.type]:find("str", 1, true) then
-				fake_feat:set_str_data((real_feat_player_if_relevant or real_feat):get_str_data())
-			else
-				fake_feat.min = real_feat.min
-				fake_feat.max = real_feat.max
-				fake_feat.mod = real_feat.mod
-			end
-			fake_feat.value = real_feat.value
-		end
-		if not essentials.FEATURE_ID_MAP[fake_feat.type]:find("action", 1, true) then
-			fake_feat.on = real_feat.on
-		end
-	end
-})
-
-menu.add_feature(lang["Search"], "action", u.search_features.id, function()
-	local input, status <const> = keys_and_input.get_input(lang["Type in name of a player or regular feature."], "", 128, 0)
+u.search_features = menu.add_feature(lang["Search"], "action_value_str", u.search_menu_features.id, function(f)
+	local input, status <const> = keys_and_input.get_input(lang["Type in name of feature."], "", 128, 0)
 	if status == 2 then
 		return
 	end
 	input = input:lower()
-	for _, fake_feat in pairs(u.search_features.children) do
-		if fake_feat.data ~= "isn't searchable" then
-			fake_feat.data = "isn't searchable"
-			if fake_feat.type == 2048 and fake_feat.child_count > 0 then
-				for _, child in pairs(fake_feat.children) do
-					if child.data ~= "isn't searchable" then
-						child.data = "isn't searchable"
-						essentials.delete_feature(child.id)
-					end
-				end
-			end
-			essentials.delete_feature(fake_feat.id)
+	u.hotkey_feat_for_search.hidden = true
+	local children <const> = u.search_menu_features.children
+	for i = 1, #children do
+		if children[i].data ~= "dont_delete" then
+			menu.delete_feature(children[i].id)
 		end
 	end
-	local map <const> = essentials.const_all({
-		feats = essentials.deep_copy(essentials.feats),
-		player_feats = essentials.deep_copy(essentials.player_feats)
-	})
-	for type_of_feature, features in pairs(map) do
-		for _, FEAT in pairs(features) do
-			local real_feat
-			if type_of_feature == "player_feats" then
-				FEAT = menu.get_player_feature(FEAT)
-				real_feat = FEAT.feats[0]
-			else
-				real_feat = FEAT
+	if input == "" then
+		u.hotkey_feat_for_search.hidden = false
+		return
+	end
+
+	local find <const>, lower <const> = string.find, string.lower
+	local children <const> = {}
+	for tab, parents in pairs(enums.menu_feature_hierarchy) do
+		for parent_i = 1, #parents do
+			if (essentials.is_str(f, "Lua features") and parents[parent_i] == "script_features") 
+			or (essentials.is_str(f, "Menu features") and parents[parent_i] ~= "script_features") then
+				local parent <const> = menu.get_feature_by_hierarchy_key(tab.."."..parents[parent_i])
+				essentials.get_descendants(parent, children)
 			end
-			if real_feat.type ~= 2048
-			and not real_feat.hidden
-			and real_feat.data ~= "isn't searchable"
-			and (not essentials.FEATURE_ID_MAP[real_feat.type]:find("str", 1, true) or FEAT:get_str_data())
-			and real_feat.name:lower():find(input, 1, true) then
-				if type_of_feature == "player_feats" then
-					menu.add_feature(menu.get_player_feature(real_feat.id).feats[0].name, "parent", u.search_features.id, function(fake_feat)
-						if fake_feat.child_count == 0 then
-							for pid = 0, 31 do
-								local feat_type = essentials.FEATURE_ID_MAP[menu.get_player_feature(real_feat.id).feats[pid].type]
-								if feat_type:find("action", 1, true) and not feat_type:find("auto", 1, true) and feat_type ~= "action" then
-									feat_type = "auto"..feat_type
-								end
-								local fake_feat = menu.add_feature(player.get_player_name(pid) or "", feat_type, fake_feat.id, function(fake_feat)
-									u.search_features.data.player_feat_logic(menu.get_player_feature(real_feat.id).feats[pid], fake_feat, pid)
-								end)
-								fake_feat.hidden = not player.is_player_valid(pid)
-								u.search_features.data.set_feat_properties(menu.get_player_feature(real_feat.id).feats[pid], fake_feat, menu.get_player_feature(real_feat.id))
-							end
+		end
+	end
+	table.sort(children, function(a, b)
+		return a.name < b.name
+	end)
+	for children_i = 1, #children do
+		if children[children_i].name ~= "" and children[children_i].type & 1 << 11 == 0 then
+			local menu_feat = children[children_i]
+			if find(lower(menu_feat.name), input, 1, true) then
+				local feat <const> = menu.add_feature(menu_feat.name, "action_value_str", u.search_menu_features.id, function(f)
+					local hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "local")
+					local menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
+					if not menu_feat then
+						hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "online")
+						menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
+					end
+					if not menu_feat then
+						hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "spawn")
+						menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
+					end
+					menu_feat = menu_feat or children[children_i]
+					if essentials.is_str(f, "Go to") then
+						if menu_feat then
+							menu_feat.parent:toggle()
+							menu_feat:select()
 						else
-							for pid, child in pairs(fake_feat.children) do
-								child.hidden = not player.is_player_valid(pid - 1)
-								if player.is_player_valid(pid - 1) then
-									child.name = player.get_player_name(pid - 1)
-								end
-								if not essentials.FEATURE_ID_MAP[child.type]:find("action", 1, true) then
-									child.on = menu.get_player_feature(real_feat.id).feats[pid - 1].on
-								end
-								if child.value then
-									child.value = menu.get_player_feature(real_feat.id).feats[pid - 1].value
-								end
-							end
+							essentials.msg(lang["Failed to go to feature."], "red", true, 6)
 						end
-					end)
-				else
-					local feat_type = essentials.FEATURE_ID_MAP[real_feat.type]
-					if feat_type:find("action", 1, true) and not feat_type:find("auto", 1, true) and feat_type ~= "action" then
-						feat_type = "auto"..feat_type
+					elseif essentials.is_str(f, "Where") then
+						essentials.msg(
+							hierarchy_string:gsub(
+								".", 
+								{
+									["."] = " >> ",
+									["_"] = " "
+								}
+							), 
+							"green", 
+							true, 
+							12
+						)
 					end
-					local fake_feat = menu.add_feature(real_feat.name, feat_type, u.search_features.id, function(fake_feat)
-						u.search_features.data.feat_logic(real_feat, fake_feat)
-					end)
-					u.search_features.data.set_feat_properties(real_feat, fake_feat)
-					fake_feat.data = real_feat
-				end
+				end)
+				feat:set_str_data({
+					lang["Go to"],
+					lang["Where"]
+				})
 			end
 		end
 	end
-end).data = "isn't searchable"
+end)
+u.search_features:set_str_data({
+	lang["Menu features"],
+	lang["Lua features"]
+})
+u.search_features.data = "dont_delete"
+
+u.hotkey_feat_for_search = menu.add_feature(lang["Set hotkey on this to go here"], "action", u.search_menu_features.id, function(f)
+	u.search_menu_features:toggle()
+	u.search_features:select()
+end)
+u.hotkey_feat_for_search.data = "dont_delete"
 
 settings:initialize(paths.home.."scripts\\kek_menu_stuff\\keksettings.ini")
 
@@ -8197,5 +8135,5 @@ essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", fun
 end)
 
 essentials.msg(lang["Successfully loaded Kek's menu."], "green", true)
-	
+
 end, nil)
