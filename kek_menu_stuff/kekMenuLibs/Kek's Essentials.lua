@@ -1276,10 +1276,6 @@ function essentials.show_changelog()
 end
 
 function essentials.update_keks_menu()
-	if __kek_menu_has_done_update then
-		essentials.msg(lang["Kektram messed up the version strings. You have the latest version. Prevented infinite update loop."], "green", true, 8)
-		return "has updated"
-	end
 	local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
 	local version_check_draw_thread <const> = menu.create_thread(function()
@@ -1311,7 +1307,10 @@ function essentials.update_keks_menu()
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
 		return "is latest version"
 	else
-
+		if __kek_menu_has_done_update then
+			essentials.msg(lang["Kektram messed up the version strings. You have the latest version. Prevented infinite update loop."], "green", true, 8)
+			return "already updated"
+		end
 		while essentials.is_any_virtual_key_pressed( -- Prevent accidental presses
 			"ALT",
 			"LCONTROL",

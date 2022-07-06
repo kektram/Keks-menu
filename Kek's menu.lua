@@ -87,7 +87,7 @@ and utils.file_exists(paths.debugger) then
 		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
 			__kek_menu_participate_in_betas = true
 		end
-		if str:match("Check for updates=(%a%a%a%a)") == "true" then
+		if str:match("Check for updates=(%a%a%a%a)") == nil or str:match("Check for updates=(%a%a%a%a)") == "true" then
 			__kek_menu_check_for_updates = true
 		end
 	end
@@ -106,6 +106,8 @@ do -- Makes sure each library is loaded once and that every time one is required
 	local original_require <const> = require
 	require = function(...)
 		local name <const> = ...
+		assert(utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua"), "Tried to require a file that doesn't exist.")
+		assert(name:find("^Kek's %u"), "Invalid library name. [kekMenuLibs\\"..name.."]: format should be \"Kek's <Uppercase letter><rest of lib name>\"")
 		local lib = package.loaded[name] or original_require(name)
 		if not package.loaded[name] then
 			package.loaded[name] = lib
@@ -128,8 +130,8 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Kek's Keys and input"] = "1.0.7",
 		["Kek's Drive style mapper"] = "1.0.4",
 		["Kek's Menyoo spawner"] = "2.2.5",
-		["Kek's entity functions"] = "1.2.7",
-		["Kek's trolling entities"] = "1.0.7",
+		["Kek's Entity functions"] = "1.2.7",
+		["Kek's Trolling entities"] = "1.0.7",
 		["Kek's Custom upgrades"] = "1.0.2",
 		["Kek's Admin mapper"] = "1.0.4",
 		["Kek's Menyoo saver"] = "1.0.9",
@@ -164,8 +166,8 @@ local vehicle_mapper <const> = package.loaded["Kek's Vehicle mapper"]
 local ped_mapper <const> = package.loaded["Kek's Ped mapper"]
 local object_mapper <const> = package.loaded["Kek's Object mapper"]
 local menyoo <const> = package.loaded["Kek's Menyoo spawner"]
-local kek_entity <const> = package.loaded["Kek's entity functions"]
-local troll_entity <const> = package.loaded["Kek's trolling entities"]
+local kek_entity <const> = package.loaded["Kek's Entity functions"]
+local troll_entity <const> = package.loaded["Kek's Trolling entities"]
 local custom_upgrades <const> = package.loaded["Kek's Custom upgrades"]
 local admin_mapper <const> = package.loaded["Kek's Admin mapper"]
 local menyoo_saver <const> = package.loaded["Kek's Menyoo saver"]

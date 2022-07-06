@@ -3,7 +3,7 @@
 local custom_upgrades <const> = {version = "1.0.2"}
 
 local essentials <const> = require("Kek's Essentials")
-local kek_entity <const> = require("Kek's entity functions")
+local kek_entity <const> = require("Kek's Entity functions")
 local weapon_mapper <const> = require("Kek's Weapon mapper")
 local enums <const> = require("Kek's Enums")
 
