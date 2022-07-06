@@ -109,7 +109,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		local name <const> = ...
 		assert(utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua"), "Tried to require a file that doesn't exist.")
 		assert(name:find("^Kek's %u"), "Invalid library name. [kekMenuLibs\\"..name.."]: format should be \"Kek's <Uppercase letter><rest of lib name>\"")
-		local lib = package.loaded[name] or dofile(name)
+		local lib = package.loaded[name] or dofile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")
 		if not package.loaded[name] then
 			package.loaded[name] = lib
 		end
