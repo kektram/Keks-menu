@@ -87,11 +87,12 @@ and utils.file_exists(paths.debugger) then
 		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
 			__kek_menu_participate_in_betas = true
 		end
-		if str:match("Check for updates=(%a%a%a%a)") == nil or str:match("Check for updates=(%a%a%a%a)") == "true" then
+		if str:match("Check for updates=(%a%a%a%a)") == "true" then
 			__kek_menu_check_for_updates = true
 		end
 	end
 else
+	__kek_menu_check_for_updates = true
 	local file <const> = io.open(paths.kek_settings, "w+")
 	file:close()
 end
@@ -108,7 +109,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		local name <const> = ...
 		assert(utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua"), "Tried to require a file that doesn't exist.")
 		assert(name:find("^Kek's %u"), "Invalid library name. [kekMenuLibs\\"..name.."]: format should be \"Kek's <Uppercase letter><rest of lib name>\"")
-		local lib = package.loaded[name] or original_require(name)
+		local lib = package.loaded[name] or dofile(name)
 		if not package.loaded[name] then
 			package.loaded[name] = lib
 		end
@@ -124,7 +125,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Kek's Vehicle mapper"] = "1.3.9", 
 		["Kek's Ped mapper"] = "1.2.7",
 		["Kek's Object mapper"] = "1.2.7", 
-		["Kek's Globals"] = "1.3.7",
+		["Kek's Globals"] = "1.3.6",
 		["Kek's Weapon mapper"] = "1.0.5",
 		["Kek's Location mapper"] = "1.0.2",
 		["Kek's Keys and input"] = "1.0.7",
@@ -144,6 +145,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 			require(name)
 		end
 		if package.loaded[name].version ~= version then
+			print(name, package.loaded[name].version)
 			menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
 			error(package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."])
 		end

@@ -1308,7 +1308,7 @@ function essentials.update_keks_menu()
 		return "is latest version"
 	else
 		if __kek_menu_has_done_update then
-			essentials.msg(lang["Kektram messed up the version strings. You have the latest version. Prevented infinite update loop."], "green", true, 8)
+			essentials.msg(lang["Kektram messed up the version strings! You have the latest version."], "green", true, 8)
 			return "already updated"
 		end
 		while essentials.is_any_virtual_key_pressed( -- Prevent accidental presses
