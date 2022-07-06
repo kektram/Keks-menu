@@ -1225,6 +1225,10 @@ function essentials.show_changelog()
 end
 
 function essentials.update_keks_menu()
+	if __kek_menu_has_done_update then
+		essentials.msg(lang["Kektram messed up the version strings. You have the latest version. Prevented infinite update loop."], "green", true, 8)
+		return "has updated"
+	end
 	local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
@@ -1283,6 +1287,7 @@ function essentials.update_keks_menu()
 				return "Cancelled update"		
 			end
 		end
+
 		menu.create_thread(function()
 			while update_status ~= "done" do
 				ui.set_text_color(255, 255, 255, 255)
@@ -1358,9 +1363,44 @@ function essentials.update_keks_menu()
 		language_file_strings[properties.system_file_name] = str
 		current_file_num = current_file_num + 1
 	end
+
 	::exit::
 	if __kek_menu_version ~= script_version then
 		if update_status then
+			do -- Checks if there's write permissions to all files that needs to be overwritten.
+				local msg <const> = lang["Missing write permissions to file %s. Update cancelled, no files changed."]
+				local file <close> = io.open(paths.home.."scripts\\Kek's menu.lua", "a")
+				if utils.file_exists(paths.home.."scripts\\Kek's menu.lua") and not file then
+					essentials.msg(msg:format("Kek's menu.lua"), "blue", true, 8)
+					update_status = "done"
+					return "missing write permissions"
+				end
+
+				for file_name in pairs(lib_file_strings) do
+					local file_path <const> = paths.kek_menu_stuff.."kekMenuLibs\\"..file_name
+					if utils.file_exists(file_path) then
+						local file <close> = io.open(file_path, "a")
+						if not file then
+							essentials.msg(msg:format(file_name), "blue", true, 8)
+							update_status = "done"
+							return "missing write permissions"
+						end
+					end
+				end
+
+				for file_name in pairs(language_file_strings) do
+					local file_path <const> = paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name
+					if utils.file_exists(file_path) then
+						local file <close> = io.open(file_path, "a")
+						if not file and language_file_strings[file_name] then
+							essentials.msg(msg:format(file_name), "blue", true, 8)
+							update_status = "done"
+							return "missing write permissions"
+						end
+					end
+				end
+			end
+
 			__kek_menu_version = script_version
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
 
@@ -1372,6 +1412,7 @@ function essentials.update_keks_menu()
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages", "txt")) do
 				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name)
 			end
+
 			local file <close> = io.open(paths.home.."scripts\\Kek's menu.lua", "w+b")
 			file:write(kek_menu_file_string)
 			file:flush()
@@ -1396,6 +1437,7 @@ function essentials.update_keks_menu()
 			__kek_menu_debug_mode = nil
 			__kek_menu_participate_in_betas = nil
 			__kek_menu_check_for_updates = nil
+			__kek_menu_has_done_update = true
 			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
 		else
