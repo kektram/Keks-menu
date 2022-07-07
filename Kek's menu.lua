@@ -128,7 +128,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 		["Kek's Vehicle mapper"] = "1.3.9", 
 		["Kek's Ped mapper"] = "1.2.7",
 		["Kek's Object mapper"] = "1.2.7", 
-		["Kek's Globals"] = "1.3.7",
+		["Kek's Globals"] = "1.3.6",
 		["Kek's Weapon mapper"] = "1.0.5",
 		["Kek's Location mapper"] = "1.0.2",
 		["Kek's Keys and input"] = "1.0.7",
@@ -8036,7 +8036,7 @@ do
 		end)
 
 		for i = 1, #feats do
-			if feats[i].name ~= "" then
+			if feats[i].name ~= "" and (feats[i].type & 1 << 11 == 0 or feats[i].on) and not feats[i].hidden then
 				if feats[i].type & 1 << 11 == 1 << 11 then
 					if not essentials.is_str(u.search_features, "Local Lua features") or feats[i].id ~= u.search_menu_features.id then
 						local previous_script_parent <const> = script_parent
