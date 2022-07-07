@@ -13,7 +13,7 @@ local keys_and_input <const> = require("Kek's Keys and input")
 local object_mapper <const> = require("Kek's Object mapper")
 local ped_mapper <const> = require("Kek's Ped mapper")
 local settings <const> = require("Kek's Settings")
-local globals <const> = require("Kek's globals")
+local globals <const> = require("Kek's Globals")
 
 kek_entity.user_vehicles = {}
 
@@ -1129,6 +1129,7 @@ end
 
 function kek_entity.remove_player_vehicle(...)
 	local pid <const> = ...
+	globals.send_script_event(pid, "Destroy personal vehicle", nil, pid)
 	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
 	if status then
@@ -1137,14 +1138,13 @@ function kek_entity.remove_player_vehicle(...)
 			system.yield(0)
 			ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 		end
-		if kek_entity.get_control_of_entity(player.get_player_vehicle(pid)) then
-			kek_entity.hard_remove_entity_and_its_attachments(player.get_player_vehicle(pid))
-		end
+		kek_entity.clear_entities({player.get_player_vehicle(pid)}, 5000)
 	end
+	local was_succesful <const> = not entity.is_entity_a_vehicle(player.get_player_vehicle(pid))
 	if had_to_teleport then
 		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
-	return not entity.is_entity_a_vehicle(player.get_player_vehicle(pid))
+	return was_succesful
 end
 
 function kek_entity.spawn_and_push_a_vehicle_in_direction(...)

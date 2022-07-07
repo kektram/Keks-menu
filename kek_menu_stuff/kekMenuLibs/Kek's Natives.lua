@@ -1,5 +1,4 @@
 -- Copyright © 2020-2022 Kektram
-
 local natives <const> = {version = "1.0.1"}
 
 local essentials <const> = require("Kek's Essentials")

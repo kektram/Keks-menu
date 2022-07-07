@@ -120,96 +120,6 @@ local mouse_inputs <const> = essentials.const_all({
 	{name = "Rmouse", key_id = 114, group_id = 0}
 })
 
-local menu_keys_to_vk <const> = essentials.const({
-	["NUM5"] = 0x65,
-	["RETURN"] = 0x0D,
-	["CLEAR"] = 0xC,
-	["NUM0"] = 0x60,
-	["NUM1"] = 0x61,
-	["NUM2"] = 0x62,
-	["NUM3"] = 0x63,
-	["NUM4"] = 0x64,
-	["NUM6"] = 0x66,
-	["NUM7"] = 0x67,
-	["NUM8"] = 0x68,
-	["NUM9"] = 0x69,
-	["NUM+"] = 0xBB,
-	["NUM-"] = 0xBD,
-	["0"] = 0x30,
-	["1"] = 0x31,
-	["2"] = 0x32,
-	["3"] = 0x33,
-	["4"] = 0x34,
-	["5"] = 0x35,
-	["6"] = 0x36,
-	["7"] = 0x37,
-	["8"] = 0x38,
-	["9"] = 0x39,
-	["A"] = 0x41,
-	["B"] = 0x42,
-	["C"] = 0x43,
-	["D"] = 0x44,
-	["E"] = 0x45,
-	["F"] = 0x46,
-	["G"] = 0x47,
-	["H"] = 0x48,
-	["I"] = 0x49,
-	["J"] = 0x4A,
-	["K"] = 0x4B,
-	["L"] = 0x4C,
-	["M"] = 0x4D,
-	["N"] = 0x4E,
-	["O"] = 0x4F,
-	["P"] = 0x50,
-	["Q"] = 0x51,
-	["R"] = 0x52,
-	["S"] = 0x53,
-	["T"] = 0x54,
-	["U"] = 0x55,
-	["V"] = 0x56,
-	["W"] = 0x57,
-	["X"] = 0x58,
-	["Y"] = 0x59,
-	["Z"] = 0x5A,
-	["END"] = 0x23,
-	["F1"] = 0x70,
-	["F2"] = 0x71,
-	["F3"] = 0x72,
-	["F4"] = 0x73,
-	["F5"] = 0x74,
-	["F6"] = 0x75,
-	["F7"] = 0x76,
-	["F8"] = 0x77,
-	["F9"] = 0x78,
-	["F10"] = 0x79,
-	["F11"] = 0x7A,
-	["F12"] = 0x7B,
-	["LSHIFT"] = 0xA0,
-	["RSHIFT"] = 0xA1,
-	["LCONTROL"] = 0xA2,
-	["RCONTROL"] = 0xA3,
-	["NUMLOCK"] = 0x90,
-	["SCROLLLOCK"] = 0x91,
-	["BACKSPACE"] = 0x08,
-	["TAB"] = 0x09,
-	["ALT"] = 0x12,
-	["PAUSE"] = 0x13,
-	["PRINTSCREEN"] = 0x2C,
-	["INSERT"] = 0x2D,
-	["DELETE"] = 0x2E,
-	["PERIOD"] = 0xBE,
-	["COMMA"] = 0xBC,
-	["CAPSLOCK"] = 0x14,
-	["HOME"] = 0x24,
-	["QUESTIONMARK"] = 0xBF,
-	["~"] = 0xC0,
-	["ESCAPESEQ"] = 0xDC,
-	["APOSTROPHE"] = 0xDE,
-	["Æ"] = 0x28,
-	["Ø"] = 0x27,
-	["Å"] = 0x1A
-})
-
 function keys_and_input.get_input(...)
 	local title <const>,
 	default <const>,
@@ -310,11 +220,15 @@ end
 
 function keys_and_input.is_table_of_gta_keys_all_pressed(keys, controller_type)
 	for i = 1, #keys do
-		if not controls.is_disabled_control_pressed(controller_type, keys[i]) then
+		if not keys_and_input.is_key_pressed(controller_type, keys[i]) then
 			return false
 		end
 	end
 	return true
+end
+
+function keys_and_input.is_key_pressed(group, key)
+	return controls.is_control_pressed(group, key) or controls.is_disabled_control_pressed(group, key)
 end
 
 function keys_and_input.do_table_of_gta_keys(...)
@@ -336,9 +250,9 @@ function keys_and_input.get_virtual_key_of_2take1_bind(...)
 	Key = Key:match(bind_name.."=([%w_%+]+)\n")
 	local keys <const> = {}
 	for key in Key:gmatch("([_%w]+)%+?") do
-		for name, _ in pairs(menu_keys_to_vk) do
+		for name, _ in pairs(enums.menu_keys_to_vk) do
 			if name:upper() == key:upper() then
-				keys[#keys + 1] = menu_keys_to_vk[key:upper()]
+				keys[#keys + 1] = enums.menu_keys_to_vk[key:upper()]
 				break
 			end
 		end
@@ -356,7 +270,7 @@ function keys_and_input.do_key(...)
 	key <const>,
 	t <const> = ...
 	local time <const> = utils.time_ms() + t
-	while controls.is_disabled_control_pressed(controller_type, key) and time > utils.time_ms() do
+	while keys_and_input.is_key_pressed(controller_type, key) and time > utils.time_ms() do
 		system.yield(0)
 	end
 end
@@ -366,60 +280,6 @@ function keys_and_input.do_vk(...)
 	time = utils.time_ms() + time
 	while keys_and_input.is_table_of_virtual_keys_all_pressed(virtual_keys) and time > utils.time_ms() do
 		system.yield(0)
-	end
-end
-
-function keys_and_input.get_keyboard_key_from_name(...)
-	local key <const> = ...
-	for _, key_name in pairs(keys_and_input.KEYBOARD_KEYS) do
-		if key_name.name == key then
-			return key_name.key_id, key_name.group_id
-		end
-	end
-end
-
-function keys_and_input.get_controller_key_from_name(...)
-	local key <const> = ...
-	for _, key_name in pairs(keys_and_input.CONTROLLER_KEYS) do
-		if key_name.name == key then
-			return key_name.key_id, key_name.group_id
-		end
-	end
-end
-
-function keys_and_input.get_keyboard_key_name_from_control_int(...)
-	local key <const> = ...
-	for _, key_name in pairs(keys_and_input.KEYBOARD_KEYS) do
-		if key_name.key_id == key then
-			return key_name.key_id
-		end
-	end
-end
-
-function keys_and_input.get_controller_key_name_from_control_int(...)
-	local key <const> = ...
-	for _, key_name in pairs(keys_and_input.CONTROLLER_KEYS) do
-		if key_name.key_id == key then
-			return key_name.name
-		end
-	end
-end
-
-function keys_and_input.get_keyboard_key_control_int_from_name(...)
-	local key_name <const> = ...
-	for _, key in pairs(keys_and_input.KEYBOARD_KEYS) do
-		if key.name == key_name then
-			return key.key_id
-		end
-	end
-end
-
-function keys_and_input.get_controller_key_control_int_from_name(...)
-	local key_name <const> = ...
-	for _, key in pairs(keys_and_input.CONTROLLER_KEYS) do
-		if key.name == key_name then
-			return key.key_id
-		end
 	end
 end
 

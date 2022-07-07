@@ -139,8 +139,8 @@ do
 	end
 end
 
-function essentials.get_rgb(r, g, b)
-	return (b << 16) | (g << 8) | r
+function essentials.get_rgb(r, g, b, a)
+	return ((a or 0) << 24) | (b << 16) | (g << 8) | r
 end
 
 function essentials.rgb_to_bytes(uint32_rgb)
@@ -1178,6 +1178,17 @@ function essentials.is_any_true(...)
 	return false
 end
 
+function essentials.is_any_virtual_key_pressed(...)
+	for i = 1, select("#", ...) do
+		local Key <const> = MenuKey()
+		Key:push_str(select(i, ...))
+		if Key:is_down_stepped() then
+			return true
+		end
+	end
+	return false
+end
+
 function essentials.parse_files_from_html(str, extension)
 	local files <const> = {}
 	for file_name in str:gmatch("title=\"([^\"]+%."..extension..")\"") do
@@ -1191,43 +1202,91 @@ function essentials.parse_files_from_html(str, extension)
 	return files
 end
 
+function essentials.draw_auto_adjusted_text(...)
+	local text <const>, rgba <const>, scale <const>, y_pos <const> = ...
+
+	local size <const> = scriptdraw.get_text_size(text, scale or 0.7, nil)
+	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
+	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
+
+	local pos <const> = v2(-size.x, size.y) / 2
+	pos.y = y_pos or pos.y
+
+	scriptdraw.draw_text(
+		text, 
+		pos,
+		size,
+		scale or 0.7,
+		rgba,
+		enums.scriptdraw_flags.shadow,
+		nil
+	)
+
+	local number_of_lines = 1
+	for _ in text:gmatch("[^\n]+") do
+		number_of_lines = number_of_lines + 1
+	end
+	return pos.y - size.y - (size.y / number_of_lines)
+end
+
+essentials.is_changelog_currently_shown = false
 function essentials.show_changelog()
-	menu.create_thread(function()
-		local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
-		local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md")
-		if enums.html_response_codes[status] ~= "OK" then
-			return
-		end
-		local max_lines_before_shrinking <const> = 50
-		local number_of_lines = 0
-		for line in str:gmatch("[^\n]+") do
-			number_of_lines = number_of_lines + 1
-		end
-		local start_y_pos <const> = math.max(0, 0.5 - (number_of_lines * 0.01))
-		while not controls.is_control_pressed(0, 143) and not controls.is_disabled_control_pressed(0, 143) do
-			local y_offset_from_top = 0
-			for line in str:gmatch("[^\n]+") do
-				ui.set_text_color(255, 255, 255, 255)
-				ui.set_text_scale(number_of_lines <= max_lines_before_shrinking and 0.275 or 0.275 / (number_of_lines / max_lines_before_shrinking))
-				ui.set_text_font(0)
-				ui.set_text_outline(true)
-				ui.draw_text(line, v2(0.3, start_y_pos + y_offset_from_top))
-				y_offset_from_top = y_offset_from_top + (number_of_lines <= max_lines_before_shrinking and 0.018 or 0.018 / (number_of_lines / max_lines_before_shrinking))
+	if not essentials.is_changelog_currently_shown then
+		essentials.is_changelog_currently_shown = true
+		menu.create_thread(function()
+			while essentials.is_any_virtual_key_pressed(
+				"LCONTROL",
+				"RCONTROL",
+				"SPACE"
+			) do
+				system.yield(0)
 			end
-			ui.set_text_color(255, 0, 0, 255)
-			ui.set_text_scale(0.4)
-			ui.set_text_font(0)
-			ui.set_text_outline(true)
-			ui.draw_text(lang["Press space to remove this message."], v2(0.3, start_y_pos + y_offset_from_top + 0.005))
-			system.yield(0)
-		end
-	end, nil)
+			local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
+			local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md")
+			if enums.html_response_codes[status] ~= "OK" then
+				essentials.is_changelog_currently_shown = false
+				return
+			end
+
+			local str_t <const> = {}
+			for line in str:gmatch("[^\n]+") do
+				str_t[#str_t + 1] = line
+			end
+
+			local str <const> = table.concat(str_t, "\n")
+			while not essentials.is_any_virtual_key_pressed(
+				"LCONTROL",
+				"RCONTROL",
+				"SPACE"
+			) do
+				local y_pos <const> = essentials.draw_auto_adjusted_text(str, essentials.get_rgb(255, 140, 0, 255), 0.7)
+				essentials.draw_auto_adjusted_text(lang["Press space or ctrl to remove this message."], essentials.get_rgb(255, 0, 0, 255), 0.7, y_pos)
+				system.yield(0)
+			end
+			while essentials.is_any_virtual_key_pressed(
+				"LCONTROL",
+				"RCONTROL",
+				"SPACE"
+			) do
+				system.yield(0)
+			end
+			essentials.is_changelog_currently_shown = false
+		end, nil)
+	end
 end
 
 function essentials.update_keks_menu()
 	local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
+	local version_check_draw_thread <const> = menu.create_thread(function()
+		while true do
+			essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
+			system.yield(0)
+		end
+	end, nil)
+
 	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
+	menu.delete_thread(version_check_draw_thread)
 	local script_version <const> = script_version:gsub("[^%w\32.]", "")
 	local
 		update_status,
@@ -1248,58 +1307,65 @@ function essentials.update_keks_menu()
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
 		return "is latest version"
 	else
-		while controls.is_control_pressed(0, 215) 
-		or controls.is_disabled_control_pressed(0, 215)
-		or controls.is_control_pressed(0, 143) 
-		or controls.is_disabled_control_pressed(0, 143) do
+		if __kek_menu_has_done_update then
+			essentials.msg(lang["Kektram messed up the version strings! You have the latest version."], "green", true, 8)
+			return "already updated"
+		end
+		while essentials.is_any_virtual_key_pressed( -- Prevent accidental presses
+			"ALT",
+			"LCONTROL",
+			"RCONTROL",
+			"SPACE",
+			"RETURN",
+			"LSHIFT",
+			"RSHIFT",
+			"TAB"
+		) do
 			system.yield(0)
 		end
-		local time <const> = utils.time_ms() + 25000
-		while not controls.is_control_pressed(0, 143) 
-		and not controls.is_disabled_control_pressed(0, 143) 
-		and not controls.is_control_pressed(0, 215) 
-		and not controls.is_disabled_control_pressed(0, 215)
-		and time > utils.time_ms() do
-			system.yield(0)
-			ui.set_text_color(255, 140, 0, 255)
-			ui.set_text_scale(0.6)
-			ui.set_text_font(0)
-			ui.set_text_centre(true)
-			ui.set_text_outline(true)
-			ui.draw_text(
-				lang["There's a new update for Kek's menu available. Press enter to install it, space to not."], 
-				v2(0.5, 0.45)
-			)
-			ui.set_text_color(0, 255, 255, 255)
-			ui.set_text_scale(0.6)
-			ui.set_text_font(0)
-			ui.set_text_centre(true)
-			ui.set_text_outline(true)
-			ui.draw_text(
-				lang["This message will disappear in 25 seconds and will assume you don't want the update."], 
-				v2(0.5, 0.5)
-			)
-			if utils.time_ms() > time or controls.is_control_pressed(0, 143) or controls.is_disabled_control_pressed(0, 143) then
-				return "Cancelled update"		
+
+		local time = utils.time_ms() + 25000
+		while not essentials.is_any_virtual_key_pressed("ALT", "RETURN") and time > utils.time_ms() do
+
+			local y_pos <const> = essentials.draw_auto_adjusted_text(lang["A new update for Kek's menu is available. Press alt or enter to install it, space or ctrl to not."], essentials.get_rgb(255, 140, 0, 255), 1.0)
+			local y_pos <const> = essentials.draw_auto_adjusted_text(lang["Press shift or tab to show changelog."], essentials.get_rgb(255, 0, 0, 255), 1.0, y_pos)
+			essentials.draw_auto_adjusted_text(lang["This message will disappear in %i seconds and will assume you don't want the update."]:format(math.ceil((time - utils.time_ms()) / 1000)), essentials.get_rgb(255, 140, 0, 255), 1.0, y_pos)
+
+			if essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") then
+				while essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") do
+					system.yield(0)
+				end
+				essentials.show_changelog()
+				while essentials.is_changelog_currently_shown do
+					system.yield(0)
+				end
+				while essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") do
+					system.yield(0)
+				end
+				time = utils.time_ms() + 25000
 			end
+			if essentials.is_any_virtual_key_pressed("SPACE", "LCONTROL", "RCONTROL") then
+				return "Cancelled update"
+			end
+			system.yield(0)
 		end
+		if not essentials.is_any_virtual_key_pressed("ALT", "RETURN") then
+			return "Cancelled update"
+		end
+
 		menu.create_thread(function()
 			while update_status ~= "done" do
-				ui.set_text_color(255, 255, 255, 255)
-				ui.set_text_scale(0.8)
-				ui.set_text_font(0)
-				ui.set_text_centre(true)
-				ui.set_text_outline(true)
-				ui.draw_text(
+				essentials.draw_auto_adjusted_text(
 					updated_lib_files and updated_language_files and string.format(
 						"%i / %i "..lang["files downloaded"].."\n%s", 
 						current_file_num, 
 						#updated_lib_files + #updated_language_files + 1, 
 						current_file
-					) or lang["Obtaining update information..."], 
-					v2(0.5, 0.445)
+					) or lang["Obtaining update information..."],
+					essentials.get_rgb(0, 255, 0, 255), 
+					1.2, 
+					y_pos
 				)
-				ui.draw_rect(0.5, 0.5, 0.35, 0.12, 0, 0, 120, 255)
 				system.yield(0)
 			end
 		end, nil)
@@ -1358,20 +1424,56 @@ function essentials.update_keks_menu()
 		language_file_strings[properties.system_file_name] = str
 		current_file_num = current_file_num + 1
 	end
+
 	::exit::
 	if __kek_menu_version ~= script_version then
 		if update_status then
+			do -- Checks if there's write permissions to all files that needs to be overwritten.
+				local msg <const> = lang["Missing write permissions for \"%s\". Update cancelled, no files changed."]
+				local file <close> = io.open(paths.home.."scripts\\Kek's menu.lua", "a")
+				if utils.file_exists(paths.home.."scripts\\Kek's menu.lua") and not file then
+					essentials.msg(msg:format("Kek's menu.lua"), "red", true, 10)
+					update_status = "done"
+					return "missing write permissions"
+				end
+
+				for file_name in pairs(lib_file_strings) do
+					local file_path <const> = paths.kek_menu_stuff.."kekMenuLibs\\"..file_name
+					if utils.file_exists(file_path) then
+						local file <close> = io.open(file_path, "a")
+						if not file then
+							essentials.msg(msg:format(file_name), "red", true, 10)
+							update_status = "done"
+							return "missing write permissions"
+						end
+					end
+				end
+
+				for file_name in pairs(language_file_strings) do
+					local file_path <const> = paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name
+					if utils.file_exists(file_path) then
+						local file <close> = io.open(file_path, "a")
+						if not file and language_file_strings[file_name] then
+							essentials.msg(msg:format(file_name), "red", true, 10)
+							update_status = "done"
+							return "missing write permissions"
+						end
+					end
+				end
+			end
+
 			__kek_menu_version = script_version
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
 
 			-- Remove old files & undo all changes to the global space
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")) do
-				package.loaded[file_name:gsub("%.lua", "")] = nil
+				package.loaded[file_name:sub(1, -5)] = nil
 				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name)
 			end
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages", "txt")) do
 				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name)
 			end
+
 			local file <close> = io.open(paths.home.."scripts\\Kek's menu.lua", "w+b")
 			file:write(kek_menu_file_string)
 			file:flush()
@@ -1396,6 +1498,7 @@ function essentials.update_keks_menu()
 			__kek_menu_debug_mode = nil
 			__kek_menu_participate_in_betas = nil
 			__kek_menu_check_for_updates = nil
+			__kek_menu_has_done_update = true
 			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
 		else

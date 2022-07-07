@@ -5,7 +5,7 @@ local menyoo <const> = {version = "2.2.5"}
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
 local essentials <const> = require("Kek's Essentials")
-local kek_entity <const> = require("Kek's entity functions")
+local kek_entity <const> = require("Kek's Entity functions")
 local custom_upgrades <const> = require("Kek's Custom upgrades")
 local location_mapper <const> = require("Kek's Location mapper")
 local weapon_mapper <const> = require("Kek's Weapon mapper")
