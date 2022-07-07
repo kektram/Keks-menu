@@ -124,9 +124,20 @@ globals.player_global_indices = essentials.const({
 	is_player_typing = 				{offset = 1644218 + 2 + 241 + 136 --[[+ ((16 // 32) * 33)--]], pid_multiplier = 1} -- < this > & 1 << 16 ~= 0 if they're typing.
 })
 
+--[[ Vaulted script events I won't actively update
+** FREEMODE used was obtained 27-04-2022 [GTA V build 2628 (GTA Online 1.60)]
+	995853474, -- Collectibles [10 collectible unlocks, 7.5k cash each]
+		f_1 == player.player_id(), 
+		f_2 == 1, -- bool
+		f_3 == 0-9, -- What stat hash to get from index 0 to 9; stat ids: 30241 - 30250
+		f_4 == 1, -- bool 
+		f_5 == 0, -- bool
+		f_6 == 1 -- bool
+
+--]]
 
 local script_event_hashes <const> = essentials.const({
-	["Force player into vehicle"] = 		962740265,
+	["Force player into vehicle"] = 		962740265, -- Par 4 - 35 are network hashes. par 3 is how many of those hashes to check. par 2 & 36 are bools.
 
 	["Crash 2"] = 							-1386010354,
 
@@ -397,7 +408,7 @@ function globals.get_global(global_name)
 end
 
 function globals.force_player_into_vehicle(pid) -- Creds to RulyPancake the 5th#1345 for logging this from stand menu
-	globals.send_script_event(pid, "Force player into vehicle", nil, 1, 32, network.network_hash_from_player(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+	globals.send_script_event(pid, "Force player into vehicle", nil, 1, 1, network.network_hash_from_player(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 	local time <const> = utils.time_ms() + 15000
 	system.yield(5000)
 	while not player.is_player_dead(pid) and (player.is_player_god(pid) or not essentials.is_in_vehicle(pid)) and time > utils.time_ms() do
