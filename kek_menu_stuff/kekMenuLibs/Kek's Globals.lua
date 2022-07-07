@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram, Sainan
 
-local globals <const> = {version = "1.3.6"}
+local globals <const> = {version = "1.3.7"}
 
 local essentials <const> = require("Kek's Essentials")
 local enums <const> = require("Kek's Enums")
