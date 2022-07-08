@@ -665,7 +665,6 @@ Update failed. No files are changed. §更新失败了. 没有文件被更改.
 Failed to check what the latest version of the script is. §检查脚本的最新版本失败.
 files downloaded §个文件已下载.
 Turn off debug mode to use auto-updater. §关闭 调试模式 以使用自动更新.
-Press space to remove this message. §按 空格 移除此信息.
 Show latest update changelog §显示最新的更新日志
 Participate in betas §参与测试
 Translate into §翻译成
@@ -784,7 +783,6 @@ Forcing player into vehicle. This can take up to 15 seconds. §强制玩家进�
 Failed to teleport player. §传送玩家失败.
 Translate your messages into §翻译你的聊天信息
 Obtaining update information... §获取更新信息中...
-There's a new update for Kek's menu available. Press enter to install it, space to not. §Kek菜单有新的更新. 按 回车 安装或 空格 取消.
 This message will disappear in %i seconds and will assume you don't want the update. §此信息将在%i秒后消失,并假设你不想更新.
 Check for updates §自动检查更新
 You must turn on trusted mode->Http to use this script. §你必须打开 信任模式 -> Http 才能使用此脚本.
@@ -805,10 +803,18 @@ Send to all chat §发送到全部聊天
 Tip: set hotkeys for the translate inputs below §提示: 为下面的翻译输入设置快捷键
 Translate your messages §翻译你的信息
 Menu features §菜单功能
-Lua features §Lua 功能
 Type in name of feature. §输入功能名称.
 Failed to go to feature. §无法跳转到功能.
 Go to §跳转
 Where §在哪
 Set hotkey on this to go here §可在此设置快捷键以跳转到这里.
 Search features §搜索功能
+Missing write permissions for "%s". Update cancelled, no files changed. §缺少 "%s" 的写入权限. 更新已取消,没有文件被更改.
+Kektram messed up the version strings! You have the latest version. §Kektram 把版本号搞错了！ 你有新的版本可更新.
+A new update for Kek's menu is available. Press alt or enter to install it, space or ctrl to not. §Kek菜单有新的更新. 按 alt或回车 安装, 按 空格或ctrl 不安装.
+Press space or ctrl to remove this message. §按 空格 或 ctrl 移除此信息.
+Obtaining Kek's menu version info... §获取Kek菜单的版本信息中...
+Press shift or tab to show changelog. §按 shift 或 tab 以显示更新日志.
+Local Lua features §本地Lua功能
+This player is no longer here. §此玩家已不存在.
+Player features §玩家功能
