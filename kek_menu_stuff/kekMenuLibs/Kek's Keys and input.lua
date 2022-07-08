@@ -190,7 +190,7 @@ do
 		or essentials.FEATURE_ID_MAP[feature.type]:find("slider", 1, true) then
 			input_type = 5 -- Float input type
 		end
-		local input <const>, status <const> = keys_and_input.get_input(input_title, "", #tostring(feature.max), input_type)
+		local input <const>, status <const> = keys_and_input.get_input(input_title, "", #tostring(feature.max) + (feature.min < 0 and 1 or 0), input_type)
 		if status == 2 then
 			return
 		end

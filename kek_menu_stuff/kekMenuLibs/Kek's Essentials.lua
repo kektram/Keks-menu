@@ -1,11 +1,12 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.1"}
+local essentials <const> = {version = "1.5.2"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
 local enums <const> = require("Kek's Enums")
 local settings <const> = require("Kek's Settings")
+local memoize <const> = require("Kek's Memoize")
 
 do 
 --[[
@@ -36,6 +37,17 @@ local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu"
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
 
 function essentials.is_str(f, str) -- Greatly improves readability
+	local str_data <const> = f.str_data
+	local status = false
+	for i = 1, #str_data do
+		if str_data[i] == lang[str] then
+			status = true
+			break
+		end
+	end
+	if not status then -- Done like this for minimal performance loss
+		essentials.assert(false, str.." doesn't match anything in str_data. feature name:", f.name)
+	end
 	return f.str_data[f.value + 1] == lang[str]
 end
 
@@ -1220,7 +1232,7 @@ function essentials.draw_auto_adjusted_text(...)
 	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
 	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
 
-	local pos <const> = v2(-size.x, size.y) / 2
+	local pos <const> = memoize.v2(-size.x, size.y) / 2
 	pos.y = y_pos or pos.y
 
 	scriptdraw.draw_text(
@@ -1238,6 +1250,38 @@ function essentials.draw_auto_adjusted_text(...)
 		number_of_lines = number_of_lines + 1
 	end
 	return pos.y - size.y - (size.y / number_of_lines)
+end
+
+function essentials.draw_text_prevent_offscreen(...)
+	local text <const>, 
+	pos <const>, -- Coordinates must be in relative, not pixels
+	scale <const>,
+	rgba <const>,
+	outline <const>,
+	font <const> = ...
+
+	pos.x = pos.x < -0.995 and -0.995 or pos.x
+	pos.y = pos.y > 0.995 and 0.995 or pos.y
+
+	local size <const> = scriptdraw.get_text_size(text, scale, nil)
+	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
+	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
+
+	local pos_plus_size <const> = v2(size.x < 0 and -size.x or size.x, pos.y < 0 and -size.y or size.y)
+	pos_plus_size.x = pos_plus_size.x + pos.x
+	pos_plus_size.y = pos_plus_size.y + pos.y
+
+	pos.x = pos_plus_size.x > 0.995 and 0.995 - size.x or pos.x
+	pos.y = pos_plus_size.y < -0.995 and -0.995 + size.y or pos.y
+	scriptdraw.draw_text(
+		text, 
+		pos,
+		size,
+		scale,
+		rgba,
+		outline and enums.scriptdraw_flags.shadow or 0,
+		font
+	)
 end
 
 essentials.is_changelog_currently_shown = false

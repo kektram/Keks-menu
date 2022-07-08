@@ -6,8 +6,6 @@
 
 local memoize <const> = {version = "1.0.1"}
 
-local essentials <const> = require("Kek's Essentials")
-
 --[[ v3 & v2 memoize documentation
 
 	10485.75 is the max coordinate for v3.
@@ -100,8 +98,7 @@ end
 do
 	for func_name, func_table_name in pairs({
 		get_entity_coords = "entity",
-		get_player_coords = "player",
-		is_in_vehicle = "Kek's Essentials"
+		get_player_coords = "player"
 
 	}) do
 		local memoized <const> = setmetatable({}, {__mode = "vk"})
@@ -129,7 +126,13 @@ do -- memoizes entity tables for 50 frames. Only useful in loops.
 		memoize[func_name] = function()
 			if utils.time_ms() > memoized.timer then
 				memoized.timer = utils.time_ms() + math.ceil(50000 * math.min(gameplay.get_frame_time(), 0.03))
-				memoized.Table = essentials.const(_G[func_table_name][func_name]())
+				memoized.Table = setmetatable(
+					_G[func_table_name][func_name](), {
+						__newindex = function() 
+							error("Tried to modify a read-only table.") 
+						end
+					}
+				)
 				return memoized.Table
 			else
 				return memoized.Table
