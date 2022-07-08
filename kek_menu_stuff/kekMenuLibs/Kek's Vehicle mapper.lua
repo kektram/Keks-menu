@@ -1445,7 +1445,11 @@ local vehicle_properties <const> = essentials.const_all({
 	[2069146067] = {
 		model = "oppressor2",
 		name = "Pegassi Oppressor Mk 2",
-		common_misspelling = "Pegassi Opressor Mk 2",
+		common_misspellings = {
+			"pegassi opressor mk 2",
+			"pegassi oppresor mk 2",
+			"pegassi opresor mk 2"
+		},
 		min_dim = v3(-0.68971931934357, -1.2835586071014, -0.49825602769852),
 		max_dim = v3(0.68971943855286, 1.0441472530365, 1.2246346473694)
 	},
@@ -3816,7 +3820,11 @@ local vehicle_properties <const> = essentials.const_all({
 	[884483972] = {
 		model = "oppressor",
 		name = "Pegassi Oppressor",
-		common_misspelling = "Pegassi Opressor",
+		common_misspellings = {
+			"pegassi opressor",
+			"pegassi oppresor",
+			"pegassi opresor"
+		},
 		min_dim = v3(-0.63239389657974, -0.92472732067108, -0.50334012508392),
 		max_dim = v3(0.63239389657974, 1.0978722572327, 1.2246346473694)
 	},
@@ -4612,9 +4620,20 @@ function vehicle_mapper.get_hash_from_user_input(...)
 	end
 	user_input = (user_input:gsub("%s", "")):gsub("ii", "2")
 	for hash, properties in pairs(vehicle_properties) do
-		if properties.model:find(user_input, 1, true) 
-		or ((properties.name:lower()):gsub("%s", "")):find(user_input, 1, true)
-		or properties.common_misspelling and ((properties.common_misspelling:lower()):gsub("%s", "")):find(user_input, 1, true) then
+
+		local found_common_misspelling
+		if properties.common_misspellings then
+			for i = 1, #properties.common_misspellings do
+				 if properties.common_misspellings[i]:gsub("%s", ""):find(user_input, 1, true) then
+				 	found_common_misspelling = true
+				 	break
+				 end
+			end
+		end
+
+		if found_common_misspelling
+		or properties.model:find(user_input, 1, true) 
+		or ((properties.name:lower()):gsub("%s", "")):find(user_input, 1, true) then
 			return hash
 		end
 	end

@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.0"}
+local essentials <const> = {version = "1.5.1"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -1078,8 +1078,10 @@ function essentials.get_descendants(...)
 	local parent <const>,
 	Table,
 	add_parent_of_descendants <const> = ...
-	for _, feat in pairs(parent.children) do
-		if feat.type == 2048 and feat.child_count > 0 then
+	local children <const> = parent.children
+	for i = 1, #children do
+		local feat <const> = children[i]
+		if feat.type & 1 << 11 == 1 << 11 and feat.child_count > 0 then
 			essentials.get_descendants(feat, Table)
 		end
 		Table[#Table + 1] = feat
@@ -1096,7 +1098,7 @@ function essentials.get_player_descendants(...)
 	add_parent_of_descendants <const> = ...
 	for _, feat in pairs(parent.feats[0].children) do
 		feat = menu.get_player_feature(feat.id)
-		if feat.feats[0].type == 2048 and feat.feats[0].child_count > 0 then
+		if feat.feats[0].type == 2048 and feat.child_count > 0 then
 			essentials.get_player_descendants(menu.get_player_feature(feat.id), Table)
 		end
 		Table[#Table + 1] = menu.get_player_feature(feat.id)
@@ -1139,6 +1141,15 @@ function essentials.name_to_pid(name)
 			if player.get_player_name(pid):lower():find(name, 1, true) then
 				return pid
 			end
+		end
+	end
+	return 32
+end
+
+function essentials.name_to_pid_strict(name)
+	for pid in essentials.players(true) do
+		if player.get_player_name(pid) == name then
+			return pid
 		end
 	end
 	return 32

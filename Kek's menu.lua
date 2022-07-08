@@ -4,7 +4,7 @@ if __kek_menu_version then
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 18"
+__kek_menu_version = "0.4.8.0 beta 19 test"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -108,7 +108,11 @@ do -- Makes sure each library is loaded once and that every time one is required
 		local name <const> = ...
 		assert(utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua"), "Tried to require a file that doesn't exist.")
 		assert(name:find("^Kek's %u"), "Invalid library name. [kekMenuLibs\\"..name.."]: format should be \"Kek's <Uppercase letter><rest of lib name>\"")
-		local lib = package.loaded[name] or dofile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") -- Uses dofile because require cause issues with auto updater
+		
+		local lib = package.loaded[name] 
+		or __kek_menu_has_done_update and dofile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")
+		or original_require(name)
+
 		if not package.loaded[name] then
 			package.loaded[name] = lib
 		end
@@ -118,7 +122,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Kek's Language"] = "1.0.0",
 		["Kek's Settings"] = "1.0.2",
-		["Kek's Essentials"] = "1.5.0",
+		["Kek's Essentials"] = "1.5.1",
 		["Kek's Memoize"] = "1.0.1",
 		["Kek's Enums"] = "1.0.5",
 		["Kek's Vehicle mapper"] = "1.3.9", 
@@ -8013,89 +8017,142 @@ do
 	end
 end
 
-u.search_features = menu.add_feature(lang["Search"], "action_value_str", u.search_menu_features.id, function(f)
-	local input, status <const> = keys_and_input.get_input(lang["Type in name of feature."], "", 128, 0)
-	if status == 2 then
-		return
-	end
-	input = input:lower()
-	u.hotkey_feat_for_search.hidden = true
-	local children <const> = u.search_menu_features.children
-	for i = 1, #children do
-		if children[i].data ~= "dont_delete" then
-			menu.delete_feature(children[i].id)
+do
+	local find <const>, lower <const> = string.find, string.lower
+	local function create_sorted_search_features(menu_parent, script_parent, search_string, parent_matches_search_string, tab)
+		local feats <const> = menu_parent.children
+		table.sort(feats, function(feat_a, feat_b)
+			local score_a, score_b = 0, 0
+			if feat_a.type & 1 << 11 == 1 << 11 then
+				score_a = -(1 << 50)
+			end
+			if feat_b.type & 1 << 11 == 1 << 11 then
+				score_b = -(1 << 50)
+			end
+			if feat_a.name < feat_b.name then
+				score_b = score_b | 1 << 49
+			end
+			return score_a < score_b
+		end)
+
+		for i = 1, #feats do
+			if feats[i].name ~= "" and (feats[i].type & 1 << 11 == 0 or feats[i].on) and not feats[i].hidden then
+				if feats[i].type & 1 << 11 == 1 << 11 then
+					if not essentials.is_str(u.search_features, "Local Lua features") or feats[i].id ~= u.search_menu_features.id then
+						local previous_script_parent <const> = script_parent
+						script_parent = menu.add_feature(feats[i].name, "parent", script_parent.id)
+						create_sorted_search_features(
+							feats[i], 
+							script_parent,
+							search_string,
+							find(lower(feats[i].name), search_string, 1, true) ~= nil,
+							tab
+						)
+						script_parent = previous_script_parent
+					end
+				elseif parent_matches_search_string or find(lower(feats[i].name), search_string, 1, true) then
+					local hierarchy_string = essentials.get_feat_hierarchy(feats[i], tab)
+					local feat <const> = menu.add_feature(feats[i].name, "action_value_str", script_parent.id, function(f)
+						local menu_feat = feats[i]
+						if essentials.is_str(f, "Go to") then
+							if menu_feat then
+								menu_feat.parent:toggle()
+								menu_feat:select()
+							else
+								essentials.msg(lang["Failed to go to feature."], "red", true, 6)
+							end
+						elseif essentials.is_str(f, "Where") then
+							essentials.msg(
+								hierarchy_string:gsub(
+									".", 
+									{
+										["."] = " >> ",
+										["_"] = " "
+									}
+								), 
+								"green", 
+								true, 
+								12
+							)
+						end
+					end)
+					feat:set_str_data({
+						lang["Go to"],
+						lang["Where"]
+					})
+				end
+			end
 		end
-	end
-	if input == "" then
-		u.hotkey_feat_for_search.hidden = false
-		return
+		if u.search_menu_features ~= script_parent and script_parent.child_count == 0 then
+			menu.delete_feature(script_parent.id)
+		end
 	end
 
-	local find <const>, lower <const> = string.find, string.lower
-	local children <const> = {}
-	for tab, parents in pairs(enums.menu_feature_hierarchy) do
-		for parent_i = 1, #parents do
-			if (essentials.is_str(f, "Lua features") and parents[parent_i] == "script_features") 
-			or (essentials.is_str(f, "Menu features") and parents[parent_i] ~= "script_features") then
-				local parent <const> = menu.get_feature_by_hierarchy_key(tab.."."..parents[parent_i])
-				essentials.get_descendants(parent, children)
+	u.search_features = menu.add_feature(lang["Search"], "action_value_str", u.search_menu_features.id, function(f)
+		local input, status <const> = keys_and_input.get_input(lang["Type in name of feature."], "", 128, 0)
+		if status == 2 then
+			return
+		end
+		input = input:lower()
+		u.hotkey_feat_for_search.hidden = true
+		local children <const> = u.search_menu_features.children
+		for i = 1, #children do
+			if children[i].data ~= "dont_delete" then
+				if children[i].type & 1 << 11 == 1 << 11 then
+					local feats <const> = essentials.get_descendants(children[i], {}, true)
+					for i = 1, #feats do
+						menu.delete_feature(feats[i].id)
+					end
+				else
+					menu.delete_feature(children[i].id)
+				end
 			end
 		end
-	end
-	table.sort(children, function(a, b)
-		return a.name < b.name
-	end)
-	for children_i = 1, #children do
-		if children[children_i].name ~= "" and children[children_i].type & 1 << 11 == 0 then
-			local menu_feat = children[children_i]
-			if find(lower(menu_feat.name), input, 1, true) then
-				local feat <const> = menu.add_feature(menu_feat.name, "action_value_str", u.search_menu_features.id, function(f)
-					local hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "local")
-					local menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
-					if not menu_feat then
-						hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "online")
-						menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
-					end
-					if not menu_feat then
-						hierarchy_string = essentials.get_feat_hierarchy(children[children_i], "spawn")
-						menu_feat = menu.get_feature_by_hierarchy_key(hierarchy_string)
-					end
-					menu_feat = menu_feat or children[children_i]
-					if essentials.is_str(f, "Go to") then
-						if menu_feat then
-							menu_feat.parent:toggle()
-							menu_feat:select()
-						else
-							essentials.msg(lang["Failed to go to feature."], "red", true, 6)
+		if input == "" then
+			u.hotkey_feat_for_search.hidden = false
+			return
+		end
+		if essentials.is_str(f, "Player features") then
+			local player_parents <const> = menu.get_feature_by_hierarchy_key("online.online_players").children
+			table.sort(player_parents, function(a, b)
+				return a.name < b.name
+			end)
+
+			for i = 1, #player_parents do
+				if player_parents[i].name ~= "!EMPTY!" and not find(player_parents[i].name, "^player %d+$") then
+					local script_parent <const> = menu.add_feature(player_parents[i].name, "parent", u.search_menu_features.id, function(f)
+						if not player.is_player_valid(essentials.name_to_pid_strict(player_parents[i].name:gsub(" %[%a+%]$", ""))) then
+							essentials.msg(lang["This player is no longer here."], "yellow", true, 8)
+							f.on = false
+							f.parent:toggle()
+							f.parent:select()
 						end
-					elseif essentials.is_str(f, "Where") then
-						essentials.msg(
-							hierarchy_string:gsub(
-								".", 
-								{
-									["."] = " >> ",
-									["_"] = " "
-								}
-							), 
-							"green", 
-							true, 
-							12
-						)
+					end)
+					create_sorted_search_features(player_parents[i], script_parent, input, nil, "Online")
+				end
+			end
+
+		elseif essentials.is_str(f, "Local Lua features") then
+			create_sorted_search_features(menu.get_feature_by_hierarchy_key("local.script_features"), u.search_menu_features, input, nil, "local")
+		elseif essentials.is_str(f, "Menu features") then
+			for tab, parents in pairs(enums.menu_feature_hierarchy) do
+				for i = 1, #parents do
+					if parents[i] ~= "script_features" then
+						local menu_feat <const> = menu.get_feature_by_hierarchy_key(tab.."."..parents[i])
+						local script_parent <const> = menu.add_feature(menu_feat.name, "parent", u.search_menu_features.id)
+						create_sorted_search_features(menu_feat, script_parent, input, find(lower(menu_feat.name), input, 1, true) ~= nil, tab)
 					end
-				end)
-				feat:set_str_data({
-					lang["Go to"],
-					lang["Where"]
-				})
+				end
 			end
 		end
-	end
-end)
-u.search_features:set_str_data({
-	lang["Menu features"],
-	lang["Lua features"]
-})
-u.search_features.data = "dont_delete"
+	end)
+	u.search_features:set_str_data({
+		lang["Menu features"],
+		lang["Local Lua features"],
+		lang["Player features"]
+	})
+	u.search_features.data = "dont_delete"
+end
 
 u.hotkey_feat_for_search = menu.add_feature(lang["Set hotkey on this to go here"], "action", u.search_menu_features.id, function(f)
 	u.search_menu_features:toggle()
