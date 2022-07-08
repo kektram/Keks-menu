@@ -4975,7 +4975,7 @@ do
 					end
 				end
 			end
-			if str_len > 180 then
+			if str_len > 110 then
 				essentials.send_message(table.concat(str, "\n"), send_to_team)
 				str = {}
 				str_len = 0
@@ -4985,6 +4985,7 @@ do
 			else
 				str[#str + 1] = "These commands can be used by everyone."
 			end
+			str[#str + 1] = "If you don't provide a player name, it assumes you use it on yourself."
 			str[#str + 1] = "To show this again, do !help"
 			essentials.send_message(table.concat(str, "\n"), send_to_team)
 		end
