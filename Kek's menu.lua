@@ -4634,7 +4634,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								essentials.send_message("[Chat commands]: Invalid weapon name.", event.player == player.player_id())
 							end
 						elseif settings.in_use["Kill #chat command#"] and str:find("^%pkill") then
-							if str:find("^%p%a+\32%a+$") then
+							if str:find("^%p%a+\32[%p%w]+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
@@ -4657,7 +4657,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								end, nil)
 							end
 						elseif settings.in_use["Cage #chat command#"] and str:find("^%pcage") then
-							if str:find("^%p%a+\32%a+$") then
+							if str:find("^%p%a+\32[%p%w]+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
@@ -4678,7 +4678,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								essentials.send_message("[Chat commands]: Failed to spawn cage. Entity limits are reached.", event.player == player.player_id())
 							end
 						elseif settings.in_use["Kick #chat command#"] and str:find("^%pkick") then
-							if str:find("^%p%a+\32%a+$") then
+							if str:find("^%p%a+\32[%p%w]+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
@@ -4692,7 +4692,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							end
 							essentials.kick_player(pid)
 						elseif settings.in_use["Crash #chat command#"] and str:find("^%pcrash") then
-							if str:find("^%p%a+\32%a+$") then
+							if str:find("^%p%a+\32[%p%w]+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
@@ -4708,7 +4708,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								globals.script_event_crash(pid)
 							end, nil)
 						elseif settings.in_use["clowns #chat command#"] and str:find("^%pclowns") then
-							if str:find("^%p%a+\32%a+$") then
+							if str:find("^%p%a+\32[%p%w]+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
@@ -4719,7 +4719,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								end
 							end, nil)
 						elseif settings.in_use["jet #chat command#"] and str:find("^%pjet") then
-							if str:find("^%p%a+\32%a+$") then
+							if str:find("^%p%a+\32[%p%w]+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
@@ -4730,7 +4730,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								end
 							end, nil)
 						elseif settings.in_use["chopper #chat command#"] and str:find("^%pchopper") then
-							if str:find("^%p%a+\32%a+$") then
+							if str:find("^%p%a+\32[%p%w]+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
@@ -4787,7 +4787,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								end
 							end, nil)
 						elseif settings.in_use["apartmentteleport #chat command#"] and str:find("^%papartmentteleport") then
-							if str:find("^%p%a+\32%a+\32%d+$") then
+							if str:find("^%p%a+\32[%p%w]+\32%d+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
@@ -4798,7 +4798,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							end
 							globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, apartment_id, 1, 1, 1)
 						elseif settings.in_use["offtheradar #chat command#"] and str:find("^%pofftheradar") then
-							if str:find("^%p%a+\32%a+\32%a+$") then
+							if str:find("^%p%a+\32[%p%w]+\32%a+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
@@ -4812,7 +4812,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							end
 							menu.get_player_feature(player_feat_ids["player otr"]).feats[pid].on = str:match("%pofftheradar (%a+)") == "on"
 						elseif settings.in_use["neverwanted #chat command#"] and str:find("^%pneverwanted") then
-							if str:find("^%p%a+\32%a+\32%a+$") then
+							if str:find("^%p%a+\32[%p%w]+\32%a+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
@@ -4826,7 +4826,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 							end
 							menu.get_player_feature(player_feat_ids["Never wanted"]).feats[pid].on = str:match("%pneverwanted (%a+)") == "on"
 						elseif settings.in_use["bounty #chat command#"] and str:find("^%pbounty") then
-							if str:find("^%p%a+\32%a+\32%d+$") then
+							if str:find("^%p%a+\32[%p%w]+\32%d+$") then
 								essentials.send_message("[Chat commands]: Invalid player name.")
 								return
 							end
