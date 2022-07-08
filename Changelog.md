@@ -1,8 +1,3 @@
-# **Kek's menu 0.4.8.0**
-
-## **Improvements**```md
-### Removed
-> Anti chat spoof
-> Modded name detection
-> Hotkeys
-> Send to random mission
+Reworked display 2take1 notifications
+Added player name validity checks to most chat commands [not !weapon, !removeweapon, !tp & !spawn]
+Reworked time OSD & added 12 hour clock option
