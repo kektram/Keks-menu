@@ -6517,7 +6517,8 @@ local type_string_to_type <const> = { -- Does not support "any" type.
 	["const char*"] = "__tostring",
 	float = "__tonumber",
 	vector3 = "__tov3",
-	void = "void"
+	void = "void",
+	blip = "__tointeger"
 } -- Not all types have been added to this list. Add more as needed.
 
 local function parse_type(native_result, Type)
