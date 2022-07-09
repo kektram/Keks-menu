@@ -1,5 +1,3 @@
-Reworked display 2take1 notifications
-Added player name validity checks to most chat commands [not !weapon, !removeweapon, !tp & !spawn]
-Reworked time OSD & added 12 hour clock option
-
-Please reports bugs.
+Fixed error in ai driving feature (anti stuck)
+Chat judger, anti chat spam & chat commands now properly handle people chat spoofing
+Improved !help chat commands list

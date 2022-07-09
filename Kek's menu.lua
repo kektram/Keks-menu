@@ -4,7 +4,7 @@ if __kek_menu_version then
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 20 test"
+__kek_menu_version = "0.4.8.0 beta 21"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -3815,8 +3815,13 @@ settings.toggle["Anti chat spam"] = menu.add_feature(lang["Anti chat spam"], "va
 		end
 		local tracker <const> = {}
 		essentials.listeners["chat"]["anti spam"] = essentials.add_chat_event_listener(function(event)
-			local scid <const> = player.get_player_scid(event.player)
-			if player.is_player_valid(event.player) and player.can_player_be_modder(event.player) and event.player ~= player.player_id() and essentials.is_not_friend(event.player) then
+			local sender <const> = event.sender
+			local is_chat_spoofing <const> = event.player ~= event.sender
+			local victim_of_chat_spoofing <const> = event.player
+			local scid <const> = player.get_player_scid(sender)
+			if player.is_player_valid(sender) 
+			and player.can_player_be_modder(sender) 
+			and essentials.is_not_friend(sender) then
 				local msg_increment 	 <const> = (utf8.len(event.body) or #event.body) + 85 -- People may send a message that contains invalid utf8 seq, causing utf8.len to return nil.
 				local in_a_row_increment <const> = (utf8.len(event.body) or #event.body) >= 10 and 1.0 or 0.7
 				
@@ -3845,12 +3850,21 @@ settings.toggle["Anti chat spam"] = menu.add_feature(lang["Anti chat spam"], "va
 				tracker[scid].time_since_last_msg = utils.time_ms() + 600
 
 				if tracker[scid].same_in_a_row_count >= 3.0 or tracker[scid].fast_spam_count >= 500 then
-					essentials.msg(string.format("%s %s", player.get_player_name(event.player), lang["kicked for spamming chat."]), "orange", true, 6)
+					if is_chat_spoofing then
+						essentials.msg(string.format("%s %s\n%s %s", 
+							player.get_player_name(sender), 
+							lang["kicked for spamming chat."], 
+							lang["They were spoofing as"], 
+							player.get_player_name(victim_of_chat_spoofing)
+						), "orange", true, 8)
+					else
+						essentials.msg(string.format("%s %s", player.get_player_name(sender), lang["kicked for spamming chat."]), "orange", true, 6)
+					end
 					tracker[scid] = nil
 					if essentials.is_str(f, "Kick & add to timeout") then
-						essentials.add_to_timeout(event.player)
+						essentials.add_to_timeout(sender)
 					end
-					essentials.kick_player(event.player)
+					essentials.kick_player(sender)
 				end
 			end
 		end)
@@ -4021,7 +4035,7 @@ do
 					and player.is_player_in_any_vehicle(player.player_id())
 					and time > utils.time_ms()
 					and entity.get_entity_speed(player.get_player_vehicle(player.player_id())) < 2
-					and entity.get_entity_submerged_level(player.get_player_vehicle(player.player_id())) ~= 1
+					and entity.get_entity_submerged_level(player.get_player_vehicle(player.player_id())) <= 0.9
 					and not entity.is_entity_in_air(player.get_player_vehicle(player.player_id())) do
 						system.yield(0)
 						if utils.time_ms() > time then
@@ -4041,9 +4055,9 @@ do
 					if entity.get_entity_speed(player.get_player_vehicle(player.player_id())) > 12 then
 						consecutive_stuck_counter = 0
 					end
-					if consecutive_stuck_counter > 3 or vehicle.is_vehicle_stuck_on_roof(player.get_player_vehicle(player.player_id())) or (entity.get_entity_submerged_level(player.get_player_vehicle(player.player_id())) == 1 and not streaming.is_model_a_boat(entity.get_entity_model_hash(player.get_player_vehicle(player.player_id())))) then
+					if consecutive_stuck_counter > 3 or vehicle.is_vehicle_stuck_on_roof(player.get_player_vehicle(player.player_id())) or (entity.get_entity_submerged_level(player.get_player_vehicle(player.player_id())) > 0.9 and not streaming.is_model_a_boat(entity.get_entity_model_hash(player.get_player_vehicle(player.player_id())))) then
 						consecutive_stuck_counter = 0
-						kek_entity.teleport(player.get_player_vehicle(player.player_id()), essentials.get_player_coords(player.player_id() + kek_entity.get_random_offset(-80, 80, 25, 75), true))
+						kek_entity.teleport(player.get_player_vehicle(player.player_id()), location_mapper.get_most_accurate_position(essentials.get_player_coords(player.player_id()) + kek_entity.get_random_offset(-80, 80, 25, 75), true))
 					end
 				end
 				if entity.is_entity_a_vehicle(player.get_player_vehicle(player.player_id())) and entity.is_entity_dead(player.get_player_vehicle(player.player_id())) and player.is_player_in_any_vehicle(player.player_id()) then
@@ -4294,13 +4308,15 @@ do
 				["[JOIN TIMEOUT]"] = ""
 			}
 			essentials.listeners["chat"]["judger"] = essentials.add_chat_event_listener(function(event)
-				if player.is_player_valid(event.player)
-				and player.can_player_be_modder(event.player)
-				and event.player ~= player.player_id()
-				and (not f.data.tracker[player.get_player_scid(event.player)] or utils.time_ms() > f.data.tracker[player.get_player_scid(event.player)])
-				and essentials.is_not_friend(event.player) then
+				local sender <const> = event.sender
+				local is_chat_spoofing <const> = event.player ~= event.sender
+				local victim_of_chat_spoofing <const> = event.player
+				if player.is_player_valid(sender)
+				and player.can_player_be_modder(sender)
+				and (not f.data.tracker[player.get_player_scid(sender)] or utils.time_ms() > f.data.tracker[player.get_player_scid(sender)])
+				and essentials.is_not_friend(sender) then
 					local msg <const> = event.body:lower()
-					f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 1000 -- Prevent chat spam problems
+					f.data.tracker[player.get_player_scid(sender)] = utils.time_ms() + 1000 -- Prevent chat spam problems
 					for chat_judge_entry in io.lines(paths.chat_judger) do
 						if chat_judge_entry ~= "" and chat_judge_entry ~= "\r" then
 							memoized[chat_judge_entry] = memoized[chat_judge_entry] or {
@@ -4310,27 +4326,40 @@ do
 							}
 							local entry <const> = memoized[chat_judge_entry].entry
 							if essentials.unicode_find_2(msg, entry) then
-								f.data.tracker[player.get_player_scid(event.player)] = utils.time_ms() + 4000
-								local player_name <const> = player.get_player_name(event.player)
-								if not f.data.blacklist_tracker[player.get_player_scid(event.player)] and memoized[chat_judge_entry].is_blacklist then
-									add_to_blacklist(player_name, player.get_player_ip(event.player), player.get_player_scid(event.player), string.format("%s: \"%s\"", lang["Custom chat judge"], entry))
-									f.data.blacklist_tracker[player.get_player_scid(event.player)] = true
+								f.data.tracker[player.get_player_scid(sender)] = utils.time_ms() + 4000
+								local player_name <const> = player.get_player_name(sender)
+								local victim_player_name <const> = player.get_player_name(victim_of_chat_spoofing)
+								if not f.data.blacklist_tracker[player.get_player_scid(sender)] and memoized[chat_judge_entry].is_blacklist then
+									add_to_blacklist(player_name, player.get_player_ip(sender), player.get_player_scid(sender), string.format("%s: \"%s\"", lang["Custom chat judge"], entry))
+									f.data.blacklist_tracker[player.get_player_scid(sender)] = true
 								end
-								if not f.data.timeout_tracker[player.get_player_scid(event.player)] and memoized[chat_judge_entry].is_timeout then
-									essentials.add_to_timeout(event.player)
-									f.data.timeout_tracker[player.get_player_scid(event.player)] = true
+								if not f.data.timeout_tracker[player.get_player_scid(sender)] and memoized[chat_judge_entry].is_timeout then
+									essentials.add_to_timeout(sender)
+									f.data.timeout_tracker[player.get_player_scid(sender)] = true
 								end
 								if essentials.is_str(f, "Ram") then
-									essentials.msg(string.format("%s %s %s [%s]", lang["Chat judge:\nRamming"], player_name, lang["with explosive tankers"], entry), "orange", settings.in_use["Chat judge #notifications#"])
-									ped.clear_ped_tasks_immediately(player.get_player_ped(event.player))
+									if is_chat_spoofing then
+										essentials.msg(string.format("%s %s %s [%s]\n%s %s", lang["Chat judge:\nRamming"], player_name, lang["with explosive tankers"], entry, lang["They were spoofing as"], victim_player_name), "orange", settings.in_use["Chat judge #notifications#"], 8)
+									else
+										essentials.msg(string.format("%s %s %s [%s]", lang["Chat judge:\nRamming"], player_name, lang["with explosive tankers"], entry), "orange", settings.in_use["Chat judge #notifications#"], 5)
+									end
+									ped.clear_ped_tasks_immediately(player.get_player_ped(sender))
 									system.yield(0)
-									kek_entity.ram_player(event.player)
+									kek_entity.ram_player(sender)
 								elseif essentials.is_str(f, "Kick from session") then
-									essentials.msg(string.format("%s %s [%s]", lang["Chat judge:\nKicking"], player_name, entry), "orange", settings.in_use["Chat judge #notifications#"])
-									essentials.kick_player(event.player)
+									if is_chat_spoofing then
+										essentials.msg(string.format("%s %s [%s]\n%s %s", lang["Chat judge:\nKicking"], player_name, entry, lang["They were spoofing as"], victim_player_name), "orange", settings.in_use["Chat judge #notifications#"], 8)
+									else
+										essentials.msg(string.format("%s %s [%s]", lang["Chat judge:\nKicking"], player_name, entry), "orange", settings.in_use["Chat judge #notifications#"], 5)
+									end
+									essentials.kick_player(sender)
 								elseif essentials.is_str(f, "Crash") then
-									essentials.msg(string.format("%s %s [%s]", lang["Chat judge\nCrashing"], player_name, entry), "orange", settings.in_use["Chat judge #notifications#"])
-									globals.script_event_crash(event.player)
+									if is_chat_spoofing then
+										essentials.msg(string.format("%s %s [%s]\n%s %s", lang["Chat judge\nCrashing"], player_name, entry, lang["They were spoofing as"], victim_player_name), "orange", settings.in_use["Chat judge #notifications#"], 8)
+									else
+										essentials.msg(string.format("%s %s [%s]", lang["Chat judge\nCrashing"], player_name, entry), "orange", settings.in_use["Chat judge #notifications#"], 5)
+									end
+									globals.script_event_crash(sender)
 								end
 								break
 							end
@@ -4519,6 +4548,10 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 			if player.is_player_valid(event.player) and f.data.command_strings[(event.body:match("^%p(%a+)") or ""):lower()] then
 				if utils.time_ms() < (f.data.tracker[event.player] or 0) then
 					essentials.send_message("[Chat commands]: Attempting too many commands. Max 1 command every second.", player.player_id() == event.player)
+					return
+				end
+				if event.sender ~= event.player then
+					essentials.send_message("[Chat commands]: You can't use the chat commands while spoofing as other people, "..player.get_player_name(event.sender)..".")
 					return
 				end
 				f.data.tracker[event.player] = utils.time_ms() + 1000
@@ -4975,17 +5008,17 @@ do
 					end
 				end
 			end
-			if str_len > 110 then
+			if str_len > 138 + (not settings.toggle["Only friends can use chat commands"].on and 46 or 0) then
 				essentials.send_message(table.concat(str, "\n"), send_to_team)
 				str = {}
 				str_len = 0
 			end
 			if settings.toggle["Only friends can use chat commands"].on then
 				str[#str + 1] = "These commands can only be used by my friends."
-			else
-				str[#str + 1] = "These commands can be used by everyone."
 			end
-			str[#str + 1] = "If you don't provide a player name, it assumes you use it on yourself."
+			local my_name <const> = player.get_player_name(player.player_id())
+			str[#str + 1] = "Examples: !spawn krieger"
+			str[#str + 1] = ("!spawn %s kri"):format(my_name:sub(1, #my_name // 2))
 			str[#str + 1] = "To show this again, do !help"
 			essentials.send_message(table.concat(str, "\n"), send_to_team)
 		end
