@@ -5663,10 +5663,10 @@ menu.add_feature(lang["Force field"], "value_str", u.force_field.id, function(f)
 								if essentials.is_str(f, "Away from you") then
 									entity.set_entity_velocity(Entity, (coords - pos) * (u.strength_away.value / distance))
 								elseif essentials.is_str(f, "Towards you") then
-									if distance > 20 then
-										entity.set_entity_velocity(Entity, (pos - coords) * (u.strength_towards.value / distance))
-									else
+									if distance < 10 then
 										entity.set_entity_velocity(Entity, (coords - pos) * (u.strength_towards.value / distance))
+									else
+										entity.set_entity_velocity(Entity, (pos - coords) * (u.strength_towards.value / distance))
 									end
 								end
 							end
