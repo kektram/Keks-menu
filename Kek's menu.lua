@@ -8127,15 +8127,17 @@ do
 				if feats[i].type & 1 << 11 == 1 << 11 then
 					if not essentials.is_str(u.search_features, "Local Lua features") or feats[i].id ~= u.search_menu_features.id then
 						local previous_script_parent <const> = script_parent
+						local previous_parent_matches_search_string <const> = parent_matches_search_string
 						script_parent = menu.add_feature(feats[i].name, "parent", script_parent.id)
 						create_sorted_search_features(
 							feats[i], 
 							script_parent,
 							search_string,
-							find(lower(feats[i].name), search_string, 1, true) ~= nil,
+							parent_matches_search_string or find(lower(feats[i].name), search_string, 1, true) ~= nil,
 							tab
 						)
 						script_parent = previous_script_parent
+						parent_matches_search_string = previous_parent_matches_search_string
 					end
 				elseif parent_matches_search_string or find(lower(feats[i].name), search_string, 1, true) then
 					local feat <const> = menu.add_feature(feats[i].name, "action_value_str", script_parent.id, function(f)
