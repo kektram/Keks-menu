@@ -820,3 +820,4 @@ Type in the maximum number of characters per line. §输入每行的最大字符
 Type in number of notifications to display. §输入要显示的通知数量.
 24-hour clock §24 小时制
 12-hour clock §12 小时制
+They were spoofing as §他正在伪装为
