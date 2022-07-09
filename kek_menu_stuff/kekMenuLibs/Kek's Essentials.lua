@@ -621,6 +621,26 @@ function essentials.wait_conditional(duration, func, ...)
 	until not func(...) or utils.time_ms() > time
 end
 
+function essentials.write_table_recursively_to_file(Table, tracker, file, level)
+	tracker = tracker or {}
+	level = level or 0
+	file = file or io.open(paths.home.."scripts\\printed_table.txt", "w+")
+	for key, value in pairs(Table) do
+		if type(value) == "table" and not tracker[value] then
+			file:write(string.format("\n%s%s:\n", string.rep("\t", level), key))
+			tracker[value] = true
+			essentials.write_table_recursively_to_file(value, tracker, file, level + 1)
+		else
+			file:write(string.format("%s%s: %s\n", string.rep("\t", level), key, value))
+		end
+	end
+	if level == 0 then
+		essentials.msg(paths.home.."scripts\\printed_table.txt", "green", true, 10)
+		file:flush()
+		file:close()
+	end
+end
+
 function essentials.table_to_xml(...)
 	local Table <const>,
 	tabs,
