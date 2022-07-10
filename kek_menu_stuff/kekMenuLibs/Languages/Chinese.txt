@@ -470,7 +470,6 @@ Display time opacity §显示时间不透明度
 Opacity §不透明度
 Type in the size of the text. §输入字体大小
 Size §字体大小
-Font §字体
 time. §次
 Outline §字体加粗
 Vehicle blacklist:\nstealing §载具黑名单:\n抢车
@@ -523,8 +522,6 @@ Log to console §记录到控制台
 Still §悬空
 Upwards §向上
 Downwards §向下
-Stretch §拉伸
-Type in stretch §输入拉伸数值
 Atomize §原子能枪射击
 This feature doesn't work on yourself. §此功能不可用于你自己.
 minute §分钟
@@ -609,7 +606,7 @@ Respawn vehicle after death §死亡后重新生成载具
 Failed to get control. If you're blocking "give control" in net event hooks, disable it. Even if it's disabled, it can fail to get control for a variety of reasons. §未能获得控制权.如果你在网络事件中启用了阻止"给予控制",请关闭它.即使它已经是关闭状态,也可能因为各种原因而无法获得控制权.
 Teleport to Perico island §传送到佩里科海岛
 "Log to file" must be toggled on in 2take1 notification settings in order for this to work. §必须在2take1的通知设置中打开“记录到文件”才能使其正常工作
-No filter §没有过滤器
+No filter §不过滤
 Display 2take1 notifications §显示2take1通知
 Set vehicle in use §设置要使用的载具
 Set ped in use §设置要使用的NPC
@@ -818,3 +815,9 @@ Press shift or tab to show changelog. §按 shift 或 tab 以显示更新日志.
 Local Lua features §本地Lua功能
 This player is no longer here. §此玩家已不存在.
 Player features §玩家功能
+Max characters per line §每行最大字符数
+Type in the maximum number of characters per line. §输入每行的最大字符数.
+Type in number of notifications to display. §输入要显示的通知数量.
+24-hour clock §24 小时制
+12-hour clock §12 小时制
+They were spoofing as §他正在伪装为
