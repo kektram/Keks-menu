@@ -4,7 +4,7 @@ if __kek_menu_version then
 	return
 end
 
-__kek_menu_version = "0.4.8.0 beta 21.1"
+__kek_menu_version = "0.4.8.0.b22"
 __kek_menu_debug_mode = false
 __kek_menu_participate_in_betas = false
 __kek_menu_check_for_updates = false
@@ -122,7 +122,7 @@ do -- Makes sure each library is loaded once and that every time one is required
 	for name, version in pairs({
 		["Kek's Language"] = "1.0.0",
 		["Kek's Settings"] = "1.0.2",
-		["Kek's Essentials"] = "1.5.2",
+		["Kek's Essentials"] = "1.5.3",
 		["Kek's Memoize"] = "1.0.1",
 		["Kek's Enums"] = "1.0.5",
 		["Kek's Vehicle mapper"] = "1.3.9", 
@@ -5422,8 +5422,8 @@ settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang[
 	local pos <const> = player.get_player_coords(player.player_id())
 	while f.on do
 		system.yield(0)
-		if network.network_is_in_spectator_mode() then
-			who_spectating = network.get_player_player_is_spectating(player.player_id()) or who_spectating
+		if network.get_player_player_is_spectating(player.player_id()) then
+			who_spectating = network.get_player_player_is_spectating(player.player_id())
 			entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
 			hud.set_minimap_in_spectator_mode(true, player.get_player_ped(who_spectating))
 		elseif who_spectating and who_spectating ~= -1 then
@@ -5441,23 +5441,84 @@ local function display_settings(...)
 	scale <const>,
 	max_scale <const> = ...
 
-	settings.valuei[name_of_feature.." x"] = menu.add_feature("X", "action_value_i", parent.id, function(f)
-		keys_and_input.input_number_for_feat(f, lang["Type in where horizontally the time is displayed."])
+	local function handle_coord_display(f, x_or_y)
+		if not menu.has_thread_finished(f.data.thread or -1) then
+			f.data.time = utils.time_ms() + 6000
+		else
+			f.data.thread = menu.create_thread(function()
+				f.data.time = utils.time_ms() + 6000
+				while f.data.time > utils.time_ms() do
+					local y_pos <const> = essentials.draw_auto_adjusted_text(
+						lang["The text is auto aligned to never be off-screen."],
+						essentials.get_rgb(0, 40, 200, 255),
+						1.5
+					)
+					essentials.draw_auto_adjusted_text(
+						lang["The green line is where it will align itself to if there's enough space."],
+						essentials.get_rgb(0, 102, 204, 255),
+						1.5,
+						y_pos
+					)
+					if x_or_y == "x" then
+						local x_pos <const> = settings.valuei[name_of_feature.." x"].value
+						scriptdraw.draw_line(
+							memoize.v2(
+								(math.abs(x_pos) == 1000 and x_pos * 0.995 or x_pos) / 1000,
+								-1.0
+							), 
+							memoize.v2(
+								(math.abs(x_pos) == 1000 and x_pos * 0.995 or x_pos) / 1000, 
+								1.0
+							), 
+							2, 
+							essentials.get_rgb(0, 255, 0, 255)
+						)
+					else
+						local y_pos <const> = settings.valuei[name_of_feature.." y"].value
+						scriptdraw.draw_line(
+							memoize.v2(
+								-1.0,
+								(math.abs(y_pos) == 1000 and y_pos * 0.995 or y_pos) / 1000
+							), 
+							memoize.v2(
+								1.0,
+								(math.abs(y_pos) == 1000 and y_pos * 0.995 or y_pos) / 1000
+							), 
+							2, 
+							essentials.get_rgb(0, 255, 0, 255)
+						)					
+					end
+					system.yield(0)
+				end
+			end, nil)
+		end
+	end
+
+	settings.valuei[name_of_feature.." x"] = menu.add_feature("X", "autoaction_value_i", parent.id, function(f)
+		if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
+			keys_and_input.input_number_for_feat(f, lang["Type in where horizontally the time is displayed."])
+		end
+		handle_coord_display(f, "x")
 	end)
 	settings.valuei[name_of_feature.." x"].min = -1000
 	settings.valuei[name_of_feature.." x"].max = 1000
 	settings.valuei[name_of_feature.." x"].mod = 10
+	settings.valuei[name_of_feature.." x"].data = {}
 	settings:add_setting({
 		setting_name = name_of_feature.." x", 
 		setting = x
 	})
 
-	settings.valuei[name_of_feature.." y"] = menu.add_feature("Y", "action_value_i", parent.id, function(f)
-		keys_and_input.input_number_for_feat(f, lang["Type in where vertically the time is displayed."])
+	settings.valuei[name_of_feature.." y"] = menu.add_feature("Y", "autoaction_value_i", parent.id, function(f)
+		if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
+			keys_and_input.input_number_for_feat(f, lang["Type in where vertically the time is displayed."])
+		end
+		handle_coord_display(f, "y")
 	end)
 	settings.valuei[name_of_feature.." y"].min = -1000
 	settings.valuei[name_of_feature.." y"].max = 1000
 	settings.valuei[name_of_feature.." y"].mod = 10
+	settings.valuei[name_of_feature.." y"].data = {}
 	settings:add_setting({
 		setting_name = name_of_feature.." y", 
 		setting = y
@@ -5632,10 +5693,9 @@ do
 					settings.valuei["Display 2take1 notifications x"].value,
 					settings.valuei["Display 2take1 notifications y"].value
 				) / 1000,
-				settings.valuei["Display 2take1 notifications Scale"].value / 30,
+				settings.valuei["Display 2take1 notifications Scale"].value / 60,
 				essentials.get_rgb(settings.valuei["Display 2take1 notifications R"].value, settings.valuei["Display 2take1 notifications G"].value, settings.valuei["Display 2take1 notifications B"].value, settings.valuei["Display 2take1 notifications A"].value),
-				settings.toggle["Display 2take1 notifications outline"].on,
-				nil
+				settings.toggle["Display 2take1 notifications outline"].on
 			)
 			system.yield(0)
 		end
@@ -5682,7 +5742,7 @@ do
 	})
 end
 
-display_settings(u.display_notifications, "Display 2take1 notifications", 990, 990, 18, 50)
+display_settings(u.display_notifications, "Display 2take1 notifications", 800, 1000, 36, 100)
 
 u.display_time = menu.add_feature(lang["Display time"], "parent", u.self_options.id)
 settings.toggle["Time OSD"] = menu.add_feature(lang["Display time"], "value_str", u.display_time.id, function(f)
@@ -5693,10 +5753,9 @@ settings.toggle["Time OSD"] = menu.add_feature(lang["Display time"], "value_str"
 				settings.valuei["Time OSD x"].value, 
 				settings.valuei["Time OSD y"].value
 			) / 1000,
-			settings.valuei["Time OSD Scale"].value / 30,
+			settings.valuei["Time OSD Scale"].value / 60,
 			essentials.get_rgb(settings.valuei["Time OSD R"].value, settings.valuei["Time OSD G"].value, settings.valuei["Time OSD B"].value, settings.valuei["Time OSD A"].value),
-			settings.toggle["Time OSD outline"].on,
-			nil
+			settings.toggle["Time OSD outline"].on
 		)
 		system.yield(0)
 	end
@@ -5707,7 +5766,7 @@ settings.valuei["Time OSD option"]:set_str_data({
 	lang["12-hour clock"]
 })
 
-display_settings(u.display_time, "Time OSD", -990, 990, 30, 100)
+display_settings(u.display_time, "Time OSD", -990, 990, 60, 200)
 
 u.force_field = menu.add_feature(lang["Force field"], "parent", u.self_options.id)
 

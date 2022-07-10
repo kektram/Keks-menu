@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.2"}
+local essentials <const> = {version = "1.5.3"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -1245,6 +1245,33 @@ function essentials.parse_files_from_html(str, extension)
 	return files
 end
 
+function essentials.draw_text_prevent_offscreen(...)
+	local text <const>, 
+	pos <const>, -- Coordinates must be in relative, not pixels
+	scale <const>,
+	rgba <const>,
+	outline <const> = ...
+
+	pos.x = pos.x < -0.995 and -0.995 or pos.x
+	pos.y = pos.y > 0.995 and 0.995 or pos.y
+
+	local size <const> = scriptdraw.get_text_size(text, scale, nil)
+	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
+	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
+
+	pos.x = pos.x + size.x > 0.995 and 0.995 - size.x or pos.x
+	pos.y = pos.y - size.y < -0.995 and -0.995 + size.y or pos.y
+	scriptdraw.draw_text(
+		text, 
+		pos,
+		size,
+		scale,
+		rgba,
+		outline and enums.scriptdraw_flags.shadow or 0,
+		nil
+	)
+end
+
 function essentials.draw_auto_adjusted_text(...)
 	local text <const>, rgba <const>, scale <const>, y_pos <const> = ...
 
@@ -1270,38 +1297,6 @@ function essentials.draw_auto_adjusted_text(...)
 		number_of_lines = number_of_lines + 1
 	end
 	return pos.y - size.y - (size.y / number_of_lines)
-end
-
-function essentials.draw_text_prevent_offscreen(...)
-	local text <const>, 
-	pos <const>, -- Coordinates must be in relative, not pixels
-	scale <const>,
-	rgba <const>,
-	outline <const>,
-	font <const> = ...
-
-	pos.x = pos.x < -0.995 and -0.995 or pos.x
-	pos.y = pos.y > 0.995 and 0.995 or pos.y
-
-	local size <const> = scriptdraw.get_text_size(text, scale, nil)
-	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
-	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
-
-	local pos_plus_size <const> = v2(size.x < 0 and -size.x or size.x, pos.y < 0 and -size.y or size.y)
-	pos_plus_size.x = pos_plus_size.x + pos.x
-	pos_plus_size.y = pos_plus_size.y + pos.y
-
-	pos.x = pos_plus_size.x > 0.995 and 0.995 - size.x or pos.x
-	pos.y = pos_plus_size.y < -0.995 and -0.995 + size.y or pos.y
-	scriptdraw.draw_text(
-		text, 
-		pos,
-		size,
-		scale,
-		rgba,
-		outline and enums.scriptdraw_flags.shadow or 0,
-		font
-	)
 end
 
 essentials.is_changelog_currently_shown = false
