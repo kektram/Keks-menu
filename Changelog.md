@@ -1,6 +1,3 @@
-Fixed error in ai driving feature (anti stuck)
-Chat judger, anti chat spam & chat commands now properly handle people chat spoofing
-Improved !help chat commands list
-
-21.1:
-Search feature now shows, if a parent matched search, all its features & features inside of its parents, and feature inside of their parents and so on
+Fixed error in "move mini-map to people you spectate"
+Fixed a bug in display 2t1 notif where changing "number of notifs to show" to to high enough number to require more screen space, not preventing off-screen if y-coord setting is positive
+Made x/y coordinate settings more user friendly in "time osd" & "display 2take1 notifications"
