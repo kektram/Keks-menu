@@ -467,7 +467,6 @@ Display time opacity §ﺖﻗﻮﻟﺍ ﺔﻓﺎﻔﺷ
 Opacity §ﺔﻓﺎﻔﺷ
 Type in the size of the text. §.ﻡﻼﻜﻟﺍ ﻢﺠﺣ ﺐﺘﻛﺍ
 Size §ﻢﺠﺣ
-Font §ﻂﺧ
 time. §ﺕﺍﺮﻣ
 Outline §ﻂﻴﻄﺨﺗ
 Vehicle blacklist:\nstealing §:ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ\nﺔﻗﺮﺳ
@@ -520,8 +519,6 @@ Log to console §Consoleﻝﺍ ﻲﻓ ﻞﻴﺠﺴﺗ
 Still §ﺖﺑﺎﺛ
 Upwards §ﻕﻮﻓ
 Downwards §ﺖﺤﺗ
-Stretch §ﺩﺪﻤﻧ
-Type in stretch §ﺩﺪﻤﺘﻟﺍ ﺐﺘﻛﺍ
 Atomize §Atomize
 This feature doesn't work on yourself. §.ﻚﺴﻔﻧ ﻰﻠﻋ ﻞﻐﺘﺸﻳﺎﻣ ﺭﺎﻴﺨﻟﺍ ﺍﺬﻫ
 minute §ﺔﻘﻴﻗﺩ
@@ -697,7 +694,6 @@ Send to team chat §ﻢﻴﺘﻟﺍ ﺕﺎﺷ ﻰﻟﺍ ﻞﺳﺭﺍ
 Send to all chat §ﻊﻴﻤﺠﻟﺍ ﺕﺎﺷ ﻰﻟﺍ ﻞﺳﺭﺍ
 Tip: set hotkeys for the translate inputs below §ﺖﺤﺗ ﺏﻮﺘﻜﻤﻟﺍ ﺔﻤﺟﺮﺘﻟ (hotkeys) ﺕﺍﺭﺎﺼﺘﺧﺍ ﻊﺿ :ﺢﻴﻤﻠﺗ
 Menu features §ﻮﻴﻨﻤﻟﺍ ﺕﺍﺭﺎﻴﺧ
-Lua features §ﺕﺎﺘﺑﺮﻜﺴﻟﺍ ﺕﺍﺭﺎﻴﺧ
 Type in name of feature. §.ﺭﺎﻴﺨﻟﺍ ﻢﺳﺍ ﺐﺘﻛﺍ
 Failed to go to feature. §.ﺭﺎﻴﺨﻟﺍ ﻰﻟﺍ ﺏﺎﻫﺬﻟﺍ ﻲﻓ ﻞﺸﻓ
 Go to §ﻰﻟﺍ ﺐﻫﺫﺍ
@@ -710,3 +706,13 @@ A new update for Kek's menu is available. Press alt or enter to install it, spac
 Press space or ctrl to remove this message. §.ﺔﻟﺎﺳﺮﻟﺍ ﻱﺫﺎﻫ ﺮﺧﻮﺗ ﻥﺎﺸﻋ lrtc ﻭﺍ ﺔﻓﺎﺴﻣ ﻂﻐﺿﺍ
 Obtaining Kek's menu version info... §...Kek's menu ﺚﻳﺪﺤﺗ ﻢﻗﺭ ﻦﻋ ﺚﺤﺒﻟﺍ
 Press shift or tab to show changelog. §.ﺚﻳﺪﺤﺘﻟﺍ ﺕﺍﺮﻴﻴﻐﺗ ﻊﻠﻄﺗ ﻥﺎﺸﻋ tab ﻭﺍ shift ﻂﻐﺿﺍ
+Local Lua features §Localﻝﺍ ﺕﺎﺘﺑﺮﻜﺴﻟﺍ ﺕﺍﺭﺎﻴﺧ
+This player is no longer here. §.ﺩﻮﺟﻮﻣ ﺪﻌﻳ ﻢﻟ ﺐﻋﻼﻟﺍ ﺍﺬﻫ
+Max characters per line §ﺮﻄﺳ ﻞﻜﻟ ﻑﻭﺮﺤﻠﻟ ﻰﺼﻗﻻﺍ ﺪﺤﻟﺍ
+Type in the maximum number of characters per line. §.ﺮﻄﺳ ﻞﻜﻟ ﻑﻭﺮﺤﻠﻟ ﻰﺼﻗﻻﺍ ﺩﺪﻌﻟﺍ ﺐﺘﻛﺍ
+Type in number of notifications to display. §.ﺔﺷﺎﺸﻟﺍ ﻰﻠﻋ ﺮﻬﻈﺗ ﻑﻮﺳ ﻲﺘﻟﺍ ﺕﺍﺭﺎﻌﺷﻻﺍ ﺩﺪﻋ ﺐﺘﻛﺍ
+24-hour clock §ﺔﻋﺎﺳ 42 ﻡﺎﻈﻨﺑ ﺔﻋﺎﺳ
+12-hour clock §ﺔﻋﺎﺳ 12 ﻡﺎﻈﻨﺑ ﺔﻋﺎﺳ
+They were spoofing as §ﻢﻬﻧﺍ ﻢﻬﺴﻔﻧ ﻦﻳﻮﺴﻣ ﻮﻧﺎﻛ
+The green line is where it will align itself to if there's enough space. §.ﺔﺣﺎﺴﻣ ﻪﻴﻓ ﻥﺎﻛ ﺍﺫﺍ ﻪﻟ ﺡﻭﺮﻴﺑ ﻲﻠﻟﺍ ﻥﺎﻜﻤﻟﺍ ﻮﻫ ﺮﻀﺧﻻﺍ ﻂﺨﻟﺍ
+The text is auto aligned to never be off-screen. §.ﺔﺷﺎﺸﻟﺍ ﻦﻋ ﻊﻠﻄﻳﺎﻣ ﻪﻧﺍ ﻂﺑﺰﻣ ﻢﻳﺍﺩ ﻡﻼﻜﻟﺍ
