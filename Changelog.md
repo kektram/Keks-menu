@@ -1,3 +1,3 @@
-Fixed error in "move mini-map to people you spectate"
-Fixed a bug in display 2t1 notif where changing "number of notifs to show" to to high enough number to require more screen space, not preventing off-screen if y-coord setting is positive
-Made x/y coordinate settings more user friendly in "time osd" & "display 2take1 notifications"
+Updated how player alive status is checked everywhere
+Improved essentials.deep_copy function
+Fixed many changes to global spaces affecting the script's state after updating to new version
