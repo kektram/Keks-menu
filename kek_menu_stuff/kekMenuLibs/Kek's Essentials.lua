@@ -386,7 +386,7 @@ function essentials.deep_copy(Table, preserve_meta_tables, tracker, new_copy_tab
 			metatable = tracker[mt]
 		else
 			metatable = {}
-			tracker[value] = metatable
+			tracker[mt] = metatable
 			essentials.deep_copy(mt, preserve_meta_tables, tracker, metatable)
 		end
 		setmetatable(

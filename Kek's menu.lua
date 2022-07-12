@@ -236,8 +236,8 @@ do -- What kek's menu modifies in the global space. The natives library adds to 
 			func <const> = ...
 			local feat
 			local type <const> = type
+			essentials.assert(utf8.len(name), "Tried to create a feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
 			if type(func) == "function" then
-				essentials.assert(utf8.len(name), "Tried to create a feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
 				feat = originals.add_feature(name, Type, parent, function(f, data)
 					if type(f) ~= "number" then
 						if func(f, data) == HANDLER_CONTINUE then
@@ -266,8 +266,8 @@ do -- What kek's menu modifies in the global space. The natives library adds to 
 			func <const> = ...
 			local feat
 			local type <const> = type
+			essentials.assert(utf8.len(name), "Tried to create a player feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
 			if type(func) == "function" then
-				essentials.assert(utf8.len(name), "Tried to create a player feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
 				feat = originals.add_player_feature(name, Type, parent, function(f, pid, data)
 					if type(f) ~= "number" then -- Must check if not a number, custom UIs pass table instead of userdata.
 						if func(f, pid, data) == HANDLER_CONTINUE then
