@@ -1159,7 +1159,7 @@ function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
 	else
 		speed = -120
 	end
-	if not entity.is_entity_dead(player.get_player_ped(pid)) then
+	if not player.is_player_dead(pid) then
 		if player.is_player_in_any_vehicle(pid) then
 			kek_entity.get_control_of_entity(player.get_player_vehicle(pid), 0)
 		end
@@ -1190,7 +1190,7 @@ end
 
 function kek_entity.ram_player(pid)
 	local count = 0
-	while count < 5 and player.is_player_valid(pid) and not entity.is_entity_dead(player.get_player_ped(pid)) do
+	while count < 5 and player.is_player_valid(pid) and not player.is_player_dead(pid) do
 		essentials.use_ptfx_function(kek_entity.spawn_and_push_a_vehicle_in_direction, pid, true, 8, gameplay.get_hash_key("tanker"))
 		system.yield(150)
 		count = count + 1

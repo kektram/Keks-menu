@@ -209,7 +209,7 @@ function menyoo_saver.save_vehicle(...)
 		end
 		local file <close> = io.open(file_path, "w+")
 		local str <const> = {
-			"<?xml version=\"1.0\" encoding=\"UTF-8\" kek_menu_version=\""..__kek_menu_version.."\"?>",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" kek_menu_version=\""..__kek_menu.version.."\"?>",
 			"<Vehicle menyoo_ver=\"0.9998b\">",
 			essentials.table_to_xml(get_properties(Vehicle, true), 1, nil, {}, true)
 		}
@@ -240,7 +240,7 @@ function menyoo_saver.save_map(...)
 	local file <close> = io.open(file_path, "w+")
 	local ref <const> = essentials.get_player_coords(player.player_id())
 	local xml_string <const> = {
-		"<?xml version=\"1.0\" encoding=\"UTF-8\" kek_menu_version=\""..__kek_menu_version.."\"?>",
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" kek_menu_version=\""..__kek_menu.version.."\"?>",
 		"<SpoonerPlacements>",
 		"<ReferenceCoords>\n"
 			.."	<X>"..ref.x.."</X>\n"

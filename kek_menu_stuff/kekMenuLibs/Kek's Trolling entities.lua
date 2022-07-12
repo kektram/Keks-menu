@@ -350,7 +350,7 @@ function troll_entity.send_kek_chopper(...)
 		local vehicles = {}
 		while not menu.has_thread_finished(pilot_thread) do
 			system.yield(0)
-			if memoize.get_distance_between(chopper, player.get_player_ped(pid)) < 170 and not entity.is_entity_dead(player.get_player_ped(pid)) then
+			if memoize.get_distance_between(chopper, player.get_player_ped(pid)) < 170 and not player.is_player_dead(pid) then
 				for i = 1, 4 do
 					if not entity.is_entity_a_vehicle(vehicles[i] or 0) then
 						local hash <const> = vehicle_mapper.get_random_vehicle()
@@ -582,7 +582,7 @@ function troll_entity.send_clown_van(...)
 						ped.set_ped_into_vehicle(clown, clown_van, enums.vehicle_seats.first_free_seat)
 					end
 				elseif ped.is_ped_in_vehicle(clown, clown_van) 
-				and not entity.is_entity_dead(player.get_player_ped(pid)) 
+				and not player.is_player_dead(pid) 
 				and memoize.get_distance_between(clown_van, player.get_player_ped(pid)) < 30 then
 					if kek_entity.get_control_of_entity(clown) then
 						ai.task_leave_vehicle(clown, clown_van, 256)

@@ -1,27 +1,12 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.3"}
+local essentials <const> = {version = "1.5.4"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
 local enums <const> = require("Kek's Enums")
 local settings <const> = require("Kek's Settings")
 local memoize <const> = require("Kek's Memoize")
-
-do 
---[[
-	This sets the __close metamethod for all files.
-	When local variables storing a file object goes out of scope,
-	the file is automatically closed with this metamethod.
---]]
-	local file <close> = io.open(debug.getinfo(1).source:sub(2, -1))
-	assert(io.type(file) == "file", "Failed to get file metatable.")
-	getmetatable(file).__close = function(file)
-		if io.type(file) == "file" then
-			file:close()
-		end
-	end
-end
 
 essentials.listeners = {
 	player_leave = {},
@@ -145,10 +130,8 @@ do
 	end
 end
 
-do
-	function essentials.pack_2_positive_integers(x, y)
-		return 0 | x << 31 | y
-	end
+function essentials.pack_2_positive_integers(x, y)
+	return 0 | x << 31 | y
 end
 
 function essentials.get_rgb(r, g, b, a)
@@ -368,96 +351,50 @@ function essentials.delete_thread(id)
 	essentials.assert(not menu.has_thread_finished(id) and menu.delete_thread(id), "Attempted to delete a finished thread.")
 end
 
-do
-	local originals <const> = essentials.const({
-		add_feature = menu.add_feature,
-		add_player_feature = menu.add_player_feature,
-		menu_newindex = getmetatable(menu).__newindex
-	})
-	getmetatable(menu).__newindex = nil
-
-	local feat_err_msg <const> = "This error might be related to your script, not necessarily Kek's menu. Either the parent id or feature type specified is incorrect."
-	menu.add_feature = function(...)
-		local name <const>,
-		Type <const>,
-		parent <const>,
-		func <const> = ...
-		local feat
-		local type <const> = type
-		if type(func) == "function" then
-			essentials.assert(utf8.len(name), "Tried to create a feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
-			feat = originals.add_feature(name, Type, parent, function(f, data)
-				if type(f) ~= "number" then
-					if func(f, data) == HANDLER_CONTINUE then
-						return HANDLER_CONTINUE
-					end
-				end
-			end)
-		else
-			feat = originals.add_feature(name, Type, parent)
-		end
-		essentials.assert(
-			feat, "Failed to create feature:",
-			feat_err_msg,
-			"Feature name: ",
-			name, 
-			debug.getinfo(2, "S").source, 
-			"line:",
-			debug.getinfo(2, "l").currentline
-		)
-		return feat
-	end
-	menu.add_player_feature = function(...)
-		local name <const>,
-		Type <const>,
-		parent <const>,
-		func <const> = ...
-		local feat
-		local type <const> = type
-		if type(func) == "function" then
-			essentials.assert(utf8.len(name), "Tried to create a player feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
-			feat = originals.add_player_feature(name, Type, parent, function(f, pid, data)
-				if type(f) ~= "number" then -- Must check if not a number, custom UIs pass table instead of userdata.
-					if func(f, pid, data) == HANDLER_CONTINUE then
-						return HANDLER_CONTINUE
-					end
-				end
-			end)
-		else
-			feat = originals.add_player_feature(name, Type, parent)
-		end
-		essentials.assert(
-			feat, "Failed to create player feature:", 
-			feat_err_msg,
-			"Feature name: ",
-			name,
-			debug.getinfo(2, "S").source, 
-			"line:",
-			debug.getinfo(2, "l").currentline
-		)
-		return feat
-	end
-	getmetatable(menu).__newindex = originals.menu_newindex
-end
-
-function essentials.deep_copy(Table, keep_meta, timeout)
-	local new_copy <const> = {}
-	timeout = timeout or utils.time_ms() + 1000 -- Far cheaper than using a seen table.
+function essentials.deep_copy(Table, preserve_meta_tables, tracker, new_copy_table)
+	new_copy_table = new_copy_table or {}
+	tracker = tracker or {[Table] = new_copy_table}
 	for key, value in pairs(Table) do
-		if type(value) == "table" then
-			new_copy[key] = essentials.deep_copy(value, keep_meta, timeout)
-			if keep_meta and type(getmetatable(value)) == "table" then
-				setmetatable(new_copy[key], essentials.deep_copy(getmetatable(value), true, timeout))
+		if type(key) == "table" then
+			if tracker[key] then
+				key = tracker[key]
+			else
+				local indices <const> = {}
+				tracker[key] = indices
+				essentials.deep_copy(key, preserve_meta_tables, tracker, indices)
+				key = indices
 			end
 		else
-			new_copy[key] = value
+			key = key
+		end
+		if type(value) == "table" then
+			if tracker[value] then
+				new_copy_table[key] = tracker[value]
+			else
+				new_copy_table[key] = {}
+				tracker[value] = new_copy_table[key]
+				essentials.deep_copy(value, preserve_meta_tables, tracker, new_copy_table[key])
+			end
+		else
+			new_copy_table[key] = value
 		end
 	end
-	if keep_meta and type(getmetatable(Table)) == "table" then
-		setmetatable(new_copy, essentials.deep_copy(getmetatable(Table), true, timeout))
+	local mt <const> = getmetatable(Table)
+	if preserve_meta_tables and type(mt) == "table" then
+		local metatable
+		if tracker[mt] then
+			metatable = tracker[mt]
+		else
+			metatable = {}
+			tracker[value] = metatable
+			essentials.deep_copy(mt, preserve_meta_tables, tracker, metatable)
+		end
+		setmetatable(
+			new_copy_table, 
+			metatable
+		)
 	end
-	essentials.assert(timeout > utils.time_ms(), "Entered recursion loop while attempting to deep copy table.")
-	return new_copy
+	return new_copy_table
 end
 
 do
@@ -884,7 +821,7 @@ function essentials.log_error(...)
 			string.format("\n\n[%s]: < %s > [Kek's menu version: %s]\n%s\n",
 				os.date(), 
 				error_message, 
-				__kek_menu_version, 
+				__kek_menu.version, 
 				table.concat(additional_info, "\n")), 2))
 	end
 	if yield then
@@ -928,8 +865,8 @@ function essentials.msg(...)
 	essentials.assert(type(text) == "string", "Failed to send a notification.", text)
 	if notifyOn then
 		header = header or ""
-		if header == "" and __kek_menu_version then
-			header = lang["Kek's menu"].." "..__kek_menu_version
+		if header == "" and __kek_menu.version then
+			header = lang["Kek's menu"].." "..__kek_menu.version
 		end
 		menu.notify(text, header, duration or 3, essentials.notif_colors[color])
 	end
@@ -1311,7 +1248,7 @@ function essentials.show_changelog()
 			) do
 				system.yield(0)
 			end
-			local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
+			local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
 			local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md")
 			if enums.html_response_codes[status] ~= "OK" then
 				essentials.is_changelog_currently_shown = false
@@ -1346,7 +1283,7 @@ function essentials.show_changelog()
 end
 
 function essentials.update_keks_menu()
-	local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
+	local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
 	local version_check_draw_thread <const> = menu.create_thread(function()
 		while true do
@@ -1373,11 +1310,11 @@ function essentials.update_keks_menu()
 		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
 		return "failed to check what is the latest version"
 	end
-	if __kek_menu_version == script_version then
+	if __kek_menu.version == script_version then
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
 		return "is latest version"
 	else
-		if __kek_menu_has_done_update then
+		if __kek_menu.has_done_update then
 			essentials.msg(lang["Kektram messed up the version strings! You have the latest version."], "green", true, 8)
 			return "already updated"
 		end
@@ -1440,7 +1377,7 @@ function essentials.update_keks_menu()
 			end
 		end, nil)
 		do
-			if __kek_menu_debug_mode then
+			if __kek_menu.debug_mode then
 				essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
 				update_status = "done"
 				return "tried to update with debug mode on"
@@ -1496,7 +1433,7 @@ function essentials.update_keks_menu()
 	end
 
 	::exit::
-	if __kek_menu_version ~= script_version then
+	if __kek_menu.version ~= script_version then
 		if update_status then
 			do -- Checks if there's write permissions to all files that needs to be overwritten.
 				local msg <const> = lang["Missing write permissions for \"%s\". Update cancelled, no files changed."]
@@ -1532,7 +1469,7 @@ function essentials.update_keks_menu()
 				end
 			end
 
-			__kek_menu_version = script_version
+			__kek_menu.version = script_version
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
 
 			-- Remove old files & undo all changes to the global space
@@ -1564,11 +1501,7 @@ function essentials.update_keks_menu()
 			update_status = "done"
 			essentials.show_changelog()
 			system.yield(0) -- show_changelog creates a thread
-			__kek_menu_version = nil
-			__kek_menu_debug_mode = nil
-			__kek_menu_participate_in_betas = nil
-			__kek_menu_check_for_updates = nil
-			__kek_menu_has_done_update = true
+			__kek_menu = nil
 			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
 		else
