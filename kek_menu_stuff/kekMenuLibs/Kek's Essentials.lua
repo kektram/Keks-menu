@@ -1202,7 +1202,7 @@ function essentials.draw_auto_adjusted_text(...)
 	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
 
 	local pos <const> = memoize.v2(-size.x, size.y) / 2
-	pos.y = y_pos or pos.y
+	pos.y = type(y_pos) == "table" and y_pos.y or y_pos or pos.y
 
 	scriptdraw.draw_text(
 		text, 
@@ -1309,10 +1309,10 @@ end
 function essentials.update_keks_menu()
 	local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
-	local y_pos_2
+	local y_pos_2 = {y = 0} -- Is table so most up-to-date value is always being used
 	local version_check_draw_thread <const> = menu.create_thread(function()
 		while true do
-			y_pos_2 = essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
+			y_pos_2.y = essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
 			system.yield(0)
 		end
 	end, nil)
@@ -1392,7 +1392,7 @@ function essentials.update_keks_menu()
 
 		menu.create_thread(function()
 			while update_status ~= "done" do
-				y_pos_2 = essentials.draw_auto_adjusted_text(
+				y_pos_2.y = essentials.draw_auto_adjusted_text(
 					updated_lib_files and updated_language_files and string.format(
 						"%i / %i "..lang["files downloaded"].."\n%s", 
 						current_file_num, 
