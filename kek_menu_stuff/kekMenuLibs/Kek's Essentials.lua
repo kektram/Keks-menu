@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.4"}
+local essentials <const> = {version = "1.5.5"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -1214,11 +1214,46 @@ function essentials.draw_auto_adjusted_text(...)
 		nil
 	)
 
-	local number_of_lines = 1
-	for _ in text:gmatch("[^\n]+") do
-		number_of_lines = number_of_lines + 1
+	return (pos.y - size.y) - (scriptdraw.size_pixel_to_rel_y(scriptdraw.get_text_size("One line of text.", scale or 0.7, nil).y) / 2)
+end
+
+function essentials.dont_retry_request(status) -- Too much work with little benefit to handle all codes properly
+	return enums.html_response_codes[status] ~= "OK" and enums.html_response_codes[status] ~= "Not Found"
+end
+
+function essentials.web_get_file(url, rgba, scale, y_pos)
+	local try_count = 0
+	local file_name <const> = web.urldecode(url:match(".+/(.-)$"))
+	local status, str, thread, is_done
+	if rgba then
+		thread = menu.create_thread(function()
+			while true do
+				essentials.draw_auto_adjusted_text(
+					is_done and enums.html_response_codes[status] == "OK" and lang["Successfully fetched %s."]:format(file_name)
+					or is_done and lang["Failed to fetch %s with error: %s"]:format(file_name, enums.html_response_codes[status] or status)
+					or lang["Attempt %i / %i to fetch %s."]:format(try_count, 3, file_name), 
+					rgba, 
+					scale,
+					y_pos
+				)
+				system.yield(0)
+			end
+		end)
+		system.yield(0)
 	end
-	return pos.y - size.y - (size.y / number_of_lines)
+	repeat
+		if try_count > 0 then
+			system.yield(2000)
+		end
+		try_count = try_count + 1
+		status, str = web.get(url)
+	until try_count == 3 or not essentials.dont_retry_request(status)
+	is_done = true
+	system.yield(enums.html_response_codes[status] ~= "OK" and 5000 or 250)
+	if thread then
+		menu.delete_thread(thread)
+	end
+	return status, str
 end
 
 essentials.is_changelog_currently_shown = false
@@ -1234,7 +1269,11 @@ function essentials.show_changelog()
 				system.yield(0)
 			end
 			local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
-			local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md")
+			local status <const>, str <const> = essentials.web_get_file(
+				"https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md",
+				essentials.get_rgb(0, 255, 0, 255), 
+				1.2
+			)
 			if enums.html_response_codes[status] ~= "OK" then
 				essentials.is_changelog_currently_shown = false
 				return
@@ -1270,14 +1309,20 @@ end
 function essentials.update_keks_menu()
 	local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
+	local y_pos
 	local version_check_draw_thread <const> = menu.create_thread(function()
 		while true do
-			essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
+			y_pos = essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
 			system.yield(0)
 		end
 	end, nil)
-
-	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
+	system.yield(0)
+	local version_check_status <const>, script_version = essentials.web_get_file(
+		base_path.."VERSION.txt",
+		essentials.get_rgb(0, 255, 120, 255),
+		1.0,
+		y_pos
+	)
 	menu.delete_thread(version_check_draw_thread)
 	local script_version <const> = script_version:gsub("[^%w\32.]", "")
 	local
@@ -1347,7 +1392,7 @@ function essentials.update_keks_menu()
 
 		menu.create_thread(function()
 			while update_status ~= "done" do
-				essentials.draw_auto_adjusted_text(
+				y_pos = essentials.draw_auto_adjusted_text(
 					updated_lib_files and updated_language_files and string.format(
 						"%i / %i "..lang["files downloaded"].."\n%s", 
 						current_file_num, 
@@ -1367,7 +1412,12 @@ function essentials.update_keks_menu()
 				update_status = "done"
 				return "tried to update with debug mode on"
 			end
-			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs")
+			local status <const>, str <const> = essentials.web_get_file(
+				"https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs", 
+				essentials.get_rgb(0, 255, 0, 255), 
+				1.2, 
+				y_pos
+			)
 			update_status = enums.html_response_codes[status] == "OK"
 			if not update_status then
 				goto exit
@@ -1376,7 +1426,12 @@ function essentials.update_keks_menu()
 		end
 
 		do
-			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs/Languages")
+			local status <const>, str <const> = essentials.web_get_file(
+				"https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs/Languages",
+				essentials.get_rgb(0, 255, 0, 255), 
+				1.2, 
+				y_pos
+			)
 			update_status = enums.html_response_codes[status] == "OK"
 			if not update_status then
 				goto exit
@@ -1386,7 +1441,12 @@ function essentials.update_keks_menu()
 	end
 	do
 		current_file = "Kek's menu.lua" -- Download updated files
-		local status <const>, str <const> = web.get(base_path.."Kek's%20menu.lua")
+		local status <const>, str <const> = essentials.web_get_file(
+			base_path.."Kek's%20menu.lua",
+			essentials.get_rgb(0, 255, 0, 255), 
+			1.2, 
+			y_pos
+		)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit
@@ -1397,7 +1457,12 @@ function essentials.update_keks_menu()
 
 	for _, properties in pairs(updated_lib_files) do
 		current_file = properties.system_file_name
-		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/"..properties.web_file_name)
+		local status <const>, str <const> = essentials.web_get_file(
+			base_path.."kek_menu_stuff/kekMenuLibs/"..properties.web_file_name,
+			essentials.get_rgb(0, 255, 0, 255), 
+			1.2, 
+			y_pos
+		)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit
@@ -1408,7 +1473,12 @@ function essentials.update_keks_menu()
 
 	for _, properties in pairs(updated_language_files) do
 		current_file = properties.system_file_name
-		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..properties.web_file_name)
+		local status <const>, str <const> = essentials.web_get_file(
+			base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..properties.web_file_name,
+			essentials.get_rgb(0, 255, 0, 255), 
+			1.2, 
+			y_pos
+		)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit

@@ -32,7 +32,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b24",
+	version = "0.4.8.0.b25",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -59,7 +59,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.5",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.5.4"
+	["Kek's Essentials"] = "1.5.5"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -3053,6 +3053,7 @@ settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_playe
 				end
 			end
 		end
+		kek_entity.clear_entities(vehicles)
 	end, nil)
 	while f.on do
 		system.yield(0)
@@ -3069,7 +3070,6 @@ settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_playe
 			end
 		end
 	end
-	kek_entity.clear_entities(vehicles)
 end).id
 
 menu.add_player_feature(lang["Perma-cage"], "toggle", u.malicious_player_features, function(f, pid)
