@@ -351,50 +351,35 @@ function essentials.delete_thread(id)
 	essentials.assert(not menu.has_thread_finished(id) and menu.delete_thread(id), "Attempted to delete a finished thread.")
 end
 
-function essentials.deep_copy(Table, preserve_meta_tables, tracker, new_copy_table)
-	new_copy_table = new_copy_table or {}
-	tracker = tracker or {[Table] = new_copy_table}
-	for key, value in pairs(Table) do
-		if type(key) == "table" then
-			if tracker[key] then
-				key = tracker[key]
-			else
-				local indices <const> = {}
-				tracker[key] = indices
-				essentials.deep_copy(key, preserve_meta_tables, tracker, indices)
-				key = indices
+do
+	local v3_mt <const>, v2_mt <const> = debug.getmetatable(memoize.v3()), debug.getmetatable(memoize.v2())
+	function essentials.deep_copy(object, keep_meta, tracker)
+		tracker = tracker or {}
+		if tracker[object] then 
+			return tracker[object] 
+		end
+
+		local new_object
+		local object_mt <const> = debug.getmetatable(object)
+		if type(object) == "table" then
+			new_object = {}
+			tracker[object] = new_object
+
+			for key, value in next, object do
+				new_object[essentials.deep_copy(key, keep_meta, tracker)] = essentials.deep_copy(value, keep_meta, tracker)
 			end
-		else
-			key = key
-		end
-		if type(value) == "table" then
-			if tracker[value] then
-				new_copy_table[key] = tracker[value]
-			else
-				new_copy_table[key] = {}
-				tracker[value] = new_copy_table[key]
-				essentials.deep_copy(value, preserve_meta_tables, tracker, new_copy_table[key])
+			if keep_meta then
+				setmetatable(new_object, essentials.deep_copy(debug.getmetatable(object), keep_meta, tracker))
 			end
+		elseif rawequal(object_mt, v3_mt) then
+			new_object = v3(object.x, object.y, object.z)
+		elseif rawequal(object_mt, v2_mt) then
+			new_object = v2(object.x, object.y)
 		else
-			new_copy_table[key] = value
+			new_object = object
 		end
+		return new_object
 	end
-	local mt <const> = getmetatable(Table)
-	if preserve_meta_tables and type(mt) == "table" then
-		local metatable
-		if tracker[mt] then
-			metatable = tracker[mt]
-		else
-			metatable = {}
-			tracker[mt] = metatable
-			essentials.deep_copy(mt, preserve_meta_tables, tracker, metatable)
-		end
-		setmetatable(
-			new_copy_table, 
-			metatable
-		)
-	end
-	return new_copy_table
 end
 
 do
