@@ -1344,7 +1344,7 @@ function essentials.update_keks_menu()
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
 		return "is latest version"
 	else
-		if __kek_menu.has_done_update then
+		if __kek_menu_has_done_update then
 			essentials.msg(lang["Kektram messed up the version strings! You have the latest version."], "green", true, 8)
 			return "already updated"
 		end
@@ -1556,7 +1556,8 @@ function essentials.update_keks_menu()
 			update_status = "done"
 			essentials.show_changelog()
 			system.yield(0) -- show_changelog creates a thread
-			__kek_menu = {has_done_update = true}
+			__kek_menu = nil
+			__kek_menu_has_done_update = true
 			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
 		else

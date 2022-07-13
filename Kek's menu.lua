@@ -1,5 +1,5 @@
 -- Copyright © 2020-2022 Kektram
-if __kek_menu and __kek_menu.original_require then 
+if __kek_menu then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
@@ -43,7 +43,7 @@ __kek_menu = {
 		assert(name:find("^Kek's %u"), "Invalid library name. [kekMenuLibs\\"..name.."]: format should be \"Kek's <Uppercase letter><rest of lib name>\"")
 		
 		local lib = package.loaded[name] 
-		or __kek_menu.has_done_update and dofile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")
+		or __kek_menu_has_done_update and dofile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")
 		or __kek_menu.original_require(name)
 
 		if not package.loaded[name] then
