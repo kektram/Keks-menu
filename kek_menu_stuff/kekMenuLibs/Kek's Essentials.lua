@@ -1309,10 +1309,10 @@ end
 function essentials.update_keks_menu()
 	local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
-	local y_pos
+	local y_pos_2
 	local version_check_draw_thread <const> = menu.create_thread(function()
 		while true do
-			y_pos = essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
+			y_pos_2 = essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
 			system.yield(0)
 		end
 	end, nil)
@@ -1321,7 +1321,7 @@ function essentials.update_keks_menu()
 		base_path.."VERSION.txt",
 		essentials.get_rgb(0, 255, 120, 255),
 		1.0,
-		y_pos
+		y_pos_2
 	)
 	menu.delete_thread(version_check_draw_thread)
 	local script_version <const> = script_version:gsub("[^%w\32.]", "")
@@ -1392,7 +1392,7 @@ function essentials.update_keks_menu()
 
 		menu.create_thread(function()
 			while update_status ~= "done" do
-				y_pos = essentials.draw_auto_adjusted_text(
+				y_pos_2 = essentials.draw_auto_adjusted_text(
 					updated_lib_files and updated_language_files and string.format(
 						"%i / %i "..lang["files downloaded"].."\n%s", 
 						current_file_num, 
@@ -1416,7 +1416,7 @@ function essentials.update_keks_menu()
 				"https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs", 
 				essentials.get_rgb(0, 255, 0, 255), 
 				1.2, 
-				y_pos
+				y_pos_2
 			)
 			update_status = enums.html_response_codes[status] == "OK"
 			if not update_status then
@@ -1430,7 +1430,7 @@ function essentials.update_keks_menu()
 				"https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs/Languages",
 				essentials.get_rgb(0, 255, 0, 255), 
 				1.2, 
-				y_pos
+				y_pos_2
 			)
 			update_status = enums.html_response_codes[status] == "OK"
 			if not update_status then
@@ -1445,7 +1445,7 @@ function essentials.update_keks_menu()
 			base_path.."Kek's%20menu.lua",
 			essentials.get_rgb(0, 255, 0, 255), 
 			1.2, 
-			y_pos
+			y_pos_2
 		)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
@@ -1461,7 +1461,7 @@ function essentials.update_keks_menu()
 			base_path.."kek_menu_stuff/kekMenuLibs/"..properties.web_file_name,
 			essentials.get_rgb(0, 255, 0, 255), 
 			1.2, 
-			y_pos
+			y_pos_2
 		)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
@@ -1477,7 +1477,7 @@ function essentials.update_keks_menu()
 			base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..properties.web_file_name,
 			essentials.get_rgb(0, 255, 0, 255), 
 			1.2, 
-			y_pos
+			y_pos_2
 		)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
@@ -1556,7 +1556,7 @@ function essentials.update_keks_menu()
 			update_status = "done"
 			essentials.show_changelog()
 			system.yield(0) -- show_changelog creates a thread
-			__kek_menu = nil
+			__kek_menu = {has_done_update = true}
 			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
 		else

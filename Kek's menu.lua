@@ -1,5 +1,5 @@
 -- Copyright © 2020-2022 Kektram
-if __kek_menu then 
+if __kek_menu and __kek_menu.original_require then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
