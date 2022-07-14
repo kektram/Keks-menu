@@ -823,3 +823,6 @@ Type in number of notifications to display. §输入要显示的通知数量.
 They were spoofing as §他正在伪装为
 The green line is where it will align itself to if there's enough space. §如果有足够的屏幕空间,绿线就是对齐的位置.
 The text is auto aligned to never be off-screen. §文字是自动对齐的,永远不会超过屏幕.
+Attempt %i / %i to fetch %s. §尝试获取 %i / %i,%s.
+Failed to fetch %s with error: %s §获取 %s 失败,错误: %s
+Successfully fetched %s. §成功获取了 %s.
