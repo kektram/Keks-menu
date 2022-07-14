@@ -128,7 +128,7 @@ globals.player_global_indices = essentials.const({
 ** FREEMODE used was obtained 27-04-2022 [GTA V build 2628 (GTA Online 1.60)]
 	995853474, -- Collectibles [10 collectible unlocks, 7.5k cash each]
 		f_1 == player.player_id(), 
-		f_2 == 1, -- bool
+		f_2 == 1, -- What type of collectible to give
 		f_3 == 0-9, -- What stat hash to get from index 0 to 9; stat ids: 30241 - 30250
 		f_4 == 1, -- bool 
 		f_5 == 0, -- bool

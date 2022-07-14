@@ -65,84 +65,81 @@ function essentials.add_chat_event_listener(callback) -- Fixes crash if someone 
 	end)
 end
 
-do 
-	local sign_bit_x <const> = 1 << 62
-	local sign_bit_y <const> = 1 << 61
-	local sign_bit_z <const> = 1 << 60
-	local max_20_bit_num <const> = 1048575
-	function essentials.pack_3_nums(x, y, z)
-		local xi = x * 100 // 1
-		local yi = y * 100 // 1
-		local zi = z * 100 // 1
-		essentials.assert(
-			xi >= -max_20_bit_num 
-			and xi <= max_20_bit_num 
-			and yi >= -max_20_bit_num 
-			and yi <= max_20_bit_num 
-			and zi >= -max_20_bit_num
-			and zi <= max_20_bit_num, "Number is too big to be packed.",
-			x, y, z
-		)
+function essentials.pack_3_nums(x, y, z)
+	local xi = x * 100 // 1
+	local yi = y * 100 // 1
+	local zi = z * 100 // 1
 
-		local signs = 0
-		if xi < 0 then
-			xi = xi * -1
-			signs = signs | sign_bit_x
-		end
-		if yi < 0 then
-			yi = yi * -1
-			signs = signs | sign_bit_y
-		end
-		if zi < 0 then
-			zi = zi * -1
-			signs = signs | sign_bit_z
-		end
-		return signs | xi << 40 | yi << 20 | zi
+	local signs = 0
+	if xi < 0 then
+		xi = xi * -1
+		signs = signs | 1 << 62
 	end
+	if yi < 0 then
+		yi = yi * -1
+		signs = signs | 1 << 61
+	end
+	if zi < 0 then
+		zi = zi * -1
+		signs = signs | 1 << 60
+	end
+	return signs | xi << 40 | yi << 20 | zi
 end
 
-do
-	local sign_bit_x <const> = 1 << 62
-	local sign_bit_y <const> = 1 << 61
-	local max_30_bit_num <const> = 1073741823
-	function essentials.pack_2_nums(x, y)
-		local xi = x * 100 // 1
-		local yi = y * 100 // 1
-		essentials.assert(
-			xi >= -max_30_bit_num 
-			and xi <= max_30_bit_num 
-			and yi >= -max_30_bit_num 
-			and yi <= max_30_bit_num,
-			"Number is too big to be packed.",
-			x, y
-		)
-
-		local signs = 0
-		if xi < 0 then
-			xi = xi * -1
-			signs = signs | sign_bit_x
-		end
-		if yi < 0 then
-			yi = yi * -1
-			signs = signs | sign_bit_y
-		end
-		return signs | xi << 30 | yi
-	end
+function essentials.unpack_3_nums(packed_num)
+	local sign_bit_1 <const> = packed_num & 1 << 60 ~= 0
+	local sign_bit_2 <const> = packed_num & 1 << 61 ~= 0
+	local sign_bit_3 <const> = packed_num & 1 << 62 ~= 0
+	
+	packed_num = packed_num & 0xFFFFFFFFFFFFFFF
+	
+	return
+		sign_bit_3 and -((packed_num >> 40 & 0xFFFFF) / 100) or ((packed_num >> 40 & 0xFFFFF) / 100),
+		sign_bit_2 and -((packed_num >> 20 & 0xFFFFF) / 100) or ((packed_num >> 20 & 0xFFFFF) / 100),
+		sign_bit_1 and -((packed_num       & 0xFFFFF) / 100) or ((packed_num       & 0xFFFFF) / 100)
 end
 
-function essentials.pack_2_positive_integers(x, y)
-	return 0 | x << 31 | y
+function essentials.pack_2_nums(x, y)
+	local xi = x * 1000 // 1
+	local yi = y * 1000 // 1
+
+	local signs = 0
+	if xi < 0 then
+		xi = xi * -1
+		signs = signs | 1 << 62
+	end
+	if yi < 0 then
+		yi = yi * -1
+		signs = signs | 1 << 61
+	end
+	return signs | xi << 30 | yi
+end
+
+function essentials.unpack_2_nums(packed_num)
+	local sign_bit_1 <const> = packed_num & 1 << 61 ~= 0
+	local sign_bit_2 <const> = packed_num & 1 << 62 ~= 0
+	
+	packed_num = packed_num & 0xFFFFFFFFFFFFFFF	
+
+	return
+		sign_bit_2 and -((packed_num >> 30 & 0x3FFFFFFF) / 1000) or ((packed_num >> 30 & 0x3FFFFFFF) / 1000),
+		sign_bit_1 and -((packed_num	   & 0x3FFFFFFF) / 1000) or ((packed_num	   & 0x3FFFFFFF) / 1000)
 end
 
 function essentials.get_rgb(r, g, b, a)
-	return ((a or 0) << 24) | (b << 16) | (g << 8) | r
+	return 
+		((a or 0) << 24) 
+		| (b << 16) 
+		| (g << 8) 
+		| r
 end
 
-function essentials.rgb_to_bytes(uint32_rgb)
+function essentials.rgb_to_bytes(uint32_rgba)
 	return
-		(uint32_rgb << 56 >> 56),
-		(uint32_rgb << 48 >> 56),
-		(uint32_rgb >> 16)
+		(uint32_rgba      ) & 0xFF, -- R
+		(uint32_rgba >>  8) & 0xFF, -- G
+		(uint32_rgba >> 16) & 0xFF, -- B
+		(uint32_rgba >> 24) & 0xFF  -- A
 end
 
 function essentials.get_max_variadic(...)
@@ -154,46 +151,11 @@ function essentials.get_max_variadic(...)
 	return max
 end
 
-function essentials.unpack_3_nums(packed_num)
-	local sign_bit_1, sign_bit_2, sign_bit_3 = 1, 1, 1
-	if packed_num & 1 << 60 ~= 0 then sign_bit_1 = -1 end
-	if packed_num & 1 << 61 ~= 0 then sign_bit_2 = -1 end
-	if packed_num & 1 << 62 ~= 0 then sign_bit_3 = -1 end
-	
-	-- Clear sign bits
-	packed_num = packed_num & (packed_num ~ (1 << 60))
-	packed_num = packed_num & (packed_num ~ (1 << 61))
-	packed_num = packed_num & (packed_num ~ (1 << 62))
-	
-	return
-		(packed_num >> 40) / 100 * sign_bit_3,
-		(packed_num << 24 >> 44) / 100 * sign_bit_2,
-		(packed_num << 44 >> 44) / 100 * sign_bit_1
-end
-
-function essentials.unpack_2_nums(packed_num)
-	local sign_bit_1, sign_bit_2 = 1, 1
-	if packed_num & 1 << 61 ~= 0 then sign_bit_1 = -1 end
-	if packed_num & 1 << 62 ~= 0 then sign_bit_2 = -1 end
-	
-	-- Clear sign bits
-	packed_num = packed_num & (packed_num ~ (1 << 61))
-	packed_num = packed_num & (packed_num ~ (1 << 62))
-	
-	return
-		(packed_num >> 30) / 1000 * sign_bit_2,
-		(packed_num << 34 >> 34) / 1000 * sign_bit_1
-end
-
---[[
-	These functions replicates exactly what the originals did with one exception; they won't work on protected metatables.
-	A protected metatable have its __metatable set to something that isn't nil.
---]]
 function essentials.rawset(...)
 	local Table <const>, 
 	index <const>, 
 	value <const> = ...
-	local metatable <const> = getmetatable(Table)
+	local metatable <const> = debug.getmetatable(Table)
 	local __newindex
 	if metatable then
 		__newindex = metatable.__newindex
@@ -209,7 +171,7 @@ function essentials.rawget(...)
 	local Table <const>,
 	index <const> = ...
 	local __index
-	local metatable <const> = getmetatable(Table)
+	local metatable <const> = debug.getmetatable(Table)
 	if metatable then
 		__index = metatable.__index
 		metatable.__index = nil
@@ -224,17 +186,17 @@ end
 do
 	local _ENV <const> = { -- 12% faster, 20% less garbage created
 		essentials = essentials,
-		getmetatable = getmetatable, 
+		getmetatable = debug.getmetatable, 
 		setmetatable = setmetatable, 
 		assert = essentials.assert,
 		__newindex = function()
 			essentials.assert(false, "Tried to modify a read-only table.")
 		end,
 		__pairs = function(Table)
-			return next, getmetatable(Table).__index
+			return next, debug.getmetatable(Table).__index
 		end,
 		__len = function(Table)
-			return #getmetatable(Table).__index
+			return #debug.getmetatable(Table).__index
 		end
 	}
 
@@ -354,6 +316,9 @@ end
 do
 	local v3_mt <const>, v2_mt <const> = debug.getmetatable(memoize.v3()), debug.getmetatable(memoize.v2())
 	function essentials.deep_copy(object, keep_meta, tracker)
+		if object == nil then
+			return nil
+		end
 		tracker = tracker or {}
 		if tracker[object] then 
 			return tracker[object] 
@@ -405,7 +370,7 @@ do
 	local math_type <const> = math.type
 	local next <const> = next
 	function essentials.entities(Table)
-		local mt <const> = getmetatable(Table)
+		local mt <const> = debug.getmetatable(Table)
 		if mt and mt.__is_const then
 			Table = mt.__index
 		end
@@ -1201,7 +1166,7 @@ function essentials.draw_auto_adjusted_text(...)
 	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
 	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
 
-	local pos <const> = memoize.v2(-size.x, size.y) / 2
+	local pos <const> = v2(-size.x, size.y) / 2
 	pos.y = type(y_pos) == "table" and y_pos.y or y_pos or pos.y
 
 	scriptdraw.draw_text(
@@ -1554,6 +1519,7 @@ function essentials.update_keks_menu()
 			end
 
 			update_status = "done"
+			system.yield(0)
 			essentials.show_changelog()
 			system.yield(0) -- show_changelog creates a thread
 			__kek_menu = nil
@@ -1616,7 +1582,13 @@ function essentials.set_all_player_feats_except(...)
 end
 
 function essentials.dec_to_ipv4(ip)
-	return string.format("%i.%i.%i.%i", ip >> 24 & 255, ip >> 16 & 255, ip >> 8 & 255, ip & 255)
+	return string.format(
+		"%i.%i.%i.%i", 
+		ip >> 24 & 0xFF, 
+		ip >> 16 & 0xFF, 
+		ip >> 8  & 0xFF, 
+		ip 		 & 0xFF
+	)
 end
 
 function essentials.ipv4_to_dec(...)

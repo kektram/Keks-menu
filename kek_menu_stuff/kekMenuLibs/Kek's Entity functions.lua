@@ -30,9 +30,9 @@ kek_entity.entity_manager = {
 		[5] = "object"
 	},
 	flag_to_str = {
-		[1 << 6] = "vehicle",
-		[1 << 7] = "ped",
-		[1 << 8] = "object"
+		[1 << 5] = "vehicle",
+		[1 << 6] = "ped",
+		[1 << 7] = "object"
 	},
 	entity_type_to_return_type = setmetatable({
 		[3] = "is_vehicle_limit_not_breached",
@@ -50,14 +50,14 @@ do
 	function kek_entity.entity_manager:update() -- Weight can't be more than 31. Weight has 5 bits to work with.
 		for Entity, flags in pairs(self.entities) do
 			if not entity.is_an_entity(Entity) then
-				local weight <const> = flags << 59 >> 59
-				local entity_type <const> = (flags << 55 >> 60) << 5
+				local weight <const> = flags & 0x1F
+				local entity_type <const> = flags & 0xE0
 				local type_string <const> = self.flag_to_str[entity_type]
 				self.counts[type_string] = self.counts[type_string] - weight
 				self.entities[Entity] = nil
 			end
 		end
-		update_buf.is_ped_limit_not_breached = self.counts.ped <= settings.valuei["Ped limits"].value * 10 and #memoize.get_all_peds() < 135.0
+		update_buf.is_ped_limit_not_breached = self.counts.ped <= settings.valuei["Ped limits"].value * 10
 
 		update_buf.is_object_limit_not_breached = self.counts.object < settings.valuei["Object limits"].value * 10
 
@@ -85,11 +85,11 @@ setmetatable(kek_entity.entity_manager, {
 		and not Table.entities[Entity] 
 		and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
 			weight = math.tointeger(weight)
-			if not weight or weight > 30 or (weight ~= 0 and weight < 1) then -- In case other scripts accidentally pass a value as weight
-				weight = 15
+			if math.type(weight) ~= "integer" or weight > 31 or (weight ~= 0 and weight < 1) then -- In case other scripts accidentally pass a value as weight
+				weight = 10
 			end
 			local type_string <const> = Table.entity_type_to_str[entity.get_entity_type(Entity)] or "object"
-			local flags <const> = weight | (1 << (3 + entity_type))
+			local flags <const> = weight | (1 << (2 + entity_type))
 
 			Table.entities[Entity] = flags
 			Table.counts[type_string] = Table.counts[type_string] + weight

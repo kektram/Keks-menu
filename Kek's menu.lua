@@ -32,7 +32,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b25 test",
+	version = "0.4.8.0.b26",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -6701,7 +6701,7 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 	elseif essentials.is_str(f, "waypoint") then
 		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), false, f)
 	elseif essentials.is_str(f, "Mount Chiliad & kill") then
-		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), true) then
+		if kek_entity.teleport_player_and_vehicle_to_position(pid, v3(491.9401550293, 5587, 794.00347900391), true) then
 			globals.disable_vehicle(pid)
 			system.yield(1500)
 			for i = 1, 20 do
