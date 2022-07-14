@@ -1,3 +1,3 @@
-Fixed a bug in Hurricane where it sometimes didn't clear all spawned vehicles
-Improved script updater download feedback
-Script updater now tries to download each file 3 times to handle random temporary failures
+Everything that needs metatables of unknown tables can now handle protected metatables too
+Fixed a major bug that could cause issues in various features [complicated to explain]
+Changed many bitwise operations to do them in better, more readable ways
