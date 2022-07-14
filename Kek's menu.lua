@@ -32,7 +32,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b26",
+	version = "0.4.8.0.b27",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -3868,18 +3868,21 @@ end)
 settings.toggle["Chat logger"] = menu.add_feature(lang["Chat logger"], "toggle", u.chat_stuff.id, function(f)
 	if f.on then
 		essentials.listeners["chat"]["logger"] = essentials.add_chat_event_listener(function(event)
-			if player.is_player_valid(event.player)
-			and (not f.data[player.get_player_scid(event.player)] or utils.time_ms() + 10000 > f.data[player.get_player_scid(event.player)]) then
-				local name <const> = player.get_player_name(event.player)..string.rep("\32", 16 - (utf8.len(player.get_player_name(event.player):sub(1, 16)) or #player.get_player_name(event.player):sub(1, 16)))
-				local str <const> = {}
+			local sender <const> = event.sender
+			local is_chat_spoofing <const> = event.player ~= event.sender
+			local victim_of_chat_spoofing <const> = event.player
+			if player.is_player_valid(sender)
+			and (not f.data[player.get_player_scid(sender)] or utils.time_ms() + 10000 > f.data[player.get_player_scid(sender)]) then
+				local name <const> = player.get_player_name(sender)..string.rep("\32", 16 - (utf8.len(player.get_player_name(sender):sub(1, 16)) or #player.get_player_name(sender):sub(1, 16)))
+				local str <const> = {is_chat_spoofing and string.format("%s %s:", lang["They were spoofing as"], player.get_player_name(victim_of_chat_spoofing)) or nil}
 				for line in event.body:gmatch("[^\n\r]+") do
 					str[#str + 1] = string.format("[%s][%s]: %s\n", name, os.date(), line)
 				end
 				essentials.log(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log", table.concat(str, "\n"))
-				if f.data[player.get_player_scid(event.player)] and utils.time_ms() < f.data[player.get_player_scid(event.player)] then
-					f.data[player.get_player_scid(event.player)] = f.data[player.get_player_scid(event.player)] + 2000
+				if f.data[player.get_player_scid(sender)] and utils.time_ms() < f.data[player.get_player_scid(sender)] then
+					f.data[player.get_player_scid(sender)] = f.data[player.get_player_scid(sender)] + 2000
 				else
-					f.data[player.get_player_scid(event.player)] = utils.time_ms() + 1000
+					f.data[player.get_player_scid(sender)] = utils.time_ms() + 1000
 				end
 			end
 			system.yield(0)

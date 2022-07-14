@@ -1556,87 +1556,19 @@ do
 	end
 end
 
---[[
-	List of end vehicles is the first vehicle in each class except compacts, because compacts is the first class.
-	Using vehicle.get_all_vehicle_model_hashes().
---]]
-do
-	local vehicle_category_info <const> = essentials.const({
-		{class_name = lang["Compacts"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Sedans"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["SUVs"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Coupes"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Muscle"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Sports classics"], num_of_vehicles_in_class = 0},
-		{class_name = lang["Sports"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Super"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Motorcycles"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Off-Road"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Industrial"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Utility"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Vans"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Cycles"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Boats"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Helicopters"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Planes"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Service"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Emergency"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Military"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Commercial"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Trains"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Open Wheel"],		 num_of_vehicles_in_class = 0}
-	})
-
-do
-	local list_of_end_vehicles <const> = essentials.const({
-		2485144969, -- Asea
-		629969764, -- Astron
-		4289813342, -- Exemplar
-		2351681756, -- Nightshade
-		2049897956, -- Rapid_GT_Classic
-		970598228, -- Sultan
-		3612858749, -- Zorrusso
-		822018448, -- Defiler
-		2198148358, -- Technical
-		1353720154, -- Flatbed
-		3417488910, -- Trailer
-		219613597, -- Speedo_Custom
-		3061159916, -- Endurex_Race_Bike
-		3251507587, -- Marquis
-		2623428164, -- SuperVolito_Carbon
-		2621610858, -- Velum
-		3039269212, -- Trashmaster
-		1127131465, -- FIB
-		2014313426, -- Vetir
-		2157618379, -- Phantom
-		184361638, -- Freight_Train
-		1492612435 -- BR8
-	})
-	local i = 1
-	for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
-		if hash == list_of_end_vehicles[i] then
-			i = i + 1
-		end
-		vehicle_category_info[i].num_of_vehicles_in_class = vehicle_category_info[i].num_of_vehicles_in_class + 1
-	end
-end
-
-	function kek_entity.generate_vehicle_list(...)
-		local feat_type <const>,
-		feat_str <const>,
-		parent <const>,
-		value_i_func <const>,
-		func <const>,
-		add_to_vehicle_blacklist <const> = ...
-		local hashes <const> = vehicle.get_all_vehicle_model_hashes()
-		for i2, info in pairs(vehicle_category_info) do
-			local count = 0 -- Iteration ends at next end vehicle
-			for i = 1, i2 do
-				count = count + vehicle_category_info[i].num_of_vehicles_in_class
-			end
-			local parent <const> = menu.add_feature(info.class_name, "parent", parent.id, function(f)
-				if f.child_count == 0 then
-					for i = count - info.num_of_vehicles_in_class + 1, count do -- Iterates until reaching class end vehicle. Starts at previous class's end vehicle or index 1.
+function kek_entity.generate_vehicle_list(...)
+	local feat_type <const>,
+	feat_str <const>,
+	parent <const>,
+	value_i_func <const>,
+	func <const>,
+	add_to_vehicle_blacklist <const> = ...
+	for id, name in pairs(enums.vehicle_class_ids_to_name) do
+		local parent <const> = menu.add_feature(lang[name], "parent", parent.id, function(f)
+			if f.child_count == 0 then
+				local hashes <const> = vehicle.get_all_vehicle_model_hashes()
+				for i = 1, #hashes do
+					if vehicle.get_vehicle_class_from_name(hashes[i]) == id then
 						local feature <const> = menu.add_feature(vehicle_mapper.get_vehicle_name(hashes[i]), feat_type, f.id, func)
 						feature.data = hashes[i]
 						feature:set_str_data(feat_str)
@@ -1647,24 +1579,22 @@ end
 						end
 					end
 				end
-			end)
-		end
-	end
-
-	function kek_entity.generate_player_vehicle_list(...)
-		local feature_info <const>,
-		parent <const>,
-		func <const>,
-		initial_name <const> = ...
-		local hashes <const> = vehicle.get_all_vehicle_model_hashes()
-		for i2, info in pairs(vehicle_category_info) do
-			local count = 0 -- Iteration ends at next end vehicle
-			for i = 1, i2 do
-				count = count + vehicle_category_info[i].num_of_vehicles_in_class
 			end
-			local parent <const> = menu.add_player_feature(info.class_name, "parent", parent, function(f, pid)
-				if f.child_count == 0 then
-					for i = count - info.num_of_vehicles_in_class + 1, count do -- Iterates until reaching class end vehicle. Starts at previous class's end vehicle or index 1.
+		end)
+	end
+end
+
+function kek_entity.generate_player_vehicle_list(...)
+	local feature_info <const>,
+	parent <const>,
+	func <const>,
+	initial_name <const> = ...
+	for id, name in pairs(enums.vehicle_class_ids_to_name) do
+		local parent <const> = menu.add_player_feature(lang[name], "parent", parent, function(f, pid)
+			if f.child_count == 0 then
+				local hashes <const> = vehicle.get_all_vehicle_model_hashes()
+				for i = 1, #hashes do
+					if vehicle.get_vehicle_class_from_name(hashes[i]) == id then
 						local feature_id <const> = menu.add_player_feature(vehicle_mapper.get_vehicle_name(hashes[i])..initial_name, feature_info.type, f.id, func).id
 						local player_feat <const> = menu.get_player_feature(feature_id)
 						if feature_info.type:find("value_i", 1, true) then
@@ -1678,8 +1608,8 @@ end
 						end
 					end
 				end
-			end).id
-		end
+			end
+		end).id
 	end
 end
 
