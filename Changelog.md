@@ -1,3 +1,2 @@
-Everything that needs metatables of unknown tables can now handle protected metatables too
-Fixed a major bug that could cause issues in various features [complicated to explain]
-Changed many bitwise operations to do them in better, more readable ways
+Chat logger now handles chat spoofing
+Reworked how vehicle lists are generated in vehicle blacklist & spawn vehicles in player features
