@@ -32,7 +32,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b28 test 2",
+	version = "0.4.8.0.b29",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -4767,12 +4767,16 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 									else
 										blame = event.player
 									end
+									ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
+									system.yield(300)
 									local time <const> = utils.time_ms() + 900
 									while not player.is_player_dead(pid) and time > utils.time_ms() do
 										essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BARREL, true, false, 0, player.get_player_ped(blame))
 										system.yield(75)
 									end
-									kek_entity.ram_player(pid)
+									if not player.is_player_dead(pid) then
+										kek_entity.ram_player(pid)
+									end
 								end, nil)
 							end
 						elseif settings.in_use["Cage #chat command#"] and str:find("^%pcage") then
