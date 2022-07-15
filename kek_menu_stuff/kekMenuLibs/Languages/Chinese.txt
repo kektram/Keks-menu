@@ -480,7 +480,7 @@ Sedans §轿车
 SUVs §SUV
 Coupes §轿跑车
 Muscle §肌肉车
-Sports classics §经典跑车
+Sports Classics §经典跑车
 Sports §跑车
 Super §超级跑车
 Motorcycles §摩托车
