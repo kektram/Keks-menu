@@ -6574,15 +6574,15 @@ do
 -- If the api already have a function with the same name, it's not overwritten.
 -- NATIVES ACCEPT V3, EVEN IF IT ASKS FOR X,Y,Z ARGS. IN SOME CASES, YOU MUST USE V3 FOR IT TO WORK. (set_entity_rotation__native)
 	local _G_mt
-	if getmetatable(_G) then
-		_G_mt = getmetatable(_G)
+	if debug.getmetatable(_G) then
+		_G_mt = debug.getmetatable(_G)
 		setmetatable(_G, nil)
 	end
 
 	for category_name, category in pairs(ids) do
 		local mt
 		if _G[category_name] then -- Checks if 2take1's api have a table with the name
-			mt = getmetatable(_G[category_name])
+			mt = debug.getmetatable(_G[category_name])
 			setmetatable(_G[category_name], nil)
 		else
 			_G[category_name] = {} -- Debugger raises error if messing with _G

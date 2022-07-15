@@ -1,55 +1,10 @@
 -- Copyright © 2020-2022 Kektram
-if __kek_menu_version then 
+if __kek_menu then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
 end
 
-__kek_menu_version = "0.4.8.0.b22"
-__kek_menu_debug_mode = false
-__kek_menu_participate_in_betas = false
-__kek_menu_check_for_updates = false
-
 menu.create_thread(function()
-
-do -- Prevents crashes from messages, primarily error messages, when they contain invalid utf8 bytes.
-	local function check_msg_valid(message) 
-	--[[
-		Attempting to use https://en.wikipedia.org/wiki/Mao_Zedong as a message, getting the string via utils.from_clipboard, causes crash.
-		Most concerning would be grabbing data from files. There could be all kinds of corruption.
-		This will apply to all scripts loaded.
-		If these wrappers cause problems with your script, please report it.
-	--]]
-		if message and not utf8.len(message) then
-			message = message:gsub("[\0-\x7F\xC2-\xFD][\x80-\xBF]+", "")
-			message = message:gsub("[\x80-\xFF]", "")
-		end
-		return message
-	end
-
-	local newindex <const> = getmetatable(menu).__newindex
-	local original <const> = menu.notify
-	getmetatable(menu).__newindex = nil
-	menu.notify = function(message, title, seconds, color)
-		original(check_msg_valid(message), title, seconds, color)
-	end
-	getmetatable(menu).__newindex = newindex
-
-	local original <const> = error
-	error = function(message, level)
-		if type(message) ~= "number" and type(message) ~= "string" then
-			original("Error message must be a number or a string.", (level and level + 1 or 2))
-		end
-		original(check_msg_valid(message).."\nIf you see this error, check the full traceback. Kek's menu wraps the error, assert and notify function to fix certain crashes.", (level and level + 1 or 2))
-	end
-
-	local original <const> = assert
-	assert = function(condition, message)
-		if not condition then -- Done like this to not have to concatenate unless needed
-			print("If you see this error, check the full traceback. Kek's menu wraps the error, assert and notify function to fix certain crashes.")
-		end
-		return original(condition, check_msg_valid(message))
-	end
-end
 
 local paths <const> = {
 	home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"
@@ -69,41 +24,19 @@ paths.ini_vehicles = paths.home.."scripts\\Ini vehicles"
 paths.menyoo_vehicles = paths.home.."scripts\\Menyoo vehicles"
 paths.menyoo_maps = paths.home.."scripts\\Menyoo maps"
 
+collectgarbage("incremental", 110, 100)
+math.randomseed(math.floor(os.clock()) + os.time())
+
 if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1, true) then
 	package.path = paths.kek_menu_stuff.."kekMenuLibs\\?.lua;"..package.path
 end
 
-if utils.file_exists(paths.kek_settings) 
-and utils.file_exists(paths.debugger) then
-	local file = io.open(paths.kek_settings)
-	if file then
-		local str <const> = file:read("*a")
-		file:close()
-		if str:match("Debug mode=(%a%a%a%a)") == "true" then
-			__kek_menu_debug_mode = true
-			dofile(paths.debugger)
-		end
-		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
-			__kek_menu_participate_in_betas = true
-		end
-		if str:match("Check for updates=(%a%a%a%a)") == "true" then
-			__kek_menu_check_for_updates = true
-		end
-	end
-else
-	__kek_menu_check_for_updates = true
-	local file <const> = io.open(paths.kek_settings, "w+")
-	file:close()
-end
-
-collectgarbage("incremental", 110, 100)
-math.randomseed(math.floor(os.clock()) + os.time())
-
-local u <const> = {}
-local player_feat_ids <const> = {}
-
-do -- Makes sure each library is loaded once and that every time one is required, has the same environment as the others
-	local original_require <const> = require
+__kek_menu = {
+	version = "0.4.8.0.b27",
+	debug_mode = false,
+	participate_in_betas = false,
+	check_for_updates = false,
+	original_require = require,
 	require = function(...)
 		local name <const> = ...
 		assert(utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua"), "Tried to require a file that doesn't exist.")
@@ -111,56 +44,115 @@ do -- Makes sure each library is loaded once and that every time one is required
 		
 		local lib = package.loaded[name] 
 		or __kek_menu_has_done_update and dofile(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua")
-		or original_require(name)
+		or __kek_menu.original_require(name)
 
 		if not package.loaded[name] then
 			package.loaded[name] = lib
 		end
 		return package.loaded[name]
 	end
+}
 
-	for name, version in pairs({
-		["Kek's Language"] = "1.0.0",
-		["Kek's Settings"] = "1.0.2",
-		["Kek's Essentials"] = "1.5.3",
-		["Kek's Memoize"] = "1.0.1",
-		["Kek's Enums"] = "1.0.5",
-		["Kek's Vehicle mapper"] = "1.3.9", 
-		["Kek's Ped mapper"] = "1.2.7",
-		["Kek's Object mapper"] = "1.2.7", 
-		["Kek's Globals"] = "1.3.6",
-		["Kek's Weapon mapper"] = "1.0.5",
-		["Kek's Location mapper"] = "1.0.2",
-		["Kek's Keys and input"] = "1.0.7",
-		["Kek's Drive style mapper"] = "1.0.4",
-		["Kek's Menyoo spawner"] = "2.2.5",
-		["Kek's Entity functions"] = "1.2.7",
-		["Kek's Trolling entities"] = "1.0.7",
-		["Kek's Custom upgrades"] = "1.0.2",
-		["Kek's Admin mapper"] = "1.0.4",
-		["Kek's Menyoo saver"] = "1.0.9",
-		["Kek's Natives"] = "1.0.1"
-	}) do
-		if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
-			menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
-			error(package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."])
-		else
-			require(name)
-		end
-		if package.loaded[name].version ~= version then
-			menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."], name), "Kek's "..__kek_menu_version, 6, 0xff0000ff)
-			error(package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."])
-		end
+require = __kek_menu.require
+for name, version in pairs({
+	["Kek's Language"] = "1.0.0",
+	["Kek's Enums"] = "1.0.5",
+	["Kek's Settings"] = "1.0.2",
+	["Kek's Memoize"] = "1.0.1",
+	["Kek's Essentials"] = "1.5.5"
+}) do
+	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
+		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
+		error(package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."])
+	else
+		require(name)
 	end
-	require = original_require
+	if package.loaded[name].version ~= version then
+		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
+		error(package.loaded["Kek's Language"].lang["There's a library file which is the wrong version, please reinstall kek's menu."])
+	end
 end
+require = __kek_menu.original_require
 
 local language <const> = package.loaded["Kek's Language"]
-local settings <const> = package.loaded["Kek's Settings"]
 local lang <const> = language.lang
+local settings <const> = package.loaded["Kek's Settings"]
 local essentials <const> = package.loaded["Kek's Essentials"]
 local memoize <const> = package.loaded["Kek's Memoize"]
 local enums <const> = package.loaded["Kek's Enums"]
+
+if not menu.is_trusted_mode_enabled(1 << 2) then
+	essentials.msg(lang["You must turn on trusted mode->Natives to use this script."], "red", true, 6)
+	return
+end
+
+if not menu.is_trusted_mode_enabled(1 << 3) then
+	essentials.msg(lang["You must turn on trusted mode->Http to use this script."], "red", true, 6)
+	return
+end
+
+if utils.file_exists(paths.kek_settings) then
+	local file = io.open(paths.kek_settings)
+	if file then
+		local str <const> = file:read("*a")
+		file:close()
+		if utils.file_exists(paths.debugger) and str:match("Debug mode=(%a%a%a%a)") == "true" then
+			__kek_menu.debug_mode = true
+			dofile(paths.debugger)
+		end
+		if str:match("Participate in betas=(%a%a%a%a)") == "true" then
+			__kek_menu.participate_in_betas = true
+		end
+		if str:match("Check for updates=(%a%a%a%a)") == "true" then
+			__kek_menu.check_for_updates = true
+		end
+	end
+else
+	__kek_menu.check_for_updates = true
+	local file <const> = io.open(paths.kek_settings, "w+")
+	file:close()
+end
+
+if __kek_menu.check_for_updates then
+	if essentials.update_keks_menu() == "has updated" then
+		return
+	end
+end
+
+local u <const> = {}
+local player_feat_ids <const> = {}
+
+require = __kek_menu.require
+for name, version in pairs({
+	["Kek's Vehicle mapper"] = "1.3.9", 
+	["Kek's Ped mapper"] = "1.2.7",
+	["Kek's Object mapper"] = "1.2.7", 
+	["Kek's Globals"] = "1.3.6",
+	["Kek's Weapon mapper"] = "1.0.5",
+	["Kek's Location mapper"] = "1.0.2",
+	["Kek's Keys and input"] = "1.0.7",
+	["Kek's Drive style mapper"] = "1.0.4",
+	["Kek's Menyoo spawner"] = "2.2.5",
+	["Kek's Entity functions"] = "1.2.7",
+	["Kek's Trolling entities"] = "1.0.7",
+	["Kek's Custom upgrades"] = "1.0.2",
+	["Kek's Admin mapper"] = "1.0.4",
+	["Kek's Menyoo saver"] = "1.0.9",
+	["Kek's Natives"] = "1.0.1"
+}) do
+	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
+		menu.notify(string.format("%s [%s]", lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
+		error(lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."])
+	else
+		require(name)
+	end
+	if package.loaded[name].version ~= version then
+		menu.notify(string.format("%s [%s]", lang["There's a library file which is the wrong version, please reinstall kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
+		error(lang["There's a library file which is the wrong version, please reinstall kek's menu."])
+	end
+end
+require = __kek_menu.original_require
+
 local weapon_mapper <const> = package.loaded["Kek's Weapon mapper"]
 local location_mapper <const> = package.loaded["Kek's Location mapper"]
 local keys_and_input <const> = package.loaded["Kek's Keys and input"]
@@ -177,19 +169,214 @@ local admin_mapper <const> = package.loaded["Kek's Admin mapper"]
 local menyoo_saver <const> = package.loaded["Kek's Menyoo saver"]
 local natives <const> = package.loaded["Kek's Natives"]
 
-if not menu.is_trusted_mode_enabled(1 << 2) then
-	essentials.msg(lang["You must turn on trusted mode->Natives to use this script."], "red", true, 6)
-	return
-end
+do -- What kek's menu modifies in the global space. The natives library adds to the global space, but never modifies anything.
+	do
+		local function check_msg_valid(message) 
+		--[[
+			Attempting to use https://en.wikipedia.org/wiki/Mao_Zedong as a message, getting the string via utils.from_clipboard, causes crash.
+			Most concerning would be grabbing data from files. There could be all kinds of corruption.
+			This will apply to all scripts loaded.
+			If these wrappers cause problems with your script, please report it.
+		--]]
+			if message and not utf8.len(message) then
+				message = message:gsub("[\0-\x7F\xC2-\xFD][\x80-\xBF]+", "")
+				message = message:gsub("[\x80-\xFF]", "")
+			end
+			return message
+		end
 
-if not menu.is_trusted_mode_enabled(1 << 3) then
-	essentials.msg(lang["You must turn on trusted mode->Http to use this script."], "red", true, 6)
-	return
-end
+		local original <const> = menu.notify
+		menu.notify = function(message, title, seconds, color)
+			original(check_msg_valid(message), title, seconds, color)
+		end
 
-if __kek_menu_check_for_updates then
-	if essentials.update_keks_menu() == "has updated" then
-		return
+		local original <const> = error
+		error = function(message, level)
+			if type(message) ~= "number" and type(message) ~= "string" then
+				original("Error message must be a number or a string.", (level and level + 1 or 2))
+			end
+			original(check_msg_valid(message).."\nIf you see this error, check the full traceback. Kek's menu wraps the error, assert and notify function to fix certain crashes.", (level and level + 1 or 2))
+		end
+
+		local original <const> = assert
+		assert = function(condition, message)
+			if not condition then -- Done like this to not have to concatenate unless needed
+				print("If you see this error, check the full traceback. Kek's menu wraps the error, assert and notify function to fix certain crashes.")
+			end
+			return original(condition, check_msg_valid(message))
+		end
+	end
+
+	do
+		--[[
+			This sets the __close metamethod for all files.
+			When local variables storing a file object goes out of scope,
+			the file is automatically closed with this metamethod.
+		--]]
+		local file <close> = io.open(debug.getinfo(1).source:sub(2, -1))
+		assert(io.type(file) == "file", "Failed to get file metatable.")
+		getmetatable(file).__close = function(file)
+			if io.type(file) == "file" then
+				file:close()
+			end
+		end
+	end
+
+	do
+		local originals <const> = essentials.const({
+			add_feature = menu.add_feature,
+			add_player_feature = menu.add_player_feature,
+		})
+
+		local feat_err_msg <const> = "This error might be related to your script, not necessarily Kek's menu. Either the parent id or feature type specified is incorrect."
+		menu.add_feature = function(...)
+			local name <const>,
+			Type <const>,
+			parent <const>,
+			func <const> = ...
+			local feat
+			local type <const> = type
+			essentials.assert(utf8.len(name), "Tried to create a feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
+			if type(func) == "function" then
+				feat = originals.add_feature(name, Type, parent, function(f, data)
+					if type(f) ~= "number" then
+						if func(f, data) == HANDLER_CONTINUE then
+							return HANDLER_CONTINUE
+						end
+					end
+				end)
+			else
+				feat = originals.add_feature(name, Type, parent)
+			end
+			essentials.assert(
+				feat, "Failed to create feature:",
+				feat_err_msg,
+				"Feature name: ",
+				name, 
+				debug.getinfo(2, "S").source, 
+				"line:",
+				debug.getinfo(2, "l").currentline
+			)
+			return feat
+		end
+		menu.add_player_feature = function(...)
+			local name <const>,
+			Type <const>,
+			parent <const>,
+			func <const> = ...
+			local feat
+			local type <const> = type
+			essentials.assert(utf8.len(name), "Tried to create a player feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
+			if type(func) == "function" then
+				feat = originals.add_player_feature(name, Type, parent, function(f, pid, data)
+					if type(f) ~= "number" then -- Must check if not a number, custom UIs pass table instead of userdata.
+						if func(f, pid, data) == HANDLER_CONTINUE then
+							return HANDLER_CONTINUE
+						end
+					end
+				end)
+			else
+				feat = originals.add_player_feature(name, Type, parent)
+			end
+			essentials.assert(
+				feat, "Failed to create player feature:", 
+				feat_err_msg,
+				"Feature name: ",
+				name,
+				debug.getinfo(2, "S").source, 
+				"line:",
+				debug.getinfo(2, "l").currentline
+			)
+			return feat
+		end
+	end
+
+	do
+		local originals <const> = essentials.const({
+			create_vehicle = vehicle.create_vehicle,
+			create_ped = ped.create_ped,
+			clone_ped = ped.clone_ped,
+			create_object = object.create_object,
+			create_world_object = object.create_world_object,
+			request_control_of_entity = network.request_control_of_entity,
+		})
+
+		vehicle.create_vehicle = function(...)
+			local model <const>,
+			pos <const>,
+			heading <const>,
+			networked <const>,
+			alwaysFalse <const>,
+			weight <const> = ...
+			if weight == 0 or kek_entity.entity_manager:update().is_vehicle_limit_not_breached then
+				local Vehicle <const> = originals.create_vehicle(model, pos, heading, networked, alwaysFalse)
+				kek_entity.entity_manager[Vehicle] = math.tointeger(weight) or 10
+				return Vehicle
+			end
+			return 0
+		end
+
+		ped.create_ped = function(...)
+			local type <const>,
+			model <const>,
+			pos <const>,
+			heading <const>,
+			isNetworked <const>,
+			unk1 <const>,
+			weight <const> = ...
+			if weight == 0 or kek_entity.entity_manager:update().is_ped_limit_not_breached then
+				local Ped <const> = originals.create_ped(type, model, pos, heading, isNetworked, unk1)
+				kek_entity.entity_manager[Ped] = math.tointeger(weight) or 15
+				return Ped
+			end
+			return 0
+		end
+
+		ped.clone_ped = function(Ped)
+			if kek_entity.entity_manager:update().is_ped_limit_not_breached then
+				local clone <const> = originals.clone_ped(Ped)
+				if entity.is_an_entity(clone) then
+					kek_entity.entity_manager[clone] = 15
+				end
+				return clone
+			else
+				return 0
+			end
+		end
+
+		object.create_object = function(...)
+			if weight == 0 or kek_entity.entity_manager:update().is_object_limit_not_breached then
+				local Object <const> = originals.create_object(...)
+				local weight <const> = select(5, ...)
+				kek_entity.entity_manager[Object] = math.tointeger(weight) or 10
+				return Object
+			end
+			return 0
+		end
+
+		object.create_world_object = function(...)
+			if weight == 0 or kek_entity.entity_manager:update().is_object_limit_not_breached then
+				local world_object <const> = originals.create_world_object(...)
+				local weight <const> = select(5, ...)
+				kek_entity.entity_manager[world_object] = math.tointeger(weight) or 10
+				return world_object
+			end
+			return 0
+		end
+
+		network.request_control_of_entity = function(...)
+			local Entity <const>, no_condition <const> = ...
+
+			local is_entity_limit_breached <const> = kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]]
+
+			if no_condition 
+			or kek_entity.entity_manager.entities[Entity] -- Is entity accounted for, but you don't have control?
+			or is_entity_limit_breached then
+				return originals.request_control_of_entity(Entity)
+			else
+				return false
+			end
+		end
 	end
 end
 
@@ -217,110 +404,6 @@ local player_history <const> = {
 		end
 	})
 }
-
-do -- Extra functionality to api functions
-	local originals <const> = essentials.const({
-		create_vehicle = vehicle.create_vehicle,
-		create_ped = ped.create_ped,
-		clone_ped = ped.clone_ped,
-		create_object = object.create_object,
-		create_world_object = object.create_world_object,
-		request_control_of_entity = network.request_control_of_entity,
-		menu_newindex = getmetatable(menu).__newindex,
-		vehicle_newindex = getmetatable(vehicle).__newindex,
-		ped_newindex = getmetatable(ped).__newindex,
-		object_newindex = getmetatable(object).__newindex,
-		network_newindex = getmetatable(network).__newindex
-	})
-	getmetatable(menu).__newindex = nil
-	getmetatable(vehicle).__newindex = nil
-	getmetatable(ped).__newindex = nil
-	getmetatable(object).__newindex = nil
-	getmetatable(network).__newindex = nil
-
-	vehicle.create_vehicle = function(...)
-		local model <const>,
-		pos <const>,
-		heading <const>,
-		networked <const>,
-		alwaysFalse <const>,
-		weight <const> = ...
-		if weight == 0 or kek_entity.entity_manager:update().is_vehicle_limit_not_breached then
-			local Vehicle <const> = originals.create_vehicle(model, pos, heading, networked, alwaysFalse)
-			kek_entity.entity_manager[Vehicle] = math.tointeger(weight) or 10
-			return Vehicle
-		end
-		return 0
-	end
-
-	ped.create_ped = function(...)
-		local type <const>,
-		model <const>,
-		pos <const>,
-		heading <const>,
-		isNetworked <const>,
-		unk1 <const>,
-		weight <const> = ...
-		if weight == 0 or kek_entity.entity_manager:update().is_ped_limit_not_breached then
-			local Ped <const> = originals.create_ped(type, model, pos, heading, isNetworked, unk1)
-			kek_entity.entity_manager[Ped] = math.tointeger(weight) or 15
-			return Ped
-		end
-		return 0
-	end
-
-	ped.clone_ped = function(Ped)
-		if kek_entity.entity_manager:update().is_ped_limit_not_breached then
-			local clone <const> = originals.clone_ped(Ped)
-			if entity.is_an_entity(clone) then
-				kek_entity.entity_manager[clone] = 15
-			end
-			return clone
-		else
-			return 0
-		end
-	end
-
-	object.create_object = function(...)
-		if weight == 0 or kek_entity.entity_manager:update().is_object_limit_not_breached then
-			local Object <const> = originals.create_object(...)
-			local weight <const> = select(5, ...)
-			kek_entity.entity_manager[Object] = math.tointeger(weight) or 10
-			return Object
-		end
-		return 0
-	end
-
-	object.create_world_object = function(...)
-		if weight == 0 or kek_entity.entity_manager:update().is_object_limit_not_breached then
-			local world_object <const> = originals.create_world_object(...)
-			local weight <const> = select(5, ...)
-			kek_entity.entity_manager[world_object] = math.tointeger(weight) or 10
-			return world_object
-		end
-		return 0
-	end
-
-	network.request_control_of_entity = function(...)
-		local Entity <const>, no_condition <const> = ...
-
-		local is_entity_limit_breached <const> = kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]]
-
-		if no_condition 
-		or kek_entity.entity_manager.entities[Entity] -- Is entity accounted for, but you don't have control?
-		or is_entity_limit_breached then
-			return originals.request_control_of_entity(Entity)
-		else
-			return false
-		end
-	end
-
-	getmetatable(menu).__newindex = originals.menu_newindex
-	getmetatable(vehicle).__newindex = originals.vehicle_newindex
-	getmetatable(ped).__newindex = originals.ped_newindex
-	getmetatable(object).__newindex = originals.object_newindex
-	getmetatable(network).__newindex = originals.network_newindex
-end
 
 for _, folder_name in pairs({
 	"", 
@@ -1210,7 +1293,7 @@ do
 			local file <close> = io.open(paths.home.."scripts\\autoexec.lua", "w+")
 			file:write(table.concat({
 				"if false then return end",
-				"-- Version "..__kek_menu_version,
+				"-- Version "..__kek_menu.version,
 				"-- sjhvnciuyu44khdjkhUSx",
 				"local appdata_path <const> = utils.get_appdata_path(\"PopstarDevs\", \"2Take1Menu\")..\"\\\\\"",
 				"local scripts <const> = {}",
@@ -1375,7 +1458,7 @@ do
 				and memoize.get_player_coords(pid).z ~= -180
 				and not essentials.is_in_vehicle(pid)
 				and not player.is_player_modder(pid, -1)
-				and not entity.is_entity_dead(player.get_player_ped(pid))
+				and not player.is_player_dead(pid)
 				and essentials.is_not_friend(pid)
 				and interior.get_interior_from_entity(player.get_player_ped(pid)) == 0
 				and interior.get_interior_at_coords_with_type(memoize.get_player_coords(pid), "") == 0
@@ -1631,7 +1714,7 @@ end)
 settings.toggle["Revenge"] = menu.add_feature(lang["Revenge"], "value_str", u.protections.id, function(f)
 	while f.on do
 		system.yield(0)
-		if entity.is_entity_dead(player.get_player_ped(player.player_id())) then
+		if player.is_player_dead(player.player_id()) then
 			local pid <const> = network._network_get_player_killer_of_player(player.player_id()):__tointeger() -- is -1 if not killed by player
 			if player.is_player_valid(pid) and essentials.is_not_friend(pid) and player.can_player_be_modder(pid) and player.player_id() ~= pid then
 				if essentials.is_str(f, "Kill") then
@@ -1644,7 +1727,7 @@ settings.toggle["Revenge"] = menu.add_feature(lang["Revenge"], "value_str", u.pr
 					globals.script_event_crash(pid)
 				end
 			end
-			while f.on and entity.is_entity_dead(player.get_player_ped(player.player_id())) do
+			while f.on and player.is_player_dead(player.player_id()) do
 				system.yield(0)
 			end
 		end
@@ -1827,11 +1910,11 @@ menu.add_feature(lang["Show latest update changelog"], "action", u.settingsUI.id
 end)
 
 settings.toggle["Participate in betas"] = menu.add_feature(lang["Participate in betas"], "toggle", u.settingsUI.id, function(f)
-	__kek_menu_participate_in_betas = f.on
+	__kek_menu.participate_in_betas = f.on
 end)
 
 settings.toggle["Check for updates"] = menu.add_feature(lang["Check for updates"], "toggle", u.settingsUI.id, function(f)
-	__kek_menu_check_for_updates = f.on
+	__kek_menu.check_for_updates = f.on
 end)
 
 settings.toggle["Debug mode"] = menu.add_feature(lang["Debug mode"], "toggle", u.debug.id, function(f)
@@ -2355,7 +2438,7 @@ settings.user_entity_features.vehicle.feats["Ram everyone"] = menu.add_feature(l
 				if f.on
 				and essentials.is_not_friend(pid) 
 				and not player.is_player_god(pid)
-				and not entity.is_entity_dead(player.get_player_ped(pid)) then
+				and not player.is_player_dead(pid) then
 					entities[#entities + 1] = essentials.use_ptfx_function(kek_entity.spawn_and_push_a_vehicle_in_direction, pid, false, 8, hash)
 				end
 				if #entities > 0 then
@@ -2970,10 +3053,11 @@ settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_playe
 				end
 			end
 		end
+		kek_entity.clear_entities(vehicles)
 	end, nil)
 	while f.on do
 		system.yield(0)
-		if not entity.is_entity_dead(player.get_player_ped(pid)) then
+		if not player.is_player_dead(pid) then
 			for Vehicle in essentials.entities(essentials.deep_copy(vehicles)) do
 				if entity.is_entity_dead(Vehicle) then
 					kek_entity.repair_car(Vehicle)
@@ -2986,7 +3070,6 @@ settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_playe
 			end
 		end
 	end
-	kek_entity.clear_entities(vehicles)
 end).id
 
 menu.add_player_feature(lang["Perma-cage"], "toggle", u.malicious_player_features, function(f, pid)
@@ -3117,7 +3200,7 @@ do
 								elseif setting == "Explode" then
 									essentials.msg(string.format("%s %s's' %s.", lang["Vehicle blacklist:\nExploding"], name, veh_name), "orange", notif_on)		
 									local time <const> = utils.time_ms() + 2000
-									while time > utils.time_ms() and not entity.is_entity_dead(player.get_player_ped(pid)) do
+									while time > utils.time_ms() and not player.is_player_dead(pid) do
 										essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), math.random(0, essentials.number_of_explosion_types), true, false, 0, player.get_player_ped(pid))
 										system.yield(300)
 									end
@@ -3228,7 +3311,7 @@ menu.add_player_feature(lang["Kidnap player"], "toggle", u.player_trolling_featu
 		end, nil)
 		while f.on do
 			system.yield(0)
-			if not entity.is_entity_dead(player.get_player_ped(pid)) then
+			if not player.is_player_dead(pid) then
 				if not entity.is_entity_a_vehicle(van) then
 					van = kek_entity.spawn_networked_vehicle(gameplay.get_hash_key("stockade"), function()
 						return essentials.get_player_coords(pid) + memoize.v3(0, 0, 50), 0
@@ -3384,7 +3467,7 @@ menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, f
 				return f.on and essentials.is_str(f, "Mount Chiliad & kill")
 			end)
 			for i = 1, #players do
-				if not entity.is_entity_dead(player.get_player_ped(players[i])) then
+				if not player.is_player_dead(players[i]) then
 					for i2 = 1, 10 do
 						system.yield(0)
 						essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(players[i]), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(players[i]))
@@ -3544,7 +3627,7 @@ menu.add_feature(lang["Freeze session"], "toggle", u.session_malicious.id, funct
 		for pid in essentials.players() do
 			if essentials.is_not_friend(pid) 
 			and not player.is_player_modder(pid, -1) 
-			and not entity.is_entity_dead(player.get_player_ped(pid)) then
+			and not player.is_player_dead(pid) then
 				ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 			end
 		end
@@ -3785,18 +3868,21 @@ end)
 settings.toggle["Chat logger"] = menu.add_feature(lang["Chat logger"], "toggle", u.chat_stuff.id, function(f)
 	if f.on then
 		essentials.listeners["chat"]["logger"] = essentials.add_chat_event_listener(function(event)
-			if player.is_player_valid(event.player)
-			and (not f.data[player.get_player_scid(event.player)] or utils.time_ms() + 10000 > f.data[player.get_player_scid(event.player)]) then
-				local name <const> = player.get_player_name(event.player)..string.rep("\32", 16 - (utf8.len(player.get_player_name(event.player):sub(1, 16)) or #player.get_player_name(event.player):sub(1, 16)))
-				local str <const> = {}
+			local sender <const> = event.sender
+			local is_chat_spoofing <const> = event.player ~= event.sender
+			local victim_of_chat_spoofing <const> = event.player
+			if player.is_player_valid(sender)
+			and (not f.data[player.get_player_scid(sender)] or utils.time_ms() + 10000 > f.data[player.get_player_scid(sender)]) then
+				local name <const> = player.get_player_name(sender)..string.rep("\32", 16 - (utf8.len(player.get_player_name(sender):sub(1, 16)) or #player.get_player_name(sender):sub(1, 16)))
+				local str <const> = {is_chat_spoofing and string.format("%s %s:", lang["They were spoofing as"], player.get_player_name(victim_of_chat_spoofing)) or nil}
 				for line in event.body:gmatch("[^\n\r]+") do
 					str[#str + 1] = string.format("[%s][%s]: %s\n", name, os.date(), line)
 				end
 				essentials.log(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log", table.concat(str, "\n"))
-				if f.data[player.get_player_scid(event.player)] and utils.time_ms() < f.data[player.get_player_scid(event.player)] then
-					f.data[player.get_player_scid(event.player)] = f.data[player.get_player_scid(event.player)] + 2000
+				if f.data[player.get_player_scid(sender)] and utils.time_ms() < f.data[player.get_player_scid(sender)] then
+					f.data[player.get_player_scid(sender)] = f.data[player.get_player_scid(sender)] + 2000
 				else
-					f.data[player.get_player_scid(event.player)] = utils.time_ms() + 1000
+					f.data[player.get_player_scid(sender)] = utils.time_ms() + 1000
 				end
 			end
 			system.yield(0)
@@ -4682,7 +4768,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 										blame = event.player
 									end
 									local time <const> = utils.time_ms() + 900
-									while not entity.is_entity_dead(player.get_player_ped(pid)) and time > utils.time_ms() do
+									while not player.is_player_dead(pid) and time > utils.time_ms() do
 										essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BARREL, true, false, 0, player.get_player_ped(blame))
 										system.yield(75)
 									end
@@ -6618,7 +6704,7 @@ menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicl
 	elseif essentials.is_str(f, "waypoint") then
 		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), false, f)
 	elseif essentials.is_str(f, "Mount Chiliad & kill") then
-		if kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(491.9401550293, 5587, 794.00347900391), true) then
+		if kek_entity.teleport_player_and_vehicle_to_position(pid, v3(491.9401550293, 5587, 794.00347900391), true) then
 			globals.disable_vehicle(pid)
 			system.yield(1500)
 			for i = 1, 20 do
@@ -6921,7 +7007,7 @@ settings.user_entity_features.vehicle.player_feats["Ram player"] = menu.add_play
 			vehicle_name = settings.in_use["User vehicle"]
 			hash = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 		end
-		if streaming.is_model_a_vehicle(hash) and not entity.is_entity_dead(player.get_player_ped(pid)) then
+		if streaming.is_model_a_vehicle(hash) and not player.is_player_dead(pid) then
 			essentials.use_ptfx_function(kek_entity.spawn_and_push_a_vehicle_in_direction, pid, true, 8, hash)
 		end
 		system.yield(0)
@@ -7059,7 +7145,7 @@ u.atomize = menu.add_player_feature(lang["Atomize"], "slider", u.player_trolling
 		return
 	end
 	while f.on do
-		if not entity.is_entity_dead(player.get_player_ped(pid)) then
+		if not player.is_player_dead(pid) then
 			essentials.use_ptfx_function(
 				gameplay.shoot_single_bullet_between_coords, 
 				kek_entity.get_vector_relative_to_entity(kek_entity.get_most_relevant_entity(pid), 1),

@@ -1,27 +1,12 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.3"}
+local essentials <const> = {version = "1.5.5"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
 local enums <const> = require("Kek's Enums")
 local settings <const> = require("Kek's Settings")
 local memoize <const> = require("Kek's Memoize")
-
-do 
---[[
-	This sets the __close metamethod for all files.
-	When local variables storing a file object goes out of scope,
-	the file is automatically closed with this metamethod.
---]]
-	local file <close> = io.open(debug.getinfo(1).source:sub(2, -1))
-	assert(io.type(file) == "file", "Failed to get file metatable.")
-	getmetatable(file).__close = function(file)
-		if io.type(file) == "file" then
-			file:close()
-		end
-	end
-end
 
 essentials.listeners = {
 	player_leave = {},
@@ -80,86 +65,81 @@ function essentials.add_chat_event_listener(callback) -- Fixes crash if someone 
 	end)
 end
 
-do 
-	local sign_bit_x <const> = 1 << 62
-	local sign_bit_y <const> = 1 << 61
-	local sign_bit_z <const> = 1 << 60
-	local max_20_bit_num <const> = 1048575
-	function essentials.pack_3_nums(x, y, z)
-		local xi = x * 100 // 1
-		local yi = y * 100 // 1
-		local zi = z * 100 // 1
-		essentials.assert(
-			xi >= -max_20_bit_num 
-			and xi <= max_20_bit_num 
-			and yi >= -max_20_bit_num 
-			and yi <= max_20_bit_num 
-			and zi >= -max_20_bit_num
-			and zi <= max_20_bit_num, "Number is too big to be packed.",
-			x, y, z
-		)
+function essentials.pack_3_nums(x, y, z)
+	local xi = x * 100 // 1
+	local yi = y * 100 // 1
+	local zi = z * 100 // 1
 
-		local signs = 0
-		if xi < 0 then
-			xi = xi * -1
-			signs = signs | sign_bit_x
-		end
-		if yi < 0 then
-			yi = yi * -1
-			signs = signs | sign_bit_y
-		end
-		if zi < 0 then
-			zi = zi * -1
-			signs = signs | sign_bit_z
-		end
-		return signs | xi << 40 | yi << 20 | zi
+	local signs = 0
+	if xi < 0 then
+		xi = xi * -1
+		signs = signs | 1 << 62
 	end
+	if yi < 0 then
+		yi = yi * -1
+		signs = signs | 1 << 61
+	end
+	if zi < 0 then
+		zi = zi * -1
+		signs = signs | 1 << 60
+	end
+	return signs | xi << 40 | yi << 20 | zi
 end
 
-do
-	local sign_bit_x <const> = 1 << 62
-	local sign_bit_y <const> = 1 << 61
-	local max_30_bit_num <const> = 1073741823
-	function essentials.pack_2_nums(x, y)
-		local xi = x * 100 // 1
-		local yi = y * 100 // 1
-		essentials.assert(
-			xi >= -max_30_bit_num 
-			and xi <= max_30_bit_num 
-			and yi >= -max_30_bit_num 
-			and yi <= max_30_bit_num,
-			"Number is too big to be packed.",
-			x, y
-		)
-
-		local signs = 0
-		if xi < 0 then
-			xi = xi * -1
-			signs = signs | sign_bit_x
-		end
-		if yi < 0 then
-			yi = yi * -1
-			signs = signs | sign_bit_y
-		end
-		return signs | xi << 30 | yi
-	end
+function essentials.unpack_3_nums(packed_num)
+	local sign_bit_1 <const> = packed_num & 1 << 60 ~= 0
+	local sign_bit_2 <const> = packed_num & 1 << 61 ~= 0
+	local sign_bit_3 <const> = packed_num & 1 << 62 ~= 0
+	
+	packed_num = packed_num & 0xFFFFFFFFFFFFFFF
+	
+	return
+		sign_bit_3 and -((packed_num >> 40 & 0xFFFFF) / 100) or ((packed_num >> 40 & 0xFFFFF) / 100),
+		sign_bit_2 and -((packed_num >> 20 & 0xFFFFF) / 100) or ((packed_num >> 20 & 0xFFFFF) / 100),
+		sign_bit_1 and -((packed_num       & 0xFFFFF) / 100) or ((packed_num       & 0xFFFFF) / 100)
 end
 
-do
-	function essentials.pack_2_positive_integers(x, y)
-		return 0 | x << 31 | y
+function essentials.pack_2_nums(x, y)
+	local xi = x * 1000 // 1
+	local yi = y * 1000 // 1
+
+	local signs = 0
+	if xi < 0 then
+		xi = xi * -1
+		signs = signs | 1 << 62
 	end
+	if yi < 0 then
+		yi = yi * -1
+		signs = signs | 1 << 61
+	end
+	return signs | xi << 30 | yi
+end
+
+function essentials.unpack_2_nums(packed_num)
+	local sign_bit_1 <const> = packed_num & 1 << 61 ~= 0
+	local sign_bit_2 <const> = packed_num & 1 << 62 ~= 0
+	
+	packed_num = packed_num & 0xFFFFFFFFFFFFFFF	
+
+	return
+		sign_bit_2 and -((packed_num >> 30 & 0x3FFFFFFF) / 1000) or ((packed_num >> 30 & 0x3FFFFFFF) / 1000),
+		sign_bit_1 and -((packed_num	   & 0x3FFFFFFF) / 1000) or ((packed_num	   & 0x3FFFFFFF) / 1000)
 end
 
 function essentials.get_rgb(r, g, b, a)
-	return ((a or 0) << 24) | (b << 16) | (g << 8) | r
+	return 
+		((a or 0) << 24) 
+		| (b << 16) 
+		| (g << 8) 
+		| r
 end
 
-function essentials.rgb_to_bytes(uint32_rgb)
+function essentials.rgb_to_bytes(uint32_rgba)
 	return
-		(uint32_rgb << 56 >> 56),
-		(uint32_rgb << 48 >> 56),
-		(uint32_rgb >> 16)
+		(uint32_rgba      ) & 0xFF, -- R
+		(uint32_rgba >>  8) & 0xFF, -- G
+		(uint32_rgba >> 16) & 0xFF, -- B
+		(uint32_rgba >> 24) & 0xFF  -- A
 end
 
 function essentials.get_max_variadic(...)
@@ -171,46 +151,11 @@ function essentials.get_max_variadic(...)
 	return max
 end
 
-function essentials.unpack_3_nums(packed_num)
-	local sign_bit_1, sign_bit_2, sign_bit_3 = 1, 1, 1
-	if packed_num & 1 << 60 ~= 0 then sign_bit_1 = -1 end
-	if packed_num & 1 << 61 ~= 0 then sign_bit_2 = -1 end
-	if packed_num & 1 << 62 ~= 0 then sign_bit_3 = -1 end
-	
-	-- Clear sign bits
-	packed_num = packed_num & (packed_num ~ (1 << 60))
-	packed_num = packed_num & (packed_num ~ (1 << 61))
-	packed_num = packed_num & (packed_num ~ (1 << 62))
-	
-	return
-		(packed_num >> 40) / 100 * sign_bit_3,
-		(packed_num << 24 >> 44) / 100 * sign_bit_2,
-		(packed_num << 44 >> 44) / 100 * sign_bit_1
-end
-
-function essentials.unpack_2_nums(packed_num)
-	local sign_bit_1, sign_bit_2 = 1, 1
-	if packed_num & 1 << 61 ~= 0 then sign_bit_1 = -1 end
-	if packed_num & 1 << 62 ~= 0 then sign_bit_2 = -1 end
-	
-	-- Clear sign bits
-	packed_num = packed_num & (packed_num ~ (1 << 61))
-	packed_num = packed_num & (packed_num ~ (1 << 62))
-	
-	return
-		(packed_num >> 30) / 1000 * sign_bit_2,
-		(packed_num << 34 >> 34) / 1000 * sign_bit_1
-end
-
---[[
-	These functions replicates exactly what the originals did with one exception; they won't work on protected metatables.
-	A protected metatable have its __metatable set to something that isn't nil.
---]]
 function essentials.rawset(...)
 	local Table <const>, 
 	index <const>, 
 	value <const> = ...
-	local metatable <const> = getmetatable(Table)
+	local metatable <const> = debug.getmetatable(Table)
 	local __newindex
 	if metatable then
 		__newindex = metatable.__newindex
@@ -226,7 +171,7 @@ function essentials.rawget(...)
 	local Table <const>,
 	index <const> = ...
 	local __index
-	local metatable <const> = getmetatable(Table)
+	local metatable <const> = debug.getmetatable(Table)
 	if metatable then
 		__index = metatable.__index
 		metatable.__index = nil
@@ -241,17 +186,17 @@ end
 do
 	local _ENV <const> = { -- 12% faster, 20% less garbage created
 		essentials = essentials,
-		getmetatable = getmetatable, 
+		getmetatable = debug.getmetatable, 
 		setmetatable = setmetatable, 
 		assert = essentials.assert,
 		__newindex = function()
 			essentials.assert(false, "Tried to modify a read-only table.")
 		end,
 		__pairs = function(Table)
-			return next, getmetatable(Table).__index
+			return next, debug.getmetatable(Table).__index
 		end,
 		__len = function(Table)
-			return #getmetatable(Table).__index
+			return #debug.getmetatable(Table).__index
 		end
 	}
 
@@ -369,95 +314,37 @@ function essentials.delete_thread(id)
 end
 
 do
-	local originals <const> = essentials.const({
-		add_feature = menu.add_feature,
-		add_player_feature = menu.add_player_feature,
-		menu_newindex = getmetatable(menu).__newindex
-	})
-	getmetatable(menu).__newindex = nil
-
-	local feat_err_msg <const> = "This error might be related to your script, not necessarily Kek's menu. Either the parent id or feature type specified is incorrect."
-	menu.add_feature = function(...)
-		local name <const>,
-		Type <const>,
-		parent <const>,
-		func <const> = ...
-		local feat
-		local type <const> = type
-		if type(func) == "function" then
-			essentials.assert(utf8.len(name), "Tried to create a feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
-			feat = originals.add_feature(name, Type, parent, function(f, data)
-				if type(f) ~= "number" then
-					if func(f, data) == HANDLER_CONTINUE then
-						return HANDLER_CONTINUE
-					end
-				end
-			end)
-		else
-			feat = originals.add_feature(name, Type, parent)
+	local v3_mt <const>, v2_mt <const> = debug.getmetatable(memoize.v3()), debug.getmetatable(memoize.v2())
+	function essentials.deep_copy(object, keep_meta, tracker)
+		if object == nil then
+			return nil
 		end
-		essentials.assert(
-			feat, "Failed to create feature:",
-			feat_err_msg,
-			"Feature name: ",
-			name, 
-			debug.getinfo(2, "S").source, 
-			"line:",
-			debug.getinfo(2, "l").currentline
-		)
-		return feat
-	end
-	menu.add_player_feature = function(...)
-		local name <const>,
-		Type <const>,
-		parent <const>,
-		func <const> = ...
-		local feat
-		local type <const> = type
-		if type(func) == "function" then
-			essentials.assert(utf8.len(name), "Tried to create a player feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
-			feat = originals.add_player_feature(name, Type, parent, function(f, pid, data)
-				if type(f) ~= "number" then -- Must check if not a number, custom UIs pass table instead of userdata.
-					if func(f, pid, data) == HANDLER_CONTINUE then
-						return HANDLER_CONTINUE
-					end
-				end
-			end)
-		else
-			feat = originals.add_player_feature(name, Type, parent)
+		tracker = tracker or {}
+		if tracker[object] then 
+			return tracker[object] 
 		end
-		essentials.assert(
-			feat, "Failed to create player feature:", 
-			feat_err_msg,
-			"Feature name: ",
-			name,
-			debug.getinfo(2, "S").source, 
-			"line:",
-			debug.getinfo(2, "l").currentline
-		)
-		return feat
-	end
-	getmetatable(menu).__newindex = originals.menu_newindex
-end
 
-function essentials.deep_copy(Table, keep_meta, timeout)
-	local new_copy <const> = {}
-	timeout = timeout or utils.time_ms() + 1000 -- Far cheaper than using a seen table.
-	for key, value in pairs(Table) do
-		if type(value) == "table" then
-			new_copy[key] = essentials.deep_copy(value, keep_meta, timeout)
-			if keep_meta and type(getmetatable(value)) == "table" then
-				setmetatable(new_copy[key], essentials.deep_copy(getmetatable(value), true, timeout))
+		local new_object
+		local object_mt <const> = debug.getmetatable(object)
+		if type(object) == "table" then
+			new_object = {}
+			tracker[object] = new_object
+
+			for key, value in next, object do
+				new_object[essentials.deep_copy(key, keep_meta, tracker)] = essentials.deep_copy(value, keep_meta, tracker)
 			end
+			if keep_meta then
+				setmetatable(new_object, essentials.deep_copy(debug.getmetatable(object), keep_meta, tracker))
+			end
+		elseif rawequal(object_mt, v3_mt) then
+			new_object = v3(object.x, object.y, object.z)
+		elseif rawequal(object_mt, v2_mt) then
+			new_object = v2(object.x, object.y)
 		else
-			new_copy[key] = value
+			new_object = object
 		end
+		return new_object
 	end
-	if keep_meta and type(getmetatable(Table)) == "table" then
-		setmetatable(new_copy, essentials.deep_copy(getmetatable(Table), true, timeout))
-	end
-	essentials.assert(timeout > utils.time_ms(), "Entered recursion loop while attempting to deep copy table.")
-	return new_copy
 end
 
 do
@@ -483,7 +370,7 @@ do
 	local math_type <const> = math.type
 	local next <const> = next
 	function essentials.entities(Table)
-		local mt <const> = getmetatable(Table)
+		local mt <const> = debug.getmetatable(Table)
 		if mt and mt.__is_const then
 			Table = mt.__index
 		end
@@ -884,7 +771,7 @@ function essentials.log_error(...)
 			string.format("\n\n[%s]: < %s > [Kek's menu version: %s]\n%s\n",
 				os.date(), 
 				error_message, 
-				__kek_menu_version, 
+				__kek_menu.version, 
 				table.concat(additional_info, "\n")), 2))
 	end
 	if yield then
@@ -928,8 +815,8 @@ function essentials.msg(...)
 	essentials.assert(type(text) == "string", "Failed to send a notification.", text)
 	if notifyOn then
 		header = header or ""
-		if header == "" and __kek_menu_version then
-			header = lang["Kek's menu"].." "..__kek_menu_version
+		if header == "" and __kek_menu.version then
+			header = lang["Kek's menu"].." "..__kek_menu.version
 		end
 		menu.notify(text, header, duration or 3, essentials.notif_colors[color])
 	end
@@ -1279,8 +1166,8 @@ function essentials.draw_auto_adjusted_text(...)
 	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
 	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
 
-	local pos <const> = memoize.v2(-size.x, size.y) / 2
-	pos.y = y_pos or pos.y
+	local pos <const> = v2(-size.x, size.y) / 2
+	pos.y = type(y_pos) == "table" and y_pos.y or y_pos or pos.y
 
 	scriptdraw.draw_text(
 		text, 
@@ -1292,11 +1179,46 @@ function essentials.draw_auto_adjusted_text(...)
 		nil
 	)
 
-	local number_of_lines = 1
-	for _ in text:gmatch("[^\n]+") do
-		number_of_lines = number_of_lines + 1
+	return (pos.y - size.y) - (scriptdraw.size_pixel_to_rel_y(scriptdraw.get_text_size("One line of text.", scale or 0.7, nil).y) / 2)
+end
+
+function essentials.dont_retry_request(status) -- Too much work with little benefit to handle all codes properly
+	return enums.html_response_codes[status] ~= "OK" and enums.html_response_codes[status] ~= "Not Found"
+end
+
+function essentials.web_get_file(url, rgba, scale, y_pos)
+	local try_count = 0
+	local file_name <const> = web.urldecode(url:match(".+/(.-)$"))
+	local status, str, thread, is_done
+	if rgba then
+		thread = menu.create_thread(function()
+			while true do
+				essentials.draw_auto_adjusted_text(
+					is_done and enums.html_response_codes[status] == "OK" and lang["Successfully fetched %s."]:format(file_name)
+					or is_done and lang["Failed to fetch %s with error: %s"]:format(file_name, enums.html_response_codes[status] or status)
+					or lang["Attempt %i / %i to fetch %s."]:format(try_count, 3, file_name), 
+					rgba, 
+					scale,
+					y_pos
+				)
+				system.yield(0)
+			end
+		end)
+		system.yield(0)
 	end
-	return pos.y - size.y - (size.y / number_of_lines)
+	repeat
+		if try_count > 0 then
+			system.yield(2000)
+		end
+		try_count = try_count + 1
+		status, str = web.get(url)
+	until try_count == 3 or not essentials.dont_retry_request(status)
+	is_done = true
+	system.yield(enums.html_response_codes[status] ~= "OK" and 5000 or 250)
+	if thread then
+		menu.delete_thread(thread)
+	end
+	return status, str
 end
 
 essentials.is_changelog_currently_shown = false
@@ -1311,8 +1233,12 @@ function essentials.show_changelog()
 			) do
 				system.yield(0)
 			end
-			local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
-			local status <const>, str <const> = web.get("https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md")
+			local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
+			local status <const>, str <const> = essentials.web_get_file(
+				"https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md",
+				essentials.get_rgb(0, 255, 0, 255), 
+				1.2
+			)
 			if enums.html_response_codes[status] ~= "OK" then
 				essentials.is_changelog_currently_shown = false
 				return
@@ -1346,16 +1272,22 @@ function essentials.show_changelog()
 end
 
 function essentials.update_keks_menu()
-	local github_branch_name <const> = __kek_menu_participate_in_betas and "beta" or "main"
+	local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
+	local y_pos_2 = {y = 0} -- Is table so most up-to-date value is always being used
 	local version_check_draw_thread <const> = menu.create_thread(function()
 		while true do
-			essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
+			y_pos_2.y = essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
 			system.yield(0)
 		end
 	end, nil)
-
-	local version_check_status <const>, script_version = web.get(base_path.."VERSION.txt")
+	system.yield(0)
+	local version_check_status <const>, script_version = essentials.web_get_file(
+		base_path.."VERSION.txt",
+		essentials.get_rgb(0, 255, 120, 255),
+		1.0,
+		y_pos_2
+	)
 	menu.delete_thread(version_check_draw_thread)
 	local script_version <const> = script_version:gsub("[^%w\32.]", "")
 	local
@@ -1373,7 +1305,7 @@ function essentials.update_keks_menu()
 		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
 		return "failed to check what is the latest version"
 	end
-	if __kek_menu_version == script_version then
+	if __kek_menu.version == script_version then
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
 		return "is latest version"
 	else
@@ -1425,7 +1357,7 @@ function essentials.update_keks_menu()
 
 		menu.create_thread(function()
 			while update_status ~= "done" do
-				essentials.draw_auto_adjusted_text(
+				y_pos_2.y = essentials.draw_auto_adjusted_text(
 					updated_lib_files and updated_language_files and string.format(
 						"%i / %i "..lang["files downloaded"].."\n%s", 
 						current_file_num, 
@@ -1440,12 +1372,17 @@ function essentials.update_keks_menu()
 			end
 		end, nil)
 		do
-			if __kek_menu_debug_mode then
+			if __kek_menu.debug_mode then
 				essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
 				update_status = "done"
 				return "tried to update with debug mode on"
 			end
-			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs")
+			local status <const>, str <const> = essentials.web_get_file(
+				"https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs", 
+				essentials.get_rgb(0, 255, 0, 255), 
+				1.2, 
+				y_pos_2
+			)
 			update_status = enums.html_response_codes[status] == "OK"
 			if not update_status then
 				goto exit
@@ -1454,7 +1391,12 @@ function essentials.update_keks_menu()
 		end
 
 		do
-			local status <const>, str <const> = web.get("https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs/Languages")
+			local status <const>, str <const> = essentials.web_get_file(
+				"https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs/Languages",
+				essentials.get_rgb(0, 255, 0, 255), 
+				1.2, 
+				y_pos_2
+			)
 			update_status = enums.html_response_codes[status] == "OK"
 			if not update_status then
 				goto exit
@@ -1464,7 +1406,12 @@ function essentials.update_keks_menu()
 	end
 	do
 		current_file = "Kek's menu.lua" -- Download updated files
-		local status <const>, str <const> = web.get(base_path.."Kek's%20menu.lua")
+		local status <const>, str <const> = essentials.web_get_file(
+			base_path.."Kek's%20menu.lua",
+			essentials.get_rgb(0, 255, 0, 255), 
+			1.2, 
+			y_pos_2
+		)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit
@@ -1475,7 +1422,12 @@ function essentials.update_keks_menu()
 
 	for _, properties in pairs(updated_lib_files) do
 		current_file = properties.system_file_name
-		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/"..properties.web_file_name)
+		local status <const>, str <const> = essentials.web_get_file(
+			base_path.."kek_menu_stuff/kekMenuLibs/"..properties.web_file_name,
+			essentials.get_rgb(0, 255, 0, 255), 
+			1.2, 
+			y_pos_2
+		)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit
@@ -1486,7 +1438,12 @@ function essentials.update_keks_menu()
 
 	for _, properties in pairs(updated_language_files) do
 		current_file = properties.system_file_name
-		local status <const>, str <const> = web.get(base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..properties.web_file_name)
+		local status <const>, str <const> = essentials.web_get_file(
+			base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..properties.web_file_name,
+			essentials.get_rgb(0, 255, 0, 255), 
+			1.2, 
+			y_pos_2
+		)
 		update_status = enums.html_response_codes[status] == "OK"
 		if not update_status then
 			goto exit
@@ -1496,7 +1453,7 @@ function essentials.update_keks_menu()
 	end
 
 	::exit::
-	if __kek_menu_version ~= script_version then
+	if __kek_menu.version ~= script_version then
 		if update_status then
 			do -- Checks if there's write permissions to all files that needs to be overwritten.
 				local msg <const> = lang["Missing write permissions for \"%s\". Update cancelled, no files changed."]
@@ -1532,7 +1489,7 @@ function essentials.update_keks_menu()
 				end
 			end
 
-			__kek_menu_version = script_version
+			__kek_menu.version = script_version
 			essentials.msg(lang["Update successfully installed."], "green", true, 6)
 
 			-- Remove old files & undo all changes to the global space
@@ -1562,12 +1519,10 @@ function essentials.update_keks_menu()
 			end
 
 			update_status = "done"
+			system.yield(0)
 			essentials.show_changelog()
 			system.yield(0) -- show_changelog creates a thread
-			__kek_menu_version = nil
-			__kek_menu_debug_mode = nil
-			__kek_menu_participate_in_betas = nil
-			__kek_menu_check_for_updates = nil
+			__kek_menu = nil
 			__kek_menu_has_done_update = true
 			dofile(paths.home.."scripts\\Kek's menu.lua")
 			return "has updated"
@@ -1627,7 +1582,13 @@ function essentials.set_all_player_feats_except(...)
 end
 
 function essentials.dec_to_ipv4(ip)
-	return string.format("%i.%i.%i.%i", ip >> 24 & 255, ip >> 16 & 255, ip >> 8 & 255, ip & 255)
+	return string.format(
+		"%i.%i.%i.%i", 
+		ip >> 24 & 0xFF, 
+		ip >> 16 & 0xFF, 
+		ip >> 8  & 0xFF, 
+		ip 		 & 0xFF
+	)
 end
 
 function essentials.ipv4_to_dec(...)
