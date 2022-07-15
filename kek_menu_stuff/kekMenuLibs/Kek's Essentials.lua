@@ -1119,19 +1119,6 @@ function essentials.is_any_virtual_key_pressed(...)
 	return false
 end
 
-function essentials.parse_files_from_html(str, extension)
-	local files <const> = {}
-	for file_name in str:gmatch("title=\"([^\"]+%."..extension..")\"") do
-		local system_file_name <const> = file_name:gsub("&#39;", "'")
-		local web_file_name <const> = system_file_name:gsub("\32", "%%20")
-		files[#files + 1] = {
-			system_file_name = system_file_name,
-			web_file_name = web_file_name
-		}
-	end
-	return files
-end
-
 function essentials.draw_text_prevent_offscreen(...)
 	local text <const>, 
 	pos <const>, -- Coordinates must be in relative, not pixels
@@ -1197,7 +1184,11 @@ function essentials.web_get_file(url, rgba, scale, y_pos)
 					is_done and enums.html_response_codes[status] == "OK" and lang["Successfully fetched %s."]:format(file_name)
 					or is_done and lang["Failed to fetch %s with error: %s"]:format(file_name, enums.html_response_codes[status] or status)
 					or lang["Attempt %i / %i to fetch %s."]:format(try_count, 3, file_name), 
-					rgba, 
+
+					is_done and enums.html_response_codes[status] == "OK" and essentials.get_rgb(0, 255, 0, 255) 
+					or is_done and essentials.get_rgb(255, 0, 0, 255) 
+					or rgba, 
+					
 					scale,
 					y_pos
 				)
@@ -1282,14 +1273,13 @@ function essentials.update_keks_menu()
 		end
 	end, nil)
 	system.yield(0)
-	local version_check_status <const>, script_version = essentials.web_get_file(
-		base_path.."VERSION.txt",
+	local status <const>, update_details = essentials.web_get_file(
+		base_path.."VERSION.lua",
 		essentials.get_rgb(0, 255, 120, 255),
 		1.0,
 		y_pos_2
 	)
 	menu.delete_thread(version_check_draw_thread)
-	local script_version <const> = script_version:gsub("[^%w\32.]", "")
 	local
 		update_status,
 		current_file_num,
@@ -1297,14 +1287,17 @@ function essentials.update_keks_menu()
 		language_file_strings, 
 		current_file,
 		html_page_info,
-		kek_menu_file_string,
-		updated_lib_files, 
-		updated_language_files = true, 0, {}, {}
+		kek_menu_file_string = true, 0, {}, {}
 
-	if enums.html_response_codes[version_check_status] ~= "OK" then
+	if enums.html_response_codes[status] ~= "OK" then
 		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
 		return "failed to check what is the latest version"
 	end
+	update_details = load(update_details, "Update info", "t", {})()
+	local script_version <const> = update_details.version
+	local updated_lib_files <const> = update_details.libs
+	local updated_language_files <const> = update_details.language_files
+
 	if __kek_menu.version == script_version then
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
 		return "is latest version"
@@ -1355,15 +1348,20 @@ function essentials.update_keks_menu()
 			return "Cancelled update"
 		end
 
+		if __kek_menu.debug_mode then
+			essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
+			return "tried to update with debug mode on"
+		end
+
 		menu.create_thread(function()
 			while update_status ~= "done" do
 				y_pos_2.y = essentials.draw_auto_adjusted_text(
-					updated_lib_files and updated_language_files and string.format(
-						"%i / %i "..lang["files downloaded"].."\n%s", 
+					string.format(
+						"%i / %i "..lang["files downloaded"].." [%s]", 
 						current_file_num, 
 						#updated_lib_files + #updated_language_files + 1, 
 						current_file
-					) or lang["Obtaining update information..."],
+					),
 					essentials.get_rgb(0, 255, 0, 255), 
 					1.2, 
 					y_pos
@@ -1371,38 +1369,7 @@ function essentials.update_keks_menu()
 				system.yield(0)
 			end
 		end, nil)
-		do
-			if __kek_menu.debug_mode then
-				essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
-				update_status = "done"
-				return "tried to update with debug mode on"
-			end
-			local status <const>, str <const> = essentials.web_get_file(
-				"https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs", 
-				essentials.get_rgb(0, 255, 0, 255), 
-				1.2, 
-				y_pos_2
-			)
-			update_status = enums.html_response_codes[status] == "OK"
-			if not update_status then
-				goto exit
-			end
-			updated_lib_files = essentials.parse_files_from_html(str, "lua")
-		end
 
-		do
-			local status <const>, str <const> = essentials.web_get_file(
-				"https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs/Languages",
-				essentials.get_rgb(0, 255, 0, 255), 
-				1.2, 
-				y_pos_2
-			)
-			update_status = enums.html_response_codes[status] == "OK"
-			if not update_status then
-				goto exit
-			end
-			updated_language_files = essentials.parse_files_from_html(str, "txt")
-		end
 	end
 	do
 		current_file = "Kek's menu.lua" -- Download updated files
@@ -1420,10 +1387,10 @@ function essentials.update_keks_menu()
 		current_file_num = current_file_num + 1
 	end
 
-	for _, properties in pairs(updated_lib_files) do
-		current_file = properties.system_file_name
+	for i = 1, #updated_lib_files do
+		current_file = updated_lib_files[i]
 		local status <const>, str <const> = essentials.web_get_file(
-			base_path.."kek_menu_stuff/kekMenuLibs/"..properties.web_file_name,
+			base_path.."kek_menu_stuff/kekMenuLibs/"..updated_lib_files[i]:gsub("\32", "%%20"),
 			essentials.get_rgb(0, 255, 0, 255), 
 			1.2, 
 			y_pos_2
@@ -1432,14 +1399,14 @@ function essentials.update_keks_menu()
 		if not update_status then
 			goto exit
 		end
-		lib_file_strings[properties.system_file_name] = str
+		lib_file_strings[updated_lib_files[i]] = str
 		current_file_num = current_file_num + 1
 	end
 
-	for _, properties in pairs(updated_language_files) do
-		current_file = properties.system_file_name
+	for i = 1, #updated_language_files do
+		current_file = updated_language_files[i]
 		local status <const>, str <const> = essentials.web_get_file(
-			base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..properties.web_file_name,
+			base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..updated_language_files[i]:gsub("\32", "%%20"),
 			essentials.get_rgb(0, 255, 0, 255), 
 			1.2, 
 			y_pos_2
@@ -1448,7 +1415,7 @@ function essentials.update_keks_menu()
 		if not update_status then
 			goto exit
 		end
-		language_file_strings[properties.system_file_name] = str
+		language_file_strings[updated_language_files[i]] = str
 		current_file_num = current_file_num + 1
 	end
 
