@@ -807,7 +807,7 @@ Where §在哪
 Set hotkey on this to go here §可在此设置快捷键以跳转到这里.
 Search features §搜索功能
 Missing write permissions for "%s". Update cancelled, no files changed. §缺少 "%s" 的写入权限. 更新已取消,没有文件被更改.
-Kektram messed up the version strings! You have the latest version. §Kektram 把版本号搞错了！ 你有新的版本可更新.
+Kektram messed up the version strings! You have the latest version. §Kektram 把版本号搞错了！ 你已经是最新版本.
 A new update for Kek's menu is available. Press alt or enter to install it, space or ctrl to not. §Kek菜单有新的更新. 按 alt或回车 安装, 按 空格或ctrl 不安装.
 Press space or ctrl to remove this message. §按 空格 或 ctrl 移除此信息.
 Obtaining Kek's menu version info... §获取Kek菜单的版本信息中...
