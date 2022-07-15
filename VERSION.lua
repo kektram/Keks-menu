@@ -1,6 +1,5 @@
 return {
   version = "0.4.8.0.b28",
-  force_update_keks_menu_autoexec = false,
   libs = {
     "Kek's Language",
     "Kek's Enums",
