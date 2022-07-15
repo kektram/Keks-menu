@@ -56,7 +56,7 @@ end
 
 function essentials.add_chat_event_listener(callback) -- Fixes crash if someone spams chat
 	local tracker <const> = {}
-	return event.add_event_listener("chat", function(event)
+	return event.add_event_listener("chat", function(event, ...)
 		if not tracker[event.player] then
 			tracker[event.player] = true
 			callback(event)

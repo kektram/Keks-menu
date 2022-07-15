@@ -3,6 +3,8 @@
 local vehicle_mapper <const> = {version = "1.3.9"}
 local essentials <const> = require("Kek's Essentials")
 local enums <const> = require("Kek's Enums")
+local language <const> = require("Kek's Language")
+local lang <const> = language.lang
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
@@ -4601,7 +4603,7 @@ end
 function vehicle_mapper.get_vehicle_name(...)
 	local hash <const> = ...
 	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
-	return streaming.get_vehicle_model_name(hash) or "Unknown vehicle name"
+	return streaming.get_vehicle_model_name(hash) or lang["Unknown vehicle name"]
 end
 
 function vehicle_mapper.get_random_vehicle()
