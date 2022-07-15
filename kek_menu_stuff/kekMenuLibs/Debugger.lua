@@ -14,28 +14,6 @@ setmetatable(_G, {
 
 local essentials <const> = require("Kek's Essentials")
 
-local originals_newindexes <const> = essentials.const({
-	menu = getmetatable(menu).__newindex,
-	event = getmetatable(event).__newindex,
-	input = getmetatable(input).__newindex,
-	player = getmetatable(player).__newindex,
-	ped = getmetatable(ped).__newindex,
-	vehicle = getmetatable(vehicle).__newindex,
-	entity = getmetatable(entity).__newindex,
-	object = getmetatable(object).__newindex,
-	weapon = getmetatable(weapon).__newindex,
-	streaming = getmetatable(streaming).__newindex,
-	ui = getmetatable(ui).__newindex,
-	gameplay = getmetatable(gameplay).__newindex,
-	fire = getmetatable(fire).__newindex,
-	network = getmetatable(network).__newindex,
-	graphics = getmetatable(graphics).__newindex,
-	ai = getmetatable(ai).__newindex,
-	decorator = getmetatable(decorator).__newindex,
-	script = getmetatable(script).__newindex,
-	utils = getmetatable(utils).__newindex
-})
-
 local originals <const> = essentials.const(essentials.deep_copy({
 	menu = menu,
 	event = event,
@@ -58,12 +36,6 @@ local originals <const> = essentials.const(essentials.deep_copy({
 	utils = utils,
 	system = system
 }))
-
-for name, value in pairs(_G) do
-	if originals_newindexes[name] then
-		getmetatable(_G[name]).__newindex = nil
-	end
-end
 
 -- Event functions
 do
@@ -456,9 +428,3 @@ end
 
 -- Exceptions
 	player.is_player_valid = originals.player.is_player_valid
-
-for name, value in pairs(_G) do
-	if originals_newindexes[name] then
-		getmetatable(_G[name]).__newindex = originals_newindexes[name]
-	end
-end

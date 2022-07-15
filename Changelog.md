@@ -1,8 +1,2 @@
-# **Kek's menu 0.4.8.0**
-
-## **Improvements**```md
-### Removed
-> Anti chat spoof
-> Modded name detection
-> Hotkeys
-> Send to random mission
+Chat logger now handles chat spoofing
+Reworked how vehicle lists are generated in vehicle blacklist & spawn vehicles in player features

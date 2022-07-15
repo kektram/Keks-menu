@@ -282,11 +282,11 @@ Vehicles §载具
 Peds §NPC
 Objects §物体
 Pickups §可拾取物
-Peds & vehicles §NPC & 载具
+Peds & vehicles §NPC &载具
 All §所有
 Cops §警察
-Kill player § 击杀玩家
-Send clown van § 发送攻击小丑
+Kill player §击杀玩家
+Send clown van §发送攻击小丑
 Kick from session §踢出战局
 Crash §崩溃
 Random §随机
@@ -470,7 +470,6 @@ Display time opacity §显示时间不透明度
 Opacity §不透明度
 Type in the size of the text. §输入字体大小
 Size §字体大小
-Font §字体
 time. §次
 Outline §字体加粗
 Vehicle blacklist:\nstealing §载具黑名单:\n抢车
@@ -523,8 +522,6 @@ Log to console §记录到控制台
 Still §悬空
 Upwards §向上
 Downwards §向下
-Stretch §拉伸
-Type in stretch §输入拉伸数值
 Atomize §原子能枪射击
 This feature doesn't work on yourself. §此功能不可用于你自己.
 minute §分钟
@@ -543,7 +540,6 @@ Show sphere §显示球面
 Anti chat spam §反聊天刷屏
 kicked for spamming chat. §因聊天轰炸已踢出战局.
 Kick & add to timeout §踢出并添加到加入超时
-Type in name of a player or regular feature. §输入玩家或通用功能的名称
 Has modded weapons. §拥有作弊者武器.
 Type in name of entity. §请输入实体名称.
 Kill engine §破坏引擎
@@ -603,7 +599,6 @@ Peaceful §友好
 Add entry §添加条目
 Remove entry §删除条目
 Delete profile §删除配置
-Search features from all luas loaded §从所有已加载的lua中搜索功能
 For chat to show here, chat logger must be on. You can find chat logger in script features > Chat §要在此处显示聊天信息,必须打开聊天记录器.你可以在 脚本功能 > 聊天选项 中找到记录聊天信息到日志
 Gravity §重力
 Swap nearby vehicles to police §将附近的载具变成警车并为警察驾驶
@@ -611,7 +606,7 @@ Respawn vehicle after death §死亡后重新生成载具
 Failed to get control. If you're blocking "give control" in net event hooks, disable it. Even if it's disabled, it can fail to get control for a variety of reasons. §未能获得控制权.如果你在网络事件中启用了阻止"给予控制",请关闭它.即使它已经是关闭状态,也可能因为各种原因而无法获得控制权.
 Teleport to Perico island §传送到佩里科海岛
 "Log to file" must be toggled on in 2take1 notification settings in order for this to work. §必须在2take1的通知设置中打开“记录到文件”才能使其正常工作
-No filter §没有过滤器
+No filter §不过滤
 Display 2take1 notifications §显示2take1通知
 Set vehicle in use §设置要使用的载具
 Set ped in use §设置要使用的NPC
@@ -631,7 +626,6 @@ Reset offset §重置偏移
 Player is not in a vehicle. §玩家不在载具中.
 Clear attachments §清除附加
 Collision §碰撞
-If the search doesn't find the features you expect, make sure you load Kek's menu before you load all your other scripts. §如果搜索结果中没有找到你期望寻找的功能,请确保在加载所有其他脚本之前已经了加载 Kek 的菜单.
 Log flags below to blacklist §将以下标志记录到黑名单
 Notifications on §开启通知
 Notifications off §关闭通知
@@ -666,16 +660,13 @@ You have the latest version of Kek's menu. §当前为最新版本的Kek菜单.
 Update successfully installed. §更新已安装成功.
 Update failed. No files are changed. §更新失败了. 没有文件被更改.
 Failed to check what the latest version of the script is. §检查脚本的最新版本失败.
-files downloaded §文件已下载.
+files downloaded §个文件已下载.
 Turn off debug mode to use auto-updater. §关闭 调试模式 以使用自动更新.
-Press space to remove this message. §按 空格 移除此信息.
 Show latest update changelog §显示最新的更新日志
 Participate in betas §参与测试
 Translate into §翻译成
 Translate chat §翻译聊天
 Translation §翻译
-Translate what is not §不翻译
-Translate your messages §翻译你的聊天信息
 Afrikaans §南非荷兰语
 Albanian §阿尔巴尼亚语
 Amharic §阿姆哈拉语
@@ -688,7 +679,7 @@ Bengali §孟加拉语
 Bosnian §波斯尼亚语
 Bulgarian §保加利亚语
 Catalan §加泰罗尼亚语
-Cebuano § 宿务语
+Cebuano §宿务语
 Chinese (Simplified) §简中
 Chinese (Traditional) §繁中
 Corsican §科西嘉岛语
@@ -709,10 +700,10 @@ Greek §希腊语
 Gujarati §古吉拉特语
 Haitian Creole §海地克里奥尔语
 Hausa §豪萨语
-Hawaiian § 夏威夷语
+Hawaiian §夏威夷语
 Hebrew §希伯来语
 Hindi §印地语
-Hmong § 苗族语
+Hmong §苗族语
 Hungarian §匈牙利语
 Icelandic §冰岛语
 Igbo §伊博语
@@ -731,8 +722,8 @@ Kyrgyz §吉尔吉斯斯坦语
 Lao §老挝语
 Latin §拉丁语
 Latvian §拉脱维亚语
-Lithuanian §立陶宛
-Luxembourgish §卢森堡
+Lithuanian §立陶宛语
+Luxembourgish §卢森堡语
 Macedonian §马其顿
 Malagasy §马达加斯加语
 Malay §马来语
@@ -744,7 +735,7 @@ Mongolian §蒙古语
 Myanmar (Burmese) §缅甸语
 Nepali §尼泊尔语
 Norwegian §挪威语
-Nyanja (Chichewa) §奇切瓦
+Nyanja (Chichewa) §奇切瓦语
 Odia (Oriya) §奥里亚语
 Pashto §普什图语
 Persian §波斯语
@@ -772,7 +763,7 @@ Tajik §塔吉克斯坦语
 Tamil §泰米尔语
 Tatar §鞑靼语
 Telugu §泰卢固语
-Thai §泰语语
+Thai §泰语
 Turkish §土耳其语
 Turkmen §土库曼语
 Ukrainian §乌克兰语
@@ -785,15 +776,11 @@ Xhosa §科萨语
 Yiddish §意第绪语
 Yoruba §约鲁巴语
 Zulu §祖鲁语
-Team chat §团队聊天
-All chat §所有聊天
 Forcing player into vehicle. This can take up to 15 seconds. §强制玩家进入载具中...最多可能需要15秒.
 Failed to teleport player. §传送玩家失败.
 Translate your messages into §翻译你的聊天信息
-Your messages chat type §你的信息聊天类型
 Obtaining update information... §获取更新信息中...
-There's a new update for Kek's menu available. Press enter to install it, space to not. §Kek菜单有新的更新. 按 回车 安装或 空格 取消.
-This message will disappear in 25 seconds and will assume you don't want the update. §此信息将在25秒后消失,并假设你不想更新.
+This message will disappear in %i seconds and will assume you don't want the update. §此信息将在%i秒后消失,并假设你不想更新.
 Check for updates §自动检查更新
 You must turn on trusted mode->Http to use this script. §你必须打开 信任模式 -> Http 才能使用此脚本.
 Requires %i more peds than can be spawned. There are peds taking up space; clear them to spawn the map/vehicle. §需要生成的NPC比可以生成的多%i.有NPC占用了空间;清除它们以生成地图/载具.
@@ -805,3 +792,37 @@ The map/vehicle can be networked if you clear all entities. Currently there are 
 Where to send translations §发送翻译到
 To chat §聊天
 Notification §通知
+Languages to not translate §不翻译的语言
+Type in what to translate. §输入要翻译的内容.
+Translate input §翻译输入
+Send to team chat §发送到团队聊天
+Send to all chat §发送到全部聊天
+Tip: set hotkeys for the translate inputs below §提示: 为下面的翻译输入设置快捷键
+Translate your messages §翻译你的信息
+Menu features §菜单功能
+Type in name of feature. §输入功能名称.
+Failed to go to feature. §无法跳转到功能.
+Go to §跳转
+Where §在哪
+Set hotkey on this to go here §可在此设置快捷键以跳转到这里.
+Search features §搜索功能
+Missing write permissions for "%s". Update cancelled, no files changed. §缺少 "%s" 的写入权限. 更新已取消,没有文件被更改.
+Kektram messed up the version strings! You have the latest version. §Kektram 把版本号搞错了！ 你有新的版本可更新.
+A new update for Kek's menu is available. Press alt or enter to install it, space or ctrl to not. §Kek菜单有新的更新. 按 alt或回车 安装, 按 空格或ctrl 不安装.
+Press space or ctrl to remove this message. §按 空格 或 ctrl 移除此信息.
+Obtaining Kek's menu version info... §获取Kek菜单的版本信息中...
+Press shift or tab to show changelog. §按 shift 或 tab 以显示更新日志.
+Local Lua features §本地Lua功能
+This player is no longer here. §此玩家已不存在.
+Player features §玩家功能
+Max characters per line §每行最大字符数
+Type in the maximum number of characters per line. §输入每行的最大字符数.
+Type in number of notifications to display. §输入要显示的通知数量.
+24-hour clock §24 小时制
+12-hour clock §12 小时制
+They were spoofing as §他正在伪装为
+The green line is where it will align itself to if there's enough space. §如果有足够的屏幕空间,绿线就是对齐的位置.
+The text is auto aligned to never be off-screen. §文字是自动对齐的,永远不会超过屏幕.
+Attempt %i / %i to fetch %s. §尝试获取 %i / %i,%s.
+Failed to fetch %s with error: %s §获取 %s 失败,错误: %s
+Successfully fetched %s. §成功获取了 %s.

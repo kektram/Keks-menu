@@ -30,9 +30,9 @@ kek_entity.entity_manager = {
 		[5] = "object"
 	},
 	flag_to_str = {
-		[1 << 6] = "vehicle",
-		[1 << 7] = "ped",
-		[1 << 8] = "object"
+		[1 << 5] = "vehicle",
+		[1 << 6] = "ped",
+		[1 << 7] = "object"
 	},
 	entity_type_to_return_type = setmetatable({
 		[3] = "is_vehicle_limit_not_breached",
@@ -50,14 +50,14 @@ do
 	function kek_entity.entity_manager:update() -- Weight can't be more than 31. Weight has 5 bits to work with.
 		for Entity, flags in pairs(self.entities) do
 			if not entity.is_an_entity(Entity) then
-				local weight <const> = flags << 59 >> 59
-				local entity_type <const> = (flags << 55 >> 60) << 5
+				local weight <const> = flags & 0x1F
+				local entity_type <const> = flags & 0xE0
 				local type_string <const> = self.flag_to_str[entity_type]
 				self.counts[type_string] = self.counts[type_string] - weight
 				self.entities[Entity] = nil
 			end
 		end
-		update_buf.is_ped_limit_not_breached = self.counts.ped <= settings.valuei["Ped limits"].value * 10 and #memoize.get_all_peds() < 135.0
+		update_buf.is_ped_limit_not_breached = self.counts.ped <= settings.valuei["Ped limits"].value * 10
 
 		update_buf.is_object_limit_not_breached = self.counts.object < settings.valuei["Object limits"].value * 10
 
@@ -85,11 +85,11 @@ setmetatable(kek_entity.entity_manager, {
 		and not Table.entities[Entity] 
 		and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
 			weight = math.tointeger(weight)
-			if not weight or weight > 30 or (weight ~= 0 and weight < 1) then -- In case other scripts accidentally pass a value as weight
-				weight = 15
+			if math.type(weight) ~= "integer" or weight > 31 or (weight ~= 0 and weight < 1) then -- In case other scripts accidentally pass a value as weight
+				weight = 10
 			end
 			local type_string <const> = Table.entity_type_to_str[entity.get_entity_type(Entity)] or "object"
-			local flags <const> = weight | (1 << (3 + entity_type))
+			local flags <const> = weight | (1 << (2 + entity_type))
 
 			Table.entities[Entity] = flags
 			Table.counts[type_string] = Table.counts[type_string] + weight
@@ -1159,7 +1159,7 @@ function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
 	else
 		speed = -120
 	end
-	if not entity.is_entity_dead(player.get_player_ped(pid)) then
+	if not player.is_player_dead(pid) then
 		if player.is_player_in_any_vehicle(pid) then
 			kek_entity.get_control_of_entity(player.get_player_vehicle(pid), 0)
 		end
@@ -1190,7 +1190,7 @@ end
 
 function kek_entity.ram_player(pid)
 	local count = 0
-	while count < 5 and player.is_player_valid(pid) and not entity.is_entity_dead(player.get_player_ped(pid)) do
+	while count < 5 and player.is_player_valid(pid) and not player.is_player_dead(pid) do
 		essentials.use_ptfx_function(kek_entity.spawn_and_push_a_vehicle_in_direction, pid, true, 8, gameplay.get_hash_key("tanker"))
 		system.yield(150)
 		count = count + 1
@@ -1556,87 +1556,19 @@ do
 	end
 end
 
---[[
-	List of end vehicles is the first vehicle in each class except compacts, because compacts is the first class.
-	Using vehicle.get_all_vehicle_model_hashes().
---]]
-do
-	local vehicle_category_info <const> = essentials.const({
-		{class_name = lang["Compacts"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Sedans"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["SUVs"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Coupes"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Muscle"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Sports classics"], num_of_vehicles_in_class = 0},
-		{class_name = lang["Sports"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Super"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Motorcycles"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Off-Road"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Industrial"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Utility"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Vans"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Cycles"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Boats"], 			 num_of_vehicles_in_class = 0},
-		{class_name = lang["Helicopters"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Planes"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Service"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Emergency"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Military"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Commercial"], 	 num_of_vehicles_in_class = 0},
-		{class_name = lang["Trains"], 		 num_of_vehicles_in_class = 0},
-		{class_name = lang["Open Wheel"],		 num_of_vehicles_in_class = 0}
-	})
-
-do
-	local list_of_end_vehicles <const> = essentials.const({
-		2485144969, -- Asea
-		629969764, -- Astron
-		4289813342, -- Exemplar
-		2351681756, -- Nightshade
-		2049897956, -- Rapid_GT_Classic
-		970598228, -- Sultan
-		3612858749, -- Zorrusso
-		822018448, -- Defiler
-		2198148358, -- Technical
-		1353720154, -- Flatbed
-		3417488910, -- Trailer
-		219613597, -- Speedo_Custom
-		3061159916, -- Endurex_Race_Bike
-		3251507587, -- Marquis
-		2623428164, -- SuperVolito_Carbon
-		2621610858, -- Velum
-		3039269212, -- Trashmaster
-		1127131465, -- FIB
-		2014313426, -- Vetir
-		2157618379, -- Phantom
-		184361638, -- Freight_Train
-		1492612435 -- BR8
-	})
-	local i = 1
-	for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
-		if hash == list_of_end_vehicles[i] then
-			i = i + 1
-		end
-		vehicle_category_info[i].num_of_vehicles_in_class = vehicle_category_info[i].num_of_vehicles_in_class + 1
-	end
-end
-
-	function kek_entity.generate_vehicle_list(...)
-		local feat_type <const>,
-		feat_str <const>,
-		parent <const>,
-		value_i_func <const>,
-		func <const>,
-		add_to_vehicle_blacklist <const> = ...
-		local hashes <const> = vehicle.get_all_vehicle_model_hashes()
-		for i2, info in pairs(vehicle_category_info) do
-			local count = 0 -- Iteration ends at next end vehicle
-			for i = 1, i2 do
-				count = count + vehicle_category_info[i].num_of_vehicles_in_class
-			end
-			local parent <const> = menu.add_feature(info.class_name, "parent", parent.id, function(f)
-				if f.child_count == 0 then
-					for i = count - info.num_of_vehicles_in_class + 1, count do -- Iterates until reaching class end vehicle. Starts at previous class's end vehicle or index 1.
+function kek_entity.generate_vehicle_list(...)
+	local feat_type <const>,
+	feat_str <const>,
+	parent <const>,
+	value_i_func <const>,
+	func <const>,
+	add_to_vehicle_blacklist <const> = ...
+	for id, name in pairs(enums.vehicle_class_ids_to_name) do
+		local parent <const> = menu.add_feature(lang[name], "parent", parent.id, function(f)
+			if f.child_count == 0 then
+				local hashes <const> = vehicle.get_all_vehicle_model_hashes()
+				for i = 1, #hashes do
+					if vehicle.get_vehicle_class_from_name(hashes[i]) == id then
 						local feature <const> = menu.add_feature(vehicle_mapper.get_vehicle_name(hashes[i]), feat_type, f.id, func)
 						feature.data = hashes[i]
 						feature:set_str_data(feat_str)
@@ -1647,24 +1579,22 @@ end
 						end
 					end
 				end
-			end)
-		end
-	end
-
-	function kek_entity.generate_player_vehicle_list(...)
-		local feature_info <const>,
-		parent <const>,
-		func <const>,
-		initial_name <const> = ...
-		local hashes <const> = vehicle.get_all_vehicle_model_hashes()
-		for i2, info in pairs(vehicle_category_info) do
-			local count = 0 -- Iteration ends at next end vehicle
-			for i = 1, i2 do
-				count = count + vehicle_category_info[i].num_of_vehicles_in_class
 			end
-			local parent <const> = menu.add_player_feature(info.class_name, "parent", parent, function(f, pid)
-				if f.child_count == 0 then
-					for i = count - info.num_of_vehicles_in_class + 1, count do -- Iterates until reaching class end vehicle. Starts at previous class's end vehicle or index 1.
+		end)
+	end
+end
+
+function kek_entity.generate_player_vehicle_list(...)
+	local feature_info <const>,
+	parent <const>,
+	func <const>,
+	initial_name <const> = ...
+	for id, name in pairs(enums.vehicle_class_ids_to_name) do
+		local parent <const> = menu.add_player_feature(lang[name], "parent", parent, function(f, pid)
+			if f.child_count == 0 then
+				local hashes <const> = vehicle.get_all_vehicle_model_hashes()
+				for i = 1, #hashes do
+					if vehicle.get_vehicle_class_from_name(hashes[i]) == id then
 						local feature_id <const> = menu.add_player_feature(vehicle_mapper.get_vehicle_name(hashes[i])..initial_name, feature_info.type, f.id, func).id
 						local player_feat <const> = menu.get_player_feature(feature_id)
 						if feature_info.type:find("value_i", 1, true) then
@@ -1678,8 +1608,8 @@ end
 						end
 					end
 				end
-			end).id
-		end
+			end
+		end).id
 	end
 end
 
