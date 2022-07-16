@@ -32,7 +32,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b29",
+	version = "0.4.8.0.b30",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -59,7 +59,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.5",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.5.5"
+	["Kek's Essentials"] = "1.5.6"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -1056,19 +1056,11 @@ for _, properties in pairs({
 		setting = 0
 	},
 	{
-		setting_name = "Translate chat into language what language",
-		setting = 0
-	},
-	{
-		setting_name = "Translate your messages into",
+		setting_name = "Translate your messages",
 		setting = false
 	},
 	{
-		setting_name = "Translate your messages into option",
-		setting = 0
-	},
-	{
-		setting_name = "Where to send translations",
+		setting_name = "Translate your messages option",
 		setting = 0
 	},
 	{
@@ -1076,8 +1068,16 @@ for _, properties in pairs({
 		setting = 0
 	},
 	{
+		setting_name = "Where to send inputs",
+		setting = 0
+	},
+	{
 		setting_name = "Check for updates",
 		setting = true
+	},
+	{
+		setting_name = "Display country info",
+		setting = false
 	}
 }) do
 	settings:add_setting(properties)
@@ -3972,61 +3972,28 @@ do
 		language_names[#language_names + 1] = lang[enums.supported_langs_by_google[i]]
 	end
 
-	settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.translate_chat.id, function(f)
+	settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat into"], "value_str", u.translate_chat.id, function(f)
 		if f.on then
 			if essentials.listeners["chat"]["translate"] then
 				return
 			end
-			local tracker <const> = {} -- To prevent spamming requests at Google, 1 translation every 500ms per player.
 			essentials.listeners["chat"]["translate"] = essentials.add_chat_event_listener(function(event)
-				if (settings.toggle["Translate your messages into"].on or event.player ~= player.player_id())
-				and event.body:find("^%P") -- chat commands
-				and player.is_player_valid(event.player)
-				and utils.time_ms() > (tracker[event.player] or 0) then
-					local language_translate_into_setting = 
-						enums.supported_langs_by_google_to_code[
-							enums.supported_langs_by_google[settings.valuei["Translate chat into language what language"].value + 1]
-						]
-					local str, detected_language
-					if player.player_id() == event.player and settings.toggle["Translate your messages into"].on then
-						language_translate_into_setting = enums.supported_langs_by_google_to_code[
-							enums.supported_langs_by_google[settings.valuei["Translate your messages into option"].value + 1]
-						]
-						str, detected_language = 
-							language.translate_text(
-								event.body, 
-								"auto", 
-								language_translate_into_setting
-							)
-					else
-						str, detected_language = 
-							language.translate_text(
-								event.body, 
-								"auto", 
-								language_translate_into_setting
-							)
-					end
-					tracker[event.player] = utils.time_ms() + 500
-					if ((settings.toggle["Translate your messages into"].on and event.player == player.player_id()) or not excluded_languages[detected_language])
+				if player.is_player_valid(event.sender) and event.sender ~= player.player_id() and event.body:find("^[^!/]") then
+
+					local language_translate_into_setting <const> = enums.supported_langs_by_google_to_code[enums.supported_langs_by_google[f.value + 1]]
+
+					local str <const>, detected_language <const> = language.translate_text(event.body, "auto", language_translate_into_setting)
+
+					if player.is_player_valid(event.sender)
 					and enums.supported_langs_by_google_to_name[detected_language]
-					and player.is_player_valid(event.player) -- Translation can take enough time for the player to become invalid in that time
+					and not excluded_languages[detected_language]
 					and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
-						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str
-						local is_team_chat = essentials.is_str(f, "Send to team chat")
 
-						if event.player == player.player_id() and settings.toggle["Translate your messages into"].on then
-							is_team_chat = essentials.is_str(settings.valuei["Where to send your translated messages"], "Send to team chat")
-						end
+						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]]
+						.." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "
+						..str
 
-						if essentials.is_str(settings.valuei["Where to send translations"], "To chat") 
-						or (event.player == player.player_id() and settings.toggle["Translate your messages into"].on) then
-							essentials.send_message(
-								str, 
-								is_team_chat
-							)
-						elseif player.player_id() ~= event.player then
-							essentials.msg("["..player.get_player_name(event.player).."]: "..str, "blue", true, 11)
-						end
+						essentials.msg("["..player.get_player_name(event.sender).."]: "..str, "blue", true, 11)
 					end
 				end
 			end)
@@ -4035,14 +4002,42 @@ do
 			essentials.listeners["chat"]["translate"] = nil
 		end
 	end)
-	settings.toggle["Translate chat into language"]:set_str_data({
-		lang["Send to team chat"],
-		lang["Send to all chat"]
-	})
+	settings.toggle["Translate chat into language"]:set_str_data(language_names)
+	settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
 
-	settings.toggle["Translate your messages into"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id)
-	settings.valuei["Translate your messages into option"] = settings.toggle["Translate your messages into"]
-	settings.valuei["Translate your messages into option"]:set_str_data(language_names)
+	-- Chose to do duplicate code, it's more readable and works more intuitively to have these 2 features be independent of each other.
+	settings.toggle["Translate your messages"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id, function(f)
+		if f.on then
+			if essentials.listeners["chat"]["translate your messages"] then
+				return
+			end
+			essentials.listeners["chat"]["translate your messages"] = essentials.add_chat_event_listener(function(event)
+				if player.is_player_valid(event.sender) and event.sender == player.player_id() and event.body:find("^[^!/]") then
+
+					local language_translate_into_setting <const> = enums.supported_langs_by_google_to_code[enums.supported_langs_by_google[f.value + 1]]
+
+					local str <const>, detected_language <const> = language.translate_text(event.body, "auto", language_translate_into_setting)
+
+					if player.is_player_valid(event.sender)
+					and enums.supported_langs_by_google_to_name[detected_language]
+					and not excluded_languages[detected_language]
+					and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
+						
+						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]]
+						.." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "
+						..str
+
+						essentials.send_message(str, essentials.is_str(settings.valuei["Where to send your translated messages"], "Send to team chat"))
+					end
+				end
+			end)
+		else
+			event.remove_event_listener("chat", essentials.listeners["chat"]["translate your messages"])
+			essentials.listeners["chat"]["translate your messages"] = nil
+		end
+	end)
+	settings.toggle["Translate your messages"]:set_str_data(language_names)
+	settings.valuei["Translate your messages option"] = settings.toggle["Translate your messages"]
 
 	settings.valuei["Where to send your translated messages"] = menu.add_feature(lang["Translate your messages"], "action_value_str", u.translate_chat.id)
 	settings.valuei["Where to send your translated messages"]:set_str_data({
@@ -4063,20 +4058,11 @@ do
 		end)
 	end
 
-	settings.valuei["Where to send translations"] = menu.add_feature(lang["Where to send translations"], "action_value_str", u.translate_chat.id)
-	settings.valuei["Where to send translations"]:set_str_data({
-		lang["Notification"],
-		lang["To chat"]
+	settings.valuei["Where to send inputs"] = menu.add_feature(lang["Where to send inputs"], "action_value_str", u.translate_chat.id)
+	settings.valuei["Where to send inputs"]:set_str_data({
+		lang["Send to all chat"],
+		lang["Send to team chat"]
 	})
-
-	settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
-
-	settings.valuei["Translate chat into language what language"] = menu.add_feature(
-		lang["Translate into"], 
-		"action_value_str", 
-		u.translate_chat.id
-	)
-	settings.valuei["Translate chat into language what language"]:set_str_data(language_names)
 
 	menu.add_feature(lang["Tip: set hotkeys for the translate inputs below"], "action", u.translate_chat.id)
 	for i = 1, 10 do
@@ -4099,7 +4085,7 @@ do
 				)
 			essentials.send_message(
 				str, 
-				essentials.is_str(settings.toggle["Translate chat into language"], "Send to team chat")
+				essentials.is_str(settings.valuei["Where to send inputs"], "Send to team chat")
 			)
 		end)
 		settings.valuei["Input text to translate to chat "..i]:set_str_data(language_names)
@@ -5857,6 +5843,81 @@ settings.valuei["Time OSD option"]:set_str_data({
 })
 
 display_settings(u.display_time, "Time OSD", -990, 990, 60, 200)
+
+u.display_location_info = menu.add_feature(lang["Display session location info"], "parent", u.self_options.id)
+settings.toggle["Display country info"] = menu.add_feature(lang["Display session location info"], "toggle", u.display_location_info.id, function(f)
+	local text = lang["Obtaining location info. This usually takes between 5-10 seconds. Max 45 api requests per minute.\nIf the list is small or empty, it means you hit the limit. The limit will reset in one minute."]
+	local str <const> = {}
+	menu.create_thread(function()
+		while f.on do
+			essentials.draw_text_prevent_offscreen(
+				text, 
+				memoize.v2(
+					settings.valuei["Display country info x"].value,
+					settings.valuei["Display country info y"].value
+				) / 1000,
+				settings.valuei["Display country info Scale"].value / 60,
+				essentials.get_rgb(settings.valuei["Display country info R"].value, settings.valuei["Display country info G"].value, settings.valuei["Display country info B"].value, settings.valuei["Display country info A"].value),
+				settings.toggle["Display country info outline"].on
+			)
+			system.yield(0)
+		end
+	end)
+	while f.on do
+		local update = false
+		for pid in essentials.players() do
+			local scid <const> = player.get_player_scid(pid)
+			if not f.data[scid] then -- The api is limited to 45 requests per minute. This is more than enough. If the limit is hit, the web.get request completely fail until limit is restarted.
+				local status <const>, player_info <const> = web.get("http://ip-api.com/json/"..web.urlencode(essentials.dec_to_ipv4(player.get_player_ip(pid))).."?fields=status,message,country,city")
+				if enums.html_response_codes[status] == "OK" then
+					local ip_lookup_status <const> = player_info:match("\"status\":\"(.-)\"") == "success"
+					f.data[scid] = string.format(
+						ip_lookup_status and "%s: [%s, %s]" or "%s: [%s]", 
+						player.get_player_name(pid), 
+						ip_lookup_status and player_info:match("\"country\":\"(.-)\"") or lang[player_info:match("\"message\":\"(.-)\"") or "Unknown error"],
+						player_info:match("\"city\":\"(.-)\"")
+					)
+					update = true
+				end
+			end
+			str[pid] = f.data[scid]
+		end
+		for pid in pairs(str) do
+			if not player.is_player_valid(pid) then
+				update = true
+				break
+			end
+		end
+		if update then
+			local str2 = {}
+			for pid, text in pairs(str) do
+				if player.is_player_valid(pid) then
+					str2[#str2 + 1] = text
+				end
+			end
+			table.sort(str2, function(a, b)
+				local score_a, score_b = 0, 0
+				local is_a_successful <const> = a:find(", ", 1, true)
+				local is_b_successful <const> = b:find(", ", 1, true)
+
+				if not is_a_successful then
+					score_a = score_a | 1 << 51
+				end
+				if not is_b_successful then
+					score_b = score_b | 1 << 51
+				end
+				if is_a_successful and is_b_successful and a:match("%[(.-),") < b:match("%[(.-),") then
+					score_b = score_b | 1 << 49
+				end
+				return score_a < score_b
+			end)
+			text = table.concat(str2, "\n")
+		end
+		system.yield(0)
+	end
+end)
+settings.toggle["Display country info"].data = {}
+display_settings(u.display_location_info, "Display country info", -990, 990, 36, 100)
 
 u.force_field = menu.add_feature(lang["Force field"], "parent", u.self_options.id)
 
