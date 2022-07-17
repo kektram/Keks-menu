@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b30 test",
+	version = "0.4.8.0.b31",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -5460,12 +5460,12 @@ local function display_settings(...)
 				while f.data.time > utils.time_ms() do
 					local y_pos <const> = essentials.draw_auto_adjusted_text(
 						lang["The text is auto aligned to never be off-screen."],
-						essentials.get_rgb(0, 40, 200, 255),
+						essentials.get_rgb(255, 40, 0, 255),
 						1.5
 					)
 					essentials.draw_auto_adjusted_text(
 						lang["The green line is where it will align itself to if there's enough space."],
-						essentials.get_rgb(0, 102, 204, 255),
+						essentials.get_rgb(100, 255, 100, 255),
 						1.5,
 						y_pos
 					)

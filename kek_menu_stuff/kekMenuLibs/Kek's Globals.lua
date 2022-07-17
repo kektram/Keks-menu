@@ -412,11 +412,14 @@ function globals.force_player_into_vehicle(pid, time) -- Creds to RulyPancake th
 	while player.is_player_dead(pid) and time > utils.time_ms() do
 		system.yield(0)
 	end
+	local was_player_already_in_god <const> = player.is_player_god(pid)
 	if not player.is_player_dead(pid) then
 		globals.send_script_event(pid, "Force player into vehicle", nil, 1, 1, network.network_hash_from_player(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 		local time <const> = utils.time_ms() + (time or 15000)
-		system.yield(6000)
-		while not player.is_player_dead(pid) and (player.is_player_god(pid) or not essentials.is_in_vehicle(pid)) and time > utils.time_ms() do
+		system.yield(was_player_already_in_god and 8000 or 6000)
+		while not player.is_player_dead(pid) 
+		and ((not was_player_already_in_god and player.is_player_god(pid)) or not essentials.is_in_vehicle(pid))
+		and time > utils.time_ms() do
 			system.yield(0)
 		end
 	end

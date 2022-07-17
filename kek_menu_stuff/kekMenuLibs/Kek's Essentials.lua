@@ -1217,7 +1217,7 @@ function essentials.web_get_file(url, rgba, scale, y_pos)
 	is_done = true
 	system.yield(enums.html_response_codes[status] ~= "OK" and 5000 or 250)
 	if thread then
-		menu.delete_thread(thread)
+		essentials.delete_thread(thread)
 	end
 	return status, str
 end
@@ -1289,7 +1289,7 @@ function essentials.update_keks_menu()
 		1.0,
 		y_pos_2
 	)
-	menu.delete_thread(version_check_draw_thread)
+	essentials.delete_thread(version_check_draw_thread)
 	local
 		update_status,
 		current_file_num,
