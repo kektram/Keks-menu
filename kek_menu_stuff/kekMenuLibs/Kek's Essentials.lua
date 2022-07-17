@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.5"}
+local essentials <const> = {version = "1.5.6"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -622,7 +622,7 @@ end
 	Parses are remembered until garbage collector is collecting.
 --]]
 
-local __is_table_mt = {__index = {__is_table = true}}
+local __is_table_mt <const> = {__index = {__is_table = true}}
 
 local accepted_whitespace <const> = "[\t\n\r]"
 local escape_seq_map <const> = {
@@ -693,10 +693,16 @@ function essentials.parse_xml(str)
 				goto continue
 			end
 
-			memoized.new_tag_find = memoized.new_tag_find or find(line, "^<.+\32/>$")
+			memoized.new_tag_find = memoized.new_tag_find or find(line, "^<.+/>$")
 			if memoized.new_tag_find then
 				local name <const>, attributes <const> = parse_attribute(line)
-				parent_tree[#parent_tree][name] = {__attributes = attributes}
+				if parent_tree[#parent_tree][name] then
+					local mt <const> = getmetatable(parent_tree[#parent_tree][name])
+					mt.__count = mt.__count + 1
+					parent_tree[#parent_tree][name.."_"..mt.__count] = {__attributes = attributes}
+				else
+					parent_tree[#parent_tree][name] = setmetatable({__attributes = attributes}, {__count = 1})
+				end
 				goto continue
 			end
 
@@ -958,7 +964,11 @@ function essentials.get_random_player_except(...)
 	if #pids > 0 then
 		return pids[math.random(1, #pids)]
 	else
-		return player.player_id()
+		local pids <const> = {}
+		for pid in essentials.players(true) do
+			pids[#pids + 1] = pid
+		end
+		return pids[math.random(1, #pids)]
 	end
 end
 

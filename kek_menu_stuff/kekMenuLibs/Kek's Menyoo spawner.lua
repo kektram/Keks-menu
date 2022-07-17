@@ -582,6 +582,7 @@ function menyoo.spawn_xml_vehicle(...)
 		return 0
 	end
 	local info <const> = essentials.parse_xml(essentials.get_file_string(file_path)).Vehicle
+
 	local spooner <const> = info and info.SpoonerAttachments
 
 	if not info then
@@ -784,6 +785,11 @@ function menyoo.spawn_xml_map(...)
 	local info <const> = essentials.parse_xml(essentials.get_file_string(file_path))
 	local spooner <const> = info.SpoonerPlacements or info.Map
 
+	if not info.Map and not spooner then
+		essentials.msg(lang["Unsupported file format."], "red", true)
+		return
+	end
+
 	local counts <const> = get_entity_counts_from_xml_parse(
 		spooner.Objects and is_table_logic(spooner.Objects.MapObject)
 		or is_table_logic(spooner.Placement or spooner.Attachment)
@@ -796,11 +802,6 @@ function menyoo.spawn_xml_map(...)
 
 	if is_spawn_too_many_entities(counts, network_status) then
 		return 0
-	end
-
-	if not info.Map and not spooner then
-		essentials.msg(lang["Unsupported file format."], "red", true)
-		return
 	end
 
 	local tp_state, tp_err
@@ -834,7 +835,7 @@ function menyoo.spawn_xml_map(...)
 		entities = {}
 		map_type = get_xml_map_type(info)
 		if map_type and settings.toggle["Clear before spawning xml map"].on then
-			kek_entity.entity_manager:clear() -- This sets models as no longer needed
+			kek_entity.entity_manager:clear(true) -- This sets models as no longer needed
 			system.yield(1000) -- Waits until models have left memory; has made spawning far more stable
 		end
 

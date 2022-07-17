@@ -15,7 +15,6 @@ paths.kek_menu_logs = paths.kek_menu_stuff.."kekMenuLogs"
 paths.blacklist = paths.kek_menu_stuff.."kekMenuLogs\\Blacklist.log"
 paths.player_history_all_players = paths.kek_menu_stuff.."kekMenuLogs\\All players.log"
 paths.kek_settings = paths.kek_menu_stuff.."keksettings.ini"
-paths.clever_bot = paths.kek_menu_stuff.."kekMenuData\\Clever bot.ini"
 paths.chat_spam_text = paths.kek_menu_stuff.."kekMenuData\\Spam text.txt"
 paths.chat_bot = paths.kek_menu_stuff.."kekMenuData\\Kek's chat bot.txt"
 paths.chat_judger = paths.kek_menu_stuff.."kekMenuData\\custom_chat_judge_data.txt"
@@ -32,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b28",
+	version = "0.4.8.0.b30 test",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -59,7 +58,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.5",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.5.5"
+	["Kek's Essentials"] = "1.5.6"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -438,7 +437,6 @@ for _, file_name in pairs({
 	"kekMenuData\\Kek's chat bot.txt", 
 	"kekMenuData\\Spam text.txt", 
 	"kekMenuLogs\\All players.log",
-	"kekMenuData\\Clever bot.ini",
 	"kekMenuLogs\\Chat log.log",
 	"kekMenuLogs\\kek_menu_log.log"
 }) do
@@ -932,10 +930,6 @@ for _, properties in pairs({
 		setting = 0
 	},
 	{
-		setting_name = "Clever bot",
-		setting = false
-	},
-	{
 		setting_name = "Move mini map to people you spectate",
 		setting = false
 	},
@@ -1056,19 +1050,11 @@ for _, properties in pairs({
 		setting = 0
 	},
 	{
-		setting_name = "Translate chat into language what language",
-		setting = 0
-	},
-	{
-		setting_name = "Translate your messages into",
+		setting_name = "Translate your messages",
 		setting = false
 	},
 	{
-		setting_name = "Translate your messages into option",
-		setting = 0
-	},
-	{
-		setting_name = "Where to send translations",
+		setting_name = "Translate your messages option",
 		setting = 0
 	},
 	{
@@ -1076,8 +1062,16 @@ for _, properties in pairs({
 		setting = 0
 	},
 	{
+		setting_name = "Where to send inputs",
+		setting = 0
+	},
+	{
 		setting_name = "Check for updates",
 		setting = true
+	},
+	{
+		setting_name = "Display country info",
+		setting = false
 	}
 }) do
 	settings:add_setting(properties)
@@ -3972,61 +3966,28 @@ do
 		language_names[#language_names + 1] = lang[enums.supported_langs_by_google[i]]
 	end
 
-	settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat"], "value_str", u.translate_chat.id, function(f)
+	settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat into"], "value_str", u.translate_chat.id, function(f)
 		if f.on then
 			if essentials.listeners["chat"]["translate"] then
 				return
 			end
-			local tracker <const> = {} -- To prevent spamming requests at Google, 1 translation every 500ms per player.
 			essentials.listeners["chat"]["translate"] = essentials.add_chat_event_listener(function(event)
-				if (settings.toggle["Translate your messages into"].on or event.player ~= player.player_id())
-				and event.body:find("^%P") -- chat commands
-				and player.is_player_valid(event.player)
-				and utils.time_ms() > (tracker[event.player] or 0) then
-					local language_translate_into_setting = 
-						enums.supported_langs_by_google_to_code[
-							enums.supported_langs_by_google[settings.valuei["Translate chat into language what language"].value + 1]
-						]
-					local str, detected_language
-					if player.player_id() == event.player and settings.toggle["Translate your messages into"].on then
-						language_translate_into_setting = enums.supported_langs_by_google_to_code[
-							enums.supported_langs_by_google[settings.valuei["Translate your messages into option"].value + 1]
-						]
-						str, detected_language = 
-							language.translate_text(
-								event.body, 
-								"auto", 
-								language_translate_into_setting
-							)
-					else
-						str, detected_language = 
-							language.translate_text(
-								event.body, 
-								"auto", 
-								language_translate_into_setting
-							)
-					end
-					tracker[event.player] = utils.time_ms() + 500
-					if ((settings.toggle["Translate your messages into"].on and event.player == player.player_id()) or not excluded_languages[detected_language])
+				if player.is_player_valid(event.sender) and event.sender ~= player.player_id() and event.body:find("^[^!/]") then
+
+					local language_translate_into_setting <const> = enums.supported_langs_by_google_to_code[enums.supported_langs_by_google[f.value + 1]]
+
+					local str <const>, detected_language <const> = language.translate_text(event.body, "auto", language_translate_into_setting)
+
+					if player.is_player_valid(event.sender)
 					and enums.supported_langs_by_google_to_name[detected_language]
-					and player.is_player_valid(event.player) -- Translation can take enough time for the player to become invalid in that time
+					and not excluded_languages[detected_language]
 					and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
-						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]].." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "..str
-						local is_team_chat = essentials.is_str(f, "Send to team chat")
 
-						if event.player == player.player_id() and settings.toggle["Translate your messages into"].on then
-							is_team_chat = essentials.is_str(settings.valuei["Where to send your translated messages"], "Send to team chat")
-						end
+						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]]
+						.." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "
+						..str
 
-						if essentials.is_str(settings.valuei["Where to send translations"], "To chat") 
-						or (event.player == player.player_id() and settings.toggle["Translate your messages into"].on) then
-							essentials.send_message(
-								str, 
-								is_team_chat
-							)
-						elseif player.player_id() ~= event.player then
-							essentials.msg("["..player.get_player_name(event.player).."]: "..str, "blue", true, 11)
-						end
+						essentials.msg("["..player.get_player_name(event.sender).."]: "..str, "blue", true, 11)
 					end
 				end
 			end)
@@ -4035,14 +3996,42 @@ do
 			essentials.listeners["chat"]["translate"] = nil
 		end
 	end)
-	settings.toggle["Translate chat into language"]:set_str_data({
-		lang["Send to team chat"],
-		lang["Send to all chat"]
-	})
+	settings.toggle["Translate chat into language"]:set_str_data(language_names)
+	settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
 
-	settings.toggle["Translate your messages into"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id)
-	settings.valuei["Translate your messages into option"] = settings.toggle["Translate your messages into"]
-	settings.valuei["Translate your messages into option"]:set_str_data(language_names)
+	-- Chose to do duplicate code, it's more readable and works more intuitively to have these 2 features be independent of each other.
+	settings.toggle["Translate your messages"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id, function(f)
+		if f.on then
+			if essentials.listeners["chat"]["translate your messages"] then
+				return
+			end
+			essentials.listeners["chat"]["translate your messages"] = essentials.add_chat_event_listener(function(event)
+				if player.is_player_valid(event.sender) and event.sender == player.player_id() and event.body:find("^[^!/]") then
+
+					local language_translate_into_setting <const> = enums.supported_langs_by_google_to_code[enums.supported_langs_by_google[f.value + 1]]
+
+					local str <const>, detected_language <const> = language.translate_text(event.body, "auto", language_translate_into_setting)
+
+					if player.is_player_valid(event.sender)
+					and enums.supported_langs_by_google_to_name[detected_language]
+					and not excluded_languages[detected_language]
+					and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
+						
+						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]]
+						.." > "..lang[enums.supported_langs_by_google_to_name[language_translate_into_setting]]..": "
+						..str
+
+						essentials.send_message(str, essentials.is_str(settings.valuei["Where to send your translated messages"], "Send to team chat"))
+					end
+				end
+			end)
+		else
+			event.remove_event_listener("chat", essentials.listeners["chat"]["translate your messages"])
+			essentials.listeners["chat"]["translate your messages"] = nil
+		end
+	end)
+	settings.toggle["Translate your messages"]:set_str_data(language_names)
+	settings.valuei["Translate your messages option"] = settings.toggle["Translate your messages"]
 
 	settings.valuei["Where to send your translated messages"] = menu.add_feature(lang["Translate your messages"], "action_value_str", u.translate_chat.id)
 	settings.valuei["Where to send your translated messages"]:set_str_data({
@@ -4063,20 +4052,11 @@ do
 		end)
 	end
 
-	settings.valuei["Where to send translations"] = menu.add_feature(lang["Where to send translations"], "action_value_str", u.translate_chat.id)
-	settings.valuei["Where to send translations"]:set_str_data({
-		lang["Notification"],
-		lang["To chat"]
+	settings.valuei["Where to send inputs"] = menu.add_feature(lang["Where to send inputs"], "action_value_str", u.translate_chat.id)
+	settings.valuei["Where to send inputs"]:set_str_data({
+		lang["Send to all chat"],
+		lang["Send to team chat"]
 	})
-
-	settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
-
-	settings.valuei["Translate chat into language what language"] = menu.add_feature(
-		lang["Translate into"], 
-		"action_value_str", 
-		u.translate_chat.id
-	)
-	settings.valuei["Translate chat into language what language"]:set_str_data(language_names)
 
 	menu.add_feature(lang["Tip: set hotkeys for the translate inputs below"], "action", u.translate_chat.id)
 	for i = 1, 10 do
@@ -4099,7 +4079,7 @@ do
 				)
 			essentials.send_message(
 				str, 
-				essentials.is_str(settings.toggle["Translate chat into language"], "Send to team chat")
+				essentials.is_str(settings.valuei["Where to send inputs"], "Send to team chat")
 			)
 		end)
 		settings.valuei["Input text to translate to chat "..i]:set_str_data(language_names)
@@ -4767,12 +4747,16 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 									else
 										blame = event.player
 									end
+									ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
+									system.yield(300)
 									local time <const> = utils.time_ms() + 900
 									while not player.is_player_dead(pid) and time > utils.time_ms() do
 										essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BARREL, true, false, 0, player.get_player_ped(blame))
 										system.yield(75)
 									end
-									kek_entity.ram_player(pid)
+									if not player.is_player_dead(pid) then
+										kek_entity.ram_player(pid)
+									end
 								end, nil)
 							end
 						elseif settings.in_use["Cage #chat command#"] and str:find("^%pcage") then
@@ -4891,7 +4875,8 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 								if pos then
 									menu.create_thread(function()
 										if player.player_id() ~= pid and not essentials.is_in_vehicle(pid) then
-											globals.force_player_into_vehicle(pid)
+											essentials.send_message("[Chat commands]: Forcing player into a vehicle. This can take up to 45 seconds.", event.player == player.player_id())
+											globals.force_player_into_vehicle(pid, 30000)
 										end
 										if pos == "player_pos" then
 											pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
@@ -5170,9 +5155,9 @@ settings.valuei["Echo delay"].max, settings.valuei["Echo delay"].min, settings.v
 settings.toggle["Echo chat"] = menu.add_feature(lang["Echo chat"], "toggle", u.chat_spammer.id, function(f)
 	if f.on then
 		essentials.listeners["chat"]["echo"] = essentials.add_chat_event_listener(function(event)
-			if player.is_player_valid(event.player) 
-			and player.player_id() ~= event.player 
-			and essentials.is_not_friend(event.player) then
+			if player.is_player_valid(event.sender) 
+			and player.player_id() ~= event.sender 
+			and essentials.is_not_friend(event.sender) then
 				for i = 1, settings.valuei["Echo delay"].value / 10 do
 					if not f.on or settings.valuei["Echo delay"].value ~= settings.valuei["Echo delay"].value then
 						break
@@ -5235,9 +5220,14 @@ do
 				end
 				local reaction <const> = {}
 				local i = 1
-				local str, status = ""
-				while u.number_of_responses_from_chat_bot.value >= i do
-					str, status = keys_and_input.get_input(lang["Type in what the bot will say to what you previously typed in."], str, 128, 0)
+				local str, status = keys_and_input.get_input(lang["Type in number of responses to add for this entry."], str, 3, 3)
+				if status == 2 then
+					return
+				end	
+				local number_of_responses = tonumber(str) or 1
+				str = ""
+				while number_of_responses >= i do
+					str, status = keys_and_input.get_input(lang["Type in the responses."], str, 128, 0)
 					if status == 2 then
 						return
 					end	
@@ -5306,22 +5296,6 @@ do
 		})
 	end
 
-	u.number_of_responses_from_chat_bot = menu.add_feature(lang["Number of responses"], "action_value_i", u.chat_bot.id)
-	u.number_of_responses_from_chat_bot.max = 100
-	u.number_of_responses_from_chat_bot.min = 1
-	u.number_of_responses_from_chat_bot.mod = 1
-	u.number_of_responses_from_chat_bot.value = 1
-
-	settings.valuei["chat bot delay"] = menu.add_feature(lang["Answer delay chatbot"], "action_value_i", u.chat_bot.id, function(f)
-		keys_and_input.input_number_for_feat(f, lang["Type in answer delay."])	
-	end)
-	settings.valuei["chat bot delay"].max, settings.valuei["chat bot delay"].min, settings.valuei["chat bot delay"].mod = 7200, 0, 20
-
-	settings.valuei["Chance to reply"] = menu.add_feature(lang["Chance to reply"].." %", "action_value_i", u.chat_bot.id)
-	settings.valuei["Chance to reply"].min = 1
-	settings.valuei["Chance to reply"].max = 100
-	settings.valuei["Chance to reply"].mod = 1
-
 	settings.toggle["chat bot"] = menu.add_feature(lang["Chat bot"], "toggle", u.chat_bot.id, function(f)
 		if f.on then
 			local str = essentials.get_file_string(paths.chat_bot)
@@ -5334,40 +5308,54 @@ do
 				end
 			end
 			essentials.listeners["chat"]["bot"] = essentials.add_chat_event_listener(function(event)
-				if player.is_player_valid(event.player)
-				and player.player_id() ~= event.player 
+				::start::
+				if player.is_player_valid(event.sender)
+				and player.player_id() ~= event.sender 
 				and math.random(1, 100) <= settings.valuei["Chance to reply"].value then
-					system.yield(settings.valuei["chat bot delay"].value)
-					if player.is_player_valid(event.player) then
+					essentials.wait_conditional(settings.valuei["chat bot delay"].value, function()
+						return f.on and not u.update_chat_bot
+					end)
+					if player.is_player_valid(event.sender) then
 						if u.update_chat_bot then
-							str = essentials.get_file_string(paths.chat_bot)
 							u.update_chat_bot = false
+							str = essentials.get_file_string(paths.chat_bot)
+							goto start
 						end
-						local count, reactions_str = 0
+
 						local msg <const> = event.body:lower()
+						local best_match_string_length, reactions_string = 0
 						for what_to_react_to, reactions in str:gmatch("|([^\n\r]+)|&([^\n\r]+)&") do
-							what_to_react_to = what_to_react_to:lower()
-							local start, End = msg:find(what_to_react_to)
-							if start and End - start > count then
-								count = End - start
-								reactions_str = reactions
+							
+							local start_pos <const>, end_pos <const> = msg:find(what_to_react_to:lower())
+							local how_good_is_match <const> = start_pos and (end_pos - start_pos) + 1 or nil
+
+							if how_good_is_match and how_good_is_match > best_match_string_length then
+								best_match_string_length = how_good_is_match
+								reactions_string = reactions
 							end
+
 						end
-						if not reactions_str then
-							return
+
+						if reactions_string then
+							local reactions_table <const> = {}
+							for entry in reactions_string:gmatch("¢ ([^¢]+) ¢") do
+								reactions_table[#reactions_table + 1] = entry
+							end
+
+							local exclusions <const> = {[player.player_id()] = true, [event.sender] = true}
+							local reaction <const> = reactions_table[math.random(math.min(1, #reactions_table), #reactions_table)]:gsub("%[[%a_]+%]", function(str)
+								if str == "[PLAYER_NAME]" then
+									return player.get_player_name(event.sender)
+								elseif str == "[MY_NAME]" then
+									return player.get_player_name(player.player_id())
+								elseif str == "[RANDOM_NAME]" then
+									local pid <const> = essentials.get_random_player_except(exclusions)
+									exclusions[pid] = true
+									return player.get_player_name(pid)
+								end
+							end)
+							essentials.send_message(reaction)
 						end
-						local reactions <const> = {}
-						for entry in reactions_str:gmatch("¢ (.-) ¢") do
-							reactions[#reactions + 1] = entry
-						end
-						local str = reactions[math.random(math.min(1, #reactions), #reactions)]
-						str = str:gsub("%[PLAYER_NAME%]", player.get_player_name(event.player))
-						str = str:gsub("%[MY_NAME%]", player.get_player_name(player.player_id()))
-						local exclusion <const> = {[player.player_id()] = true}
-						str = str:gsub("%[RANDOM_NAME%]", function()
-							return player.get_player_name(essentials.get_random_player_except(exclusion))
-						end)
-						essentials.send_message(str)
 					end
 				end
 			end)
@@ -5375,7 +5363,17 @@ do
 			event.remove_event_listener("chat", essentials.listeners["chat"]["bot"])
 			essentials.listeners["chat"]["bot"] = nil
 		end
-	end) 
+	end)
+
+	settings.valuei["chat bot delay"] = menu.add_feature(lang["Answer delay"], "action_value_i", u.chat_bot.id, function(f)
+		keys_and_input.input_number_for_feat(f, lang["Type in answer delay."])	
+	end)
+	settings.valuei["chat bot delay"].max, settings.valuei["chat bot delay"].min, settings.valuei["chat bot delay"].mod = 10000, 20, 20
+
+	settings.valuei["Chance to reply"] = menu.add_feature(lang["Chance to reply"].." %", "action_value_i", u.chat_bot.id)
+	settings.valuei["Chance to reply"].min = 1
+	settings.valuei["Chance to reply"].max = 100
+	settings.valuei["Chance to reply"].mod = 1
 
 	menu.add_feature(lang["Create new chatbot profile"], "action", u.chat_bot.id, function(f)
 		local input, status
@@ -5418,80 +5416,6 @@ do
 		lang["Part"].." 5"
 	})
 end
-
-settings.toggle["Clever bot"] = menu.add_feature(lang["Log chat & use as chatbot"], "toggle", u.chat_bot.id, function(f)
-	if f.on then
-		local mapped_messages <const> = {}
-		local concat_str <const> = {}
-		do
-			local index
-			for line in io.lines(paths.clever_bot) do
-				if line:find("%S%s*§|§") then
-					if mapped_messages[index] and #mapped_messages[index] == 0 then
-						mapped_messages[index] = nil
-					end
-					index = line:match("(.*)§|§")
-					concat_str[#concat_str + 1] = line
-					mapped_messages[index] = {index = #concat_str}
-				elseif line:find("^\t%s*%S") then
-					concat_str[#concat_str + 1] = line
-					mapped_messages[index][#mapped_messages[index] + 1] = line
-				end
-			end
-		end
-		local last_response
-		essentials.listeners["chat"]["Clever bot"] = essentials.add_chat_event_listener(function(event)
-			if player.is_player_valid(event.player) and (not f.data[player.get_player_scid(event.player)] or utils.time_ms() > f.data[player.get_player_scid(event.player)]) then
-				f.data[player.get_player_scid(event.player)] = utils.time_ms() + 1000
-				if math.random(1, 100) <= settings.valuei["Chance to reply"].value and mapped_messages[event.body] and event.player ~= player.player_id() then
-					essentials.send_message(mapped_messages[event.body][math.random(1, #mapped_messages[event.body])]:match("^\t(.*)"))
-				end
-				if not event.body:find("^%p") and not event.body:find("[Chat commands]", 1, true) and not essentials.contains_advert(event.body) then
-					if last_response then
-						if mapped_messages[last_response] then
-							for i = 1, #mapped_messages[last_response] do
-								if mapped_messages[last_response][i] == "\t"..event.body then
-									return
-								end
-							end
-							local initial_size <const> = #concat_str
-							mapped_messages[last_response][#mapped_messages[last_response] + 1] = "\t"..event.body
-							for i = 0, #mapped_messages[last_response] do -- Manual shift is far more efficient than table.remove. This shifts all elements multiple indices at once.
-								concat_str[mapped_messages[last_response].index + i] = nil
-							end
-							if #concat_str == initial_size then
-								local size <const> = #mapped_messages[last_response] + 1
-								for i = mapped_messages[last_response].index, #concat_str - size do
-									concat_str[i] = concat_str[i + size]
-								end
-								for i = (#concat_str - size) + 1, #concat_str do
-									concat_str[i] = nil
-								end
-							end
-						else
-							mapped_messages[last_response] = {"\t"..event.body}
-						end
-						mapped_messages[last_response].index = #concat_str + 1
-						concat_str[#concat_str + 1] = last_response.."§|§"
-						for i = 1, #mapped_messages[last_response] do
-							concat_str[#concat_str + 1] = mapped_messages[last_response][i]
-						end
-						local file <close> = io.open(paths.clever_bot, "w+")
-						concat_str[#concat_str + 1] = "" -- Inserting newline at last position
-						file:write(table.concat(concat_str, "\n"))
-						concat_str[#concat_str] = nil -- So this doesn't interfere with the manual index shifts
-						file:flush()
-					end
-					last_response = event.body
-				end
-			end
-		end)
-	else
-		event.remove_event_listener("chat", essentials.listeners["chat"]["Clever bot"])
-		essentials.listeners["chat"]["Clever bot"] = nil
-	end
-end)
-settings.toggle["Clever bot"].data = {}
 
 settings.toggle["Auto tp to waypoint"] = menu.add_feature(lang["Auto tp to waypoint"], "toggle", u.self_options.id, function(f)
 	while f.on do
@@ -5853,6 +5777,84 @@ settings.valuei["Time OSD option"]:set_str_data({
 })
 
 display_settings(u.display_time, "Time OSD", -990, 990, 60, 200)
+
+u.display_location_info = menu.add_feature(lang["Display session location info"], "parent", u.self_options.id)
+settings.toggle["Display country info"] = menu.add_feature(lang["Display session location info"], "toggle", u.display_location_info.id, function(f)
+	local default_str <const> = lang["Obtaining location info. This usually takes between 5-10 seconds. Max 45 api requests per minute.\nIf the list is smaller than expected, it means you hit the limit. The limit will reset in one minute."]
+	local text = default_str
+	local str <const> = {}
+	menu.create_thread(function()
+		while f.on do
+			essentials.draw_text_prevent_offscreen(
+				text, 
+				memoize.v2(
+					settings.valuei["Display country info x"].value,
+					settings.valuei["Display country info y"].value
+				) / 1000,
+				settings.valuei["Display country info Scale"].value / 60,
+				essentials.get_rgb(settings.valuei["Display country info R"].value, settings.valuei["Display country info G"].value, settings.valuei["Display country info B"].value, settings.valuei["Display country info A"].value),
+				settings.toggle["Display country info outline"].on
+			)
+			system.yield(0)
+		end
+	end)
+	while f.on do
+		local update = false
+		for pid in essentials.players() do
+			local scid <const> = player.get_player_scid(pid)
+			if not f.data[scid] then -- The api is limited to 45 requests per minute. This is more than enough. If the limit is hit, the web.get request completely fail until limit is restarted.
+				local status <const>, player_info <const> = web.get("http://ip-api.com/json/"..web.urlencode(essentials.dec_to_ipv4(player.get_player_ip(pid))).."?fields=status,message,country,city")
+				if enums.html_response_codes[status] == "OK" then
+					local ip_lookup_status <const> = player_info:match("\"status\":\"(.-)\"") == "success"
+					f.data[scid] = string.format(
+						ip_lookup_status and "%s: [%s, %s]" or "%s: [%s]", 
+						player.get_player_name(pid), 
+						ip_lookup_status and player_info:match("\"country\":\"(.-)\"") or lang[player_info:match("\"message\":\"(.-)\"") or "Unknown error"],
+						player_info:match("\"city\":\"(.-)\"")
+					)
+					update = true
+				end
+			end
+			str[pid] = f.data[scid]
+		end
+		for pid in pairs(str) do
+			if not player.is_player_valid(pid) then
+				update = true
+				break
+			end
+		end
+		if update then
+			local str2 = {}
+			for pid, text in pairs(str) do
+				if player.is_player_valid(pid) then
+					str2[#str2 + 1] = text
+				else
+					str[pid] = nil
+				end
+			end
+			table.sort(str2, function(a, b)
+				local score_a, score_b = 0, 0
+				local is_a_successful <const> = a:find(", ", 1, true)
+				local is_b_successful <const> = b:find(", ", 1, true)
+
+				if not is_a_successful then
+					score_a = score_a | 1 << 51
+				end
+				if not is_b_successful then
+					score_b = score_b | 1 << 51
+				end
+				if is_a_successful and is_b_successful and a:match("%[(.-),") < b:match("%[(.-),") then
+					score_b = score_b | 1 << 49
+				end
+				return score_a < score_b
+			end)
+			text = #str2 == 0 and default_str or table.concat(str2, "\n")
+		end
+		system.yield(0)
+	end
+end)
+settings.toggle["Display country info"].data = {}
+display_settings(u.display_location_info, "Display country info", -990, 990, 36, 100)
 
 u.force_field = menu.add_feature(lang["Force field"], "parent", u.self_options.id)
 

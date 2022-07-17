@@ -66,10 +66,10 @@ do
 		return update_buf
 	end
 
-	function kek_entity.entity_manager:clear()
+	function kek_entity.entity_manager:clear(dont_clear_user_vehicle)
 		self:update()
 		for _, Entity in essentials.entities(essentials.deep_copy(self.entities)) do
-			if kek_entity.get_control_of_entity(Entity) then
+			if (not dont_clear_user_vehicle or player.get_player_vehicle(player.player_id()) ~= Entity) and kek_entity.get_control_of_entity(Entity) then
 				kek_entity.hard_remove_entity_and_its_attachments(Entity)
 			end
 		end
@@ -489,6 +489,7 @@ function kek_entity.remove_player_entities(...)
 end
 
 function kek_entity.get_all_attached_entities(Entity, entities)
+	entity.process_entity_attachments(Entity)
 	local entities <const> = entities or {}
 	for _, all_entities in pairs({
 		vehicle.get_all_vehicles(),
