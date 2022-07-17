@@ -964,7 +964,11 @@ function essentials.get_random_player_except(...)
 	if #pids > 0 then
 		return pids[math.random(1, #pids)]
 	else
-		return player.player_id()
+		local pids <const> = {}
+		for pid in essentials.players(true) do
+			pids[#pids + 1] = pid
+		end
+		return pids[math.random(1, #pids)]
 	end
 end
 
