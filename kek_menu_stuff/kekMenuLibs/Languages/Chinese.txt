@@ -64,7 +64,6 @@ Text to spam, type it in §输入轰炸文本
 Random text from file §从文件中获取随机文本
 Echo delay, click to type §复读机延迟
 Echo chat §启用复读机
-Answer delay chatbot §聊天信息回应发送延迟
 Chat bot §聊天机器人
 Max car §载具最大化升级
 Change backplate text §更改车牌文本
@@ -142,16 +141,16 @@ to clipboard. §载具名称到剪贴板
 Cars spawned. §载具已生成.
 Maxed everyone's cars. §最大化升级所有人的载具
 Please set a waypoint. §请先设置一个标记点.
-Successfully added entry. §成功添加条目
-Removed entry. §已删除条目
-is not in a vehicle. §不在载具内
+Successfully added entry. §成功添加条目.
+Removed entry. §已删除条目.
+is not in a vehicle. §不在载具内.
 vehicle gun. §载具枪
 Turned off the keybinding:\n\" §关闭了按键绑定:\n\"
 Keybinding not changed. Empty input or input is the same as existing keybinding. §按键绑定没有改变.输入为空或输入与现有的按键绑定冲突.
 Invalid keybinding.\nIt's case sensitive, get it right. §无效的按键绑定,检查是不是大写,再次确认？
 Most of the keys like, left shift. are written in all caps. Example: LSHIFT. §大部分的键,如左shift.都是大写的.例如 LSHIFT.
 Settings saved! §设置已保存!
-Successfully loaded §成功加载
+Successfully loaded §已成功加载
 Saved §已保存
 Saved profile name. §已保存配置名称.
 Successfully loaded Kek's menu. §成功加载Kek菜单.
@@ -160,22 +159,21 @@ Type in the lua script you want to remove. §请输入你要删除的LUA脚本�
 Type in why you're adding this person. §请输入添加原因.
 Type in social club ID, also known as: rid / scid. §请输入RID.
 Type in ip. §请输入IP.
-Type in their name. §shu ru ta men de ming zi.
-Type in why you're adding everyone. §请输入添加原因
-Type in what player you wanna search for. rid / name / ip §请输入玩家信息(RID/名称/IP)
-Type in what to add. §请输入你想添加的内容
-Type in what to remove. §请输入要删除的内容
+Type in their name. §输入他的名称.
+Type in why you're adding everyone. §请输入添加原因.
+Type in what player you wanna search for. rid / name / ip §请输入玩家信息(RID/名称/IP).
+Type in what to add. §请输入你想添加的内容.
+Type in what to remove. §请输入要删除的内容.
 Type in which car to spawn §请输入想要生成的载具
 Type in echo delay. §请输入复读延迟
-Type in what the bot will react to. §请输入触发后输入的信息
-Type in what the bot will say to what you previously typed in. §请输入检测的内容
-Type in what the text the bot reacts to in the entry you wish to remove. §请输入要删除的条目
-Type in answer delay. §请输入应答延迟
-Type in the text you want displayed on the backplate of your cars after maxing them. §请输入车牌的文本信息
+Type in what the bot will react to. §请输入触发的信息内容.
+Type in what the text the bot reacts to in the entry you wish to remove. §请输入要删除的条目.
+Type in answer delay. §请输入回复延迟.
+Type in the text you want displayed on the backplate of your cars after maxing them. §请输入车牌的文本信息.
 Type in vehicle speed §请输入载具速度
 Type in which car to ram with §请输入想要撞击的载具
 Type in what you want the keybinding to be. §请按下你想要绑定的按键
-Type in the name of the profile. §请输入配置文件名称
+Type in the name of the profile. §请输入配置文件名称.
 Log: §记录
 Kick: §踢出
 Max vehicle §最大化升级载具
@@ -344,7 +342,6 @@ The hash was copied to your clipboard, more info in the debug console. §哈希�
 Send command list §发送命令列表
 Friends can't be targeted §排除好友
 You can't be targeted §排除自己
-Number of responses §回应数
 Clear entities §清除实体
 Auto tp to waypoint §自动传送到标记点
 Turn on script loader §开启脚本加载器
@@ -474,7 +471,6 @@ time. §次
 Outline §字体加粗
 Vehicle blacklist:\nstealing §载具黑名单:\n抢车
 Mount Chiliad & kill §C山山顶 & 击杀
-Log chat & use as chatbot §记录聊天信息并作为聊天机器人使用
 Compacts §小型汽车
 Sedans §轿车
 SUVs §SUV
@@ -664,8 +660,6 @@ files downloaded §个文件已下载.
 Turn off debug mode to use auto-updater. §关闭 调试模式 以使用自动更新.
 Show latest update changelog §显示最新的更新日志
 Participate in betas §参与测试
-Translate into §翻译成
-Translate chat §翻译聊天
 Translation §翻译
 Afrikaans §南非荷兰语
 Albanian §阿尔巴尼亚语
@@ -779,7 +773,6 @@ Zulu §祖鲁语
 Forcing player into vehicle. This can take up to 15 seconds. §强制玩家进入载具中...最多可能需要15秒.
 Failed to teleport player. §传送玩家失败.
 Translate your messages into §翻译你的聊天信息
-Obtaining update information... §获取更新信息中...
 This message will disappear in %i seconds and will assume you don't want the update. §此信息将在%i秒后消失,并假设你不想更新.
 Check for updates §自动检查更新
 You must turn on trusted mode->Http to use this script. §你必须打开 信任模式 -> Http 才能使用此脚本.
@@ -789,8 +782,6 @@ Requires %i more objects than can be spawned. There are objects taking up space;
 The map/vehicle won't be visible to other players, it has too many entities. Networked maps/vehicles supports max:\n%i objects\n%i vehicles\n%i peds. §这个 地图/载具 其他玩家看不到,它有太多实体. 联网地图/载具最多支持: \n%i 个物体\n%i 辆载具\n%i 个NPC.
 The map/vehicle will be visible to other people. §这个 地图/载具 其他人可以看到.
 The map/vehicle can be networked if you clear all entities. Currently there are other networked entities taking up space. §如果你清除掉所有实体,地图/载具 将可以联网. 目前还有其他网络实体占用空间.
-Where to send translations §发送翻译到
-To chat §聊天
 Notification §通知
 Languages to not translate §不翻译的语言
 Type in what to translate. §输入要翻译的内容.
@@ -826,3 +817,16 @@ The text is auto aligned to never be off-screen. §文字是自动对齐的,永�
 Attempt %i / %i to fetch %s. §尝试获取 %i / %i,%s.
 Failed to fetch %s with error: %s §获取 %s 失败,错误: %s
 Successfully fetched %s. §成功获取了 %s.
+Unknown vehicle name §未知载具名称
+Where to send inputs §在哪里发送输入的内容
+Translate chat into §翻译聊天信息为
+Display session location info §显示战局玩家的IP位置信息
+Obtaining location info. This usually takes between 5-10 seconds. Max 45 api requests per minute.\nIf the list is smaller than expected, it means you hit the limit. The limit will reset in one minute. §获取IP位置信息. 通常需要 5-10 秒. 每分钟最多 45 个 api 请求.\n如果有些玩家没有显示,则说明你达到了限制. 限制将在一分钟内重置.
+private range §私人范围
+reserved range §保留范围
+invalid query §无效查询
+Unknown error §未知错误
+Answer delay §回复延迟
+Type in number of responses to add for this entry. §请输入要为此条目添加的回复次数.
+Type in the responses. §输入回复内容.
+Translate chat §翻译聊天
