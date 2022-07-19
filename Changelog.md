@@ -1,2 +1,5 @@
-Fixed forcing player into vehicle not working properly if target is in godmode
-Improved UI colors
+Full rework of chat commands
+Removed "!removeweapon" chat command
+Reworked script event crash
+Fixed 0 dollar bounties not working
+Updated !tp chat command locations
