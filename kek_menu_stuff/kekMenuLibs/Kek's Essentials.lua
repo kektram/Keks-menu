@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.6"}
+local essentials <const> = {version = "1.5.7"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -228,7 +228,7 @@ function essentials.const_all(Table, timeout)
 end
 
 function essentials.make_string_case_insensitive(str)
-	str = str:gsub("%a", function(str) -- Done like this to only return the string. Gsub has 2 return values.
+	str = str:gsub("%a", function(str)
 		return "["..str:lower()..str:upper().."]"
 	end)
 	return str
@@ -275,6 +275,27 @@ function essentials.split_string(str, size)
 		i = i + 1
 	until pos >= len
 	return strings
+end
+
+function essentials.split_string_table_by_size(string_table, size) -- Split strings will always be equal to or smaller in size than requested size
+	local strings, count = {}, 0
+	local strings_to_return <const> = {}
+
+	for i = 1, #string_table do
+		essentials.assert(size >= #string_table[i], "One of the strings are longer then the requested split size.", string_table[i])
+		count = count + #string_table[i] + (#string_table > 0 and 1 or 0) -- Account for new lines
+		if count <= size then
+			strings[#strings + 1] = string_table[i]
+			if i == #string_table then
+				strings_to_return[#strings_to_return + 1] = table.concat(strings, "\n")
+			end
+		else
+			strings_to_return[#strings_to_return + 1] = table.concat(strings, "\n")
+			strings, count = {string_table[i]}, #string_table[i]
+		end
+	end
+
+	return strings_to_return
 end
 
 function essentials.date_to_int(date)

@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b31",
+	version = "0.4.8.0.b32",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -58,7 +58,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.5",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.5.6"
+	["Kek's Essentials"] = "1.5.7"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -135,7 +135,6 @@ for name, version in pairs({
 	["Kek's Entity functions"] = "1.2.7",
 	["Kek's Trolling entities"] = "1.0.7",
 	["Kek's Custom upgrades"] = "1.0.2",
-	["Kek's Admin mapper"] = "1.0.4",
 	["Kek's Menyoo saver"] = "1.0.9",
 	["Kek's Natives"] = "1.0.1"
 }) do
@@ -164,7 +163,6 @@ local menyoo <const> = package.loaded["Kek's Menyoo spawner"]
 local kek_entity <const> = package.loaded["Kek's Entity functions"]
 local troll_entity <const> = package.loaded["Kek's Trolling entities"]
 local custom_upgrades <const> = package.loaded["Kek's Custom upgrades"]
-local admin_mapper <const> = package.loaded["Kek's Admin mapper"]
 local menyoo_saver <const> = package.loaded["Kek's Menyoo saver"]
 local natives <const> = package.loaded["Kek's Natives"]
 
@@ -855,10 +853,6 @@ for _, properties in pairs({
 	},
 	{
 		setting_name = "Chat commands",
-		setting = false
-	},
-	{
-		setting_name = "Only friends can use chat commands",
 		setting = false
 	},
 	{
@@ -2959,9 +2953,16 @@ do
 	settings.toggle["Check ip in also known as"] = menu.add_feature(lang["Check ip in also known as"], "toggle", parent.id)
 end
 
-menu.add_player_feature(lang["Script event crash"], "action", u.malicious_player_features, function(f, pid)
-	globals.script_event_crash(pid) 
-end)
+menu.add_player_feature(lang["Script event crash"], "action_value_str", u.malicious_player_features, function(f, pid)
+	if essentials.is_str(f, "Big while loops") then
+		globals.script_event_crash(pid)
+	elseif essentials.is_str(f, "25 notifs in one frame") then
+		globals.script_event_crash_2(pid)
+	end
+end):set_str_data({
+	lang["Big while loops"],
+	lang["25 notifs in one frame"]
+})
 
 menu.add_player_feature(lang["Crash"], "action", u.malicious_player_features, function(f, pid)
 	if player.player_count() == 0 then
@@ -4602,502 +4603,558 @@ menu.add_feature(lang["Text to spam, type it in"], "action", u.chat_spammer.id, 
 	settings.in_use["Spam text"] = input
 end)
 
-settings.toggle["Only friends can use chat commands"] = menu.add_feature(lang["Only friends can use commands"], "toggle", u.chat_commands.id)
-
 settings.toggle["Friends can't be targeted by chat commands"] = menu.add_feature(lang["Friends can't be targeted"], "toggle", u.chat_commands.id)
 
 settings.toggle["You can't be targeted"] = menu.add_feature(lang["You can't be targeted"], "toggle", u.chat_commands.id)
 
 settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "toggle", u.chat_commands.id, function(f)
-	if f.on then
-		essentials.listeners["chat"]["commands"] = essentials.add_chat_event_listener(function(event)
-			if player.is_player_valid(event.player) and f.data.command_strings[(event.body:match("^%p(%a+)") or ""):lower()] then
-				if utils.time_ms() < (f.data.tracker[event.player] or 0) then
-					essentials.send_message("[Chat commands]: Attempting too many commands. Max 1 command every second.", player.player_id() == event.player)
+	if not f.on then
+		event.remove_event_listener("chat", essentials.listeners["chat"]["commands"])
+		essentials.listeners["chat"]["commands"] = nil
+		return
+	end
+
+	essentials.listeners["chat"]["commands"] = essentials.add_chat_event_listener(function(event)
+		local str <const> = event.body:lower()
+
+		local what_command, pos = str:match("^%p(%w+)()")
+		local setting_name <const> = f.data.commands_info[what_command] and f.data.commands_info[what_command].setting_name
+
+		if f.data.commands_info[what_command] and f.data.commands_info[what_command].aliases then
+			what_command = setting_name:match("%w+"):lower()
+		end
+
+		if not player.is_player_valid(event.sender) or not f.data.enabled_commands[what_command] then
+			return
+		end
+
+		if setting_name and essentials.is_str(settings.toggle[setting_name], "You & friends") and player.player_id() ~= event.sender and essentials.is_not_friend(event.sender) then
+			f.data.send_message("This command is only available to me and my friends.", event.sender)
+			return
+		end
+
+		if setting_name and essentials.is_str(settings.toggle[setting_name], "You only") and player.player_id() ~= event.sender then
+			f.data.send_message("This command is only available to me.", event.sender)
+			return
+		end
+
+		if utils.time_ms() < (f.data.tracker[event.sender] or 0) then
+			f.data.send_message("Attempting too many commands. Max 1 command every second.", event.sender)
+			return
+		end
+		if f.data.player_chat_command_blacklist[player.get_player_scid(event.sender)] then
+			f.data.send_message(string.format("Your chat command access have been revoked, %s.", player.get_player_name(event.sender)), event.sender)
+			return
+		end
+
+		local command_target = event.sender
+		local args <const> = {}
+		local expected_arg_display <const> = string.format("\nExpected arguments: %s", f.data.commands_info[what_command].args_display)
+		for _, properties in pairs(f.data.commands_info[what_command].args) do
+			local previous_pos <const> = pos
+			local argument_name_lowercase <const> = properties.name:lower()
+
+			args[properties.name], pos = str:match("("..properties.pattern..")()", pos + 1)
+			if args[properties.name] == "" then
+				args[properties.name] = nil
+			end
+
+			if str:match("(%S+)", previous_pos + 1) then
+
+				if argument_name_lowercase == "on / off" and args[properties.name] ~= "on" and args[properties.name] ~= "off" then
+					f.data.send_message("Invalid argument.\nExpected \"on\" or \"off\" for argument \""..properties.name.."\".", event.sender)
 					return
-				end
-				if event.sender ~= event.player then
-					essentials.send_message("[Chat commands]: You can't use the chat commands while spoofing as other people, "..player.get_player_name(event.sender)..".")
-					return
-				end
-				f.data.tracker[event.player] = utils.time_ms() + 1000
-				if f.data.player_chat_command_blacklist[player.get_player_scid(event.player)] then
-					essentials.send_message(string.format("[Chat commands]: Your chat command access have been revoked, %s.", player.get_player_name(event.player)), event.player == player.player_id())
-					return
-				end
-				if not (not settings.toggle["Only friends can use chat commands"].on or network.is_scid_friend(player.get_player_scid(event.player)) or player.player_id() == event.player) then
-					essentials.send_message("[Chat commands]: You can't use chat commands.")
-					return
-				end
-				if player.is_player_valid(event.player) then
-					local str = event.body:lower()
-					local found_player_pid = false
-					local pid
-					local player_name <const> = str:match("^%p%a+ ([^\32]+)")
-					if player_name 
-					and not str:find("^%ptp [^\32]+$")
-					and not str:find("^%pteleport [^\32]+$")
-					and not str:find("^%p[^\32]+ on")
-					and not str:find("^%p[^\32]+ off") -- It's quite common for player names to have on or off in their names.
-					and player.is_player_valid(essentials.name_to_pid(player_name)) then
-						pid = essentials.name_to_pid(player_name)
-						local name_pattern <const> = essentials.remove_special(player_name):lower()
-						str = str:gsub(" "..name_pattern.." ", " ")
-						str = str:gsub(" "..name_pattern.."$", "")
-						found_player_pid = true
-					else
-						pid = event.player
+				
+				elseif properties.pattern:find("^%%d[%+%-%?%*]$") then
+					args[properties.name] = math.tointeger(args[properties.name])
+					if not args[properties.name] then
+						f.data.send_message("Invalid argument.\nExpected an integer number for argument \""..properties.name.."\".", event.sender)
+						return
+					end
+				
+				elseif argument_name_lowercase == "player" then
+					command_target = essentials.name_to_pid(args[properties.name])
+					if not player.is_player_valid(command_target) then
+						f.data.send_message("Invalid player name."..expected_arg_display, event.sender)
+						return
 					end
 
-					if settings.toggle["You can't be targeted"].on and pid == player.player_id() and event.player ~= player.player_id() then
-						essentials.send_message("[Chat commands]: You can't use chat commands on this player.")
-						return
+				elseif argument_name_lowercase:find("player", 1, true) and properties.is_optional then
+					command_target = essentials.name_to_pid(args[properties.name])
+					if not player.is_player_valid(command_target) then
+						pos = pos - (1 + #args[properties.name])
+						command_target = event.sender
 					end
-					if settings.toggle["Friends can't be targeted by chat commands"].on and event.player ~= pid and network.is_scid_friend(player.get_player_scid(pid)) and player.player_id() ~= event.player then
-						essentials.send_message("[Chat commands]: You can't use chat commands on this player.")
-						return
+				end
+
+			elseif not args[properties.name] then
+				if properties.steal_arg_from_optional_arg and args[properties.steal_arg_from_optional_arg] then
+					if properties.steal_arg_from_optional_arg:find("player", 1, true) then -- Optional arg might've changed command target
+						command_target = event.sender
 					end
-					if f.on then
-						if settings.in_use["Spawn #chat command#"] and str:find("^%pspawn [^\32]+") then
-							local hash <const> = vehicle_mapper.get_hash_from_user_input(str:match("^%pspawn (.*)"))
-							if not streaming.is_model_a_vehicle(hash) then
-								essentials.send_message("[Chat commands]: Invalid vehicle name.", event.player == player.player_id())
-								return
-							end
-							if player.player_id() ~= event.player 
-							and not network.is_scid_friend(player.get_player_scid(event.player))
-							and settings.toggle["Vehicle blacklist"].on
-							and settings.in_use["vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(hash)] ~= 0 then
-								essentials.send_message("[Chat commands]: This vehicle is blacklisted.", event.player == player.player_id())
-								return
-							end
-							menu.create_thread(function()
-								local Vehicle <const> = kek_entity.spawn_networked_vehicle(hash, function()
-									local pos = kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))
-									local accurate_pos <const> = location_mapper.get_most_accurate_position_soft(pos)
-									if pos == accurate_pos then -- If ground_z can't be obtained
-										pos = essentials.get_player_coords(pid) 
-									end
-									return pos, player.get_player_heading(pid)
-								end, {
-									godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
-									max = settings.toggle["Spawn #vehicle# maxed"].on,
-									persistent = false
-								})
-								if not entity.is_entity_a_vehicle(Vehicle) then
-									essentials.send_message("[Chat commands]: Vehicle spawn limit is reached. Spawns are disabled.", event.player == player.player_id())
-								end
-							end, nil)
-						elseif settings.in_use["weapon #chat command#"] and str:find("^%pweapon [^\32]+") then
-							if str:find("^%pweapon all$") then
-								for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
-									if not weapon.has_ped_got_weapon(player.get_player_ped(pid), weapon_hash) then
-										weapon.give_delayed_weapon_to_ped(player.get_player_ped(pid), weapon_hash, 1, 0)
-										weapon.set_ped_ammo(player.get_player_ped(pid), weapon_hash, 9999)
-										system.yield(0)
-										if pid == player.player_id() then 
-											weapon_mapper.set_ped_weapon_attachments(player.get_player_ped(pid), true, weapon_hash)
-										end
-									end
-								end
-							else
-								local user_input <const> = essentials.make_string_case_insensitive(str:match("^%pweapon (.+)"))
-								for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
-									if weapon.get_weapon_name(weapon_hash):find(user_input) then
-										if not weapon.has_ped_got_weapon(player.get_player_ped(pid), weapon_hash) then
-											weapon.give_delayed_weapon_to_ped(player.get_player_ped(pid), weapon_hash, 1, 0)
-											weapon.set_ped_ammo(player.get_player_ped(pid), weapon_hash, 9999)
-											if pid == player.player_id() then 
-												weapon_mapper.set_ped_weapon_attachments(player.get_player_ped(pid), true, weapon_hash)
-											end
-										end
-										return
-									end
-								end
-								essentials.send_message("[Chat commands]: Invalid weapon name.", event.player == player.player_id())
-							end
-						elseif settings.in_use["removeweapon #chat command#"] and str:find("^%premoveweapon .+") then
-							local user_input <const> = essentials.make_string_case_insensitive(str:match("^%premoveweapon (.+)"))
-							if str:find("^%premoveweapon all$") then
-								for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
-									weapon.remove_weapon_from_ped(player.get_player_ped(pid), weapon_hash)
-									system.yield(0)
-								end
-							else
-								for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
-									if weapon.get_weapon_name(weapon_hash):find(user_input) then
-										weapon.remove_weapon_from_ped(player.get_player_ped(pid), weapon_hash)
-										return
-									end
-								end
-								essentials.send_message("[Chat commands]: Invalid weapon name.", event.player == player.player_id())
-							end
-						elseif settings.in_use["Kill #chat command#"] and str:find("^%pkill") then
-							if str:find("^%p%a+\32[%p%w]+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							if player.is_player_god(pid) then
-								essentials.send_message(string.format("[Chat commands] Failed to kill %s; He is in a property or in godmode. Them being in godmode doesn't mean they're a modder, the game gives you godmode in many scenarios.", player.get_player_name(pid)), event.player == player.player_id())
-							else
-								menu.create_thread(function()
-									local blame
-									if player.is_player_valid(essentials.name_to_pid(str:match("^%pkill ([^\32]+)$"))) then
-										blame = essentials.name_to_pid(str:match("^%pkill ([^\32]+)$"))
-									else
-										blame = event.player
-									end
-									ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
-									system.yield(300)
-									local time <const> = utils.time_ms() + 900
-									while not player.is_player_dead(pid) and time > utils.time_ms() do
-										essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BARREL, true, false, 0, player.get_player_ped(blame))
-										system.yield(75)
-									end
-									if not player.is_player_dead(pid) then
-										kek_entity.ram_player(pid)
-									end
-								end, nil)
-							end
-						elseif settings.in_use["Cage #chat command#"] and str:find("^%pcage") then
-							if str:find("^%p%a+\32[%p%w]+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							local update <const> = kek_entity.entity_manager:update()
-							if update.is_object_limit_not_breached and update.is_ped_limit_not_breached then
-								menu.create_thread(function()
-									local Ped <const> = kek_entity.create_cage(pid)
-									if Ped == -1 then
-										essentials.send_message("[Chat commands]: This player already have a cage on them.", event.player == player.player_id())
-										return
-									end
-									if not entity.is_entity_a_ped(Ped) then
-										essentials.send_message("[Chat commands]: Failed to spawn cage. Entity limits are reached.", event.player == player.player_id())
-										return
-									end
-								end, nil)
-							else
-								essentials.send_message("[Chat commands]: Failed to spawn cage. Entity limits are reached.", event.player == player.player_id())
-							end
-						elseif settings.in_use["Kick #chat command#"] and str:find("^%pkick") then
-							if str:find("^%p%a+\32[%p%w]+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							if pid == event.player then
-								essentials.send_message("[Chat commands]: You can't kick yourself.")
-								return
-							end
-							if pid == player.player_id() or not player.can_player_be_modder(pid) then
-								essentials.send_message("[Chat commands]: You can't kick this player.")
-								return
-							end
-							essentials.kick_player(pid)
-						elseif settings.in_use["Crash #chat command#"] and str:find("^%pcrash") then
-							if str:find("^%p%a+\32[%p%w]+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							if pid == event.player then
-								essentials.send_message("[Chat commands]: You can't crash yourself.")
-								return
-							end
-							if pid == player.player_id() then
-								essentials.send_message("[Chat commands]: You can't crash this player.")
-								return
-							end
-							menu.create_thread(function()
-								globals.script_event_crash(pid)
-							end, nil)
-						elseif settings.in_use["clowns #chat command#"] and str:find("^%pclowns") then
-							if str:find("^%p%a+\32[%p%w]+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							menu.create_thread(function()
-								local clown_van <const> = troll_entity.send_clown_van(pid)
-								if not entity.is_entity_a_vehicle(clown_van) then
-									essentials.send_message("[Chat commands]: Failed to spawn clown van.", event.player == player.player_id())
-								end
-							end, nil)
-						elseif settings.in_use["jet #chat command#"] and str:find("^%pjet") then
-							if str:find("^%p%a+\32[%p%w]+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							menu.create_thread(function()
-								local jet <const> = troll_entity.send_jet(pid)
-								if not entity.is_entity_a_vehicle(jet) then
-									essentials.send_message("[Chat commands]: Failed to spawn jet.", event.player == player.player_id())
-								end
-							end, nil)
-						elseif settings.in_use["chopper #chat command#"] and str:find("^%pchopper") then
-							if str:find("^%p%a+\32[%p%w]+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							menu.create_thread(function()
-								local chopper <const> = troll_entity.send_attack_chopper(pid)
-								if not entity.is_entity_a_vehicle(chopper) then
-									essentials.send_message("[Chat commands]: Failed to spawn chopper.", event.player == player.player_id())
-								end
-							end, nil)
-						elseif settings.in_use["tp #chat command#"] and (str:find("^%ptp [^\32]+") or str:find("^%pteleport [^\32]+")) then
-							str = str:gsub("^%pteleport", "!tp")
-							menu.create_thread(function()
-								local pos
-								if player.is_player_valid(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))) then
-									pos = "player_pos" -- forcing player causes out-of-date position, so position is grabbed afterwards
-								end
-								if not pos then
-									local str <const> = str:match("^%ptp (.+)"):lower()
-									for name, vector in pairs(location_mapper.GENERAL_POSITIONS) do
-										if not pos and name:lower():find(str, 1, true) then
-											pos = vector
-										elseif pos and name:lower() == str then
-											pos = vector
-										end
-									end
-								end
-								if not pos then
-									local x <const> = tonumber(str:match("^%ptp (%-?[%d.-]+),?"))
-									local y <const> = tonumber(str:match("^%ptp %-?[%d.-]+,? (%-?[%d.-]+)"))
-									local z <const> = tonumber(str:match("^%ptp %-?[%d.-]+,? %-?[%d.-]+,? (%-?[%d.-]+)"))
-									if x and y then
-										if not z then
-											pos = location_mapper.get_most_accurate_position(v3(x, y, -50), true)
-										else
-											pos = v3(x, y, z)
-										end
-									end
-								end
-								if pos then
-									menu.create_thread(function()
-										if player.player_id() ~= pid and not essentials.is_in_vehicle(pid) then
-											essentials.send_message("[Chat commands]: Forcing player into a vehicle. This can take up to 45 seconds.", event.player == player.player_id())
-											globals.force_player_into_vehicle(pid, 30000)
-										end
-										if pos == "player_pos" then
-											pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(str:match("^%ptp ([^\32]+)"))), 7)
-										end
-										kek_entity.teleport_player_and_vehicle_to_position(
-											pid, 
-											pos
-										)
-									end, nil)
-								else
-									essentials.send_message("[Chat commands]: Failed to find out where you wanted to teleport to.", event.player == player.player_id())
-								end
-							end, nil)
-						elseif settings.in_use["apartmentteleport #chat command#"] and str:find("^%papartmentteleport") then
-							if str:find("^%p%a+\32[%p%w]+\32%d+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							local apartment_id <const> = tonumber(str:match("^%papartmentteleport (%d+)$"))
-							if not apartment_id or apartment_id < 1 or apartment_id > 113 then
-								essentials.send_message("[Chat commands]: Invalid apartment id. Must be between 1 and 113.", event.player == player.player_id())
-								return
-							end
-							globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, apartment_id, 1, 1, 1)
-						elseif settings.in_use["offtheradar #chat command#"] and str:find("^%pofftheradar") then
-							if str:find("^%p%a+\32[%p%w]+\32%a+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							if not str:match("%pofftheradar (%a+)") then
-								essentials.send_message("[Chat commands]: Missing argument <on/off>")
-								return
-							end
-							if str:match("%pofftheradar (%a+)") ~= "on" and str:match("%pofftheradar (%a+)") ~= "off" then
-								essentials.send_message("[Chat commands]: expected <on/off>, got \""..str:match("%pofftheradar (%a+)").."\"")
-								return
-							end
-							menu.get_player_feature(player_feat_ids["player otr"]).feats[pid].on = str:match("%pofftheradar (%a+)") == "on"
-						elseif settings.in_use["neverwanted #chat command#"] and str:find("^%pneverwanted") then
-							if str:find("^%p%a+\32[%p%w]+\32%a+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							if not str:match("%pneverwanted (%a+)") then
-								essentials.send_message("[Chat commands]: Missing argument <on/off>")
-								return
-							end
-							if str:match("%pneverwanted (%a+)") ~= "on" and str:match("%pneverwanted (%a+)") ~= "off" then
-								essentials.send_message("[Chat commands]: expected <on/off>, got \""..str:match("%pneverwanted (%a+)").."\"")
-								return
-							end
-							menu.get_player_feature(player_feat_ids["Never wanted"]).feats[pid].on = str:match("%pneverwanted (%a+)") == "on"
-						elseif settings.in_use["bounty #chat command#"] and str:find("^%pbounty") then
-							if str:find("^%p%a+\32[%p%w]+\32%d+$") then
-								essentials.send_message("[Chat commands]: Invalid player name.")
-								return
-							end
-							local amount <const> = math.tointeger(str:match("^%pbounty%s+(%d+)"))
-							if not amount or amount < 0 or amount > 10000 then
-								essentials.send_message("[Chat commands]: Invalid bounty amount. It have to be an integer number between 0 & 10000.")
-								return
-							end
-							if globals.get_player_global("bounty_status", pid) == 1 then
-								essentials.send_message("[Chat commands]: This player already have a bounty set on them.")
-								return
-							end
-							globals.set_bounty(pid, false, true, amount)
-						elseif str:find("^%phelp$") or str:find("^%pcommands$") then
-							if not admin_mapper.is_there_admin_in_session() then
-								f.data.send_chat_commands()
-							end
+					args[properties.name] = args[properties.steal_arg_from_optional_arg]
+					args[properties.steal_arg_from_optional_arg] = nil
+					pos = previous_pos
+				elseif not properties.is_optional then
+					f.data.send_message(("Missing argument: \"%s\".%s"):format(properties.name, expected_arg_display), event.sender)
+					return
+				else
+					pos = previous_pos
+				end
+			else
+				f.data.send_message("Invalid argument for \""..properties.name.."\".", event.sender)
+				return
+			end
+		end
+
+		if settings.toggle["You can't be targeted"].on and command_target == player.player_id() and event.sender ~= player.player_id() then
+			f.data.send_message("You can't use chat commands on this player.", event.sender)
+			return
+		end
+		if settings.toggle["Friends can't be targeted by chat commands"].on and event.sender ~= command_target and network.is_scid_friend(player.get_player_scid(command_target)) and player.player_id() ~= event.sender then
+			f.data.send_message("You can't use chat commands on this player.", event.sender)
+			return
+		end
+
+		f.data.tracker[event.sender] = utils.time_ms() + 1000
+
+		if what_command == "spawn" then
+			local hash <const> = vehicle_mapper.get_hash_from_user_input(args["Vehicle name"])
+			if not streaming.is_model_a_vehicle(hash) then
+				f.data.send_message("Invalid vehicle name.", event.sender)
+				return
+			end
+			if player.player_id() ~= event.sender 
+			and not network.is_scid_friend(player.get_player_scid(event.sender))
+			and settings.toggle["Vehicle blacklist"].on
+			and settings.in_use["vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(hash)] ~= 0 then
+				f.data.send_message("This vehicle is blacklisted.", event.sender)
+				return
+			end
+			menu.create_thread(function()
+				local Vehicle <const> = kek_entity.spawn_networked_vehicle(hash, function()
+					local pos = kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(command_target))
+					local accurate_pos <const> = location_mapper.get_most_accurate_position_soft(pos)
+					if pos == accurate_pos then -- If ground_z can't be obtained
+						pos = essentials.get_player_coords(command_target) 
+					end
+					return pos, player.get_player_heading(command_target)
+				end, {
+					godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
+					max = settings.toggle["Spawn #vehicle# maxed"].on,
+					persistent = false
+				})
+				if not entity.is_entity_a_vehicle(Vehicle) then
+					f.data.send_message("Failed to spawn vehicle.", event.sender)
+				end
+			end, nil)
+		elseif what_command == "weapon" then
+			local user_input <const> = essentials.make_string_case_insensitive(args["Weapon name / All"])
+			for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
+				if args["Weapon name / All"] == "all" or weapon.get_weapon_name(weapon_hash):find(user_input) then
+					if not weapon.has_ped_got_weapon(player.get_player_ped(event.sender), weapon_hash) then
+						weapon.give_delayed_weapon_to_ped(player.get_player_ped(event.sender), weapon_hash, 1, 0)
+						weapon.set_ped_ammo(player.get_player_ped(event.sender), weapon_hash, 9999)
+						if event.sender == player.player_id() then 
+							weapon_mapper.set_ped_weapon_attachments(player.get_player_ped(event.sender), true, weapon_hash)
 						end
+						system.yield(0)
+					end
+					if args["Weapon name / All"] ~= "all" then
+						return
 					end
 				end
 			end
-		end)
-	else
-		event.remove_event_listener("chat", essentials.listeners["chat"]["commands"])
-		essentials.listeners["chat"]["commands"] = nil
-	end
+			if args["Weapon name / All"] ~= "all" then
+				f.data.send_message("Invalid weapon name.", event.sender)
+			end
+		elseif what_command == "kill" then
+			menu.create_thread(function()
+				ped.clear_ped_tasks_immediately(player.get_player_ped(command_target))
+				system.yield(300)
+				local time <const> = utils.time_ms() + 900
+				while not player.is_player_dead(command_target) and time > utils.time_ms() do
+					essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(command_target), enums.explosion_types.BARREL, true, false, 0, player.get_player_ped(event.sender))
+					system.yield(75)
+				end
+				kek_entity.ram_player(command_target)
+			end, nil)
+		elseif what_command == "cage" then
+			local update <const> = kek_entity.entity_manager:update()
+			if update.is_object_limit_not_breached and update.is_ped_limit_not_breached then
+				menu.create_thread(function()
+					local Ped <const> = kek_entity.create_cage(command_target)
+					if Ped == -1 then
+						f.data.send_message("This player already have a cage on them.", event.sender)
+						return
+					end
+					if not entity.is_entity_a_ped(Ped) then
+						f.data.send_message("Failed to spawn cage.", event.sender)
+						return
+					end
+				end, nil)
+			else
+				f.data.send_message("Failed to spawn cage. Entity limits are reached.", event.sender)
+			end
+		elseif what_command == "kick" then
+			if command_target == event.sender then
+				f.data.send_message("You can't kick yourself.", event.sender)
+				return
+			end
+			if command_target == player.player_id() or not player.can_player_be_modder(command_target) then
+				f.data.send_message("You can't kick this player.", event.sender)
+				return
+			end
+			essentials.kick_player(command_target)
+		elseif what_command == "crash" then
+			if command_target == event.sender then
+				f.data.send_message("You can't crash yourself.", event.sender)
+				return
+			end
+			if command_target == player.player_id() or not player.can_player_be_modder(command_target) then
+				f.data.send_message("You can't crash this player.", event.sender)
+				return
+			end
+			menu.create_thread(globals.script_event_crash, command_target)
+		elseif what_command == "clowns" then
+			menu.create_thread(function()
+				local clown_van <const> = troll_entity.send_clown_van(command_target)
+				if not entity.is_entity_a_vehicle(clown_van) then
+					f.data.send_message("Failed to spawn clown van.", event.sender)
+				end
+			end, nil)
+		elseif what_command == "jet" then
+			menu.create_thread(function()
+				local jet <const> = troll_entity.send_jet(command_target)
+				if not entity.is_entity_a_vehicle(jet) then
+					f.data.send_message("Failed to spawn jet.", event.sender)
+				end
+			end, nil)
+		elseif what_command == "chopper" then
+			menu.create_thread(function()
+				local chopper <const> = troll_entity.send_attack_chopper(command_target)
+				if not entity.is_entity_a_vehicle(chopper) then
+					f.data.send_message("Failed to spawn chopper.", event.sender)
+				end
+			end, nil)
+		elseif what_command == "tp" then
+			menu.create_thread(function()
+				local pos
+				if player.is_player_valid(essentials.name_to_pid(args["player name/location"])) then
+					pos = "player_pos" -- forcing player causes out-of-date position, so position is grabbed afterwards
+				end
+				if not pos then
+					local str <const> = args["player name/location"]:lower()
+					for name, vector in pairs(location_mapper.GENERAL_POSITIONS) do
+						name = name:lower()
+						if name == str then
+							pos = vector
+							break
+						elseif not pos and name:find(str, 1, true) then
+							pos = vector
+						end
+					end
+				end
+				if pos then
+					menu.create_thread(function()
+						if player.player_id() ~= command_target and not essentials.is_in_vehicle(command_target) then
+							f.data.send_message("Forcing player into a vehicle. This may take up to 45 seconds.", event.sender)
+							globals.force_player_into_vehicle(command_target, 30000)
+						end
+						if player.is_player_valid(command_target) then
+							if pos == "player_pos" then
+								pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(args["player name/location"])), 7)
+							end
+							kek_entity.teleport_player_and_vehicle_to_position(
+								command_target, 
+								pos
+							)
+						end
+					end, nil)
+				else
+					f.data.send_message("Failed to find out where you wanted to teleport to.", event.sender)
+				end
+			end, nil)
+		elseif what_command == "apartmentteleport" then
+			if args["1 - 113"] < 1 or args["1 - 113"] > 113 then
+				f.data.send_message("Invalid apartment id. Must be between 1 and 113.", event.sender)
+				return
+			end
+			globals.send_script_event(command_target, "Apartment invite", nil, command_target, 1, 0, args["1 - 113"], 1, 1, 1)
+		elseif what_command == "offtheradar" then
+			menu.get_player_feature(player_feat_ids["player otr"]).feats[command_target].on = args["on / off"] == "on"
+		elseif what_command == "neverwanted" then
+			menu.get_player_feature(player_feat_ids["Never wanted"]).feats[command_target].on = args["on / off"] == "on"
+		elseif what_command == "bounty" then
+			if args["0 - 10000"] < 0 or args["0 - 10000"] > 10000 then
+				f.data.send_message("Invalid bounty amount. It have to be an integer number between 0 & 10000.", event.sender)
+				return
+			end
+			if globals.get_player_global("bounty_status", command_target) == 1 then
+				f.data.send_message("This player already have a bounty set on them.", event.sender)
+				return
+			end
+			globals.set_bounty(command_target, false, true, args["0 - 10000"])
+		elseif what_command == "help" or what_command == "commands" then
+			f.data.send_chat_commands()
+		end
+	end)
 end)
 
 do
-	local chat_command_setting_properties <const> = essentials.const({
+	local player_name_pattern <const> = "%S+"
+	local chat_command_properties <const> = essentials.const({
 		{
 			setting_name = "Kick #chat command#", 
 			setting = false, 
 			feature_name = lang["Kick"],
-			args = "<Player>"
+			args_display = "<Player>",
+			args = {
+				{
+					name = "Player",
+					pattern = player_name_pattern
+				}
+			}
 		},
 		{
 			setting_name = "Crash #chat command#", 
 			setting = false, 
 			feature_name = lang["Crash"],
-			args = "<Player>"
-		},
-		{
-			setting_name = "apartmentteleport #chat command#", 
-			setting = false, 
-			feature_name = lang["Apartment invites"], 
-			args = "<Player> <1 - 113>"
-		},
-		{
-			setting_name = "Cage #chat command#", 
-			setting = false, 
-			feature_name = lang["Cage player"],
-			args = "<Player>"
-		},
-		{
-			setting_name = "Kill #chat command#", 
-			setting = false, 
-			feature_name = lang["Kill player"], 
-			args = "<Player> <Player>"
-		},
-		{
-			setting_name = "clowns #chat command#", 
-			setting = false, 
-			feature_name = lang["Clown vans"],
-			args = "<Player>"
-		},
-		{
-			setting_name = "jet #chat command#", 
-			setting = false, 
-			feature_name = lang["Jet"],
-			args = "<Player>"
-		},
-		{
-			setting_name = "chopper #chat command#", 
-			setting = false, 
-			feature_name = lang["Send attack chopper"],
-			args = "<Player>"
-		},
-		{
-			setting_name = "neverwanted #chat command#", 
-			setting = true, 
-			feature_name = lang["Never wanted"],
-			args = "<Player> <on / off>"
-		},
-		{
-			setting_name = "bounty #chat command#",
-			setting = true,
-			feature_name = lang["Set bounty"],
-			args = "<Player> <0 - 10000>"
-		},
-		{
-			setting_name = "offtheradar #chat command#", 
-			setting = true, 
-			feature_name = lang["off the radar"],
-			args = "<Player> <on / off>"
-		},
-		{
-			setting_name = "Spawn #chat command#", 
-			setting = true, 
-			feature_name = lang["Spawn vehicle"], 
-			args = "<Player> <Vehicle>"
+			args_display = "<Player>",
+			args = {
+				{
+					name = "Player",
+					pattern = player_name_pattern
+				}
+			}
 		},
 		{
 			setting_name = "weapon #chat command#", 
 			setting = true, 
 			feature_name = lang["Give weapon"], 
-			args = "<Player> <Weapon name / All>"
+			args_display = "<Weapon name / All>",
+			args = {
+				{
+					name = "Weapon name / All",
+					pattern = ".+"
+				}
+			}
 		},
 		{
-			setting_name = "removeweapon #chat command#", 
+			setting_name = "apartmentteleport #chat command#", 
 			setting = false, 
-			feature_name = lang["Remove weapon"], 
-			args = "<Player> <Weapon name / All>"
+			feature_name = lang["Apartment invites"], 
+			args_display = "<Player> <1 - 113>",
+			aliases = {
+				"atp"
+			},
+			args = {
+				{
+					name = "Player",
+					pattern = player_name_pattern
+				},
+				{
+					name = "1 - 113",
+					pattern = "%d+"
+				}
+			}
+		},
+		{
+			setting_name = "Cage #chat command#", 
+			setting = false, 
+			feature_name = lang["Cage player"],
+			args_display = "<Player>",
+			args = {
+				{
+					name = "Player",
+					pattern = player_name_pattern
+				}
+			}
+		},
+		{
+			setting_name = "clowns #chat command#", 
+			setting = false, 
+			feature_name = lang["Clown vans"],
+			args_display = "<Player>",
+			args = {
+				{
+					name = "Player",
+					pattern = player_name_pattern
+				}
+			}
+		},
+		{
+			setting_name = "jet #chat command#", 
+			setting = false, 
+			feature_name = lang["Jet"],
+			args_display = "<Player>",
+			args = {
+				{
+					name = "Player",
+					pattern = player_name_pattern
+				}
+			}
+		},
+		{
+			setting_name = "chopper #chat command#", 
+			setting = false, 
+			feature_name = lang["Send attack chopper"],
+			args_display = "<Player>",
+			args = {
+				{
+					name = "Player",
+					pattern = player_name_pattern
+				}
+			}
+		},
+		{
+			setting_name = "neverwanted #chat command#", 
+			setting = true, 
+			feature_name = lang["Never wanted"],
+			args_display = "<on / off>",
+			aliases = {
+				"nw"
+			},
+			args = {
+				{
+					name = "on / off",
+					pattern = "%a+"
+				}
+			}
+		},
+		{
+			setting_name = "bounty #chat command#",
+			setting = true,
+			feature_name = lang["Set bounty"],
+			args_display = "<Player> <0 - 10000>",
+			args = {
+				{
+					name = "Player",
+					pattern = player_name_pattern
+				},
+				{
+					name = "0 - 10000",
+					pattern = "%d+"
+				}
+			}
+		},
+		{
+			setting_name = "offtheradar #chat command#", 
+			setting = true, 
+			feature_name = lang["off the radar"],
+			args_display = "<on / off>",
+			aliases = {
+				"otr"
+			},
+			args = {
+				{
+					name = "on / off",
+					pattern = "%a+"
+				}
+			}
+		},
+		{
+			setting_name = "Kill #chat command#", 
+			setting = false, 
+			feature_name = lang["Kill player"], 
+			args_display = "<Player>",
+			args = {
+				{
+					name = "Player",
+					pattern = player_name_pattern
+				}
+			}
 		},
 		{
 			setting_name = "tp #chat command#", 
-			setting = false, 
+			setting = false,
+			aliases = {
+				"teleport"
+			},
 			feature_name = lang["Teleport to"], 
-			args = "<Player> <Player / Location>",
-			alternative_command_info = "or !teleport "
+			args_display = "<player/nothing> <player name/location>",
+			args = {
+				{
+					name = "player/nothing",
+					pattern = "[^%s]*",
+					is_optional = true
+				},
+				{
+					name = "player name/location",
+					pattern = ".+",
+					steal_arg_from_optional_arg = "player/nothing"
+				}
+			}
+		},
+		{
+			setting_name = "Spawn #chat command#", 
+			setting = true, 
+			feature_name = lang["Spawn vehicle"], 
+			args_display = "<Vehicle name>",
+			aliases = {
+				"vehicle",
+				"veh"
+			},
+			args = {
+				{
+					name = "Vehicle name",
+					pattern = ".+"
+				}
+			}
 		}
 	})
 
 	settings.toggle["Chat commands"].data = essentials.const({
+		commands_info = {
+			help = {args = {}},
+			commands = {args = {}}
+		},
 		tracker = {},
-		command_strings = {
-			teleport = true,
+		enabled_commands = {
 			help = true,
 			commands = true
 		},
 		player_chat_command_blacklist = {},
+		send_message = function(text, pid)
+			essentials.send_message("[Chat commands]\n"..text, pid == player.player_id())
+		end,
 		send_chat_commands = function(send_to_team)
 			local str = {"Chat Commands:"}
-			local str_len = 0
-			for i = 1, #chat_command_setting_properties do
-				if settings.in_use[chat_command_setting_properties[i].setting_name] then
-					str[#str + 1] = string.format("!%s%s%s",
-					chat_command_setting_properties[i].setting_name:lower():gsub("#chat command#", ""),
-					chat_command_setting_properties[i].alternative_command_info or "",
-					chat_command_setting_properties[i].args or "")
-					str_len = str_len + #str[#str]
-					if str_len > 190 then
-						essentials.send_message(table.concat(str, "\n"), send_to_team)
-						str = {}
-						str_len = 0
+			for _, properties in pairs(chat_command_properties) do
+				if settings.toggle[properties.setting_name].on then
+					local command_display <const> = {properties.setting_name:match("^%w+"):lower()}
+					if properties.aliases then
+						for _, alias in pairs(properties.aliases) do
+							command_display[#command_display + 1] = "!"..alias
+						end
 					end
+					str[#str + 1] = string.format("!%s %s",
+					table.concat(command_display, ", "),
+					properties.args_display)
 				end
 			end
-			if str_len > 138 + (not settings.toggle["Only friends can use chat commands"].on and 46 or 0) then
-				essentials.send_message(table.concat(str, "\n"), send_to_team)
-				str = {}
-				str_len = 0
-			end
-			if settings.toggle["Only friends can use chat commands"].on then
-				str[#str + 1] = "These commands can only be used by my friends."
-			end
-			local my_name <const> = player.get_player_name(player.player_id())
-			str[#str + 1] = "Examples: !spawn krieger"
-			str[#str + 1] = ("!spawn %s kri"):format(my_name:sub(1, #my_name // 2))
 			str[#str + 1] = "To show this again, do !help"
-			essentials.send_message(table.concat(str, "\n"), send_to_team)
+			for _, str in pairs(essentials.split_string_table_by_size(str, 254)) do
+				essentials.send_message("\n"..str, send_to_team)
+			end
 		end
 	})
 
-	for _, properties in pairs(chat_command_setting_properties) do
+	for _, properties in pairs(chat_command_properties) do
 		settings:add_setting(properties)
-		settings.toggle["Chat commands"].data.command_strings[properties.setting_name:lower():match("(%w+)%s+#chat command#")] = false
+
+		local properties_2 <const> = essentials.deep_copy(properties, true)
+		properties_2.setting_name = properties_2.setting_name.." option"
+		properties_2.setting = 0
+		settings:add_setting(properties_2)
+
+		local command_name <const> = properties.setting_name:match("^%w+"):lower()
+		settings.toggle["Chat commands"].data.commands_info[command_name] = properties
+		if properties.aliases then
+			for _, alias in pairs(properties.aliases) do
+				settings.toggle["Chat commands"].data.commands_info[alias] = properties
+			end
+		end
 	end
 
 	menu.add_feature(lang["Send command list"], "action_value_str", u.chat_commands.id, function(f)
@@ -5118,7 +5175,7 @@ do
 				while not globals.is_fully_transitioned_into_session() and f.on do
 					system.yield(0)
 				end
-				if not admin_mapper.is_there_admin_in_session() and f.on then
+				if f.on then
 					settings.toggle["Chat commands"].data.send_chat_commands()
 				end
 			end
@@ -5139,11 +5196,17 @@ do
 	settings.valuei["Help interval"] = settings.toggle["Send command info"]
 
 	u.chat_commands_parent = menu.add_feature(lang["Commands"], "parent", u.chat_commands.id)
-	for _, properties in pairs(chat_command_setting_properties) do
-		settings.toggle[properties.setting_name] = menu.add_feature(properties.feature_name, "toggle", u.chat_commands_parent.id, function(f)
-			settings.in_use[properties.setting_name] = f.on
-			settings.toggle["Chat commands"].data.command_strings[properties.setting_name:lower():match("(%w+)%s+#chat command#")] = f.on
+	for _, properties in pairs(chat_command_properties) do
+		settings.toggle[properties.setting_name] = menu.add_feature(properties.feature_name, "value_str", u.chat_commands_parent.id, function(f)
+			local command_name <const> = properties.setting_name:match("^%w+"):lower()
+			settings.toggle["Chat commands"].data.enabled_commands[command_name] = f.on
 		end)
+		settings.valuei[properties.setting_name.." option"] = settings.toggle[properties.setting_name]
+		settings.valuei[properties.setting_name.." option"]:set_str_data({
+			lang["Everyone"],
+			lang["You & friends"],
+			lang["You only"]
+		})
 	end
 end
 
