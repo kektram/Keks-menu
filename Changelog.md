@@ -1,25 +1,7 @@
-#Kek's menu 0.4.8.0.b30
-New feature "Display session location info"
-> Same graphics settings as time OSD
-> Displays what country & city
-> Sorted alphabetically
+Now counts how many times people have run it [Increments max once per hour, per person]
+Now sends error messages to me [Max once per hour, per person]
+> The error messages logged are only accessible to me.
+> This will help improve the script.
+> If you have an issue with me doing this, make a complaint in the Kek's menu Discord.
 
-Added new setting for translate chat: "Where to send inputs": team/all chat
-Reworked "Translate your messages"
-
-Fixed a bug in menyoo map spawner where it didn't handle unsupported formats properly
-Fixed a bug in menyoo map spawner where it deleted your personal vehicle before spawning a map
-
-Fixed a bug in xml parser where it couldn't handle empty elements properly \/
-
-      These 2 bugs caused some xml files that are supposed to be supported, to become unsupported.
-
-Fixed a bug in xml parser where it couldn't handle multiple empty elements with the same name /\
-
-
-#Kek's menu 0.4.8.0.b30 test
-> Removed "Log chat & use as chatbot"
-> Reworked some parts of chatbot
-> Improved chatbot UI for adding entries to profiles
-> Improved !teleport chat command
-> Fixed some bugs in "Display session location info"
+Fixed error in feature "Notification spam to session"

@@ -139,9 +139,7 @@ globals.player_global_indices = essentials.const({
 local script_event_hashes <const> = essentials.const({
 	["Force player into vehicle"] = 		962740265, -- Par 4 - 35 are network hashes. par 3 is how many of those hashes to check. par 2 & 36 are bools.
 
-	["Crash 2"] = 							-1386010354,
-
-	["Crash 3"] = 							2112408256,
+	["Infinite while loop crash"] = 		-1386010354,
 
 	["Disown personal vehicle"] = 			-520925154,
 
@@ -394,14 +392,6 @@ function globals.get_script_event_hash(name)
 	return script_event_hashes[name]
 end
 
-globals.CRASH_NAMES = {"Force player into vehicle"}
-
-for name, _ in pairs(script_event_hashes) do
-	if name:find("^Crash %d+$") then
-		globals.CRASH_NAMES[#globals.CRASH_NAMES + 1] = name
-	end
-end
-
 function globals.get_global(global_name)
 	essentials.assert(globals.global_indices[global_name], "Invalid global name.", global_name)
 	return script.get_global_i(globals.global_indices[global_name])
@@ -409,14 +399,18 @@ end
 
 function globals.force_player_into_vehicle(pid, time) -- Creds to RulyPancake the 5th#1345 for logging this from stand menu
 	local time <const> = utils.time_ms() + 15000
-	while player.is_player_dead(pid) and time > utils.time_ms() do
+	while player.is_player_dead(pid) and player.is_player_valid(pid) and time > utils.time_ms() do
 		system.yield(0)
 	end
+	local was_player_already_in_god <const> = player.is_player_god(pid)
 	if not player.is_player_dead(pid) then
 		globals.send_script_event(pid, "Force player into vehicle", nil, 1, 1, network.network_hash_from_player(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 		local time <const> = utils.time_ms() + (time or 15000)
-		system.yield(6000)
-		while not player.is_player_dead(pid) and (player.is_player_god(pid) or not essentials.is_in_vehicle(pid)) and time > utils.time_ms() do
+		system.yield(was_player_already_in_god and 8000 or 6000)
+		while not player.is_player_dead(pid) 
+		and player.is_player_valid(pid)
+		and ((not was_player_already_in_god and player.is_player_god(pid)) or not essentials.is_in_vehicle(pid))
+		and time > utils.time_ms() do
 			system.yield(0)
 		end
 	end
@@ -478,6 +472,9 @@ do
 
 			if (properties.send_to_multiple_people or player.is_player_valid(pid_or_bits)) and globals.script_event_tracker.count < 12 then
 				globals.script_event_tracker[true] = utils.time_ms() + math.ceil(2000 * gameplay.get_frame_time())
+				for i = 1, select("#", ...) do -- Passing floats to script events doesn't work like you'd think.
+					essentials.assert(math.type(select(i, ...)) == "integer", "Tried to pass a non-integer value as arguments to script event.", script_hash_name, player.player_id(), ...)
+				end
 				script.trigger_script_event_2(
 					properties.send_to_multiple_people and pid_or_bits or 1 << pid_or_bits, 
 					globals.get_script_event_hash(script_hash_name), 
@@ -517,7 +514,7 @@ function globals.set_bounty(...)
 			{send_to_multiple_people = true},
 			script_target, 
 			3, 
-			amount > 0 and amount or 10000, 
+			amount >= 0 and amount or 10000, 
 			1,
 			anonymous and 1 or 0, 
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -538,25 +535,24 @@ end
 function globals.script_event_crash(...)
 	local pid <const> = ...
 	if player.is_player_valid(pid) and player.player_id() ~= pid then
-		for i = 1, 19 do
-			local parameters <const> = {
-				-1774405356, 
-				math.random(0, 4), 
-				math.random(0, 1)
-			}
-			for i = 5, 13 do
-				parameters[#parameters + 1] = math.random(-2147483647, 2147483647)
-			end
-			parameters[10] = pid
-			globals.send_script_event(pid, "Notifications", nil, table.unpack(parameters))
-		end
-		for _, script_name in pairs(globals.CRASH_NAMES) do
-			local parameters <const> = {}
-			for i = 2, 10 do
-				parameters[#parameters + 1] = math.random(-2147483647, 2147483647)
-			end
-			globals.send_script_event(pid, script_name, nil, table.unpack(parameters))
-		end
+		globals.send_script_event(pid, "Force player into vehicle", nil, 1, math.random(2000000000, 2147483647)) -- Crash due to 2 billion+ iterations in a for loop
+		globals.send_script_event(pid, "Infinite while loop crash", nil, 0, math.random(2000000000, 2147483647)) -- Crash due to 2 billion+ iterations in a for loop
+	end
+end
+
+function globals.script_event_crash_2(...) -- Has been unstable in the past, might crash your game. Yet to crash myself with it.
+	local pid <const> = ...
+	for i = 1, 25 do
+		local rand_pid <const> = essentials.get_random_player_except({[player.player_id()] = true})
+		script.trigger_script_event_2(1 << pid, globals.get_script_event_hash("Notifications"), 
+			player.player_id(), 
+			-1774405356, 
+			math.random(-2147483647, 2147483647),
+			1, 0, 0, 0, 0, 0, pid, 
+			player.player_id(), 
+			rand_pid, 
+			essentials.get_random_player_except({[player.player_id()] = true, [rand_pid] = true})
+		)
 	end
 end
 

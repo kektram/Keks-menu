@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.6"}
+local essentials <const> = {version = "1.5.7"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -46,6 +46,7 @@ function essentials.assert(bool, msg, ...)
 		print(debug.traceback(msg, 2))
 		menu.notify(debug.traceback(msg, 2), "Error", 12, 0xff0000ff)
 		essentials.log_error(msg)
+		menu.create_thread(web.post, "https://keks-menu.000webhostapp.com?FROM_KEKS=true&dont_increment=true&version="..web.urlencode(__kek_menu.version).."&error_msg="..web.urlencode(msg))
 		error(msg, 2)
 	end
 end
@@ -228,7 +229,7 @@ function essentials.const_all(Table, timeout)
 end
 
 function essentials.make_string_case_insensitive(str)
-	str = str:gsub("%a", function(str) -- Done like this to only return the string. Gsub has 2 return values.
+	str = str:gsub("%a", function(str)
 		return "["..str:lower()..str:upper().."]"
 	end)
 	return str
@@ -275,6 +276,27 @@ function essentials.split_string(str, size)
 		i = i + 1
 	until pos >= len
 	return strings
+end
+
+function essentials.split_string_table_by_size(string_table, size) -- Split strings will always be equal to or smaller in size than requested size
+	local strings, count = {}, 0
+	local strings_to_return <const> = {}
+
+	for i = 1, #string_table do
+		essentials.assert(size >= #string_table[i], "One of the strings are longer then the requested split size.", string_table[i])
+		count = count + #string_table[i] + (#string_table > 0 and 1 or 0) -- Account for new lines
+		if count <= size then
+			strings[#strings + 1] = string_table[i]
+			if i == #string_table then
+				strings_to_return[#strings_to_return + 1] = table.concat(strings, "\n")
+			end
+		else
+			strings_to_return[#strings_to_return + 1] = table.concat(strings, "\n")
+			strings, count = {string_table[i]}, #string_table[i]
+		end
+	end
+
+	return strings_to_return
 end
 
 function essentials.date_to_int(date)
@@ -1217,7 +1239,7 @@ function essentials.web_get_file(url, rgba, scale, y_pos)
 	is_done = true
 	system.yield(enums.html_response_codes[status] ~= "OK" and 5000 or 250)
 	if thread then
-		menu.delete_thread(thread)
+		essentials.delete_thread(thread)
 	end
 	return status, str
 end
@@ -1289,7 +1311,7 @@ function essentials.update_keks_menu()
 		1.0,
 		y_pos_2
 	)
-	menu.delete_thread(version_check_draw_thread)
+	essentials.delete_thread(version_check_draw_thread)
 	local
 		update_status,
 		current_file_num,

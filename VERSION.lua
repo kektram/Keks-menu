@@ -1,5 +1,5 @@
 return {
-  version = "0.4.8.0.b30 test",
+  version = "0.4.8.0.b33",
   libs = {
     "Kek's Language.lua",
     "Kek's Enums.lua",
@@ -18,7 +18,6 @@ return {
     "Kek's Entity functions.lua",
     "Kek's Trolling entities.lua",
     "Kek's Custom upgrades.lua",
-    "Kek's Admin mapper.lua",
     "Kek's Menyoo saver.lua",
     "Kek's Natives.lua",
     "Debugger.lua"
