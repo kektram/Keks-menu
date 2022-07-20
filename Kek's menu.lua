@@ -112,12 +112,6 @@ else
 	file:close()
 end
 
-if __kek_menu.check_for_updates then
-	if essentials.update_keks_menu() == "has updated" then
-		return
-	end
-end
-
 if system.wait ~= coroutine.yield then
 	local original <const> = system.yield
 	system.yield = function(ms)
@@ -129,6 +123,12 @@ if system.wait ~= coroutine.yield then
 	end
 	system.wait = system.yield
 	coroutine.yield = system.yield
+end
+
+if __kek_menu.check_for_updates then
+	if essentials.update_keks_menu() == "has updated" then
+		return
+	end
 end
 
 menu.create_thread(function()
