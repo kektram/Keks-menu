@@ -141,7 +141,7 @@ to clipboard. §载具名称到剪贴板
 Cars spawned. §载具已生成.
 Maxed everyone's cars. §最大化升级所有人的载具
 Please set a waypoint. §请先设置一个标记点.
-Successfully added entry. §成功添加条目.
+Successfully added entry. §已成功添加条目.
 Removed entry. §已删除条目.
 is not in a vehicle. §不在载具内.
 vehicle gun. §载具枪
