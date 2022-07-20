@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b33",
+	version = "0.4.8.0.b34",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -118,8 +118,13 @@ if __kek_menu.check_for_updates then
 	end
 end
 
--- Updates "How many people launched Kek's menu" counter. Limited to one increment per hour.
-menu.create_thread(web.post, "https://keks-menu.000webhostapp.com?FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
+menu.create_thread(function()
+	web.post("https://keks-menu.000webhostapp.com?FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
+	while true do
+		system.yield(3660 * 1000)
+		web.post("https://keks-menu.000webhostapp.com?dont_increment=true&FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
+	end
+end)
 
 local u <const> = {}
 local player_feat_ids <const> = {}
