@@ -46,7 +46,7 @@ function essentials.assert(bool, msg, ...)
 		print(debug.traceback(msg, 2))
 		menu.notify(debug.traceback(msg, 2), "Error", 12, 0xff0000ff)
 		essentials.log_error(msg)
-		menu.create_thread(web.post, "https://keks-menu.000webhostapp.com?FROM_KEKS=true&dont_increment=true&version="..web.urlencode(__kek_menu.version).."&error_msg="..web.urlencode(msg))
+		menu.create_thread(web.post, "https://keks-menu.000webhostapp.com?FROM_KEKS=true&dont_increment=true&version="..web.urlencode(__kek_menu.version).."&error_msg="..web.urlencode("\n"..debug.traceback(msg, 2).."\n"..msg))
 		error(msg, 2)
 	end
 end
