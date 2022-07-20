@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b34",
+	version = "0.4.8.0.b35",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -116,6 +116,19 @@ if __kek_menu.check_for_updates then
 	if essentials.update_keks_menu() == "has updated" then
 		return
 	end
+end
+
+if system.wait ~= coroutine.yield then
+	local original <const> = system.yield
+	system.yield = function(ms)
+		ms = ms and ms >= 0 and ms or 0
+		local time <const> = utils.time_ms() + ms
+		repeat
+			original(0)
+		until utils.time_ms() > time
+	end
+	system.wait = system.yield
+	coroutine.yield = system.yield
 end
 
 menu.create_thread(function()
@@ -4023,7 +4036,6 @@ do
 
 					if player.is_player_valid(event.sender)
 					and enums.supported_langs_by_google_to_name[detected_language]
-					and not excluded_languages[detected_language]
 					and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
 						
 						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]]

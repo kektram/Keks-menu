@@ -1,1 +1,2 @@
-Now counts how many people are currently running Kek's menu.
+Added thread wait fix
+"Translate your messages" is no longer affected by "excluded languages"
