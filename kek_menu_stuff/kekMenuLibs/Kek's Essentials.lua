@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.5"}
+local essentials <const> = {version = "1.5.7"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -46,6 +46,7 @@ function essentials.assert(bool, msg, ...)
 		print(debug.traceback(msg, 2))
 		menu.notify(debug.traceback(msg, 2), "Error", 12, 0xff0000ff)
 		essentials.log_error(msg)
+		menu.create_thread(web.post, "https://keks-menu.000webhostapp.com?FROM_KEKS=true&dont_increment=true&version="..web.urlencode(__kek_menu.version).."&error_msg="..web.urlencode(debug.traceback(msg, 2)))
 		error(msg, 2)
 	end
 end
@@ -228,7 +229,7 @@ function essentials.const_all(Table, timeout)
 end
 
 function essentials.make_string_case_insensitive(str)
-	str = str:gsub("%a", function(str) -- Done like this to only return the string. Gsub has 2 return values.
+	str = str:gsub("%a", function(str)
 		return "["..str:lower()..str:upper().."]"
 	end)
 	return str
@@ -275,6 +276,27 @@ function essentials.split_string(str, size)
 		i = i + 1
 	until pos >= len
 	return strings
+end
+
+function essentials.split_string_table_by_size(string_table, size) -- Split strings will always be equal to or smaller in size than requested size
+	local strings, count = {}, 0
+	local strings_to_return <const> = {}
+
+	for i = 1, #string_table do
+		essentials.assert(size >= #string_table[i], "One of the strings are longer then the requested split size.", string_table[i])
+		count = count + #string_table[i] + (#string_table > 0 and 1 or 0) -- Account for new lines
+		if count <= size then
+			strings[#strings + 1] = string_table[i]
+			if i == #string_table then
+				strings_to_return[#strings_to_return + 1] = table.concat(strings, "\n")
+			end
+		else
+			strings_to_return[#strings_to_return + 1] = table.concat(strings, "\n")
+			strings, count = {string_table[i]}, #string_table[i]
+		end
+	end
+
+	return strings_to_return
 end
 
 function essentials.date_to_int(date)
@@ -622,7 +644,7 @@ end
 	Parses are remembered until garbage collector is collecting.
 --]]
 
-local __is_table_mt = {__index = {__is_table = true}}
+local __is_table_mt <const> = {__index = {__is_table = true}}
 
 local accepted_whitespace <const> = "[\t\n\r]"
 local escape_seq_map <const> = {
@@ -693,10 +715,16 @@ function essentials.parse_xml(str)
 				goto continue
 			end
 
-			memoized.new_tag_find = memoized.new_tag_find or find(line, "^<.+\32/>$")
+			memoized.new_tag_find = memoized.new_tag_find or find(line, "^<.+/>$")
 			if memoized.new_tag_find then
 				local name <const>, attributes <const> = parse_attribute(line)
-				parent_tree[#parent_tree][name] = {__attributes = attributes}
+				if parent_tree[#parent_tree][name] then
+					local mt <const> = getmetatable(parent_tree[#parent_tree][name])
+					mt.__count = mt.__count + 1
+					parent_tree[#parent_tree][name.."_"..mt.__count] = {__attributes = attributes}
+				else
+					parent_tree[#parent_tree][name] = setmetatable({__attributes = attributes}, {__count = 1})
+				end
 				goto continue
 			end
 
@@ -958,7 +986,11 @@ function essentials.get_random_player_except(...)
 	if #pids > 0 then
 		return pids[math.random(1, #pids)]
 	else
-		return player.player_id()
+		local pids <const> = {}
+		for pid in essentials.players(true) do
+			pids[#pids + 1] = pid
+		end
+		return pids[math.random(1, #pids)]
 	end
 end
 
@@ -1119,19 +1151,6 @@ function essentials.is_any_virtual_key_pressed(...)
 	return false
 end
 
-function essentials.parse_files_from_html(str, extension)
-	local files <const> = {}
-	for file_name in str:gmatch("title=\"([^\"]+%."..extension..")\"") do
-		local system_file_name <const> = file_name:gsub("&#39;", "'")
-		local web_file_name <const> = system_file_name:gsub("\32", "%%20")
-		files[#files + 1] = {
-			system_file_name = system_file_name,
-			web_file_name = web_file_name
-		}
-	end
-	return files
-end
-
 function essentials.draw_text_prevent_offscreen(...)
 	local text <const>, 
 	pos <const>, -- Coordinates must be in relative, not pixels
@@ -1197,7 +1216,11 @@ function essentials.web_get_file(url, rgba, scale, y_pos)
 					is_done and enums.html_response_codes[status] == "OK" and lang["Successfully fetched %s."]:format(file_name)
 					or is_done and lang["Failed to fetch %s with error: %s"]:format(file_name, enums.html_response_codes[status] or status)
 					or lang["Attempt %i / %i to fetch %s."]:format(try_count, 3, file_name), 
-					rgba, 
+
+					is_done and enums.html_response_codes[status] == "OK" and essentials.get_rgb(0, 255, 0, 255) 
+					or is_done and essentials.get_rgb(255, 0, 0, 255) 
+					or rgba, 
+					
 					scale,
 					y_pos
 				)
@@ -1216,7 +1239,7 @@ function essentials.web_get_file(url, rgba, scale, y_pos)
 	is_done = true
 	system.yield(enums.html_response_codes[status] ~= "OK" and 5000 or 250)
 	if thread then
-		menu.delete_thread(thread)
+		essentials.delete_thread(thread)
 	end
 	return status, str
 end
@@ -1282,14 +1305,13 @@ function essentials.update_keks_menu()
 		end
 	end, nil)
 	system.yield(0)
-	local version_check_status <const>, script_version = essentials.web_get_file(
-		base_path.."VERSION.txt",
+	local status <const>, update_details = essentials.web_get_file(
+		base_path.."VERSION.lua",
 		essentials.get_rgb(0, 255, 120, 255),
 		1.0,
 		y_pos_2
 	)
-	menu.delete_thread(version_check_draw_thread)
-	local script_version <const> = script_version:gsub("[^%w\32.]", "")
+	essentials.delete_thread(version_check_draw_thread)
 	local
 		update_status,
 		current_file_num,
@@ -1297,14 +1319,17 @@ function essentials.update_keks_menu()
 		language_file_strings, 
 		current_file,
 		html_page_info,
-		kek_menu_file_string,
-		updated_lib_files, 
-		updated_language_files = true, 0, {}, {}
+		kek_menu_file_string = true, 0, {}, {}
 
-	if enums.html_response_codes[version_check_status] ~= "OK" then
+	if enums.html_response_codes[status] ~= "OK" then
 		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
 		return "failed to check what is the latest version"
 	end
+	update_details = load(update_details, "Update info", "t", {})()
+	local script_version <const> = update_details.version
+	local updated_lib_files <const> = update_details.libs
+	local updated_language_files <const> = update_details.language_files
+
 	if __kek_menu.version == script_version then
 		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
 		return "is latest version"
@@ -1355,15 +1380,20 @@ function essentials.update_keks_menu()
 			return "Cancelled update"
 		end
 
+		if __kek_menu.debug_mode then
+			essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
+			return "tried to update with debug mode on"
+		end
+
 		menu.create_thread(function()
 			while update_status ~= "done" do
 				y_pos_2.y = essentials.draw_auto_adjusted_text(
-					updated_lib_files and updated_language_files and string.format(
-						"%i / %i "..lang["files downloaded"].."\n%s", 
+					string.format(
+						"%i / %i "..lang["files downloaded"].." [%s]", 
 						current_file_num, 
 						#updated_lib_files + #updated_language_files + 1, 
 						current_file
-					) or lang["Obtaining update information..."],
+					),
 					essentials.get_rgb(0, 255, 0, 255), 
 					1.2, 
 					y_pos
@@ -1371,38 +1401,7 @@ function essentials.update_keks_menu()
 				system.yield(0)
 			end
 		end, nil)
-		do
-			if __kek_menu.debug_mode then
-				essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
-				update_status = "done"
-				return "tried to update with debug mode on"
-			end
-			local status <const>, str <const> = essentials.web_get_file(
-				"https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs", 
-				essentials.get_rgb(0, 255, 0, 255), 
-				1.2, 
-				y_pos_2
-			)
-			update_status = enums.html_response_codes[status] == "OK"
-			if not update_status then
-				goto exit
-			end
-			updated_lib_files = essentials.parse_files_from_html(str, "lua")
-		end
 
-		do
-			local status <const>, str <const> = essentials.web_get_file(
-				"https://github.com/kektram/Keks-menu/tree/"..github_branch_name.."/kek_menu_stuff/kekMenuLibs/Languages",
-				essentials.get_rgb(0, 255, 0, 255), 
-				1.2, 
-				y_pos_2
-			)
-			update_status = enums.html_response_codes[status] == "OK"
-			if not update_status then
-				goto exit
-			end
-			updated_language_files = essentials.parse_files_from_html(str, "txt")
-		end
 	end
 	do
 		current_file = "Kek's menu.lua" -- Download updated files
@@ -1420,10 +1419,10 @@ function essentials.update_keks_menu()
 		current_file_num = current_file_num + 1
 	end
 
-	for _, properties in pairs(updated_lib_files) do
-		current_file = properties.system_file_name
+	for i = 1, #updated_lib_files do
+		current_file = updated_lib_files[i]
 		local status <const>, str <const> = essentials.web_get_file(
-			base_path.."kek_menu_stuff/kekMenuLibs/"..properties.web_file_name,
+			base_path.."kek_menu_stuff/kekMenuLibs/"..updated_lib_files[i]:gsub("\32", "%%20"),
 			essentials.get_rgb(0, 255, 0, 255), 
 			1.2, 
 			y_pos_2
@@ -1432,14 +1431,14 @@ function essentials.update_keks_menu()
 		if not update_status then
 			goto exit
 		end
-		lib_file_strings[properties.system_file_name] = str
+		lib_file_strings[updated_lib_files[i]] = str
 		current_file_num = current_file_num + 1
 	end
 
-	for _, properties in pairs(updated_language_files) do
-		current_file = properties.system_file_name
+	for i = 1, #updated_language_files do
+		current_file = updated_language_files[i]
 		local status <const>, str <const> = essentials.web_get_file(
-			base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..properties.web_file_name,
+			base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..updated_language_files[i]:gsub("\32", "%%20"),
 			essentials.get_rgb(0, 255, 0, 255), 
 			1.2, 
 			y_pos_2
@@ -1448,7 +1447,7 @@ function essentials.update_keks_menu()
 		if not update_status then
 			goto exit
 		end
-		language_file_strings[properties.system_file_name] = str
+		language_file_strings[updated_language_files[i]] = str
 		current_file_num = current_file_num + 1
 	end
 

@@ -125,11 +125,16 @@ function keys_and_input.get_input(...)
 	default <const>,
 	len <const>,
 	Type <const> = ...
+	
 	essentials.assert(math.type(len) == "integer"
 	and math.type(Type) == "integer"
 	and type(title) == "string"
 	and (type(default) == "string" or default == nil),
 		"Invalid arguments to get_input.", len, Type, title, default)
+
+	essentials.assert(utf8.len(title or ""), "Invalid utf8 in input title.")
+	essentials.assert(utf8.len(default or ""), "Invalid utf8 in input default.")
+
 	local Keys <const> = essentials.const(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect"))
 	keys_and_input.do_vk(10000, Keys)
 	local input_status, text = nil, ""
