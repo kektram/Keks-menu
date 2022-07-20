@@ -308,7 +308,6 @@ Send each line §分行发送
 Chat commands §聊天命令
 Chat commands §聊天命令
 Kill player §击杀玩家
-Only friends can use commands §仅对好友生效
 Teleport to §传送到
 This player can't use chat commands §禁用聊天命令
 Send command list every §每隔一段时间发送命令列表
@@ -366,7 +365,6 @@ Taze §电击
 Invite to apartment §邀请到公寓
 Cage §笼子
 Give weapon §给予武器
-Remove weapon §移除武器
 Send clipboard to chat §发送剪贴板内容到聊天窗口
 Send to session §发送到战局
 Army §军队
@@ -830,3 +828,8 @@ Answer delay §回复延迟
 Type in number of responses to add for this entry. §请输入要为此条目添加的回复次数.
 Type in the responses. §输入回复内容.
 Translate chat §翻译聊天
+Everyone §所有人
+You & friends §你 & 好友
+You only §仅自己
+Big while loops §大while循环
+25 notifs in one frame §一帧 25 个通知
