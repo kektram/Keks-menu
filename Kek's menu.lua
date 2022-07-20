@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b32",
+	version = "0.4.8.0.b33",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -117,6 +117,9 @@ if __kek_menu.check_for_updates then
 		return
 	end
 end
+
+-- Updates "How many people launched Kek's menu" counter. Limited to one increment per hour.
+menu.create_thread(web.post, "https://keks-menu.000webhostapp.com?FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
 
 local u <const> = {}
 local player_feat_ids <const> = {}
@@ -364,11 +367,11 @@ do -- What kek's menu modifies in the global space. The natives library adds to 
 		network.request_control_of_entity = function(...)
 			local Entity <const>, no_condition <const> = ...
 
-			local is_entity_limit_breached <const> = kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]]
+			local is_entity_limit_not_breached <const> = kek_entity.entity_manager:update()[kek_entity.entity_manager.entity_type_to_return_type[entity.get_entity_type(Entity)]]
 
 			if no_condition 
 			or kek_entity.entity_manager.entities[Entity] -- Is entity accounted for, but you don't have control?
-			or is_entity_limit_breached then
+			or is_entity_limit_not_breached then
 				return originals.request_control_of_entity(Entity)
 			else
 				return false
@@ -3840,7 +3843,7 @@ menu.add_feature(lang["Notification spam"], "toggle", u.session_trolling.id, fun
 		globals.send_script_event(bits, "Notifications", {send_to_multiple_people = true},
 			globals.NOTIFICATION_HASHES_RAW[math.random(1, #globals.NOTIFICATION_HASHES_RAW)], 
 			math.random(-2147483647, 2147483647),
-			1, 0, 0, 0, 0, 0, pid, 
+			1, 0, 0, 0, 0, 0, rand_pid, 
 			player.player_id(), 
 			rand_pid, 
 			essentials.get_random_player_except({[player.player_id()] = true, [rand_pid] = true})
