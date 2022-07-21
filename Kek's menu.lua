@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b36",
+	version = "0.4.8.0.b37",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -133,10 +133,10 @@ end
 
 menu.create_thread(function()
 	web.post("https://keks-menu-stats.kektram.com?increment=true&FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
-	while true do
-		system.yield(660 * 1000)
-		web.post("https://keks-menu-stats.kektram.com?FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
-	end
+--	while true do
+--		system.yield(660 * 1000)
+--		web.post("https://keks-menu-stats.kektram.com?FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
+--	end
 end)
 
 local u <const> = {}
