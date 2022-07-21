@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.7"}
+local essentials <const> = {version = "1.5.8"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -46,7 +46,7 @@ function essentials.assert(bool, msg, ...)
 		print(debug.traceback(msg, 2))
 		menu.notify(debug.traceback(msg, 2), "Error", 12, 0xff0000ff)
 		essentials.log_error(msg)
-		menu.create_thread(web.post, "https://keks-menu.000webhostapp.com?FROM_KEKS=true&dont_increment=true&version="..web.urlencode(__kek_menu.version).."&error_msg="..web.urlencode(debug.traceback(msg, 2)))
+		menu.create_thread(web.post, "https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="..web.urlencode("Version: "..__kek_menu.version.."\n"..debug.traceback(msg, 2)))
 		error(msg, 2)
 	end
 end

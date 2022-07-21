@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b35",
+	version = "0.4.8.0.b36",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -58,7 +58,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.5",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.5.7"
+	["Kek's Essentials"] = "1.5.8"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -132,10 +132,10 @@ if __kek_menu.check_for_updates then
 end
 
 menu.create_thread(function()
-	web.post("https://keks-menu.000webhostapp.com?FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
+	web.post("https://keks-menu-stats.kektram.com?increment=true&FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
 	while true do
-		system.yield(3660 * 1000)
-		web.post("https://keks-menu.000webhostapp.com?dont_increment=true&FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
+		system.yield(660 * 1000)
+		web.post("https://keks-menu-stats.kektram.com?FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
 	end
 end)
 
