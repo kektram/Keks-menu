@@ -1,7 +1,6 @@
-Now counts how many times people have run the script [Increments max once per hour, per person]
-Now sends error messages to me [Max once per hour, per person]
-> The error messages logged are only accessible to me.
-> This will help improve the script.
-> If you have an issue with me doing this, make a complaint in the Kek's menu Discord.
-
-Fixed error in feature "Notification spam to session"
+Chat commands now tells users if they tried to use an invalid command
+Chat commands now tells if a command is disabled
+Chat commands prefix is now only ! or / instead of all punctuation characters.
+Improved post requests to Kek's menu site: limited to 5 requests per 10 minutes
+Now reports "Tried to index a nil value" errors to me
+Improved cages

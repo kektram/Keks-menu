@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b33",
+	version = "0.4.8.0.b39",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -58,7 +58,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.5",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.5.7"
+	["Kek's Essentials"] = "1.5.9"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -118,8 +118,13 @@ if __kek_menu.check_for_updates then
 	end
 end
 
--- Updates "How many people launched Kek's menu" counter. Limited to one increment per hour.
-menu.create_thread(web.post, "https://keks-menu.000webhostapp.com?FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
+menu.create_thread(function()
+	essentials.post_to_keks_menu_site("https://keks-menu-stats.kektram.com?increment=true&FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
+	while true do
+		essentials.must_yield_for_specified_time(11 * 60 * 1000)
+		essentials.post_to_keks_menu_site("https://keks-menu-stats.kektram.com?FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
+	end
+end)
 
 local u <const> = {}
 local player_feat_ids <const> = {}
@@ -170,6 +175,15 @@ local menyoo_saver <const> = package.loaded["Kek's Menyoo saver"]
 local natives <const> = package.loaded["Kek's Natives"]
 
 do -- What kek's menu modifies in the global space. The natives library adds to the global space, but never modifies anything.
+	do -- Reports some very common errors to me
+		debug.setmetatable(nil, {
+			__index = function()
+				local msg <const> = "attempt to index a nil value"
+				menu.create_thread(essentials.post_to_keks_menu_site, "https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="..web.urlencode("Version: "..__kek_menu.version.."\n"..debug.traceback(msg, 2)))
+				error(msg, 2)
+			end
+		})
+	end
 	do
 		local function check_msg_valid(message) 
 		--[[
@@ -4018,7 +4032,6 @@ do
 
 					if player.is_player_valid(event.sender)
 					and enums.supported_langs_by_google_to_name[detected_language]
-					and not excluded_languages[detected_language]
 					and str:lower():gsub("%s", "") ~= event.body:lower():gsub("%s", "") then
 						
 						local str <const> = lang[enums.supported_langs_by_google_to_name[detected_language]]
@@ -4620,14 +4633,24 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 	essentials.listeners["chat"]["commands"] = essentials.add_chat_event_listener(function(event)
 		local str <const> = event.body:lower()
 
-		local what_command, pos = str:match("^%p(%w+)()")
-		local setting_name <const> = f.data.commands_info[what_command] and f.data.commands_info[what_command].setting_name
+		local what_command, pos = str:match("^[/!](%w+)()")
 
-		if f.data.commands_info[what_command] and f.data.commands_info[what_command].aliases then
+		if not what_command or not player.is_player_valid(event.sender) then
+			return
+		end
+
+		if not f.data.commands_info[what_command] then
+			f.data.send_message("Invalid command.", event.sender)
+			return
+		end
+
+		local setting_name <const> = f.data.commands_info[what_command].setting_name
+		if f.data.commands_info[what_command].aliases then
 			what_command = setting_name:match("%w+"):lower()
 		end
 
-		if not player.is_player_valid(event.sender) or not f.data.enabled_commands[what_command] then
+		if not f.data.enabled_commands[what_command] then
+			f.data.send_message("This command is disabled.", event.sender)
 			return
 		end
 
