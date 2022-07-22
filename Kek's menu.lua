@@ -4633,7 +4633,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 	essentials.listeners["chat"]["commands"] = essentials.add_chat_event_listener(function(event)
 		local str <const> = event.body:lower()
 
-		local what_command, pos = str:match("^%p(%w+)()")
+		local what_command, pos = str:match("^[/!](%w+)()")
 
 		if not what_command or not player.is_player_valid(event.sender) then
 			return
