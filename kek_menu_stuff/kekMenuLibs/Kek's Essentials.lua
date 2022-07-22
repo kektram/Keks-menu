@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.8"}
+local essentials <const> = {version = "1.5.9"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -46,9 +46,39 @@ function essentials.assert(bool, msg, ...)
 		print(debug.traceback(msg, 2))
 		menu.notify(debug.traceback(msg, 2), "Error", 12, 0xff0000ff)
 		essentials.log_error(msg)
-		menu.create_thread(web.post, "https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="..web.urlencode("Version: "..__kek_menu.version.."\n"..debug.traceback(msg, 2)))
+		menu.create_thread(essentials.post_to_keks_menu_site, "https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="..web.urlencode("Version: "..__kek_menu.version.."\n"..debug.traceback(msg, 2)))
 		error(msg, 2)
 	end
+end
+
+do
+	local requests_in_last_10_minutes <const> = {}
+	local id = 0
+	function essentials.post_to_keks_menu_site(...) 
+	-- Limits entire script to 5 requests per 10 minutes.
+		local number_of_requests_in_last_10_minutes = 0
+		for i, time in pairs(requests_in_last_10_minutes) do
+			if utils.time_ms() > time then
+				requests_in_last_10_minutes[i] = nil
+			else
+				number_of_requests_in_last_10_minutes = number_of_requests_in_last_10_minutes + 1
+			end
+		end
+		if number_of_requests_in_last_10_minutes < 5 then
+			id = id + 1
+			requests_in_last_10_minutes[id] = utils.time_ms() + (1000 * 60 * 10)
+			web.post(...)
+		end
+	end
+end
+
+function essentials.must_yield_for_specified_time(time)
+-- Use only where yielding shorter than specified time is a huge problem
+-- Primarily to deal with other scripts modifying system.yield, causing it to not yield like it's supposed to
+	local time <const> = utils.time_ms() + time
+	repeat
+		system.yield(0)
+	until utils.time_ms() > time
 end
 
 function essentials.get_time_plus_frametime(num_of_frames)
@@ -945,6 +975,9 @@ do
 		local strings <const> = essentials.split_string(text, 255)
 		for i = 1, math.min(#strings, 50) do
 			network.send_chat_message(strings[i], team == true)
+			system.yield(100)
+		end
+		if #strings == 0 then -- Some features rely on this function yielding. [chat spam is example]
 			system.yield(100)
 		end
 		table.remove(msg_queue, 1)

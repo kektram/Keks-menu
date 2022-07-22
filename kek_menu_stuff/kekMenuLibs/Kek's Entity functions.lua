@@ -1236,51 +1236,44 @@ function kek_entity.create_cage(...)
 
 	ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
 	system.yield(250)
-	local mother_ped <const> = kek_entity.spawn_networked_ped(ped_mapper.get_hash_from_user_input("?"), function() 
-		return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10), 0
-	end)
-	kek_entity.modify_entity_godmode(mother_ped, true)
 	local temp_ped <const> = kek_entity.spawn_networked_ped(ped_mapper.get_hash_from_user_input("?"), function() 
 		return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10), 0
 	end)
-	ped.set_ped_config_flag(temp_ped, enums.ped_config_flags.InVehicle, 1)
 	kek_entity.modify_entity_godmode(temp_ped, true)
-	entity.attach_entity_to_entity(temp_ped, mother_ped, 0, memoize.v3(), memoize.v3(), false, true, true, 0, true)
 
-	if entity.is_entity_a_ped(mother_ped) and entity.is_entity_a_ped(temp_ped) then
-		entity.set_entity_visible(mother_ped, false)
-		ped.set_ped_config_flag(mother_ped, enums.ped_config_flags.InVehicle, 1)
-		entity.freeze_entity(mother_ped, true)
+	if entity.is_entity_a_ped(temp_ped) then
+		entity.set_entity_visible(temp_ped, false)
+		ped.set_ped_config_flag(temp_ped, enums.ped_config_flags.InVehicle, 1)
+		entity.freeze_entity(temp_ped, true)
 		local cage <const> = kek_entity.spawn_networked_object(gameplay.get_hash_key("prop_test_elevator"), function()
 			return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10)
 		end)
 		local cage_2 <const> = kek_entity.spawn_networked_object(gameplay.get_hash_key("prop_test_elevator"), function()
 			return player.get_player_coords(player.player_id()) + memoize.v3(0, 0, 10)
 		end)
-		entity.set_entity_visible(mother_ped, true)
+		entity.set_entity_visible(temp_ped, true)
 		entity.attach_entity_to_entity(cage, temp_ped, 0, memoize.v3(), memoize.v3(), false, true, true, 0, true)
-		entity.process_entity_attachments(mother_ped)
-		entity.attach_entity_to_entity(cage_2, cage, 0, memoize.v3(), memoize.v3(0, 0, 90), false, true, false, 0, true)
-		entity.process_entity_attachments(cage)
-		entity.set_entity_visible(mother_ped, false)
+		entity.process_entity_attachments(temp_ped)
+		entity.attach_entity_to_entity(cage_2, temp_ped, 0, memoize.v3(), memoize.v3(0, 0, 90), false, true, false, 0, true)
+		entity.process_entity_attachments(temp_ped)
+		entity.set_entity_visible(temp_ped, false)
 
-		kek_entity.teleport(mother_ped, select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x3779, memoize.v3())))
+		kek_entity.teleport(temp_ped, select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x3779, memoize.v3())))
 		menu.create_thread(function()
 			while player.is_player_valid(pid)
-			and entity.is_entity_a_ped(mother_ped)
 			and entity.is_entity_a_ped(temp_ped)
 			and entity.is_entity_an_object(cage)
 			and entity.is_entity_an_object(cage_2)
-			and essentials.get_player_coords(pid):magnitude(entity.get_entity_coords(mother_ped)) < 5 do
-				ped.clear_ped_tasks_immediately(mother_ped)
+			and essentials.get_player_coords(pid):magnitude(entity.get_entity_coords(temp_ped)) < 5 do
+				ped.clear_ped_tasks_immediately(temp_ped)
 				system.yield(0)
 			end
-			kek_entity.clear_entities({cage, cage_2, mother_ped, temp_ped}, 5000)
+			kek_entity.clear_entities({cage, cage_2, temp_ped}, 5000)
 			tracker[pid] = false
 		end, nil)
-		return mother_ped
+		return temp_ped
 	else
-		kek_entity.clear_entities({temp_ped, mother_ped})
+		kek_entity.clear_entities({temp_ped})
 	end
 	tracker[pid] = false
 	return -2
