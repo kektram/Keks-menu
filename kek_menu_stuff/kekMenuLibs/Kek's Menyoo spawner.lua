@@ -577,9 +577,16 @@ end
 
 function menyoo.spawn_xml_vehicle(...)
 	local file_path <const>, pid <const>, force_local <const> = ...
-	if not utils.file_exists(file_path) then
-		essentials.msg(lang["This file doesn't exist or has an invalid file name."], "red", true, 6)
-		return 0
+	do
+		if not utils.file_exists(file_path) then
+			essentials.msg(lang["This file doesn't exist."], "red", true, 6)
+			return 0
+		end
+		local file <close> = io.open(file_path) -- file_exists can be true, but file failed to open due to unicode characters in file path.
+		if not file then
+			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", true, 12)
+			return 0
+		end
 	end
 	local info <const> = essentials.parse_xml(essentials.get_file_string(file_path)).Vehicle
 
@@ -778,9 +785,16 @@ end
 
 function menyoo.spawn_xml_map(...)
 	local file_path <const>, teleport_to_map <const> = ...
-	if not utils.file_exists(file_path) then
-		essentials.msg(lang["This file doesn't exist or has an invalid file name."], "red", true, 6)
-		return
+	do
+		if not utils.file_exists(file_path) then
+			essentials.msg(lang["This file doesn't exist."], "red", true, 6)
+			return
+		end
+		local file <close> = io.open(file_path) -- file_exists can be true, but file failed to open due to unicode characters in file path.
+		if not file then
+			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", true, 12)
+			return
+		end
 	end
 	local info <const> = essentials.parse_xml(essentials.get_file_string(file_path))
 	local spooner <const> = info.SpoonerPlacements or info.Map
@@ -1554,6 +1568,18 @@ end
 
 function menyoo.spawn_ini_vehicle(...)
 	local file_path <const> = ...
+	do
+		if not utils.file_exists(file_path) then
+			essentials.msg(lang["This file doesn't exist."], "red", true, 6)
+			return 0
+		end
+		local file <close> = io.open(file_path) -- file_exists can be true, but file failed to open due to unicode characters in file path.
+		if not file then
+			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", true, 12)
+			return 0
+		end
+	end
+
 	local str <const> = essentials.get_file_string(file_path)
 	if str:find("?xml", 1, true) and str:find("Spooner", 1, true) then
 		essentials.msg(lang["Tried to spawn a xml vehicle with ini spawner."], "red", true, 6)

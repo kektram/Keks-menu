@@ -1,5 +1,5 @@
 return {
-  version = "0.4.8.0.b39",
+  version = "0.4.8.0.b40",
   libs = {
     "Kek's Language.lua",
     "Kek's Enums.lua",
