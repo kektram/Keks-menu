@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.5.9"}
+local essentials <const> = {version = "1.6.0"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -577,6 +577,36 @@ function essentials.write_table_recursively_to_file(Table, tracker, file, level)
 		essentials.msg(paths.home.."scripts\\printed_table.txt", "green", true, 10)
 		file:flush()
 		file:close()
+	end
+end
+
+function essentials.get_all_files_recursively(path, file_extension, obtained_folders)
+	obtained_folders = obtained_folders or {}
+	obtained_folders[path] = utils.get_all_files_in_directory(path, file_extension)
+	local folders <const> = utils.get_all_sub_directories_in_directory(path)
+	for i = 1, #folders do
+		obtained_folders[path] = essentials.get_all_files_recursively(path.."\\"..folders[i], file_extension, obtained_folders)
+	end
+	obtained_folders[path] = #obtained_folders[path] > 0 and obtained_folders[path] or nil
+	return obtained_folders
+end
+
+function essentials.is_file_name_change_is_invalid(folder_path, input, extension)
+	if input:find("..", 1, true) or input:find("%.$") then
+		essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
+		return true
+	elseif input:find("[<>:\"/\\|%?%*]") then
+		essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
+		return true
+	elseif extension ~= "FOLDER" and not utils.dir_exists(folder_path) then
+		essentials.msg(lang["This folder no longer exists."], "red", true, 8)
+		return true
+	elseif extension == "FOLDER" and utils.dir_exists(folder_path.."\\"..input) then
+		essentials.msg(lang["Existing folder found. Please choose another name."], "red", true)
+		return true
+	elseif extension ~= "FOLDER" and utils.file_exists(folder_path.."\\"..input.."."..extension) then
+		essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
+		return true
 	end
 end
 

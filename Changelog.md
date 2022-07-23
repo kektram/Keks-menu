@@ -1,6 +1,7 @@
-Chat commands now tells users if they tried to use an invalid command
-Chat commands now tells if a command is disabled
-Chat commands prefix is now only ! or / instead of all punctuation characters.
-Improved post requests to Kek's menu site: limited to 5 requests per 10 minutes
-Now reports "Tried to index a nil value" errors to me
-Improved cages
+Added category (folder) support to ini/menyoo vehicles
+Added "Create folder" to menyoo/ini vehicles
+You can go as many folders deep as you want, no limit
+Removed "Clear all owned entities" from ini/menyoo vehicles
+Improved some error handling in ini/menyoo vehicles & menyoo maps
+Added misspelling interpretations for kosatka !spawn chat command
+Co-loaders no longer get invalid vehicle hash error on startup

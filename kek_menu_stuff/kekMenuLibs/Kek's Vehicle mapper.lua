@@ -1860,6 +1860,13 @@ local vehicle_properties <const> = essentials.const_all({
 	[1336872304] = {
 		model = "kosatka",
 		name = "Rune Kosatka",
+		common_misspellings = {
+			"rune kosaka",
+			"rune kostka",
+			"rune kosokta",
+			"rune kosata",
+			"rune kosakta"
+		},
 		min_dim = v3(-10.336749076843, -84.655700683594, -7.9453821182251),
 		max_dim = v3(10.336749076843, 52.386192321777, 13.115336418152)
 	},
@@ -4570,12 +4577,11 @@ local vehicle_properties <const> = essentials.const_all({
 	}
 })
 
-local INVALID_HASH_ERR <const> = "THIS ERROR IS TYPICALLY CAUSED BY CO-LOADING. Expected a valid vehicle hash:"
+local INVALID_HASH_ERR <const> = "Expected a valid vehicle hash:"
 local MISSING_INFO_ERR <const> = "Missing information about a valid, requested vehicle hash:"
 
 vehicle_mapper.HELICOPTERS = {}
 for hash in pairs(vehicle_properties) do
-	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
 	if streaming.is_model_a_heli(hash) then
 		vehicle_mapper.HELICOPTERS[#vehicle_mapper.HELICOPTERS + 1] = hash
 	end

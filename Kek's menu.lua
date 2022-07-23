@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b39",
+	version = "0.4.8.0.b40",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -58,7 +58,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.5",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.5.9"
+	["Kek's Essentials"] = "1.6.0"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -179,7 +179,10 @@ do -- What kek's menu modifies in the global space. The natives library adds to 
 		debug.setmetatable(nil, {
 			__index = function()
 				local msg <const> = "attempt to index a nil value"
-				menu.create_thread(essentials.post_to_keks_menu_site, "https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="..web.urlencode("Version: "..__kek_menu.version.."\n"..debug.traceback(msg, 2)))
+				local path <const> = debug.traceback(msg, 2)
+				if path:find("\\kekMenuLibs\\", 1,  true) or path:find("Kek's menu.lua:", 1, true) then
+					menu.create_thread(essentials.post_to_keks_menu_site, "https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="..web.urlencode("Version: "..__kek_menu.version.."\n"..debug.traceback(msg, 2)))
+				end
 				error(msg, 2)
 			end
 		})
@@ -501,7 +504,8 @@ for _, properties in pairs({
 		save_func = menyoo_saver.save_vehicle,
 		str_data = {
 			lang["Search"],
-			lang["Refresh list"],
+			lang["Create new folder"],
+			lang["Refresh files & folders"],
 			lang["Save"]
 		}
 	},
@@ -513,148 +517,201 @@ for _, properties in pairs({
 		func = menyoo.spawn_ini_vehicle,
 		str_data = {
 			lang["Search"],
-			lang["Refresh list"]
+			lang["Create new folder"],
+			lang["Refresh files & folders"]
 		}
 	}
 }) do
-	local parent
-	local feat_name_map = {}
 	local feat_str_data <const> = {
 		lang["Spawn"],
 		lang["Delete"],
 		lang["Change name"]
 	}
 
-	local feat_func_callback <const> = function(f)
-		if essentials.is_str(f, "Spawn") then
-			if settings.toggle["Delete old #vehicle#"].on then
-				kek_entity.clear_owned_vehicles()
-			end
-			local Vehicle <const> = properties.func(properties.folder.."\\"..f.name.."."..properties.extension, player.player_id())
-			if entity.is_entity_a_vehicle(Vehicle) then
-				kek_entity.teleport(Vehicle, kek_entity.vehicle_get_vec_rel_to_dims(entity.get_entity_model_hash(Vehicle), player.get_player_ped(player.player_id())))
-				kek_entity.vehicle_preferences(Vehicle)
-				kek_entity.user_vehicles[Vehicle] = Vehicle
-			end
-		elseif essentials.is_str(f, "Delete") then
-			if utils.file_exists(properties.folder.."\\"..f.name.."."..properties.extension) then
-				io.remove(properties.folder.."\\"..f.name.."."..properties.extension)
-			end
-			feat_name_map[f.name.."."..properties.extension] = nil
-			menu.delete_feature(f.id)
-		elseif essentials.is_str(f, "Change name") then
-			local input, status = f.name
-			while true do
-				input, status = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], input, 128, 0)
-				if status == 2 then
-					return
-				end
-				if input:find("..", 1, true) or input:find("%.$") then
-					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-					goto skip
-				end
-				if utils.file_exists(properties.folder.."\\"..input.."."..properties.extension) then
-					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-					goto skip
-				end
-				if input:find("[<>:\"/\\|%?%*]") then
-					essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-				else
-					break
-				end
-				::skip::
-				system.yield(0)
-			end
-			essentials.rename_file(properties.folder.."\\", f.name, input, properties.extension)
-			feat_name_map[f.name.."."..properties.extension] = nil
-			f.name = input
-			feat_name_map[f.name.."."..properties.extension] = true
-		end
-	end
-
-	local function create_custom_vehicle_feature(name)
+	local function create_custom_vehicle_feature(name, folder_path, feat_name_map, parent)
 		local safe_feat_name <const> = essentials.get_safe_feat_name(name)
 		if name ~= safe_feat_name or name:find("..", 1, true) or name:find(".", -1, true) then
 			return
 		end
-		local feat = menu.add_feature(safe_feat_name, "action_value_str", parent.id, feat_func_callback)
-		feat.data = "MENYOO"
-		feat_name_map[feat.name.."."..properties.extension] = true
-		feat:set_str_data(feat_str_data)
-	end
-	parent = menu.add_feature(lang[properties.folder_name], "parent", properties.parent.id)
 
-	local main_feat <const> = menu.add_feature(lang[properties.folder_name], "action_value_str", parent.id, function(f)
-		if essentials.is_str(f, "Search") then
-			local input, status <const> = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], "", 128, 0)
-			if status == 2 then
+		feat_name_map[safe_feat_name.."."..properties.extension] = menu.add_feature(safe_feat_name, "action_value_str", parent.id, function(f)
+			if not utils.dir_exists(folder_path) then
+				essentials.msg(lang["This folder no longer exists."], "red", true, 8)
 				return
 			end
-			input = essentials.make_string_case_insensitive(essentials.remove_special(input))
-			local children <const> = parent.children
-			for i = 1, #children do
-				children[i].hidden = children[i].data == "MENYOO" and not children[i].name:find(input)
-			end
-		elseif essentials.is_str(f, "Refresh list") then
-			local children <const> = parent.children
-			for i = 1, #children do -- 3x faster to delete all then reconstruct than using utils.file_exists
-				local feat <const> = children[i]
-				if feat.data == "MENYOO" then
-					menu.delete_feature(feat.id)
+			if essentials.is_str(f, "Spawn") then
+				if settings.toggle["Delete old #vehicle#"].on then
+					kek_entity.clear_owned_vehicles()
 				end
+				local Vehicle <const> = properties.func(folder_path.."\\"..f.name.."."..properties.extension, player.player_id())
+				if entity.is_entity_a_vehicle(Vehicle) then
+					kek_entity.teleport(Vehicle, kek_entity.vehicle_get_vec_rel_to_dims(entity.get_entity_model_hash(Vehicle), player.get_player_ped(player.player_id())))
+					kek_entity.vehicle_preferences(Vehicle)
+					kek_entity.user_vehicles[Vehicle] = Vehicle
+				end
+			elseif essentials.is_str(f, "Delete") then
+				if utils.file_exists(folder_path.."\\"..f.name.."."..properties.extension) then
+					io.remove(folder_path.."\\"..f.name.."."..properties.extension)
+				end
+				feat_name_map[f.name.."."..properties.extension] = nil
+				menu.delete_feature(f.id)
+			elseif essentials.is_str(f, "Change name") then
+				local input, status = f.name
+				while true do
+					input, status = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], input, 128, 0)
+					if status == 2 then
+						return
+					elseif not essentials.is_file_name_change_is_invalid(folder_path, input, properties.extension) then
+						break
+					end
+					system.yield(0)
+				end
+				essentials.rename_file(folder_path.."\\", f.name, input, properties.extension)
+				feat_name_map[f.name.."."..properties.extension] = nil
+				f.name = input
+				feat_name_map[f.name.."."..properties.extension] = f
 			end
-			local files <const> = utils.get_all_files_in_directory(properties.folder, properties.extension)
-			local End <const> = -1 - #("."..properties.extension)
-			feat_name_map = {}
-			for i = 1, #files do
-				create_custom_vehicle_feature(files[i]:sub(1, End))
-			end
-		elseif essentials.is_str(f, "Save") then
-			if not properties.save_func then
-				return
-			end
-			if not entity.is_entity_a_vehicle(player.get_player_vehicle(player.player_id())) then
-				essentials.msg(lang["Found no vehicle to save."], "red", true)
-				return
-			end
-			local input, status
-			while true do
-				input, status = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], input, 128, 0)
+		end)
+		feat_name_map[safe_feat_name.."."..properties.extension]:set_str_data(feat_str_data)
+	end
+
+	local get_new_feat_map_object
+	local function create_main_feat(feat_name_map, parent, folder_path)
+		menu.add_feature(lang[properties.folder_name], "action_value_str", parent.id, function(f)
+			if essentials.is_str(f, "Search") then
+				local input, status <const> = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], "", 128, 0)
 				if status == 2 then
 					return
 				end
-				if input:find("..", 1, true) or input:find("%.$") then
-					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-					goto skip
+				input = essentials.make_string_case_insensitive(essentials.remove_special(input))
+				for feat_name, feat in pairs(feat_name_map) do
+					if type(feat) == "userdata" then
+						feat.hidden = not feat.name:find(input)
+					end
 				end
-				if utils.file_exists(properties.folder.."\\"..input.."."..properties.extension) then
-					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-					goto skip
+			elseif essentials.is_str(f, "Refresh files & folders") then
+				feat_name_map:empty() -- It's ~3x faster to delete all features & then rebuild every feature, instead of checking if files exists.
+				feat_name_map:rebuild()
+			elseif essentials.is_str(f, "Create new folder") then
+				local input, status
+				while true do
+					input, status = keys_and_input.get_input(lang["Type in name of the folder."], input, 128, 0)
+					if status == 2 then
+						return
+					elseif not essentials.is_file_name_change_is_invalid(folder_path, input, "FOLDER") then
+						break
+					end
+					system.yield(0)
 				end
-				if input:find("[<>:\"/\\|%?%*]") then
-					essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-				else
-					break
+
+				local folder_path <const> = folder_path.."\\"..input
+				local new_parent <const> = menu.add_feature(input, "parent", parent.id)
+				utils.make_dir(folder_path)
+				feat_name_map[folder_path] = get_new_feat_map_object(folder_path, new_parent, feat_name_map)
+
+				create_main_feat(feat_name_map[folder_path], new_parent, folder_path)
+				feat_name_map:empty()
+				feat_name_map:rebuild()
+			elseif properties.save_func and essentials.is_str(f, "Save") then -- essentials.is_str raises error if attempting to check for a string that isn't in the str_data
+				if not entity.is_entity_a_vehicle(player.get_player_vehicle(player.player_id())) then
+					essentials.msg(lang["Found no vehicle to save."], "red", true)
+					return
 				end
-				::skip::
-				system.yield(0)
+				local input, status
+				while true do
+					input, status = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], input, 128, 0)
+					if status == 2 then
+						return
+					elseif not essentials.is_file_name_change_is_invalid(folder_path, input, properties.extension) then
+						break
+					end
+					system.yield(0)
+				end
+				properties.save_func(player.get_player_vehicle(player.player_id()), folder_path.."\\"..input.."."..properties.extension)
+				create_custom_vehicle_feature(input, folder_path, feat_name_map, parent)
 			end
-			properties.save_func(player.get_player_vehicle(player.player_id()), properties.folder.."\\"..input.."."..properties.extension)
-			create_custom_vehicle_feature(input)
-		end
-	end)
-	main_feat:set_str_data(properties.str_data)
-	main_feat.data = "MAIN_FEAT"
-
-	menu.add_feature(lang["Clear all owned entities"], "action", parent.id, function()
-		u.clear_owned_entities.on = true
-	end).data = "CLEAR_ENTITIES_FEAT"
-
-	local End <const> = -1 - #("."..properties.extension)
-	local files <const> = utils.get_all_files_in_directory(properties.folder, properties.extension)
-	for i = 1, #files do
-		create_custom_vehicle_feature(files[i]:sub(1, End))
+		end):set_str_data(properties.str_data)
 	end
+
+	function get_new_feat_map_object(folder_path, parent, feat_name_map) -- Defined as local above
+		local object <const> = setmetatable({}, { -- It must be a metatable. "belongs_to" and "parent" disrupt logic.
+			folder_path = folder_path,
+			parent = parent,
+			belongs_to = feat_name_map
+		})
+		local object_mt <const> = getmetatable(object)
+
+		function object:empty()
+			for feat_name, feat in pairs(self) do
+				if type(feat) == "userdata" then
+					menu.delete_feature(feat.id)
+					self[feat_name] = nil
+				elseif type(feat) == "table" then
+					feat:empty()
+				end
+			end
+		end
+
+		function object:rebuild()
+			if utils.dir_exists(object_mt.folder_path) then
+				for folder_path, object in pairs(self) do
+					if type(object) == "table" then
+						object:rebuild()
+					end
+				end
+				for _, folder_name in pairs(utils.get_all_sub_directories_in_directory(object_mt.folder_path)) do
+					local folder_path <const> = object_mt.folder_path.."\\"..folder_name
+					if not self[folder_path] then
+						local new_parent <const> = menu.add_feature(folder_name, "parent", object_mt.parent.id)
+						self[folder_path] = get_new_feat_map_object(folder_path, new_parent, object_mt.belongs_to)
+						create_main_feat(self[folder_path], new_parent, folder_path)
+						self[folder_path]:rebuild()
+					end
+				end
+
+				local End <const> = -1 - #("."..properties.extension)
+				local files <const> = utils.get_all_files_in_directory(object_mt.folder_path, properties.extension)
+				for i = 1, #files do
+					create_custom_vehicle_feature(files[i]:sub(1, End), object_mt.folder_path, self, object_mt.parent)
+				end
+			else
+				local feats <const> = essentials.get_descendants(object_mt.parent, {}, true)
+				for i = 1, #feats do -- Deletes parents
+					menu.delete_feature(feats[i].id)
+				end
+				object_mt.belongs_to[object_mt.folder_path] = nil -- Final part of updating feat map
+			end
+		end
+		return object
+	end
+
+	local function create_vehicle_features(folder_path, feat_name_map, parent)
+		create_main_feat(feat_name_map, parent, folder_path)
+
+		for _, folder_name in pairs(utils.get_all_sub_directories_in_directory(folder_path)) do
+			
+			local folder_path <const> = folder_path.."\\"..folder_name
+			local new_parent <const> = menu.add_feature(folder_name, "parent", parent.id)
+
+			feat_name_map[folder_path] = get_new_feat_map_object(folder_path, new_parent, feat_name_map)
+			create_vehicle_features(
+				folder_path, 
+				feat_name_map[folder_path],
+				new_parent
+			)
+		end
+	end
+
+	local new_parent <const> = menu.add_feature(lang[properties.folder_name], "parent", properties.parent.id)
+	local feat_name_map <const> = get_new_feat_map_object(properties.folder, new_parent, {})
+
+	create_vehicle_features(
+		properties.folder, 
+		feat_name_map,
+		new_parent
+	)
+
+	feat_name_map:rebuild()
 end
 
 u.vehicleSettings = menu.add_feature(lang["Vehicle settings"], "parent", u.gvehicle.id)
@@ -4351,21 +4408,9 @@ do
 					input, status = keys_and_input.get_input(lang["Type in the name of the profile."], input, 128, 0)
 					if status == 2 then
 						return
-					end
-					if input:find("..", 1, true) or input:find("%.$") then
-						essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-						goto skip
-					end
-					if utils.file_exists(paths.kek_menu_stuff.."Chat judger profiles\\"..input..".ini") then
-						essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-						goto skip
-					end
-					if input:find("[<>:\"/\\|%?%*]") then
-						essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-					else
+					elseif not essentials.is_file_name_change_is_invalid(paths.kek_menu_stuff.."Chat judger profiles", input, "ini") then
 						break
 					end
-					::skip::
 					system.yield(0)
 				end
 				essentials.rename_file(paths.kek_menu_stuff.."Chat judger profiles\\", f.name, input, "ini")
@@ -4473,21 +4518,9 @@ do
 			input, status = keys_and_input.get_input(lang["Type in the name of the profile."], input, 128, 0)
 			if status == 2 then
 				return
-			end
-			if input:find("..", 1, true) or input:find("%.$") then
-				essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-				goto skip
-			end
-			if utils.file_exists(paths.kek_menu_stuff.."Chat judger profiles\\"..input..".ini") then
-				essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-				goto skip
-			end
-			if input:find("[<>:\"/\\|%?%*]") then
-				essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-			else
+			elseif not essentials.is_file_name_change_is_invalid(paths.kek_menu_stuff.."Chat judger profiles", input, "ini") then
 				break
 			end
-			::skip::
 			system.yield(0)
 		end
 		essentials.create_empty_file(paths.kek_menu_stuff.."Chat judger profiles\\"..input..".ini")
@@ -5356,21 +5389,9 @@ do
 					input, status = keys_and_input.get_input(lang["Type in the name of the profile."], input, 128, 0)
 					if status == 2 then
 						return
-					end
-					if input:find("..", 1, true) or input:find("%.$") then
-						essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-						goto skip
-					end
-					if utils.file_exists(paths.kek_menu_stuff.."Chatbot profiles\\"..input..".ini") then
-						essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-						goto skip
-					end
-					if input:find("[<>:\"/\\|%?%*]") then
-						essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-					else
+					elseif not essentials.is_file_name_change_is_invalid(paths.kek_menu_stuff.."Chatbot profiles", input, "ini") then
 						break
 					end
-					::skip::
 					system.yield(0)
 				end
 				essentials.rename_file(paths.kek_menu_stuff.."Chatbot profiles\\", f.name, input, "ini")
@@ -5470,21 +5491,9 @@ do
 			input, status = keys_and_input.get_input(lang["Type in the name of the profile."], input, 128, 0)
 			if status == 2 then
 				return
-			end
-			if input:find("..", 1, true) or input:find("%.$") then
-				essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-				goto skip
-			end
-			if utils.file_exists(paths.kek_menu_stuff.."Chatbot profiles\\"..input..".ini") then
-				essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-				goto skip
-			end
-			if input:find("[<>:\"/\\|%?%*]") then
-				essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-			else
+			elseif not essentials.is_file_name_change_is_invalid(paths.kek_menu_stuff.."Chatbot profiles", input, "ini") then
 				break
 			end
-			::skip::
 			system.yield(0)
 		end
 		essentials.create_empty_file(paths.kek_menu_stuff.."Chatbot profiles\\"..input..".ini")
@@ -6181,21 +6190,9 @@ do
 				input, status = keys_and_input.get_input(lang["Type in name of race ghost."], input, 128, 0)
 				if status == 2 then
 					return
-				end
-				if input:find("..", 1, true) or input:find("%.$") then
-					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-					goto skip
-				end
-				if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..input..".lua") then
-					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-					goto skip
-				end
-				if input:find("[<>:\"/\\|%?%*]") then
-					essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-				else
+				elseif not essentials.is_file_name_change_is_invalid(paths.home.."scripts\\Race ghosts", input, "lua") then
 					break
 				end
-				::skip::
 				system.yield(0)
 			end
 			essentials.rename_file(paths.home.."scripts\\Race ghosts\\", f.name, input, "lua")
@@ -6263,21 +6260,9 @@ do
 			input, status = keys_and_input.get_input(lang["Type in name of race ghost."], input, 128, 0)
 			if status == 2 then
 				return
-			end
-			if input:find("..", 1, true) or input:find("%.$") then
-				essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-				goto skip
-			end
-			if utils.file_exists(paths.home.."scripts\\Race ghosts\\"..input..".lua") then
-				essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-				goto skip
-			end
-			if input:find("[<>:\"/\\|%?%*]") then
-				essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-			else
+			elseif not essentials.is_file_name_change_is_invalid(paths.home.."scripts\\Race ghosts", input, "lua") then
 				break
 			end
-			::skip::
 			system.yield(0)
 		end
 		local file <close> = io.open(paths.home.."scripts\\Race ghosts\\"..input..".lua", "w+")
@@ -6375,21 +6360,9 @@ do
 				input, status = keys_and_input.get_input(lang["Type in name of menyoo map."], input, 128, 0)
 				if status == 2 then
 					return
-				end
-				if input:find("..", 1, true) or input:find("%.$") then
-					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-					goto skip
-				end
-				if utils.file_exists(paths.menyoo_maps.."\\"..input..".xml") then
-					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-					goto skip
-				end
-				if input:find("[<>:\"/\\|%?%*]") then
-					essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-				else
+				elseif not essentials.is_file_name_change_is_invalid(paths.menyoo_maps, input, "xml") then
 					break
 				end
-				::skip::
 				system.yield(0)
 			end
 			essentials.rename_file(paths.menyoo_maps.."\\", f.name, input, "xml")
@@ -6436,21 +6409,9 @@ do
 				input, status = keys_and_input.get_input(lang["Type in name of menyoo map."], input, 128, 0)
 				if status == 2 then
 					return
-				end
-				if input:find("..", 1, true) or input:find("%.$") then
-					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-					goto skip
-				end
-				if utils.file_exists(paths.menyoo_maps.."\\"..input..".xml") then
-					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-					goto skip
-				end
-				if input:find("[<>:\"/\\|%?%*]") then
-					essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
-				else
+				elseif not essentials.is_file_name_change_is_invalid(paths.menyoo_maps, input, "xml") then
 					break
 				end
-				::skip::
 				system.yield(0)
 			end
 			menyoo_saver.save_map(paths.menyoo_maps.."\\"..input..".xml", essentials.is_str(f, "Save only mission entities"))
@@ -8257,21 +8218,9 @@ do
 					input, status = keys_and_input.get_input(lang["Type in the name of the profile."], input, 128, 0)
 					if status == 2 then
 						return
-					end
-					if input:find("..", 1, true) or input:find("%.$") then
-						essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-						goto skip
-					end
-					if utils.file_exists(paths.kek_menu_stuff.."profiles\\"..input..".ini") then
-						essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-						goto skip
-					end
-					if not input:find("[<>:\"/\\|%?%*]") then
+					elseif not essentials.is_file_name_change_is_invalid(paths.kek_menu_stuff.."profiles", input, "ini") then
 						break
-					else
-						essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
 					end
-					::skip::
 					system.yield(0)
 				end
 				essentials.rename_file(paths.kek_menu_stuff.."profiles\\", f.name, input, "ini")
@@ -8296,21 +8245,9 @@ do
 				input, status = keys_and_input.get_input(lang["Type in the name of the profile."], input, 128, 0)
 				if status == 2 then
 					return
-				end
-				if input:find("..", 1, true) or input:find("%.$") then
-					essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
-					goto skip
-				end
-				if utils.file_exists(paths.kek_menu_stuff.."profiles\\"..input..".ini") then
-					essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
-					goto skip
-				end
-				if not input:find("[<>:\"/\\|%?%*]") then
+				elseif not essentials.is_file_name_change_is_invalid(paths.kek_menu_stuff.."profiles", input, "ini") then
 					break
-				else
-					essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
 				end
-				::skip::
 				system.yield(0)
 			end
 			essentials.create_empty_file(paths.kek_menu_stuff.."profiles\\"..input..".ini")
