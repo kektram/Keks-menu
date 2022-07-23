@@ -583,7 +583,6 @@ Ini vehicles §Ini载具
 This can't be used in singleplayer. §这不能在故事模式中中使用.
 Tried to spawn a xml vehicle with ini spawner. §已尝试使用Ini载具生成xml载具.
 Failed to attach an entity. Check debug console for more details. §尝试附加一个实体时失败了. 检查调试控制台以获取更多详细信息.
-This file doesn't exist or has an invalid file name. §此文件不存在或文件名无效.
 Failed to set coordinates. §设置坐标失败.
 Failed to cleanup crash entity while it is still in memory. §清理崩溃实体失败,它仍在内存中.
 Crash entity went out of memory before it could be cleaned up. §崩溃实体在清理之前内存不足.
@@ -833,3 +832,10 @@ You & friends §你 & 好友
 You only §仅自己
 Big while loops §大while循环
 25 notifs in one frame §一帧 25 个通知
+Invalid file path. Check that all category folders and the file name doesn't contain unicode. §无效的文件路径. 检查所有类别的文件夹和文件名是否包含unicode字符.
+This file doesn't exist. §此文件不存在
+Refresh files & folders §刷新文件和文件夹
+This folder no longer exists. §此文件夹已不存在.
+Type in name of the folder. §输入文件夹名称.
+Create new folder §创建新文件夹
+Existing folder found. Please choose another name. §发现同名文件夹. 请输入其他名称.
