@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b40",
+	version = "0.4.8.0.b41",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -139,7 +139,7 @@ for name, version in pairs({
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
 	["Kek's Drive style mapper"] = "1.0.4",
-	["Kek's Menyoo spawner"] = "2.2.5",
+	["Kek's Menyoo spawner"] = "2.2.6",
 	["Kek's Entity functions"] = "1.2.7",
 	["Kek's Trolling entities"] = "1.0.7",
 	["Kek's Custom upgrades"] = "1.0.2",
@@ -578,6 +578,10 @@ for _, properties in pairs({
 	local get_new_feat_map_object
 	local function create_main_feat(feat_name_map, parent, folder_path)
 		menu.add_feature(lang[properties.folder_name], "action_value_str", parent.id, function(f)
+			if not essentials.is_str(f, "Refresh files & folders") and not utils.dir_exists(folder_path) then
+				essentials.msg(lang["This folder no longer exists."], "red", true, 8)
+				return
+			end
 			if essentials.is_str(f, "Search") then
 				local input, status <const> = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], "", 128, 0)
 				if status == 2 then
@@ -605,8 +609,13 @@ for _, properties in pairs({
 				end
 
 				local folder_path <const> = folder_path.."\\"..input
-				local new_parent <const> = menu.add_feature(input, "parent", parent.id)
 				utils.make_dir(folder_path)
+				if not utils.dir_exists(folder_path) then
+					essentials.msg(lang["Failed to create folder."], "red", true, 8)
+					return
+				end
+				
+				local new_parent <const> = menu.add_feature(input, "parent", parent.id)
 				feat_name_map[folder_path] = get_new_feat_map_object(folder_path, new_parent, feat_name_map)
 
 				create_main_feat(feat_name_map[folder_path], new_parent, folder_path)
@@ -663,7 +672,7 @@ for _, properties in pairs({
 					local folder_path <const> = object_mt.folder_path.."\\"..folder_name
 					if not self[folder_path] then
 						local new_parent <const> = menu.add_feature(folder_name, "parent", object_mt.parent.id)
-						self[folder_path] = get_new_feat_map_object(folder_path, new_parent, object_mt.belongs_to)
+						self[folder_path] = get_new_feat_map_object(folder_path, new_parent, self)
 						create_main_feat(self[folder_path], new_parent, folder_path)
 						self[folder_path]:rebuild()
 					end
@@ -675,6 +684,7 @@ for _, properties in pairs({
 					create_custom_vehicle_feature(files[i]:sub(1, End), object_mt.folder_path, self, object_mt.parent)
 				end
 			else
+				self:empty() -- Delete features
 				local feats <const> = essentials.get_descendants(object_mt.parent, {}, true)
 				for i = 1, #feats do -- Deletes parents
 					menu.delete_feature(feats[i].id)
@@ -1070,15 +1080,15 @@ for _, properties in pairs({
 		setting = false
 	},
 	{
-		setting_name = "Vehicle limits",
-		setting = 80
+		setting_name = "vehicle limits",
+		setting = 110
 	},
 	{
-		setting_name = "Ped limits",
-		setting = 80
+		setting_name = "ped limits",
+		setting = 130
 	},
 	{
-		setting_name = "Object limits",
+		setting_name = "object limits",
 		setting = 230
 	},
 	{
@@ -1994,16 +2004,16 @@ do
 	local f
 
 	f = menu.add_feature(lang["Vehicle limit"], "action_value_i", u.debug.id, update_limit)
-	f.max = 300
-	settings.valuei["Vehicle limits"] = f
+	f.max = 125
+	settings.valuei["vehicle limits"] = f
 
 	f = menu.add_feature(lang["Ped limit"], "action_value_i", u.debug.id, update_limit)
-	f.max = 256
-	settings.valuei["Ped limits"] = f
+	f.max = 170
+	settings.valuei["ped limits"] = f
 
 	f = menu.add_feature(lang["Object limit"], "action_value_i", u.debug.id, update_limit)
-	f.max = 2300
-	settings.valuei["Object limits"] = f
+	f.max = 800
+	settings.valuei["object limits"] = f
 
 end
 
@@ -2017,13 +2027,13 @@ settings.toggle["Draw entity limits"] = menu.add_feature(lang["Draw entity limit
 		ui.draw_text(string.format("%s: %i/%i\n%s: %i/%i\n%s: %i/%i", 
 			lang["Vehicles"],
 			kek_entity.entity_manager.counts.vehicle,
-			settings.valuei["Vehicle limits"].value * 10,
+			settings.valuei["vehicle limits"].value * 10,
 			lang["Peds"],
 			kek_entity.entity_manager.counts.ped,
-			settings.valuei["Ped limits"].value * 10,
+			settings.valuei["ped limits"].value * 10,
 			lang["Objects"],
 			kek_entity.entity_manager.counts.object,
-			settings.valuei["Object limits"].value * 10
+			settings.valuei["object limits"].value * 10
 			), 
 		memoize.v2(0.8, 0.8))		
 	end
