@@ -57,11 +57,11 @@ do
 				self.entities[Entity] = nil
 			end
 		end
-		update_buf.is_ped_limit_not_breached = self.counts.ped <= settings.valuei["Ped limits"].value * 10
+		update_buf.is_ped_limit_not_breached = self.counts.ped <= settings.valuei["ped limits"].value * 10
 
-		update_buf.is_object_limit_not_breached = self.counts.object < settings.valuei["Object limits"].value * 10
+		update_buf.is_object_limit_not_breached = self.counts.object < settings.valuei["object limits"].value * 10
 
-		update_buf.is_vehicle_limit_not_breached = self.counts.vehicle < settings.valuei["Vehicle limits"].value * 10
+		update_buf.is_vehicle_limit_not_breached = self.counts.vehicle < settings.valuei["vehicle limits"].value * 10
 
 		return update_buf
 	end

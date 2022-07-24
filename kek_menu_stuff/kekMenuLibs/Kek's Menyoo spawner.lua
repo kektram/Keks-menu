@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local menyoo <const> = {version = "2.2.5"}
+local menyoo <const> = {version = "2.2.6"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -449,23 +449,23 @@ local function is_spawn_too_many_entities(counts, network_status)
 	local status = false
 
 	local number_of_peds <const> = math.ceil(network_status == "is_networked" and counts.ped * 1.5 or counts.ped)
-	local ped_cap <const> = math.ceil(settings.valuei["Ped limits"].value - (kek_entity.entity_manager.counts.ped / 10))
+	local ped_cap <const> = math.ceil(settings.valuei["ped limits"].value - (kek_entity.entity_manager.counts.ped / 10))
 	if number_of_peds > ped_cap then
-		essentials.msg(lang["Requires %i more peds than can be spawned. There are peds taking up space; clear them to spawn the map/vehicle."]:format(number_of_peds - ped_cap), "red", true, 8)
+		essentials.msg(lang["Requires %i more peds than can be spawned. Try deleting all peds, then try to spawn it again."]:format(number_of_peds - ped_cap), "red", true, 12)
 		status = true
 	end
 
 	local number_of_vehicles <const> = math.ceil(counts.vehicle)
-	local vehicle_cap <const> = math.ceil(settings.valuei["Vehicle limits"].value - (kek_entity.entity_manager.counts.vehicle / 10))
+	local vehicle_cap <const> = math.ceil(settings.valuei["vehicle limits"].value - (kek_entity.entity_manager.counts.vehicle / 10))
 	if number_of_vehicles > vehicle_cap then
-		essentials.msg(lang["Requires %i more vehicles than can be spawned. There are vehicles taking up space; clear them to spawn the map/vehicle."]:format(number_of_vehicles - vehicle_cap), "red", true, 8)
+		essentials.msg(lang["Requires %i more vehicles than can be spawned. Try deleting all vehicles, then try to spawn it again."]:format(number_of_vehicles - vehicle_cap), "red", true, 12)
 		status = true
 	end
 
 	local number_of_objects <const> = math.ceil(network_status == "is_networked" and counts.object or counts.object * 0.5)
-	local object_cap <const> = math.ceil(settings.valuei["Object limits"].value - (kek_entity.entity_manager.counts.object / 10))
+	local object_cap <const> = math.ceil(settings.valuei["object limits"].value - (kek_entity.entity_manager.counts.object / 10))
 	if number_of_objects > object_cap then
-		essentials.msg(lang["Requires %i more objects than can be spawned. There are objects taking up space; clear them to spawn the map/vehicle."]:format(number_of_objects - object_cap), "red", true, 8)
+		essentials.msg(lang["Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again."]:format(number_of_objects - object_cap), "red", true, 12)
 		status = true
 	end
 	return status
@@ -624,7 +624,7 @@ function menyoo.spawn_xml_vehicle(...)
 			entities[info.InitialHandle or "VEHICLE"] = parent_entity
 			apply_entity_modifications(parent_entity, info, entities, pid)
 		else
-			essentials.msg(lang["Failed to spawn driver vehicle for unknown reason."], "red", true, 6)
+			essentials.msg(lang["Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again."], "red", true, 14)
 			return 0
 		end
 	else
@@ -1620,7 +1620,7 @@ function menyoo.spawn_ini_vehicle(...)
 		entity.set_entity_rotation(parent_entity, memoize.v3())
 		kek_entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
 	elseif parent_entity ~= -1 then
-		essentials.msg(lang["Failed to spawn driver vehicle for unknown reason."], "red", true, 6)
+		essentials.msg(lang["Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again."], "red", true, 6)
 	end
 
 	send_spawn_counter_msg(counts)

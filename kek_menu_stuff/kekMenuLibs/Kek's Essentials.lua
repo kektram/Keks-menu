@@ -569,6 +569,7 @@ function essentials.write_table_recursively_to_file(Table, tracker, file, level)
 			file:write(string.format("\n%s%s:\n", string.rep("\t", level), key))
 			tracker[value] = true
 			essentials.write_table_recursively_to_file(value, tracker, file, level + 1)
+			file:write("\n")
 		else
 			file:write(string.format("%s%s: %s\n", string.rep("\t", level), key, value))
 		end
