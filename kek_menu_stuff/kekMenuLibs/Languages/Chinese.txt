@@ -577,7 +577,6 @@ Chat log §聊天日志
 Mark as modder §标记为作弊者
 Don't reapply marks §不要重复标记
 Reapply marks §重复标记
-Failed to spawn driver vehicle for unknown reason. §因未知原因未能生成驾驶载具.
 Copied to clipboard. §已复制到剪贴板.
 Ini vehicles §Ini载具
 This can't be used in singleplayer. §这不能在故事模式中中使用.
@@ -773,9 +772,6 @@ Translate your messages into §翻译你的聊天信息
 This message will disappear in %i seconds and will assume you don't want the update. §此信息将在%i秒后消失,并假设你不想更新.
 Check for updates §自动检查更新
 You must turn on trusted mode->Http to use this script. §你必须打开 信任模式 -> Http 才能使用此脚本.
-Requires %i more peds than can be spawned. There are peds taking up space; clear them to spawn the map/vehicle. §需要生成的NPC比可以生成的多%i.有NPC占用了空间;清除它们以生成地图/载具.
-Requires %i more vehicles than can be spawned. There are vehicles taking up space; clear them to spawn the map/vehicle. §需要生成的载具比可以生成的多%i.有载具占用了空间;清除它们以生成地图/载具.
-Requires %i more objects than can be spawned. There are objects taking up space; clear them to spawn the map/vehicle. §需要生成的物体比可以生成的多%i.有物体占用了空间;清除它们以生成地图/载具.
 The map/vehicle won't be visible to other players, it has too many entities. Networked maps/vehicles supports max:\n%i objects\n%i vehicles\n%i peds. §这个 地图/载具 其他玩家看不到,它有太多实体. 联网地图/载具最多支持: \n%i 个物体\n%i 辆载具\n%i 个NPC.
 The map/vehicle will be visible to other people. §这个 地图/载具 其他人可以看到.
 The map/vehicle can be networked if you clear all entities. Currently there are other networked entities taking up space. §如果你清除掉所有实体,地图/载具 将可以联网. 目前还有其他网络实体占用空间.
@@ -839,3 +835,8 @@ This folder no longer exists. §此文件夹已不存在.
 Type in name of the folder. §输入文件夹名称.
 Create new folder §创建新文件夹
 Existing folder found. Please choose another name. §发现同名文件夹. 请输入其他名称.
+Requires %i more peds than can be spawned. Try deleting all peds, then try to spawn it again. §需要多于 %i 个NPC才能生成. 尝试删除所有NPC,然后尝试再次生成它.
+Requires %i more vehicles than can be spawned. Try deleting all vehicles, then try to spawn it again. §需要多于 %i 个载具才能生成. 尝试删除所有NPC,然后尝试再次生成它.
+Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again. §需要多于 %i 个物体才能生成. 尝试删除所有NPC,然后尝试再次生成它.
+Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again. §生成失败. 载具池可能已满. 我建议删除所有车辆,然后重试.
+Failed to create folder. §创建文件夹失败.
