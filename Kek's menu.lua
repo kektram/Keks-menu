@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b41",
+	version = "0.4.8.0.b42",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -58,7 +58,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.5",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.6.0"
+	["Kek's Essentials"] = "1.6.1"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -144,7 +144,7 @@ for name, version in pairs({
 	["Kek's Trolling entities"] = "1.0.7",
 	["Kek's Custom upgrades"] = "1.0.2",
 	["Kek's Menyoo saver"] = "1.0.9",
-	["Kek's Natives"] = "1.0.1"
+	["Kek's Natives"] = "1.0.2"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -455,8 +455,7 @@ for _, file_name in pairs({
 	"kekMenuData\\Kek's chat bot.txt", 
 	"kekMenuData\\Spam text.txt", 
 	"kekMenuLogs\\All players.log",
-	"kekMenuLogs\\Chat log.log",
-	"kekMenuLogs\\kek_menu_log.log"
+	"kekMenuLogs\\Chat log.log"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff..file_name) then
 		essentials.create_empty_file(paths.kek_menu_stuff..file_name)
@@ -3453,8 +3452,8 @@ menu.add_player_feature(lang["Make nearby peds hostile"], "toggle", u.player_tro
 				end
 			end
 		end
-		for _, Ped in essentials.entities(ped_tracker) do
-			if kek_entity.get_control_of_entity(Ped, 100) then
+		for Ped in pairs(ped_tracker) do
+			if entity.is_entity_a_ped(Ped) and kek_entity.get_control_of_entity(Ped, 100) then
 				weapon.remove_all_ped_weapons(Ped)
 				kek_entity.set_combat_attributes(Ped, false, {})
 				ped.clear_ped_tasks_immediately(Ped)
@@ -4731,20 +4730,20 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 			if str:match("(%S+)", previous_pos + 1) then
 
 				if argument_name_lowercase == "on / off" and args[properties.name] ~= "on" and args[properties.name] ~= "off" then
-					f.data.send_message("Invalid argument.\nExpected \"on\" or \"off\" for argument \""..properties.name.."\".", event.sender)
+					f.data.send_message("Invalid argument.\nExpected on or off.", event.sender)
 					return
 				
 				elseif properties.pattern:find("^%%d[%+%-%?%*]$") then
 					args[properties.name] = math.tointeger(args[properties.name])
 					if not args[properties.name] then
-						f.data.send_message("Invalid argument.\nExpected an integer number for argument \""..properties.name.."\".", event.sender)
+						f.data.send_message("Invalid argument.\nExpected a number for argument \""..properties.name.."\".", event.sender)
 						return
 					end
 				
 				elseif argument_name_lowercase == "player" then
 					command_target = essentials.name_to_pid(args[properties.name])
 					if not player.is_player_valid(command_target) then
-						f.data.send_message("Invalid player name."..expected_arg_display, event.sender)
+						f.data.send_message("Couldn't find the player you are targetting."..expected_arg_display, event.sender)
 						return
 					end
 
@@ -4946,7 +4945,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 			end, nil)
 		elseif what_command == "apartmentteleport" then
 			if args["1 - 113"] < 1 or args["1 - 113"] > 113 then
-				f.data.send_message("Invalid apartment id. Must be between 1 and 113.", event.sender)
+				f.data.send_message("Invalid apartment id. Expected a number between 1 and 113.", event.sender)
 				return
 			end
 			globals.send_script_event(command_target, "Apartment invite", nil, command_target, 1, 0, args["1 - 113"], 1, 1, 1)
@@ -4956,7 +4955,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 			menu.get_player_feature(player_feat_ids["Never wanted"]).feats[command_target].on = args["on / off"] == "on"
 		elseif what_command == "bounty" then
 			if args["0 - 10000"] < 0 or args["0 - 10000"] > 10000 then
-				f.data.send_message("Invalid bounty amount. It have to be an integer number between 0 & 10000.", event.sender)
+				f.data.send_message("Invalid bounty amount. Expected a number between 0 & 10000.", event.sender)
 				return
 			end
 			if globals.get_player_global("bounty_status", command_target) == 1 then
@@ -8289,6 +8288,10 @@ end
 
 do
 	local find <const>, lower <const> = string.find, string.lower
+	local feat_str_data <const> = {
+		lang["Go to"],
+		lang["Where"]
+	}
 	local function create_sorted_search_features(menu_parent, script_parent, search_string, parent_matches_search_string, tab)
 		local feats <const> = menu_parent.children
 		table.sort(feats, function(feat_a, feat_b)
@@ -8306,26 +8309,22 @@ do
 		end)
 
 		for i = 1, #feats do
-			if feats[i].name ~= "" and (feats[i].type & 1 << 11 == 0 or feats[i].on) and not feats[i].hidden then
-				if feats[i].type & 1 << 11 == 1 << 11 then
-					if not essentials.is_str(u.search_features, "Local Lua features") or feats[i].id ~= u.search_menu_features.id then
-						local previous_script_parent <const> = script_parent
-						local previous_parent_matches_search_string <const> = parent_matches_search_string
-						script_parent = menu.add_feature(feats[i].name, "parent", script_parent.id)
+			local feat <const> = feats[i]
+			if feat.name ~= "" and (feat.type & 1 << 11 == 0 or feat.on) and not feat.hidden then
+				if feat.type & 1 << 11 == 1 << 11 then
+					if not essentials.is_str(u.search_features, "Local Lua features") or feat.id ~= u.search_menu_features.id then
 						create_sorted_search_features(
-							feats[i], 
-							script_parent,
+							feat, 
+							menu.add_feature(feat.name, "parent", script_parent.id),
 							search_string,
-							parent_matches_search_string or find(lower(feats[i].name), search_string, 1, true) ~= nil,
+							parent_matches_search_string or find(lower(feat.name), search_string, 1, true) ~= nil,
 							tab
 						)
-						script_parent = previous_script_parent
-						parent_matches_search_string = previous_parent_matches_search_string
 					end
-				elseif parent_matches_search_string or find(lower(feats[i].name), search_string, 1, true) then
-					local feat <const> = menu.add_feature(feats[i].name, "action_value_str", script_parent.id, function(f)
-						local hierarchy_string <const> = essentials.get_feat_hierarchy(feats[i], tab)
-						local menu_feat = feats[i]
+				elseif parent_matches_search_string or find(lower(feat.name), search_string, 1, true) then
+					menu.add_feature(feat.name, "action_value_str", script_parent.id, function(f)
+						local hierarchy_string <const> = essentials.get_feat_hierarchy(feat, tab)
+						local menu_feat = feat
 						if essentials.is_str(f, "Go to") then
 							if menu_feat then
 								menu_feat.parent:toggle()
@@ -8347,11 +8346,7 @@ do
 								12
 							)
 						end
-					end)
-					feat:set_str_data({
-						lang["Go to"],
-						lang["Where"]
-					})
+					end):set_str_data(feat_str_data)
 				end
 			end
 		end
@@ -8436,15 +8431,17 @@ settings:initialize(paths.home.."scripts\\kek_menu_stuff\\keksettings.ini")
 
 essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", function()
 	kek_entity.entity_manager:update()
-	for _, Entity in essentials.entities(essentials.deep_copy(kek_entity.entity_manager.entities)) do
-		ui.remove_blip(ui.get_blip_from_entity(Entity))
-		if network.has_control_of_entity(Entity) and not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(Entity), player.get_player_vehicle(player.player_id())) then
-			if entity.is_entity_attached(Entity) then
-				entity.detach_entity(Entity)
-			end
-			if not entity.is_entity_attached(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
-				entity.set_entity_as_mission_entity(Entity, false, true)
-				entity.delete_entity(Entity)
+	for Entity in pairs(essentials.deep_copy(kek_entity.entity_manager.entities)) do
+		if entity.is_an_entity(Entity) then
+			ui.remove_blip(ui.get_blip_from_entity(Entity))
+			if network.has_control_of_entity(Entity) and not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(Entity), player.get_player_vehicle(player.player_id())) then
+				if entity.is_entity_attached(Entity) then
+					entity.detach_entity(Entity)
+				end
+				if not entity.is_entity_attached(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
+					entity.set_entity_as_mission_entity(Entity, false, true)
+					entity.delete_entity(Entity)
+				end
 			end
 		end
 	end

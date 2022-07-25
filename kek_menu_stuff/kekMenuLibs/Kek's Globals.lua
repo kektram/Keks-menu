@@ -490,7 +490,7 @@ do
 end
 
 function globals.is_fully_transitioned_into_session()
-	return globals.get_global("transition") == 66
+	return globals.get_global("transition") == 66 or player.is_player_control_on(player.player_id()) -- For some people, the global doesn't return 66 while in singleplayer.
 end
 
 function globals.set_bounty(...)
