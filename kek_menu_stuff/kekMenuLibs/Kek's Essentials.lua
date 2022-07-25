@@ -432,7 +432,7 @@ do
 			Table = mt.__index
 		end
 		local key, Entity
-		return function(key_is_entity)
+		return function()
 			repeat
 				key, Entity = next(Table, key)
 			until key == nil or is_entity(Entity)
