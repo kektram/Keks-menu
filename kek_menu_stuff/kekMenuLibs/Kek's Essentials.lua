@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.6.0"}
+local essentials <const> = {version = "1.6.1"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -45,7 +45,6 @@ function essentials.assert(bool, msg, ...)
 		)
 		print(debug.traceback(msg, 2))
 		menu.notify(debug.traceback(msg, 2), "Error", 12, 0xff0000ff)
-		essentials.log_error(msg)
 		menu.create_thread(essentials.post_to_keks_menu_site, "https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="..web.urlencode("Version: "..__kek_menu.version.."\n"..debug.traceback(msg, 2)))
 		error(msg, 2)
 	end
@@ -182,36 +181,42 @@ function essentials.get_max_variadic(...)
 	return max
 end
 
-function essentials.rawset(...)
-	local Table <const>, 
-	index <const>, 
-	value <const> = ...
-	local metatable <const> = debug.getmetatable(Table)
-	local __newindex
-	if metatable then
-		__newindex = metatable.__newindex
-		metatable.__newindex = nil
-	end
-	Table[index] = value
-	if __newindex then
-		metatable.__newindex = __newindex
+do
+    local _ENV <const> = {
+        getmetatable = debug.getmetatable
+    }
+	function essentials.rawset(Table, index, value) -- Matches performance of normal rawset.
+		local metatable <const> = getmetatable(Table)
+		local __newindex
+		if metatable then
+			__newindex = metatable.__newindex
+			metatable.__newindex = nil
+		end
+		Table[index] = value
+		if __newindex then
+			metatable.__newindex = __newindex
+		end
+		return Table
 	end
 end
 
-function essentials.rawget(...)
-	local Table <const>,
-	index <const> = ...
-	local __index
-	local metatable <const> = debug.getmetatable(Table)
-	if metatable then
-		__index = metatable.__index
-		metatable.__index = nil
+do
+    local _ENV <const> = {
+        getmetatable = debug.getmetatable
+    }
+	function essentials.rawget(Table, index) -- Matches performance of normal rawget.
+		local metatable <const> = getmetatable(Table)
+		local __index
+		if metatable then
+			__index = metatable.__index
+			metatable.__index = nil
+		end
+		local value <const> = value
+		if __index then
+			metatable.__index = __index
+		end
+		return value
 	end
-	local value <const> = Table[index]
-	if metatable then
-		metatable.__index = __index
-	end
-	return value
 end
 
 do
@@ -430,9 +435,7 @@ do
 		return function()
 			repeat
 				key, Entity = next(Table, key)
-			until key == nil 
-			or (math_type(Entity) == "integer" and is_entity(Entity)) 
-			or (math_type(key) == "integer" and is_entity(key))
+			until key == nil or is_entity(Entity)
 			return Entity, key
 		end
 	end
@@ -822,50 +825,6 @@ function essentials.parse_xml(str)
 		end
 	end
 	return info
-end
-
-local last_error_time = 0
-local last_error = ""
-function essentials.log_error(...)
-	local error_message <const>, yield <const>, file_path = ...
-	file_path = file_path or paths.kek_menu_stuff.."kekMenuLogs\\kek_menu_log.log"
-	if utils.time_ms() > last_error_time and last_error ~= debug.traceback(error_message, 2) then
-		last_error_time = utils.time_ms() + 100
-		last_error = debug.traceback(error_message, 2)
-		local file <close> = io.open(file_path, "a+")
-		local additional_info <const> = {""}
-		for i2 = 2, 1000 do
-			if pcall(function() 
-				return debug.getlocal(i2 + 2, 1)
-			end) then
-				additional_info[#additional_info + 1] = string.format("\9Locals at level %i:", i2)
-				for i = 1, 200 do
-					local name <const>, value <const> = debug.getlocal(i2, i)
-					if not name then
-						break
-					end
-					if name ~= "(temporary)" then
-						local Type = type(value)
-						if Type == "number" then
-							Type = math.type(value)
-						end
-						additional_info[#additional_info + 1] = string.format("\9\9[%s] = %s (%s)", name, tostring(value):sub(1, 100), Type)
-					end
-				end
-			else
-				break
-			end
-		end
-		file:write(debug.traceback(
-			string.format("\n\n[%s]: < %s > [Kek's menu version: %s]\n%s\n",
-				os.date(), 
-				error_message, 
-				__kek_menu.version, 
-				table.concat(additional_info, "\n")), 2))
-	end
-	if yield then
-		system.yield(0)
-	end
 end
 
 function essentials.is_z_coordinate_correct(pos)
