@@ -1,2 +1,4 @@
-This is not a fix. This only comments out the thing that cause the error.
-The actual fix will come I estimate, ~5 hours.
+Updated everything for new gta update.
+
+Note that Rockstar has messed up the chat system.
+> Due do this, chat features like chat commands, won't work.
