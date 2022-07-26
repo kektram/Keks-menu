@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b42",
+	version = "0.4.8.0.b43",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -3197,12 +3197,12 @@ do
 		"Random"
 	})
 
-	for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
+	--[[for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
 		settings:add_setting({
 			setting_name = "vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(hash),
 			setting = 0
 		})
-	end
+	end--]]
 
 	menu.add_feature(lang["Turn everything off"], "action", u.vehicle_blacklist.id, function()
 		for _, feat in pairs(essentials.get_descendants(u.vehicle_blacklist, {})) do
