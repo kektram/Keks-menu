@@ -134,7 +134,7 @@ for name, version in pairs({
 	["Kek's Vehicle mapper"] = "1.3.9", 
 	["Kek's Ped mapper"] = "1.2.7",
 	["Kek's Object mapper"] = "1.2.7", 
-	["Kek's Globals"] = "1.3.6",
+	["Kek's Globals"] = "1.3.7",
 	["Kek's Weapon mapper"] = "1.0.5",
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
@@ -1844,7 +1844,7 @@ settings.toggle["Aim protection"] = menu.add_feature(lang["Aim protection"], "va
 						system.yield(75)
 					end
 				elseif essentials.is_str(f, "Invite to apartment") then
-					globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1)
+					globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1, 0)
 				end
 			end
 		end
@@ -3197,12 +3197,12 @@ do
 		"Random"
 	})
 
-	--[[for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
+	for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
 		settings:add_setting({
 			setting_name = "vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(hash),
 			setting = 0
 		})
-	end--]]
+	end
 
 	menu.add_feature(lang["Turn everything off"], "action", u.vehicle_blacklist.id, function()
 		for _, feat in pairs(essentials.get_descendants(u.vehicle_blacklist, {})) do
@@ -4948,7 +4948,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 				f.data.send_message("Invalid apartment id. Expected a number between 1 and 113.", event.sender)
 				return
 			end
-			globals.send_script_event(command_target, "Apartment invite", nil, command_target, 1, 0, args["1 - 113"], 1, 1, 1)
+			globals.send_script_event(command_target, "Apartment invite", nil, command_target, 1, 0, args["1 - 113"], 1, 1, 1, 0)
 		elseif what_command == "offtheradar" then
 			menu.get_player_feature(player_feat_ids["player otr"]).feats[command_target].on = args["on / off"] == "on"
 		elseif what_command == "neverwanted" then
@@ -5842,6 +5842,9 @@ do
 		if utils.time_ms() > essentials.init_delay and not menu.get_feature_by_hierarchy_key("local.settings.notifications.log_to_file").on then
 			essentials.msg(lang["\"Log to file\" must be toggled on in 2take1 notification settings in order for this to work."], "red", true, 10)
 		end
+		if not utils.file_exists(paths.home.."notification.log") then
+			essentials.create_empty_file(paths.home.."notification.log")
+		end
 		local file <close> = io.open(paths.home.."notification.log", "rb")
 		file:seek("end")
 		while f.on do
@@ -6708,7 +6711,7 @@ end)
 
 menu.add_player_feature(lang["Apartment invites"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
-		globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1)
+		globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1, 0)
 		system.yield(5000)
 	end
 end)

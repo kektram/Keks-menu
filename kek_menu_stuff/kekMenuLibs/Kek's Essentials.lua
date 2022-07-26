@@ -1635,14 +1635,23 @@ function essentials.search_for_match_and_get_line(...)
 	local file_path <const>,
 	search <const>,
 	exact <const> = ...
+
+	local search_without_special_chars
+	if exact then
+		search_without_special_chars = {}
+		for i = 1, #search do
+			search_without_special_chars[i] = essentials.remove_special(search[i])
+		end
+	end
+
 	local str <const> = essentials.get_file_string(file_path, "rb")
 	for i = 1, #search do
 		local str_pos
 		if exact then
-			str_pos = str:find(string.format("[\r\n]%s[\r\n]", search[i]))
-			or str:find(string.format("^%s[\r\n]", search[i])) -- These 3 extra checks are super fast no matter size of string. Anchors make sure #search[i] is max number of characters searched.
-			or str:find(string.format("[\r\n]%s$", search[i]))
-			or str:find(string.format("^%s$", search[i]))
+			str_pos = str:find(string.format("[\r\n]%s[\r\n]", search_without_special_chars[i]))
+			or str:find(string.format("^%s[\r\n]", search_without_special_chars[i]))
+			or str:find(string.format("[\r\n]%s$", search_without_special_chars[i]))
+			or str:find(string.format("^%s$", search_without_special_chars[i]))
 		else
 			str_pos = str:find(search[i], 1, true)
 		end
