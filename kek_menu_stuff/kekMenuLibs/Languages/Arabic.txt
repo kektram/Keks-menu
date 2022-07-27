@@ -66,7 +66,6 @@ Grab text from file §ﻒﻠﻣ ﻦﻣ ﻡﻼﻜﻟﺍ ﺬﺧﺍ
 Random text from file §ﻒﻠﻣ ﻦﻣ ﻲﺋﺍﻮﺸﻋ ﻡﻼﻛ
 Echo delay, click to type §ﻯﺪﺼﻟﺍ ﺮﻴﺧﺄﺗ
 Echo chat §ﺕﺎﺸﻟﺍ ﻯﺪﺻ
-Answer delay chatbot §ﺕﻮﺑ ﺕﺎﺸﻟﺍ ﺔﺑﺎﺟﺍ ﺮﻴﺧﺄﺗ
 Chat bot §ﺕﻮﺑ ﺕﺎﺸﻟﺍ
 Max car §ﺲﻛﺎﻤﻟﺍ ﻰﻟﺍ ﺓﺭﺎﻴﺴﻟﺍ ﻞﻳﺪﻌﺗ
 Change backplate text §ﺔﺣﻮﻠﻟﺍ ﻢﻗﺭ ﺮﻴﻴﻐﺗ
@@ -168,7 +167,6 @@ Type in what to remove. §aktb ma tryd 74fh
 Type in which car to spawn §aktb ma al syarh allty tryd an tsoy spawn lha
 Type in echo delay. §aktb ta5yr al9da
 Type in what the bot will react to. §aktb ma al bot sof yrd 3lyh
-Type in what the bot will say to what you previously typed in. §aktb al rd 3la ma ktbta mn 8bl
 Type in what the text the bot reacts to in the entry you wish to remove. §aktb rdh al f3l al4y trydha
 Type in answer delay. §aktb ta5yr al ajabh
 Type in the text you want displayed on the backplate of your cars after maxing them. §ﺔﺣﻮﻠﻟﺍ ﻰﻠﻋ ﻊﻠﻄﻳ ﻲﺒﺗ ﺵﻭ ﺐﺘﻛﺍ
@@ -304,7 +302,6 @@ From file & send each line §ﺮﻄﺳ ﻞﻛ ﻞﺳﺭﺍﻭ ﻒﻠﻣ ﻦﻣ
 Send each line §ﺮﻄﺳ ﻞﻛ ﻞﺳﺭﺍ
 Chat commands §ﺕﺎﺸﻟﺍ ﺮﻣﺍﻭﺍ
 Chat commands §ﺕﺎﺸﻟﺍ ﺮﻣﺍﻭﺍ
-Only friends can use commands §ﺕﺎﺸﻟﺍ ﺮﻣﺍﻭﺍ ﻡﺍﺪﺨﺘﺳﺍ ﻢﻬﻨﻜﻤﻳ ﺀﺎﻗﺪﺻﻻﺍ ﻂﻘﻓ
 Teleport to §ﻰﻟﺍ ﺕﺭﻮﺒﻴﻠﻴﺗ
 This player can't use chat commands §ﺕﺎﺸﻟﺍ ﺮﻣﺍﻭﺍ ﻡﺍﺪﺨﺘﺳﺍ ﺔﻨﻜﻤﻳﻻ ﺐﻋﻼﻟﺍ ﺍﺬﻫ
 Stop before vehicles §ﺕﺎﺒﻛﺮﻤﻟﺍ ﻞﺒﻗ ﻒﻗﻭ
@@ -341,7 +338,6 @@ The hash was copied to your clipboard, more info in the debug console. §ﺦﺴ�
 Send command list §ﺮﻣﺍﻭﻻﺃ ﺔﻤﺋﺎﻗ ﻞﺳﺭﺍ
 Friends can't be targeted §ﻢﻬﻓﺍﺪﻬﺘﺳﺍ ﻦﻜﻤﻳﻻ ﺀﺎﻗﺪﺻﻻﺍ
 You can't be targeted §ﻚﻓﺍﺪﻬﺘﺳﺍ ﻦﻜﻤﻳﻻ
-Number of responses §ﺩﻭﺩﺮﻠﻟ ﻢﻗﺭ
 Clear entities §ﺕﺎﻨﺋﺎﻜﻟﺍ ﻑﺬﺣ
 Auto tp to waypoint §ﺖﻨﻳﻮﺑ ﻱﺍﻮﻟﺍ ﻰﻟﺍ ﻲﺋﺎﻘﻠﺗ ﺕﺭﻮﺒﻴﻠﻴﺗ
 Turn on script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻞﻴﻌﻔﺗ
@@ -367,7 +363,6 @@ Taze §ﺔﺑﺮﻬﻛ
 Invite to apartment §ﺔﻘﺸﻠﻟ ﺓﻮﻋﺩ
 Cage §ﺺﻔﻗ
 Give weapon §ﺡﻼﺳ ﺀﺎﻄﻋﺍ
-Remove weapon §ﺡﻼﺳ ﺔﻟﺍﺯﺍ
 Send clipboard to chat §ﺕﺎﺸﻠﻟ ﺥﻮﺴﻨﻤﻟﺍ ﺺﻨﻟﺍ ﻝﺎﺳﺭﺍ
 Send to session §ﻦﺸﻴﺴﻟﺍ ﻰﻟﺍ ﻞﺳﺭﺍ
 Army §ﺶﻴﺟ
@@ -471,13 +466,12 @@ time. §ﺕﺍﺮﻣ
 Outline §ﻂﻴﻄﺨﺗ
 Vehicle blacklist:\nstealing §:ﺕﺎﺒﻛﺮﻤﻟﺍ ﺖﺴﻟ ﻙﻼﺑ\nﺔﻗﺮﺳ
 Mount Chiliad & kill §ﻞﺘﻗ ﻭ Chiliad ﻞﺒﺟ
-Log chat & use as chatbot §ﺕﻮﺑ ﺕﺎﺸﻠﻟ ﻢﻣﺪﺨﺘﺳﺍﻭ ﺕﺎﺸﻟﺍ ﻆﻔﺣﺍ
 Compacts §Compacts
 Sedans §Sedans
 SUVs §SUVs
 Coupes §Coupes
 Muscle §Muscle
-Sports classics §Sports classics
+Sports Classics §Sports Classics
 Sports §Sports
 Super §Super
 Motorcycles §Motorcycles
@@ -580,13 +574,11 @@ Chat log §ﺕﺎﺸﻟﺍ ﻞﺠﺳ
 Mark as modder §ﺭﺩﻮﻣ ﺎﻛ ﺪﻳﺪﺤﺗ
 Don't reapply marks §ﺪﻳﺪﺤﺘﻟﺍ ﻊﺿﻭ ﺪﻴﻌﺗ ﻻ
 Reapply marks §ﺪﻳﺪﺤﺘﻟﺍ ﻊﺿﻭ ﺓﺩﺎﻋﺍ
-Failed to spawn driver vehicle for unknown reason. §.ﻪﻓﻭﺮﻌﻣ ﺮﻴﻏ ﺏﺎﺒﺳﻻ ﺔﺒﻛﺮﻤﻟﺍ ﻖﺋﺎﺳ ﻥﻭﺎﺒﺳ ﻲﻓ ﻞﺸﻓ
 Copied to clipboard. §.ﺦﺴﻨﻟﺍ ﻢﺗ
 Ini vehicles §iniﻟﺍ ﺕﺎﺒﻛﺮﻣ
 This can't be used in singleplayer. §.ﻦﻳﻼﻓﻭﻻﺍ ﻲﻓ ﺍﺬﻫ ﻡﺍﺪﺨﺘﺳﺍ ﻦﻜﻤﻳ ﻻ
 Tried to spawn a xml vehicle with ini spawner. §.ini ﺮﻧﻭﺎﺒﺳ ﻊﻣ xml ﻒﻠﻣ ﻥﻭﺎﺒﺳ ﻪﻟﻭﺎﺤﻣ
 Failed to attach an entity. Check debug console for more details. §.ﺕﺎﻣﻮﻠﻌﻤﻟﺍ ﻦﻣ ﺪﻳﺰﻤﻠﻟ debug consoleﻝﺍ ﻰﻟﺍ ﺐﻫﺫﺍ .ﻦﺋﺎﻛ ﻂﺑﺭ ﻞﺸﻓ
-This file doesn't exist or has an invalid file name. §.ﺢﻴﺤﺻ ﺮﻴﻏ ﻢﺳﺍ ﻪﻳﺪﻟ ﻭﺍ ﺪﺟﻮﻳ ﻢﻟ ﻒﻠﻤﻟﺍ
 Failed to set coordinates. §.ﺕﺎﻴﺛﺍﺪﺣﻻﺍ ﻊﺿﻭ ﻲﻓ ﻞﺸﻓ
 Failed to cleanup crash entity while it is still in memory. §.ﺓﺮﻛﺍﺬﻟﺍ ﻲﻓ ﻪﻧﻮﻛ ﺀﺎﻨﺛﺍ ﻲﻓ ﺵﺍﺮﻜﻟﺍ ﻦﺋﺎﻛ ﻑﺬﺣ ﻲﻓ ﻞﺸﻓ
 Crash entity went out of memory before it could be cleaned up. §.ﺔﻓﺬﺣ ﻢﺘﻳ ﻥﺍ ﻞﺒﻗ ﺓﺮﻛﺍﺬﻟﺍ ﻦﻣ ﺝﺮﺧ ﺵﺍﺮﻜﻟﺍ ﻦﺋﺎﻛ
@@ -657,8 +649,6 @@ files downloaded §ﺖﻠﻤﺤﺗ ﺕﺎﻔﻠﻤﻟﺍ
 Turn off debug mode to use auto-updater. §.ﺔﻴﺋﺎﻘﻠﺘﻟﺍ ﺕﺎﺜﻳﺪﺤﺘﻟﺍ ﻡﺍﺪﺨﺘﺳﺍ ﻞﺟﻻ debug mode ﺀﺎﻔﻃﺍ ﺐﺠﻳ
 Show latest update changelog §ﺚﻳﺪﺤﺗ ﺮﺧﺍ ﺕﺎﻣﻮﻠﻌﻣ ﺮﻬﺿﺍ
 Participate in betas §ﺎﺘﻴﺒﻟﺍ ﻲﻓ ﻙﺭﺎﺷ
-Translate into §ﻰﻟﺍ ﻢﺟﺮﺗ
-Translate chat §ﺕﺎﺸﻟﺍ ﻢﺟﺮﺗ
 English §ﻱﺰﻴﻠﻘﻧﺍ
 Chinese (Simplified) §(ﻂﺴﺒﻣ) ﻲﻨﻴﺼﻟﺍ
 Chinese (Traditional) §(ﻱﺪﻴﻠﻘﺗ) ﻲﻨﻴﺼﻟﺍ
@@ -673,19 +663,13 @@ Swedish §ﻱﺪﻳﻮﺴﻟﺍ
 Forcing player into vehicle. This can take up to 15 seconds. §.ﺔﻴﻧﺎﺛ 51 ﻰﻟﺍ ﺬﺧﺎﻳ ﻥﺍ ﻦﻜﻤﻳ ﺍﺬﻫ .ﺓﺭﺎﻴﺴﻟﺍ ﺏﻮﻛﺭ ﻰﻠﻋ ﺐﻋﻼﻟﺍ ﺭﺎﺒﺟﺍ
 Failed to teleport player. §.ﺐﻋﻼﻟﺍ ﻞﻘﻧ ﻲﻓ ﻞﺸﻓ
 Translate your messages into §ﻰﻟﺍ ﻚﺘﻟﺎﺳﺭ ﺔﻤﺟﺮﺗ
-Obtaining update information... §...ﺚﻳﺪﺤﺘﻟﺍ ﺕﺎﻣﻮﻠﻌﻣ ﻦﻋ ﺚﺤﺒﻟﺍ
 This message will disappear in %i seconds and will assume you don't want the update. §.ﺚﻳﺪﺤﺘﻟﺍ ﺪﻳﺮﺗﻻ ﻚﻧﺍ ﺽﺮﺘﻔﻳ ﻑﻮﺳﻭ ﻲﻧﺍﻮﺛ %i ﻲﻓ ﻲﻔﺘﺨﺗ ﻑﻮﺳ ﺔﻟﺎﺳﺮﻟﺍ ﻱﺫﺎﻫ
 Check for updates §ﺕﺎﺜﻳﺪﺤﺘﻟﺍ ﻦﻋ ﺚﺤﺑﺍ
 Russian §ﻲﺳﻭﺮﻟﺍ
 You must turn on trusted mode->Http to use this script. §.ﺖﺑﺮﻜﺴﻟﺍ ﺍﺬﻫ ﻡﺍﺪﺨﺘﺳﺍ ﻞﺟﺍ ﻦﻣ trusted mode->Http ﻞﻌﻔﺗ ﻡﺯﻻ
-Requires %i more peds than can be spawned. There are peds taking up space; clear them to spawn the map/vehicle. §.ﺓﺭﺎﻴﺳ/ﺏﺎﻤﻠﻟ ﻥﻭﺎﺒﺳ ﻱﻮﺴﺗ ﺭﺪﻘﺗ ﻥﺎﺸﻋ ﻢﻬﻓﺬﺣﺍ ؛ﺔﺣﺎﺴﻣ ﻦﻳﺬﺧﺎﻣ peds ﻙﺎﻨﻫ .ﻢﻬﻌﺿﻭ ﻉﺎﻄﺘﺴﻤﻟﺍ ﻦﻣ peds ﺮﺜﻛﺍ %i ﻡﺰﻠﻳ
-Requires %i more vehicles than can be spawned. There are vehicles taking up space; clear them to spawn the map/vehicle. §.ﺓﺭﺎﻴﺳ/ﺏﺎﻤﻠﻟ ﻥﻭﺎﺒﺳ ﻱﻮﺴﺗ ﺭﺪﻘﺗ ﻥﺎﺸﻋ ﻢﻬﻓﺬﺣﺍ ؛ﺔﺣﺎﺴﻣ ﻦﻳﺬﺧﺎﻣ ﺕﺍﺭﺎﻴﺳ ﻙﺎﻨﻫ .ﻢﻬﻌﺿﻭ ﻉﺎﻄﺘﺴﻤﻟﺍ ﻦﻣ ﺕﺍﺭﺎﻴﺳ ﺮﺜﻛﺍ %i ﻡﺰﻠﻳ
-Requires %i more objects than can be spawned. There are objects taking up space; clear them to spawn the map/vehicle. §.ﺓﺭﺎﻴﺳ/ﺏﺎﻤﻠﻟ ﻥﻭﺎﺒﺳ ﻱﻮﺴﺗ ﺭﺪﻘﺗ ﻥﺎﺸﻋ ﻢﻬﻓﺬﺣﺍ ؛ﺔﺣﺎﺴﻣ ﻦﻳﺬﺧﺎﻣ objects ﻙﺎﻨﻫ .ﻢﻬﻌﺿﻭ ﻉﺎﻄﺘﺴﻤﻟﺍ ﻦﻣ objects ﺮﺜﻛﺍ %i ﻡﺰﻠﻳ
 The map/vehicle won't be visible to other players, it has too many entities. Networked maps/vehicles supports max:\n%i objects\n%i vehicles\n%i peds. §\n%i objects\n%i vehicles\n%i peds. ﻦﻣ ﻞﻗﺍ ﺮﻴﺼﻳ ﻡﺯﻻ .ﺓﺮﻴﺜﻛ ﺕﺎﻨﺋﺎﻛ ﻪﻴﻓ ،ﻦﻳﺮﺧﻻﺍ ﻦﻴﺒﻋﻼﻠﻟ ﻊﻠﻄﺗ ﺡﺍﺭﺎﻣ ﺓﺭﺎﻴﺳ/ﺏﺎﻤﻟﺍ ﺍﺬﻫ
 The map/vehicle will be visible to other people. §.ﻦﻳﺮﺧﻻﺍ ﻦﻴﺒﻋﻼﻠﻟ ﻊﻠﻄﻳ ﺡﺍﺭ ﺓﺭﺎﻴﺳ/ﺏﺎﻤﻟﺍ ﺍﺬﻫ
 The map/vehicle can be networked if you clear all entities. Currently there are other networked entities taking up space. §.ﺔﺣﺎﺴﻣ ﺓﺬﺧﺎﻣ  ﺕﺎﻨﺋﺎﻛ ﺪﺟﻮﻳ ﺎﻴﻟﺎﺣ .ﺕﺎﻨﺋﺎﻜﻟﺍ ﻞﻛ ﺖﻓﺬﺣ ﺍﺫﺍ ﻦﻳﺮﺧﻻﺍ ﻦﻴﺒﻋﻼﻠﻟ ﻊﻠﻄﺗ ﻥﺍ ﻦﻜﻤﻣ ﺓﺭﺎﻴﺳ/ﺏﺎﻤﻟﺍ ﺍﺬﻫ
-Where to send translations §ﺔﻤﺟﺮﺘﻟﺍ ﻞﺳﺮﺗ ﻦﻳﻭ
-To chat §ﺕﺎﺸﻟﺍ ﻰﻟﺍ
 Notification §ﺕﺍﺭﺍﺎﻌﺷﺍ
 Languages to not translate §ﺎﻬﺘﻤﺟﺮﺗ ﺪﻳﺮﺗﻻ ﺕﺎﻐﻟ
 Type in what to translate. §.ﻪﺘﻤﺟﺮﺗ ﺪﻳﺮﺗ ﺍﺫﺎﻣ ﺐﺘﻛﺍ
@@ -716,3 +700,35 @@ Type in number of notifications to display. §.ﺔﺷﺎﺸﻟﺍ ﻰﻠﻋ ﺮ�
 They were spoofing as §ﻢﻬﻧﺍ ﻢﻬﺴﻔﻧ ﻦﻳﻮﺴﻣ ﻮﻧﺎﻛ
 The green line is where it will align itself to if there's enough space. §.ﺔﺣﺎﺴﻣ ﻪﻴﻓ ﻥﺎﻛ ﺍﺫﺍ ﻪﻟ ﺡﻭﺮﻴﺑ ﻲﻠﻟﺍ ﻥﺎﻜﻤﻟﺍ ﻮﻫ ﺮﻀﺧﻻﺍ ﻂﺨﻟﺍ
 The text is auto aligned to never be off-screen. §.ﺔﺷﺎﺸﻟﺍ ﻦﻋ ﻊﻠﻄﻳﺎﻣ ﻪﻧﺍ ﻂﺑﺰﻣ ﻢﻳﺍﺩ ﻡﻼﻜﻟﺍ
+Attempt %i / %i to fetch %s. §.%s ﻞﻴﻤﺤﺘﻟ %i ﺔﻴﻟﺎﺤﻟﺍ ﺔﻟﻭﺎﺤﻤﻟﺍ %i ﺕﻻﻭﺎﺤﻤﻟﺍ ﺩﺪﻋ
+Failed to fetch %s with error: %s §%s ﻞﻴﻤﺤﺘﻟ %s :ﺎﻄﺨﻟﺍ
+Successfully fetched %s. §.ﺡﺎﺠﻨﺑ %s ﻞﻴﻤﺤﺗ ﻢﺗ
+Unknown vehicle name §ﻑﻭﺮﻌﻣ ﺮﻴﻏ ﺔﺒﻛﺮﻣ ﻢﺳﺍ
+Where to send inputs §ﺏﻮﺘﻜﻤﻟﺍ ﻞﺳﺮﺗ ﻦﻳﻭ
+Translate chat into §ﻰﻟﺍ ﺕﺎﺸﻟﺍ ﻢﺟﺮﺗ
+Display session location info §ﻦﺸﺴﻠﻟ ﻦﺸﻴﻛﻮﻠﻟﺍ ﺕﺎﻣﻮﻠﻌﻣ ﺮﻬﺿﺍ
+Obtaining location info. This usually takes between 5-10 seconds. Max 45 api requests per minute.\nIf the list is smaller than expected, it means you hit the limit. The limit will reset in one minute. §.ﺔﻘﻴﻗﺪﻟﺍ ﻲﻓ ﺚﺤﺑ 54 ﺪﺣ ﺖﻠﺻﻭ ﻚﻧﺍ ﺔﺗﺎﻨﻌﻣ ﺍﺬﻫ ﺔﺼﻗﺎﻧ ﺕﺎﻣﻮﻠﻌﻤﻟﺍ ﺖﻧﺎﻛ ﺍﺫﺍ .ﻲﻧﺍﻮﺛ 01 ﻰﻟﺍ 5 ﺬﺧﺎﻳ ﺓﺩﺎﻌﻟﺎﺑ ﺍﺬﻫ .ﻦﺸﻴﻛﻮﻠﻟﺍ ﺕﺎﻣﻮﻠﻌﻣ ﺚﺤﺑ
+private range §ﺹﺎﺨﻟﺍ ﻯﺪﻤﻟﺍ
+reserved range §ﺯﻮﺠﺤﻤﻟﺍ ﻯﺪﻤﻟﺍ
+invalid query §ﺢﻴﺤﺻ ﺮﻴﻏ ﻡﻼﻌﺘﺳﺍ
+Unknown error §ﻑﻭﺮﻌﻣ ﺮﻴﻏ ﺎﻄﺧ
+Answer delay §ﺩﺮﻟﺍ ﻪﻠﻬﻣ
+Type in number of responses to add for this entry. §.ﻞﺧﺪﻤﻠﻟ ﺩﻭﺩﺮﻟﺍ ﺩﺪﻋ ﺐﺘﻛﺍ
+Type in the responses. §.ﺩﻭﺩﺮﻟﺍ ﺐﺘﻛﺍ
+Everyone §ﻊﻴﻤﺠﻟﺍ
+You & friends §ﻚﺋﺎﻗﺪﺻﺍﻭ ﺖﻧﺍ
+You only §ﻂﻘﻓ ﺖﻧﺍ
+Big while loops §(ﺔﺒﻌﻠﻟﺍ ﻖﻠﻌﻳ ﻦﻜﻤﻳ) ﺮﻴﺒﻛ ﺭﺍﺮﻜﺗ ﺩﻮﻛ
+25 notifs in one frame §ﺪﺣﺍﻭ ﻢﻳﺍﺮﻓ ﻲﻓ ﺭﺎﻌﺷﺍ 25
+Invalid file path. Check that all category folders and the file name doesn't contain unicode. §.unicode ﻑﻭﺮﺣ ﺎﻬﻴﻓﺎﻣ ﺕﺎﻔﻠﻤﻟﺍ ﻊﻴﻤﺟ ﻥﺍ ﺪﻛﺎﺗ .ﺢﻴﺤﺻ ﺮﻴﻏ ﻒﻠﻣ ﻥﺎﻜﻣ
+This file doesn't exist. §.ﺩﻮﺟﻮﻣ ﺮﻴﻏ ﻒﻠﻤﻟﺍ ﺍﺬﻫ
+Refresh files & folders §ﺕﺎﻔﻠﻤﻟﺍ ﺚﻳﺪﺤﺗ
+This folder no longer exists. §.ﺩﻮﺟﻮﻣ ﺮﻴﻏ ﻒﻠﻤﻟﺍ ﺍﺬﻫ
+Type in name of the folder. §.ﻒﻠﻤﻟﺍ ﻢﺳﺍ ﺐﺘﻛﺍ
+Create new folder §ﺪﻳﺪﺟ ﻒﻠﻣ ﺢﺘﻓﺍ
+Existing folder found. Please choose another name. §.ﻲﻧﺎﺛ ﻢﺳﺍ ﺮﺘﺧﺍ .ﺩﻮﺟﻮﻣ ﻢﺳﻻﺍ ﺲﻔﻨﺑ ﻒﻠﻣ
+Requires %i more peds than can be spawned. Try deleting all peds, then try to spawn it again. §.ﺔﻴﻧﺎﺛ ﻩﺮﻣ ﺏﺮﺟ ﻦﻳﺪﻌﺑ pedsﻝﺍ ﻞﻛ ﻑﺬﺣﺍ .ﻢﻬﻌﺿﻭ ﻦﻜﻤﻤﻟﺍ ﻦﻣ ﺮﺜﻛﺍ peds %i ﺝﺎﺘﺤﻳ
+Requires %i more vehicles than can be spawned. Try deleting all vehicles, then try to spawn it again. §.ﺔﻴﻧﺎﺛ ﻩﺮﻣ ﺏﺮﺟ ﻦﻳﺪﻌﺑ vehiclesﻝﺍ ﻞﻛ ﻑﺬﺣﺍ .ﻢﻬﻌﺿﻭ ﻦﻜﻤﻤﻟﺍ ﻦﻣ ﺮﺜﻛﺍ vehicles %i ﺝﺎﺘﺤﻳ
+Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again. §.ﺔﻴﻧﺎﺛ ﻩﺮﻣ ﺏﺮﺟ ﻦﻳﺪﻌﺑ objectsﻝﺍ ﻞﻛ ﻑﺬﺣﺍ .ﻢﻬﻌﺿﻭ ﻦﻜﻤﻤﻟﺍ ﻦﻣ ﺮﺜﻛﺍ objects %i ﺝﺎﺘﺤﻳ
+Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again. §.ﺔﻴﻧﺎﺛ ﺓﺮﻣ ﺏﺮﺟ ﻦﻳﺪﻌﺑ ﺕﺎﺒﻛﺮﻤﻟﺍ ﻞﻛ ﻑﺬﺣﺍ .ﺔﻧﺎﻴﻠﻣ ﻥﻮﻜﺗ ﻥﺍ ﻦﻜﻤﻣ ﺕﺎﺒﻛﺮﻤﻟﺍ ﺔﺣﺎﺴﻣ .ﻞﺸﻓ ﻥﻭﺎﺒﺴﻟﺍ
+Failed to create folder. §.ﻒﻠﻤﻟﺍ ﻊﻨﺻ ﻲﻓ ﻞﺸﻓ
