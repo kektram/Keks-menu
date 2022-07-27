@@ -71,10 +71,10 @@ do
 	end
 end
 
-function essentials.must_yield_for_specified_time(time)
+function essentials.must_yield_for_specified_time(timeout)
 -- Use only where yielding shorter than specified time is a huge problem
 -- Primarily to deal with other scripts modifying system.yield, causing it to not yield like it's supposed to
-	local time <const> = utils.time_ms() + time
+	local time <const> = utils.time_ms() + timeout
 	repeat
 		system.yield(0)
 	until utils.time_ms() > time
@@ -253,7 +253,7 @@ do
 end
 
 function essentials.const_all(Table, timeout)
-	timeout = timeout or utils.time_ms() + 1000
+	timeout = timeout or utils.time_ms() + 1000 -- In case a table with references to itself. Faster than using a tracking table. Unless I actually need to properly handle self reference, I will keep it this way.
 	essentials.assert(timeout > utils.time_ms(), "Entered recursion loop while setting table to const all.")
 	for key, value in pairs(Table) do
 		if type(value) == "table" then
@@ -366,7 +366,7 @@ function essentials.are_all_lines_pattern_valid(str, pattern)
 	return true
 end
 
-function essentials.delete_thread(id)
+function essentials.delete_thread(id) -- If this assert fails, it often means the thread had a runtime error.
 	essentials.assert(not menu.has_thread_finished(id) and menu.delete_thread(id), "Attempted to delete a finished thread.")
 end
 
@@ -422,22 +422,17 @@ do
 	end
 end
 
-do
-	local is_entity <const> = entity.is_an_entity
-	local math_type <const> = math.type
-	local next <const> = next
-	function essentials.entities(Table)
-		local mt <const> = debug.getmetatable(Table)
-		if mt and mt.__is_const then
-			Table = mt.__index
-		end
-		local key, Entity
-		return function()
-			repeat
-				key, Entity = next(Table, key)
-			until key == nil or is_entity(Entity)
-			return Entity, key
-		end
+function essentials.entities(Table)
+	local mt <const> = debug.getmetatable(Table)
+	if mt and mt.__is_const then
+		Table = mt.__index
+	end
+	local key, Entity
+	return function()
+		repeat
+			key, Entity = next(Table, key)
+		until key == nil or (Entity ~= 0 and entity.is_an_entity(Entity)) -- Not confirmed, but I suspect 0 can be a valid entity handle.
+		return Entity, key
 	end
 end
 
@@ -1231,27 +1226,25 @@ end
 function essentials.web_get_file(url, rgba, scale, y_pos)
 	local try_count = 0
 	local file_name <const> = web.urldecode(url:match(".+/(.-)$"))
-	local status, str, thread, is_done
-	if rgba then
-		thread = menu.create_thread(function()
-			while true do
-				essentials.draw_auto_adjusted_text(
-					is_done and enums.html_response_codes[status] == "OK" and lang["Successfully fetched %s."]:format(file_name)
-					or is_done and lang["Failed to fetch %s with error: %s"]:format(file_name, enums.html_response_codes[status] or status)
-					or lang["Attempt %i / %i to fetch %s."]:format(try_count, 3, file_name), 
+	local status, str, is_done
+	local thread <const> = menu.create_thread(function()
+		while true do
+			essentials.draw_auto_adjusted_text(
+				is_done and enums.html_response_codes[status] == "OK" and lang["Successfully fetched %s."]:format(file_name)
+				or is_done and lang["Failed to fetch %s with error: %s"]:format(file_name, enums.html_response_codes[status] or status)
+				or lang["Attempt %i / %i to fetch %s."]:format(try_count, 3, file_name), 
 
-					is_done and enums.html_response_codes[status] == "OK" and essentials.get_rgb(0, 255, 0, 255) 
-					or is_done and essentials.get_rgb(255, 0, 0, 255) 
-					or rgba, 
-					
-					scale,
-					y_pos
-				)
-				system.yield(0)
-			end
-		end)
-		system.yield(0)
-	end
+				is_done and enums.html_response_codes[status] == "OK" and essentials.get_rgb(0, 255, 0, 255) 
+				or is_done and essentials.get_rgb(255, 0, 0, 255) 
+				or rgba, 
+				
+				scale,
+				y_pos
+			)
+			system.yield(0)
+		end
+	end)
+	system.yield(0)
 	repeat
 		if try_count > 0 then
 			system.yield(2000)
@@ -1261,9 +1254,7 @@ function essentials.web_get_file(url, rgba, scale, y_pos)
 	until try_count == 3 or not essentials.dont_retry_request(status)
 	is_done = true
 	system.yield(enums.html_response_codes[status] ~= "OK" and 5000 or 250)
-	if thread then
-		essentials.delete_thread(thread)
-	end
+	essentials.delete_thread(thread)
 	return status, str
 end
 

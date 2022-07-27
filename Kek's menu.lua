@@ -134,7 +134,7 @@ for name, version in pairs({
 	["Kek's Vehicle mapper"] = "1.3.9", 
 	["Kek's Ped mapper"] = "1.2.7",
 	["Kek's Object mapper"] = "1.2.7", 
-	["Kek's Globals"] = "1.3.7",
+	["Kek's Globals"] = "1.3.8",
 	["Kek's Weapon mapper"] = "1.0.5",
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
@@ -352,7 +352,7 @@ do -- What kek's menu modifies in the global space. The natives library adds to 
 		ped.clone_ped = function(Ped)
 			if kek_entity.entity_manager:update().is_ped_limit_not_breached then
 				local clone <const> = originals.clone_ped(Ped)
-				if entity.is_an_entity(clone) then
+				if entity.is_entity_a_ped(clone) then
 					kek_entity.entity_manager[clone] = 15
 				end
 				return clone
@@ -3463,7 +3463,7 @@ menu.add_player_feature(lang["Make nearby peds hostile"], "toggle", u.player_tro
 end)
 
 player_feat_ids["Mad peds"] = menu.add_player_feature(lang["Mad peds in their car"], "action_value_str", u.player_trolling_features, function(f, pid)
-	for Vehicle in essentials.entities({player.get_player_vehicle(pid), player.player_count() > 0 and globals.get_player_global("personal_vehicle", pid) or 0}) do
+	for Vehicle in essentials.entities({player.get_player_vehicle(pid), player.player_count() > 0 and globals.get_player_global("personal_vehicle", pid) or nil}) do
 		if not entity.is_entity_dead(Vehicle) then
 			if (essentials.is_str(f, "Fill, steal & run away") or essentials.is_str(f, "Fill & steal")) and ped.is_ped_a_player(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0) then
 				ped.clear_ped_tasks_immediately(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0)
@@ -5742,7 +5742,7 @@ do
 	until 1 << i == player.get_modder_flag_ends()
 	local filter <const> = function(...)
 		local str <const>, feat <const> = ...
-		if feat.value == 1 then
+		if essentials.is_str(feat, "Filter") then
 			for i = 1, #whitelisted_strings do
 				if str:find(whitelisted_strings[i], 1, true) then
 					return false
@@ -5796,8 +5796,8 @@ do
 			end
 			local str <const> = file:read("*l")
 			if settings.valuei["Number of notifications to display"].value ~= number_of_not_value 
-			or (str and #str <= settings.valuei["Max characters per line"].value and str:find("[%w%p]") and not filter(str, f)) then
-				if str and #str <= settings.valuei["Max characters per line"].value then
+			or (str and #str <= settings.valuei["Max characters per line"].value and not filter(str, f)) then
+				if str and #str <= settings.valuei["Max characters per line"].value and not filter(str, f) then
 					strings[#strings + 1] = str
 				end
 				number_of_not_value = settings.valuei["Number of notifications to display"].value
