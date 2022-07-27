@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local globals <const> = {version = "1.3.7"}
+local globals <const> = {version = "1.3.8"}
 
 local essentials <const> = require("Kek's Essentials")
 local enums <const> = require("Kek's Enums")
@@ -397,7 +397,7 @@ function globals.get_global(global_name)
 	return script.get_global_i(globals.global_indices[global_name])
 end
 
-function globals.force_player_into_vehicle(pid, time) -- Creds to RulyPancake the 5th#1345 for logging this from stand menu
+function globals.force_player_into_vehicle(pid, timeout) -- Creds to RulyPancake the 5th#1345 for logging this from stand menu
 	local time <const> = utils.time_ms() + 15000
 	while player.is_player_dead(pid) and player.is_player_valid(pid) and time > utils.time_ms() do
 		system.yield(0)
@@ -405,7 +405,7 @@ function globals.force_player_into_vehicle(pid, time) -- Creds to RulyPancake th
 	local was_player_already_in_god <const> = player.is_player_god(pid)
 	if not player.is_player_dead(pid) then
 		globals.send_script_event(pid, "Force player into vehicle", nil, 1, 1, network.network_hash_from_player(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
-		local time <const> = utils.time_ms() + (time or 15000)
+		local time <const> = utils.time_ms() + (timeout or 15000)
 		system.yield(was_player_already_in_god and 8000 or 6000)
 		while not player.is_player_dead(pid) 
 		and player.is_player_valid(pid)

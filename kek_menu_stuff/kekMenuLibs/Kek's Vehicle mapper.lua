@@ -4697,6 +4697,7 @@ end
 
 function vehicle_mapper.get_dimensions(...)
 	local hash <const> = ...
+	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
 	return vehicle_properties[hash].min_dim, vehicle_properties[hash].max_dim
 end
 
@@ -4720,9 +4721,11 @@ function vehicle_mapper.get_vehicle_name(...)
 	return streaming.get_vehicle_model_name(hash) or lang["Unknown vehicle name"]
 end
 
-function vehicle_mapper.get_random_vehicle()
+do
 	local hashes <const> = vehicle.get_all_vehicle_model_hashes()
-	return hashes[math.random(1, #hashes)]
+	function vehicle_mapper.get_random_vehicle()
+		return hashes[math.random(1, #hashes)]
+	end
 end
 
 function vehicle_mapper.get_hash_from_user_input(...)

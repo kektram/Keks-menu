@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b44",
+	version = "0.4.8.0",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -134,7 +134,7 @@ for name, version in pairs({
 	["Kek's Vehicle mapper"] = "1.3.9", 
 	["Kek's Ped mapper"] = "1.2.7",
 	["Kek's Object mapper"] = "1.2.7", 
-	["Kek's Globals"] = "1.3.7",
+	["Kek's Globals"] = "1.3.8",
 	["Kek's Weapon mapper"] = "1.0.5",
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
@@ -352,7 +352,7 @@ do -- What kek's menu modifies in the global space. The natives library adds to 
 		ped.clone_ped = function(Ped)
 			if kek_entity.entity_manager:update().is_ped_limit_not_breached then
 				local clone <const> = originals.clone_ped(Ped)
-				if entity.is_an_entity(clone) then
+				if entity.is_entity_a_ped(clone) then
 					kek_entity.entity_manager[clone] = 15
 				end
 				return clone
@@ -2774,83 +2774,85 @@ function player_history.add_features(main_parent, rid, ip, name)
 					end
 				until not start
 			end
-			table.sort(seen, function(a, b)
-				return essentials.date_to_int(a.date) + essentials.time_to_float(a.time) < essentials.date_to_int(b.date) + essentials.time_to_float(b.time)
-			end)
+			if #seen > 0 then -- In case paths.player_history_all_players don't have all entries of a hourly player history file.
+				table.sort(seen, function(a, b)
+					return essentials.date_to_int(a.date) + essentials.time_to_float(a.time) < essentials.date_to_int(b.date) + essentials.time_to_float(b.time)
+				end)
 
-			local feat
-			local temporarily_disable_copy_to_clipboard
-			menu.add_feature(lang["Chat log"], "parent", main_parent.id, function(parent)
-				if not settings.toggle["Chat logger"].on then
-					essentials.msg(lang["For chat to show here, chat logger must be on. You can find chat logger in script features > Chat"], "blue", true, 8)
-				end
-				local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log", "rb")
-				local name <const> = main_parent.name:sub(1, 16)
-				local spaces <const> = string.rep("\32", 16 - (utf8.len(name) or #name))
-				parent.data = essentials.get_all_matches(str, "["..name..spaces.."]", "%]:\32(.+)")
-				if parent.child_count == 0 then
-					local feats <const> = {}
-					feat = menu.add_feature(lang["Scroll through messages"], "autoaction_value_i", parent.id, function(f)
-						if #parent.data > 0 then
-							local i2 = 1
-							for i = f.value - 10, f.value - 1 do
-								local str <const> = parent.data[#parent.data - i]
-								feats[i2].hidden = str == nil
-								if not feats[i2].hidden then
-									feats[i2].data = essentials.split_string(str, 34)
-									feats[i2].name = essentials.get_safe_feat_name(feats[i2].data[1])
-									feats[i2].min = math.min(1, #feats[i2].data)
-									feats[i2].max = #feats[i2].data
-									feats[i2].mod = 1
+				local feat
+				local temporarily_disable_copy_to_clipboard
+				menu.add_feature(lang["Chat log"], "parent", main_parent.id, function(parent)
+					if not settings.toggle["Chat logger"].on then
+						essentials.msg(lang["For chat to show here, chat logger must be on. You can find chat logger in script features > Chat"], "blue", true, 8)
+					end
+					local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log", "rb")
+					local name <const> = main_parent.name:sub(1, 16)
+					local spaces <const> = string.rep("\32", 16 - (utf8.len(name) or #name))
+					parent.data = essentials.get_all_matches(str, "["..name..spaces.."]", "%]:\32(.+)")
+					if parent.child_count == 0 then
+						local feats <const> = {}
+						feat = menu.add_feature(lang["Scroll through messages"], "autoaction_value_i", parent.id, function(f)
+							if #parent.data > 0 then
+								local i2 = 1
+								for i = f.value - 10, f.value - 1 do
+									local str <const> = parent.data[#parent.data - i]
+									feats[i2].hidden = str == nil
+									if not feats[i2].hidden then
+										feats[i2].data = essentials.split_string(str, 34)
+										feats[i2].name = essentials.get_safe_feat_name(feats[i2].data[1])
+										feats[i2].min = math.min(1, #feats[i2].data)
+										feats[i2].max = #feats[i2].data
+										feats[i2].mod = 1
+									end
+									i2 = i2 + 1
 								end
-								i2 = i2 + 1
 							end
-						end
-						if utils.time_ms() > temporarily_disable_copy_to_clipboard and keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
-							local str <const> = {}
-							for i = f.value - f.mod, f.value - 1 do
-								str[#str + 1] = parent.data[#parent.data - i]
-							end
-							utils.to_clipboard(table.concat(str, "\n"))
-							essentials.msg(lang["Copied to clipboard."], "blue", true, 3)
-						end
-					end)
-					for i = 1, 10 do
-						feats[i] = menu.add_feature("", "autoaction_value_i", parent.id, function(f)
-							if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
-								utils.to_clipboard(table.concat(f.data))
+							if utils.time_ms() > temporarily_disable_copy_to_clipboard and keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
+								local str <const> = {}
+								for i = f.value - f.mod, f.value - 1 do
+									str[#str + 1] = parent.data[#parent.data - i]
+								end
+								utils.to_clipboard(table.concat(str, "\n"))
 								essentials.msg(lang["Copied to clipboard."], "blue", true, 3)
 							end
-							f.name = essentials.get_safe_feat_name(f.data[f.value])
 						end)
-						feats[i].hidden = true
+						for i = 1, 10 do
+							feats[i] = menu.add_feature("", "autoaction_value_i", parent.id, function(f)
+								if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
+									utils.to_clipboard(table.concat(f.data))
+									essentials.msg(lang["Copied to clipboard."], "blue", true, 3)
+								end
+								f.name = essentials.get_safe_feat_name(f.data[f.value])
+							end)
+							feats[i].hidden = true
+						end
 					end
+					feat.min = 10
+					feat.max = math.ceil(#parent.data / 10) * 10
+					feat.mod = 10
+					temporarily_disable_copy_to_clipboard = utils.time_ms() + 500
+					feat.on = true -- Forces update of chat features
+				end)
+
+				local is_added_to_join_timeout = essentials.search_for_match_and_get_line(paths.home.."cfg\\scid.cfg", {string.format("%x", rid), name}) or ""
+				local fake_friend_flags = tonumber(is_added_to_join_timeout:match(".+:%x+:(%x+)$") or "", 16)
+				menu.add_feature(lang["Is added to join timeout"], "action_value_str", main_parent.id):set_str_data({tostring(fake_friend_flags ~= nil and fake_friend_flags & 4 == 4)})
+
+				local is_blacklisted <const> = essentials.search_for_match_and_get_line(paths.blacklist, {string.format("/%i/", rid), string.format("&%s&", essentials.ipv4_to_dec(ip)), string.format("§%s§", name)}) or ""
+				blacklist_feat = menu.add_feature(string.format("%s: %s", lang["Blacklist reason"], is_blacklisted:match("<(.+)>") or lang["isn't blacklisted"]), "action", main_parent.id)
+
+				menu.add_feature(string.format("%s: %s", lang["First seen"], seen[1].feat_name), "action", main_parent.id)
+				if #seen > 1 then
+					menu.add_feature(string.format("%s: %s", lang["Last seen"], seen[#seen].feat_name), "action", main_parent.id)
+					menu.add_feature(string.format("%s %i %s", lang["Seen"], #seen, lang["times."]), "action", main_parent.id)
+				else
+					menu.add_feature(string.format("%s 1 %s", lang["Seen"], lang["time."]), "action", main_parent.id)
 				end
-				feat.min = 10
-				feat.max = math.ceil(#parent.data / 10) * 10
-				feat.mod = 10
-				temporarily_disable_copy_to_clipboard = utils.time_ms() + 500
-				feat.on = true -- Forces update of chat features
-			end)
-
-			local is_added_to_join_timeout = essentials.search_for_match_and_get_line(paths.home.."cfg\\scid.cfg", {string.format("%x", rid), name}) or ""
-			local fake_friend_flags = tonumber(is_added_to_join_timeout:match(".+:%x+:(%x+)$") or "", 16)
-			menu.add_feature(lang["Is added to join timeout"], "action_value_str", main_parent.id):set_str_data({tostring(fake_friend_flags ~= nil and fake_friend_flags & 4 == 4)})
-
-			local is_blacklisted <const> = essentials.search_for_match_and_get_line(paths.blacklist, {string.format("/%i/", rid), string.format("&%s&", essentials.ipv4_to_dec(ip)), string.format("§%s§", name)}) or ""
-			blacklist_feat = menu.add_feature(string.format("%s: %s", lang["Blacklist reason"], is_blacklisted:match("<(.+)>") or lang["isn't blacklisted"]), "action", main_parent.id)
-
-			menu.add_feature(string.format("%s: %s", lang["First seen"], seen[1].feat_name), "action", main_parent.id)
-			if #seen > 1 then
-				menu.add_feature(string.format("%s: %s", lang["Last seen"], seen[#seen].feat_name), "action", main_parent.id)
-				menu.add_feature(string.format("%s %i %s", lang["Seen"], #seen, lang["times."]), "action", main_parent.id)
-			else
-				menu.add_feature(string.format("%s 1 %s", lang["Seen"], lang["time."]), "action", main_parent.id)
-			end
-			menu.add_feature(lang["Also known as"]..":", "action_value_str", main_parent.id):set_str_data({lang["What is known for"]})
-			for _, properties in pairs(known_as) do
-				if not main_parent.name:find(properties.name, 1, true) then
-					menu.add_feature(string.format("%s [%s]", properties.name, properties.date), "action_value_str", main_parent.id):set_str_data({properties.matched})
+				menu.add_feature(lang["Also known as"]..":", "action_value_str", main_parent.id):set_str_data({lang["What is known for"]})
+				for _, properties in pairs(known_as) do
+					if not main_parent.name:find(properties.name, 1, true) then
+						menu.add_feature(string.format("%s [%s]", properties.name, properties.date), "action_value_str", main_parent.id):set_str_data({properties.matched})
+					end
 				end
 			end
 		end
@@ -3015,8 +3017,8 @@ do
 						end
 					end
 					if not player_history.players_added_to_history(pid) then
-						essentials.log(file_path, info_to_log)
 						essentials.log(paths.player_history_all_players, info_to_log)
+						essentials.log(file_path, info_to_log)
 						local name_of_feat <const> = string.format("%s [%s]", name, os.date("%X"))
 						menu.add_feature(name_of_feat, "parent", player_history.hour_parents[file_path].id, function(f)
 							if f.child_count == 0 then
@@ -3463,7 +3465,7 @@ menu.add_player_feature(lang["Make nearby peds hostile"], "toggle", u.player_tro
 end)
 
 player_feat_ids["Mad peds"] = menu.add_player_feature(lang["Mad peds in their car"], "action_value_str", u.player_trolling_features, function(f, pid)
-	for Vehicle in essentials.entities({player.get_player_vehicle(pid), player.player_count() > 0 and globals.get_player_global("personal_vehicle", pid) or 0}) do
+	for Vehicle in essentials.entities({player.get_player_vehicle(pid), player.player_count() > 0 and globals.get_player_global("personal_vehicle", pid) or nil}) do
 		if not entity.is_entity_dead(Vehicle) then
 			if (essentials.is_str(f, "Fill, steal & run away") or essentials.is_str(f, "Fill & steal")) and ped.is_ped_a_player(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0) then
 				ped.clear_ped_tasks_immediately(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0)
@@ -5742,7 +5744,7 @@ do
 	until 1 << i == player.get_modder_flag_ends()
 	local filter <const> = function(...)
 		local str <const>, feat <const> = ...
-		if feat.value == 1 then
+		if essentials.is_str(feat, "Filter") then
 			for i = 1, #whitelisted_strings do
 				if str:find(whitelisted_strings[i], 1, true) then
 					return false
@@ -5796,8 +5798,8 @@ do
 			end
 			local str <const> = file:read("*l")
 			if settings.valuei["Number of notifications to display"].value ~= number_of_not_value 
-			or (str and #str <= settings.valuei["Max characters per line"].value and str:find("[%w%p]") and not filter(str, f)) then
-				if str and #str <= settings.valuei["Max characters per line"].value then
+			or (str and #str <= settings.valuei["Max characters per line"].value and not filter(str, f)) then
+				if str and #str <= settings.valuei["Max characters per line"].value and not filter(str, f) then
 					strings[#strings + 1] = str
 				end
 				number_of_not_value = settings.valuei["Number of notifications to display"].value

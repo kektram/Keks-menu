@@ -634,8 +634,8 @@ function kek_entity.is_player_in_vehicle(...)
 	return player_in_vehicle, friend_in_vehicle
 end
 
-function kek_entity.set_entity_as_networked(Entity, time)
-	local time <const> = utils.time_ms() + (time or 1500)
+function kek_entity.set_entity_as_networked(Entity, timeout)
+	local time <const> = utils.time_ms() + (timeout or 1500)
 	while time > utils.time_ms() and not network.network_get_entity_is_networked(Entity) do
 		network.network_register_entity_as_networked(Entity)
 		system.yield(0)
