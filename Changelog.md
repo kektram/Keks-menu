@@ -1,6 +1,5 @@
 # **Kek's menu 0.4.8.0**
-
-## **Improvements**```md
+## **Improvements**
 ### Removed
 > Anti chat spoof
 > Modded name detection
@@ -10,7 +9,6 @@
 > !removeweapon chat command
 
 ### Bug fixes
-> Crash when loading corrupted text from player history files
 > Autoexec causing trusted mode not enabled errors despite it being on. You have to delete your old autoexec for the changes to apply.
 > Numerous incompatibility issues with other scripts
 > "Nearby cars have no collision" turning off collision too slowly & not removing collision from attachments
@@ -29,11 +27,10 @@
 ### Chat judger, Chat logger, anti chat spam & chat commands now takes chat spoofing into account
 ### Chat commands rework
 ### Ini vehicles & menyoo maps now supports folders
-> Create new folder in-game
 > Folders are always on top of the list
 > "Refresh" now refreshes all files in current folder & its sub-directories.
 
-**New features**```md
+**New features**
 ### !bounty chat command
 ### !jet chat command
 ### Send kek chopper to session
@@ -41,8 +38,8 @@
 ### Menyoo map saver->Save only mission entities
 ### Added 12-hour clock option to time OSD
 ### Display session location info [country, city]
-### Counts how many times people run Kek's menu [max once per hour]
-### Automatically sends errors to me [max once per hour]
+### Counts how many times people run Kek's menu
+### Automatically sends errors to me
 ### Search features rework
 
 ### Translate chat
@@ -53,5 +50,4 @@
 	Send to team/all chat
 	Meant for chinese/korean/russian users, because "Input text to translate" won't accept unicode.
 }
-```
 ** The script now updates itself in-game**
