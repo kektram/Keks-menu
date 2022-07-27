@@ -29,11 +29,9 @@
 ### Chat judger, Chat logger, anti chat spam & chat commands now takes chat spoofing into account
 ### Chat commands rework
 ### Ini vehicles & menyoo maps now supports folders
-> No limit on how many folders deep
 > Create new folder in-game
 > Folders are always on top of the list
 > "Refresh" now refreshes all files in current folder & its sub-directories.
-> "Refresh" will find new folders & clear removed ones too.
 
 **New features**```md
 ### !bounty chat command
@@ -45,14 +43,7 @@
 ### Display session location info [country, city]
 ### Counts how many times people run Kek's menu [max once per hour]
 ### Automatically sends errors to me [max once per hour]
-
 ### Search features rework
-> Menu, local lua & player features
-> Go-to / tell you where they're located
-
-### Kek's menu updater
-> Choose to receive beta updates
-> Can be turned off
 
 ### Translate chat
 > Set languages to not translate
@@ -63,3 +54,4 @@
 	Meant for chinese/korean/russian users, because "Input text to translate" won't accept unicode.
 }
 ```
+** The script now updates itself in-game**
