@@ -716,7 +716,7 @@ Type in number of notifications to display. §표시할 알림 수를 입력하�
 They were spoofing as §해당 플레이어는 이렇게 스푸핑하고 있었습니다:
 The green line is where it will align itself to if there's enough space. §초록색 줄에 충분한 공간이 없다면 스스로 조정할 것입니다.
 The text is auto aligned to never be off-screen. §글자가 화면이 아닌 곳에 있게 하지 않기 위해 자동으로 조정되었습니다.
-Attempt %i / %i to fetch %s. §%s 을/를 가지고 오기 위해 %i / %i 에 시도합니다.
+Attempt %i / %i to fetch %s. §
 Failed to fetch %s with error: %s §%s 을/를 가지고 오는 것을 실패했으며 오류가 발생했습니다:
 Successfully fetched %s. §성공적으로 가져왔습니다.
 Unknown vehicle name §알려지지 않은 차량 이름
