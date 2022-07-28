@@ -68,12 +68,12 @@ do
 
 	function kek_entity.entity_manager:clear(dont_clear_user_vehicle)
 		self:update()
-		for _, Entity in essentials.entities(essentials.deep_copy(self.entities)) do
-			if (not dont_clear_user_vehicle or player.get_player_vehicle(player.player_id()) ~= Entity) and kek_entity.get_control_of_entity(Entity) then
+		for Entity in pairs(essentials.deep_copy(self.entities)) do
+			if entity.is_an_entity(Entity) and (not dont_clear_user_vehicle or player.get_player_vehicle(player.player_id()) ~= Entity) and kek_entity.get_control_of_entity(Entity) then
 				kek_entity.hard_remove_entity_and_its_attachments(Entity)
 			end
 		end
-		kek_entity.entity_manager:update()
+		self:update()
 	end
 end
 
@@ -567,7 +567,7 @@ function kek_entity.clear_entities(...)
 	time_to_wait_for_control = time_to_wait_for_control or 3000
 	local timeout <const> = utils.time_ms() + 30000
 	local count = 1
-	for Entity, i in essentials.entities(table_of_entities) do
+	for Entity in essentials.entities(table_of_entities) do
 		essentials.assert(not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity), "Tried to delete a player ped.")
 		if entity.is_entity_a_vehicle(Entity) or not entity.is_entity_a_ped(entity.get_entity_attached_to(Entity)) or not ped.is_ped_a_player(entity.get_entity_attached_to(Entity)) then
 			ui.remove_blip(ui.get_blip_from_entity(Entity))
@@ -634,8 +634,8 @@ function kek_entity.is_player_in_vehicle(...)
 	return player_in_vehicle, friend_in_vehicle
 end
 
-function kek_entity.set_entity_as_networked(Entity, time)
-	local time <const> = utils.time_ms() + (time or 1500)
+function kek_entity.set_entity_as_networked(Entity, timeout)
+	local time <const> = utils.time_ms() + (timeout or 1500)
 	while time > utils.time_ms() and not network.network_get_entity_is_networked(Entity) do
 		network.network_register_entity_as_networked(Entity)
 		system.yield(0)

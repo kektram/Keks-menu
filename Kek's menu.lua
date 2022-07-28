@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0.b41",
+	version = "0.4.8.0",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -58,7 +58,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.5",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.6.0"
+	["Kek's Essentials"] = "1.6.1"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -134,7 +134,7 @@ for name, version in pairs({
 	["Kek's Vehicle mapper"] = "1.3.9", 
 	["Kek's Ped mapper"] = "1.2.7",
 	["Kek's Object mapper"] = "1.2.7", 
-	["Kek's Globals"] = "1.3.6",
+	["Kek's Globals"] = "1.3.8",
 	["Kek's Weapon mapper"] = "1.0.5",
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
@@ -144,7 +144,7 @@ for name, version in pairs({
 	["Kek's Trolling entities"] = "1.0.7",
 	["Kek's Custom upgrades"] = "1.0.2",
 	["Kek's Menyoo saver"] = "1.0.9",
-	["Kek's Natives"] = "1.0.1"
+	["Kek's Natives"] = "1.0.2"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -352,7 +352,7 @@ do -- What kek's menu modifies in the global space. The natives library adds to 
 		ped.clone_ped = function(Ped)
 			if kek_entity.entity_manager:update().is_ped_limit_not_breached then
 				local clone <const> = originals.clone_ped(Ped)
-				if entity.is_an_entity(clone) then
+				if entity.is_entity_a_ped(clone) then
 					kek_entity.entity_manager[clone] = 15
 				end
 				return clone
@@ -455,8 +455,7 @@ for _, file_name in pairs({
 	"kekMenuData\\Kek's chat bot.txt", 
 	"kekMenuData\\Spam text.txt", 
 	"kekMenuLogs\\All players.log",
-	"kekMenuLogs\\Chat log.log",
-	"kekMenuLogs\\kek_menu_log.log"
+	"kekMenuLogs\\Chat log.log"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff..file_name) then
 		essentials.create_empty_file(paths.kek_menu_stuff..file_name)
@@ -1845,7 +1844,7 @@ settings.toggle["Aim protection"] = menu.add_feature(lang["Aim protection"], "va
 						system.yield(75)
 					end
 				elseif essentials.is_str(f, "Invite to apartment") then
-					globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1)
+					globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1, 0)
 				end
 			end
 		end
@@ -2775,83 +2774,85 @@ function player_history.add_features(main_parent, rid, ip, name)
 					end
 				until not start
 			end
-			table.sort(seen, function(a, b)
-				return essentials.date_to_int(a.date) + essentials.time_to_float(a.time) < essentials.date_to_int(b.date) + essentials.time_to_float(b.time)
-			end)
+			if #seen > 0 then -- In case paths.player_history_all_players don't have all entries of a hourly player history file.
+				table.sort(seen, function(a, b)
+					return essentials.date_to_int(a.date) + essentials.time_to_float(a.time) < essentials.date_to_int(b.date) + essentials.time_to_float(b.time)
+				end)
 
-			local feat
-			local temporarily_disable_copy_to_clipboard
-			menu.add_feature(lang["Chat log"], "parent", main_parent.id, function(parent)
-				if not settings.toggle["Chat logger"].on then
-					essentials.msg(lang["For chat to show here, chat logger must be on. You can find chat logger in script features > Chat"], "blue", true, 8)
-				end
-				local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log", "rb")
-				local name <const> = main_parent.name:sub(1, 16)
-				local spaces <const> = string.rep("\32", 16 - (utf8.len(name) or #name))
-				parent.data = essentials.get_all_matches(str, "["..name..spaces.."]", "%]:\32(.+)")
-				if parent.child_count == 0 then
-					local feats <const> = {}
-					feat = menu.add_feature(lang["Scroll through messages"], "autoaction_value_i", parent.id, function(f)
-						if #parent.data > 0 then
-							local i2 = 1
-							for i = f.value - 10, f.value - 1 do
-								local str <const> = parent.data[#parent.data - i]
-								feats[i2].hidden = str == nil
-								if not feats[i2].hidden then
-									feats[i2].data = essentials.split_string(str, 34)
-									feats[i2].name = essentials.get_safe_feat_name(feats[i2].data[1])
-									feats[i2].min = math.min(1, #feats[i2].data)
-									feats[i2].max = #feats[i2].data
-									feats[i2].mod = 1
+				local feat
+				local temporarily_disable_copy_to_clipboard
+				menu.add_feature(lang["Chat log"], "parent", main_parent.id, function(parent)
+					if not settings.toggle["Chat logger"].on then
+						essentials.msg(lang["For chat to show here, chat logger must be on. You can find chat logger in script features > Chat"], "blue", true, 8)
+					end
+					local str <const> = essentials.get_file_string(paths.kek_menu_stuff.."kekMenuLogs\\Chat log.log", "rb")
+					local name <const> = main_parent.name:sub(1, 16)
+					local spaces <const> = string.rep("\32", 16 - (utf8.len(name) or #name))
+					parent.data = essentials.get_all_matches(str, "["..name..spaces.."]", "%]:\32(.+)")
+					if parent.child_count == 0 then
+						local feats <const> = {}
+						feat = menu.add_feature(lang["Scroll through messages"], "autoaction_value_i", parent.id, function(f)
+							if #parent.data > 0 then
+								local i2 = 1
+								for i = f.value - 10, f.value - 1 do
+									local str <const> = parent.data[#parent.data - i]
+									feats[i2].hidden = str == nil
+									if not feats[i2].hidden then
+										feats[i2].data = essentials.split_string(str, 34)
+										feats[i2].name = essentials.get_safe_feat_name(feats[i2].data[1])
+										feats[i2].min = math.min(1, #feats[i2].data)
+										feats[i2].max = #feats[i2].data
+										feats[i2].mod = 1
+									end
+									i2 = i2 + 1
 								end
-								i2 = i2 + 1
 							end
-						end
-						if utils.time_ms() > temporarily_disable_copy_to_clipboard and keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
-							local str <const> = {}
-							for i = f.value - f.mod, f.value - 1 do
-								str[#str + 1] = parent.data[#parent.data - i]
-							end
-							utils.to_clipboard(table.concat(str, "\n"))
-							essentials.msg(lang["Copied to clipboard."], "blue", true, 3)
-						end
-					end)
-					for i = 1, 10 do
-						feats[i] = menu.add_feature("", "autoaction_value_i", parent.id, function(f)
-							if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
-								utils.to_clipboard(table.concat(f.data))
+							if utils.time_ms() > temporarily_disable_copy_to_clipboard and keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
+								local str <const> = {}
+								for i = f.value - f.mod, f.value - 1 do
+									str[#str + 1] = parent.data[#parent.data - i]
+								end
+								utils.to_clipboard(table.concat(str, "\n"))
 								essentials.msg(lang["Copied to clipboard."], "blue", true, 3)
 							end
-							f.name = essentials.get_safe_feat_name(f.data[f.value])
 						end)
-						feats[i].hidden = true
+						for i = 1, 10 do
+							feats[i] = menu.add_feature("", "autoaction_value_i", parent.id, function(f)
+								if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
+									utils.to_clipboard(table.concat(f.data))
+									essentials.msg(lang["Copied to clipboard."], "blue", true, 3)
+								end
+								f.name = essentials.get_safe_feat_name(f.data[f.value])
+							end)
+							feats[i].hidden = true
+						end
 					end
+					feat.min = 10
+					feat.max = math.ceil(#parent.data / 10) * 10
+					feat.mod = 10
+					temporarily_disable_copy_to_clipboard = utils.time_ms() + 500
+					feat.on = true -- Forces update of chat features
+				end)
+
+				local is_added_to_join_timeout = essentials.search_for_match_and_get_line(paths.home.."cfg\\scid.cfg", {string.format("%x", rid), name}) or ""
+				local fake_friend_flags = tonumber(is_added_to_join_timeout:match(".+:%x+:(%x+)$") or "", 16)
+				menu.add_feature(lang["Is added to join timeout"], "action_value_str", main_parent.id):set_str_data({tostring(fake_friend_flags ~= nil and fake_friend_flags & 4 == 4)})
+
+				local is_blacklisted <const> = essentials.search_for_match_and_get_line(paths.blacklist, {string.format("/%i/", rid), string.format("&%s&", essentials.ipv4_to_dec(ip)), string.format("§%s§", name)}) or ""
+				blacklist_feat = menu.add_feature(string.format("%s: %s", lang["Blacklist reason"], is_blacklisted:match("<(.+)>") or lang["isn't blacklisted"]), "action", main_parent.id)
+
+				menu.add_feature(string.format("%s: %s", lang["First seen"], seen[1].feat_name), "action", main_parent.id)
+				if #seen > 1 then
+					menu.add_feature(string.format("%s: %s", lang["Last seen"], seen[#seen].feat_name), "action", main_parent.id)
+					menu.add_feature(string.format("%s %i %s", lang["Seen"], #seen, lang["times."]), "action", main_parent.id)
+				else
+					menu.add_feature(string.format("%s 1 %s", lang["Seen"], lang["time."]), "action", main_parent.id)
 				end
-				feat.min = 10
-				feat.max = math.ceil(#parent.data / 10) * 10
-				feat.mod = 10
-				temporarily_disable_copy_to_clipboard = utils.time_ms() + 500
-				feat.on = true -- Forces update of chat features
-			end)
-
-			local is_added_to_join_timeout = essentials.search_for_match_and_get_line(paths.home.."cfg\\scid.cfg", {string.format("%x", rid), name}) or ""
-			local fake_friend_flags = tonumber(is_added_to_join_timeout:match(".+:%x+:(%x+)$") or "", 16)
-			menu.add_feature(lang["Is added to join timeout"], "action_value_str", main_parent.id):set_str_data({tostring(fake_friend_flags ~= nil and fake_friend_flags & 4 == 4)})
-
-			local is_blacklisted <const> = essentials.search_for_match_and_get_line(paths.blacklist, {string.format("/%i/", rid), string.format("&%s&", essentials.ipv4_to_dec(ip)), string.format("§%s§", name)}) or ""
-			blacklist_feat = menu.add_feature(string.format("%s: %s", lang["Blacklist reason"], is_blacklisted:match("<(.+)>") or lang["isn't blacklisted"]), "action", main_parent.id)
-
-			menu.add_feature(string.format("%s: %s", lang["First seen"], seen[1].feat_name), "action", main_parent.id)
-			if #seen > 1 then
-				menu.add_feature(string.format("%s: %s", lang["Last seen"], seen[#seen].feat_name), "action", main_parent.id)
-				menu.add_feature(string.format("%s %i %s", lang["Seen"], #seen, lang["times."]), "action", main_parent.id)
-			else
-				menu.add_feature(string.format("%s 1 %s", lang["Seen"], lang["time."]), "action", main_parent.id)
-			end
-			menu.add_feature(lang["Also known as"]..":", "action_value_str", main_parent.id):set_str_data({lang["What is known for"]})
-			for _, properties in pairs(known_as) do
-				if not main_parent.name:find(properties.name, 1, true) then
-					menu.add_feature(string.format("%s [%s]", properties.name, properties.date), "action_value_str", main_parent.id):set_str_data({properties.matched})
+				menu.add_feature(lang["Also known as"]..":", "action_value_str", main_parent.id):set_str_data({lang["What is known for"]})
+				for _, properties in pairs(known_as) do
+					if not main_parent.name:find(properties.name, 1, true) then
+						menu.add_feature(string.format("%s [%s]", properties.name, properties.date), "action_value_str", main_parent.id):set_str_data({properties.matched})
+					end
 				end
 			end
 		end
@@ -3016,8 +3017,8 @@ do
 						end
 					end
 					if not player_history.players_added_to_history(pid) then
-						essentials.log(file_path, info_to_log)
 						essentials.log(paths.player_history_all_players, info_to_log)
+						essentials.log(file_path, info_to_log)
 						local name_of_feat <const> = string.format("%s [%s]", name, os.date("%X"))
 						menu.add_feature(name_of_feat, "parent", player_history.hour_parents[file_path].id, function(f)
 							if f.child_count == 0 then
@@ -3453,8 +3454,8 @@ menu.add_player_feature(lang["Make nearby peds hostile"], "toggle", u.player_tro
 				end
 			end
 		end
-		for _, Ped in essentials.entities(ped_tracker) do
-			if kek_entity.get_control_of_entity(Ped, 100) then
+		for Ped in pairs(ped_tracker) do
+			if entity.is_entity_a_ped(Ped) and kek_entity.get_control_of_entity(Ped, 100) then
 				weapon.remove_all_ped_weapons(Ped)
 				kek_entity.set_combat_attributes(Ped, false, {})
 				ped.clear_ped_tasks_immediately(Ped)
@@ -3464,7 +3465,7 @@ menu.add_player_feature(lang["Make nearby peds hostile"], "toggle", u.player_tro
 end)
 
 player_feat_ids["Mad peds"] = menu.add_player_feature(lang["Mad peds in their car"], "action_value_str", u.player_trolling_features, function(f, pid)
-	for Vehicle in essentials.entities({player.get_player_vehicle(pid), player.player_count() > 0 and globals.get_player_global("personal_vehicle", pid) or 0}) do
+	for Vehicle in essentials.entities({player.get_player_vehicle(pid), player.player_count() > 0 and globals.get_player_global("personal_vehicle", pid) or nil}) do
 		if not entity.is_entity_dead(Vehicle) then
 			if (essentials.is_str(f, "Fill, steal & run away") or essentials.is_str(f, "Fill & steal")) and ped.is_ped_a_player(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0) then
 				ped.clear_ped_tasks_immediately(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0)
@@ -4731,20 +4732,20 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 			if str:match("(%S+)", previous_pos + 1) then
 
 				if argument_name_lowercase == "on / off" and args[properties.name] ~= "on" and args[properties.name] ~= "off" then
-					f.data.send_message("Invalid argument.\nExpected \"on\" or \"off\" for argument \""..properties.name.."\".", event.sender)
+					f.data.send_message("Invalid argument.\nExpected on or off.", event.sender)
 					return
 				
 				elseif properties.pattern:find("^%%d[%+%-%?%*]$") then
 					args[properties.name] = math.tointeger(args[properties.name])
 					if not args[properties.name] then
-						f.data.send_message("Invalid argument.\nExpected an integer number for argument \""..properties.name.."\".", event.sender)
+						f.data.send_message("Invalid argument.\nExpected a number for argument \""..properties.name.."\".", event.sender)
 						return
 					end
 				
 				elseif argument_name_lowercase == "player" then
 					command_target = essentials.name_to_pid(args[properties.name])
 					if not player.is_player_valid(command_target) then
-						f.data.send_message("Invalid player name."..expected_arg_display, event.sender)
+						f.data.send_message("Couldn't find the player you are targetting."..expected_arg_display, event.sender)
 						return
 					end
 
@@ -4946,17 +4947,17 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 			end, nil)
 		elseif what_command == "apartmentteleport" then
 			if args["1 - 113"] < 1 or args["1 - 113"] > 113 then
-				f.data.send_message("Invalid apartment id. Must be between 1 and 113.", event.sender)
+				f.data.send_message("Invalid apartment id. Expected a number between 1 and 113.", event.sender)
 				return
 			end
-			globals.send_script_event(command_target, "Apartment invite", nil, command_target, 1, 0, args["1 - 113"], 1, 1, 1)
+			globals.send_script_event(command_target, "Apartment invite", nil, command_target, 1, 0, args["1 - 113"], 1, 1, 1, 0)
 		elseif what_command == "offtheradar" then
 			menu.get_player_feature(player_feat_ids["player otr"]).feats[command_target].on = args["on / off"] == "on"
 		elseif what_command == "neverwanted" then
 			menu.get_player_feature(player_feat_ids["Never wanted"]).feats[command_target].on = args["on / off"] == "on"
 		elseif what_command == "bounty" then
 			if args["0 - 10000"] < 0 or args["0 - 10000"] > 10000 then
-				f.data.send_message("Invalid bounty amount. It have to be an integer number between 0 & 10000.", event.sender)
+				f.data.send_message("Invalid bounty amount. Expected a number between 0 & 10000.", event.sender)
 				return
 			end
 			if globals.get_player_global("bounty_status", command_target) == 1 then
@@ -5743,7 +5744,7 @@ do
 	until 1 << i == player.get_modder_flag_ends()
 	local filter <const> = function(...)
 		local str <const>, feat <const> = ...
-		if feat.value == 1 then
+		if essentials.is_str(feat, "Filter") then
 			for i = 1, #whitelisted_strings do
 				if str:find(whitelisted_strings[i], 1, true) then
 					return false
@@ -5797,8 +5798,8 @@ do
 			end
 			local str <const> = file:read("*l")
 			if settings.valuei["Number of notifications to display"].value ~= number_of_not_value 
-			or (str and #str <= settings.valuei["Max characters per line"].value and str:find("[%w%p]") and not filter(str, f)) then
-				if str and #str <= settings.valuei["Max characters per line"].value then
+			or (str and #str <= settings.valuei["Max characters per line"].value and not filter(str, f)) then
+				if str and #str <= settings.valuei["Max characters per line"].value and not filter(str, f) then
 					strings[#strings + 1] = str
 				end
 				number_of_not_value = settings.valuei["Number of notifications to display"].value
@@ -5842,6 +5843,9 @@ do
 	settings.toggle["Log 2take1 notifications to console"] = menu.add_feature(lang["Log to console"], "value_str", u.display_notifications.id, function(f)
 		if utils.time_ms() > essentials.init_delay and not menu.get_feature_by_hierarchy_key("local.settings.notifications.log_to_file").on then
 			essentials.msg(lang["\"Log to file\" must be toggled on in 2take1 notification settings in order for this to work."], "red", true, 10)
+		end
+		if not utils.file_exists(paths.home.."notification.log") then
+			essentials.create_empty_file(paths.home.."notification.log")
 		end
 		local file <close> = io.open(paths.home.."notification.log", "rb")
 		file:seek("end")
@@ -6709,7 +6713,7 @@ end)
 
 menu.add_player_feature(lang["Apartment invites"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
-		globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1)
+		globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1, 0)
 		system.yield(5000)
 	end
 end)
@@ -8289,6 +8293,10 @@ end
 
 do
 	local find <const>, lower <const> = string.find, string.lower
+	local feat_str_data <const> = {
+		lang["Go to"],
+		lang["Where"]
+	}
 	local function create_sorted_search_features(menu_parent, script_parent, search_string, parent_matches_search_string, tab)
 		local feats <const> = menu_parent.children
 		table.sort(feats, function(feat_a, feat_b)
@@ -8306,26 +8314,22 @@ do
 		end)
 
 		for i = 1, #feats do
-			if feats[i].name ~= "" and (feats[i].type & 1 << 11 == 0 or feats[i].on) and not feats[i].hidden then
-				if feats[i].type & 1 << 11 == 1 << 11 then
-					if not essentials.is_str(u.search_features, "Local Lua features") or feats[i].id ~= u.search_menu_features.id then
-						local previous_script_parent <const> = script_parent
-						local previous_parent_matches_search_string <const> = parent_matches_search_string
-						script_parent = menu.add_feature(feats[i].name, "parent", script_parent.id)
+			local feat <const> = feats[i]
+			if feat.name ~= "" and (feat.type & 1 << 11 == 0 or feat.on) and not feat.hidden then
+				if feat.type & 1 << 11 == 1 << 11 then
+					if not essentials.is_str(u.search_features, "Local Lua features") or feat.id ~= u.search_menu_features.id then
 						create_sorted_search_features(
-							feats[i], 
-							script_parent,
+							feat, 
+							menu.add_feature(feat.name, "parent", script_parent.id),
 							search_string,
-							parent_matches_search_string or find(lower(feats[i].name), search_string, 1, true) ~= nil,
+							parent_matches_search_string or find(lower(feat.name), search_string, 1, true) ~= nil,
 							tab
 						)
-						script_parent = previous_script_parent
-						parent_matches_search_string = previous_parent_matches_search_string
 					end
-				elseif parent_matches_search_string or find(lower(feats[i].name), search_string, 1, true) then
-					local feat <const> = menu.add_feature(feats[i].name, "action_value_str", script_parent.id, function(f)
-						local hierarchy_string <const> = essentials.get_feat_hierarchy(feats[i], tab)
-						local menu_feat = feats[i]
+				elseif parent_matches_search_string or find(lower(feat.name), search_string, 1, true) then
+					menu.add_feature(feat.name, "action_value_str", script_parent.id, function(f)
+						local hierarchy_string <const> = essentials.get_feat_hierarchy(feat, tab)
+						local menu_feat = feat
 						if essentials.is_str(f, "Go to") then
 							if menu_feat then
 								menu_feat.parent:toggle()
@@ -8347,11 +8351,7 @@ do
 								12
 							)
 						end
-					end)
-					feat:set_str_data({
-						lang["Go to"],
-						lang["Where"]
-					})
+					end):set_str_data(feat_str_data)
 				end
 			end
 		end
@@ -8436,15 +8436,17 @@ settings:initialize(paths.home.."scripts\\kek_menu_stuff\\keksettings.ini")
 
 essentials.listeners["exit"]["main_exit"] = event.add_event_listener("exit", function()
 	kek_entity.entity_manager:update()
-	for _, Entity in essentials.entities(essentials.deep_copy(kek_entity.entity_manager.entities)) do
-		ui.remove_blip(ui.get_blip_from_entity(Entity))
-		if network.has_control_of_entity(Entity) and not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(Entity), player.get_player_vehicle(player.player_id())) then
-			if entity.is_entity_attached(Entity) then
-				entity.detach_entity(Entity)
-			end
-			if not entity.is_entity_attached(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
-				entity.set_entity_as_mission_entity(Entity, false, true)
-				entity.delete_entity(Entity)
+	for Entity in pairs(essentials.deep_copy(kek_entity.entity_manager.entities)) do
+		if entity.is_an_entity(Entity) then
+			ui.remove_blip(ui.get_blip_from_entity(Entity))
+			if network.has_control_of_entity(Entity) and not kek_entity.is_vehicle_an_attachment_to(kek_entity.get_parent_of_attachment(Entity), player.get_player_vehicle(player.player_id())) then
+				if entity.is_entity_attached(Entity) then
+					entity.detach_entity(Entity)
+				end
+				if not entity.is_entity_attached(Entity) and (not entity.is_entity_a_ped(Entity) or not ped.is_ped_a_player(Entity)) then
+					entity.set_entity_as_mission_entity(Entity, false, true)
+					entity.delete_entity(Entity)
+				end
 			end
 		end
 	end

@@ -3,7 +3,6 @@
 local essentials <const> = require("Kek's Essentials")
 local enums <const> = require("Kek's Enums")
 local weapon_mapper <const> = {version = "1.0.5"}
-
 local weapon_attachments <const> = essentials.const_all({
 	[gameplay.get_hash_key("weapon_stungun")] = {},
 	[gameplay.get_hash_key("weapon_flaregun")] = {},
@@ -52,6 +51,13 @@ local weapon_attachments <const> = essentials.const_all({
 	[gameplay.get_hash_key("weapon_hazardcan")] = {},
 	[gameplay.get_hash_key("weapon_smokegrenade")] = {},
 	[gameplay.get_hash_key("weapon_stungun_mp")] = {},
+	[gameplay.get_hash_key("weapon_precisionrifle")] = {},
+	[gameplay.get_hash_key("weapon_tacticalrifle")] = {
+		{"Grip", "COMPONENT_AT_AR_AFGRIP", gameplay.get_hash_key("COMPONENT_AT_AR_AFGRIP")},
+		{"Suppressor Muzzle Brake", "COMPONENT_AT_AR_SUPP_02", 0xA73D4664},
+		{"Extended clip", "COMPONENT_TACTICALRIFLE_CLIP_02", gameplay.get_hash_key("COMPONENT_TACTICALRIFLE_CLIP_02")},
+		{"Flashlight", "COMPONENT_AT_AR_FLSH_REH", gameplay.get_hash_key("COMPONENT_AT_AR_FLSH_REH")}
+	},
 	[gameplay.get_hash_key("weapon_heavyrifle")] = {
 		{"Default Clip", "COMPONENT_HEAVYRIFLE_CLIP_01", gameplay.get_hash_key("COMPONENT_HEAVYRIFLE_CLIP_01")},
 		{"Extended Clip", "COMPONENT_HEAVYRIFLE_CLIP_02", gameplay.get_hash_key("COMPONENT_HEAVYRIFLE_CLIP_02")},

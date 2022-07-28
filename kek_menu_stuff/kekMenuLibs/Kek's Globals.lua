@@ -1,6 +1,6 @@
--- Copyright © 2020-2022 Kektram, Sainan
+-- Copyright © 2020-2022 Kektram
 
-local globals <const> = {version = "1.3.6"}
+local globals <const> = {version = "1.3.8"}
 
 local essentials <const> = require("Kek's Essentials")
 local enums <const> = require("Kek's Enums")
@@ -8,12 +8,12 @@ local settings <const> = require("Kek's Settings")
 local memoize <const> = require("Kek's Memoize")
 
 local offsets <const> = essentials.const({
-	["MAIN"] = 1853131,
-	["OFFSET_PER_PLAYER"] = 888,
+	["MAIN"] = 1853348,
+	["OFFSET_PER_PLAYER"] = 834,
 	["OFFSET_TO_INFO"] = 205
 })
 
-local stats <const> = essentials.const({ -- Thanks to Sainan for some of these stats
+local stats <const> = essentials.const({
 	["WALLET"] = 3,
 	["RANK"] = 6,
 	["CREW_TITLE"] = 7,
@@ -60,13 +60,13 @@ local stats <const> = essentials.const({ -- Thanks to Sainan for some of these s
 	-- Freemode script doesn't explicitly define these, but it seems highly likely they are correct.
 })
 
-function globals.get_player_info_offset(pid, info_offset) -- By Sainan
+function globals.get_player_info_offset(pid, info_offset)
 	return offsets.MAIN + (1 + (pid * offsets.OFFSET_PER_PLAYER)) + offsets.OFFSET_TO_INFO + info_offset
 end
-function globals.get_player_info_i(pid, info_offset) -- By Sainan
+function globals.get_player_info_i(pid, info_offset)
 	return script.get_global_i(globals.get_player_info_offset(pid, info_offset))
 end
-function globals.get_player_info_f(pid, info_offset) -- By Sainan
+function globals.get_player_info_f(pid, info_offset)
 	return script.get_global_f(globals.get_player_info_offset(pid, info_offset))
 end
 
@@ -99,29 +99,29 @@ function globals.get_player_deaths(pid)
 end
 
 globals.global_indices = essentials.const({
-	time = 					2810701 + 4624, 	-- NETWORK::GET_NETWORK_TIME()
+	time = 					2815059 + 4624, 	-- NETWORK::GET_NETWORK_TIME()
 
-	transition = 			1574988, -- Is 66 if fully loaded into session
+	transition = 			1574991, -- Is 66 if fully loaded into session
 
-	current = 				1921039 + 9, 		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
+	current = 				1920255 + 9, 		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
 
-	previous = 				1921039 + 10		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
+	previous = 				1920255 + 10		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
 })
 
 globals.player_global_indices = essentials.const({
-	personal_vehicle = 				{offset = 2703660 + 1 + 173, 		pid_multiplier = 1},
+	personal_vehicle = 				{offset = 2703735 + 1 + 173, 		pid_multiplier = 1},
 
-	generic = 						{offset = 1893551 + 1 + 510, 		pid_multiplier = 599}, 		-- Equivalent to global(1921036 + 9) if pid is script host
+	generic = 						{offset = 1892703 + 1 + 510, 		pid_multiplier = 599}, 		-- Equivalent to global(1921036 + 9) if pid is script host
 
-	organization_associate_hash = 	{offset = 1893551 + 1 + 10 + 2, 	pid_multiplier = 599},		-- Seems to be 1639791091 + (unknown * 3)
+	organization_associate_hash = 	{offset = 1892703 + 1 + 10 + 2, 	pid_multiplier = 599},		-- Seems to be 1639791091 + (unknown * 3)
 
-	organization_id = 				{offset = 1893551 + 1 + 10, 		pid_multiplier = 599},
+	organization_id = 				{offset = 1892703 + 1 + 10, 		pid_multiplier = 599},
 
-	otr_status = 					{offset = 2689224 + 1 + 207, 		pid_multiplier = 451}, 		-- Returns 1 if player is otr
+	otr_status = 					{offset = 2689235 + 1 + 208, 		pid_multiplier = 453}, 		-- Returns 1 if player is otr
 
 	bounty_status = 				{offset = 1835502 + 1 + 4,			pid_multiplier = 3}, 		-- Returns 1 if player has bounty.
 
-	is_player_typing = 				{offset = 1644218 + 2 + 241 + 136 --[[+ ((16 // 32) * 33)--]], pid_multiplier = 1} -- < this > & 1 << 16 ~= 0 if they're typing.
+	is_player_typing = 				{offset = 1648034 + 2 + 241 + 136 --[[+ ((16 // 32) * 33)--]], pid_multiplier = 1} -- < this > & 1 << 16 ~= 0 if they're typing.
 })
 
 --[[ Vaulted script events I won't actively update
@@ -137,254 +137,254 @@ globals.player_global_indices = essentials.const({
 --]]
 
 local script_event_hashes <const> = essentials.const({
-	["Force player into vehicle"] = 		962740265, -- Par 4 - 35 are network hashes. par 3 is how many of those hashes to check. par 2 & 36 are bools.
+	["Force player into vehicle"] = 		-555356783, -- Par 4 - 35 are network hashes. par 3 is how many of those hashes to check. par 2 & 36 are bools.
 
-	["Infinite while loop crash"] = 		-1386010354,
+	["Infinite while loop crash"] = 		526822748,
 
-	["Disown personal vehicle"] = 			-520925154,
+	["Disown personal vehicle"] = 			-306558546,
 
-	["Vehicle EMP"] =						-2042927980,
+	["Vehicle EMP"] =						-1427892428,
 
-	["Destroy personal vehicle"] = 			-1026787486,
+	["Destroy personal vehicle"] = 			-2126830022,
 
-	["Kick out of vehicle"] = 				578856274,
+	["Kick out of vehicle"] = 				-714268990,
 
-	["Give OTR or ghost organization"] =	-391633760,
+	["Give OTR or ghost organization"] =	-1973627888,
 
-	["Block passive"] = 					1114091621,
+	["Block passive"] = 					65268844,
 
-	["Send to Perico island"] = 			-621279188,
+	["Send to Perico island"] = 			1361475530,
 
-	["Apartment invite"] = 					603406648,
+	["Apartment invite"] = 					-1390976345,
 
-	["CEO ban"] = 							-764524031,
+	["CEO ban"] = 							1240068495,
 
-	["Dismiss or terminate from CEO"] = 	248967238,
+	["Dismiss or terminate from CEO"] = 	-1425016400,
 
-	["Transaction error"] = 				-1704141512,
+	["Transaction error"] = 				-768108950,
 
-	["CEO money"] = 						1890277845,
+	["CEO money"] = 						547083265,
 
-	["Bounty"] = 							1294995624,
+	["Bounty"] = 							1915499503,
 
-	["Generic event"] = 					801199324,
+	["Generic event"] = 					-1388926377,
 
-	["Notifications"] = 					677240627
+	["Notifications"] = 					-1529596656
 })
 
 globals.GENERIC_ARG_HASHES = essentials.const({ -- Includes all cases (switch statement) with something interesting
-	clear_wanted = -1685043744,
-	unk1 = -1107912593,
-	unk2 = 441439430,
-	cop_timer = -2117950499,
-	crook_timer = -1428782697,
-	tunable_smt = 537560473,
-	hud_removeitem = -480053738,
-	hud_removeitem_2 = -873921503,
-	smt_todo_with_player_team = 156817356,
-	looks_like_timer = 809872998,
-	camera = 869796886
-})
+	clear_wanted = 125033661
+	--[[ OUTDATED. FROM: [GTA V build 2628 (GTA Online 1.60)] 27-04-2022
+		unk1 = -1107912593,
+		unk2 = 441439430,
+		cop_timer = -2117950499,
+		crook_timer = -1428782697,
+		tunable_smt = 537560473,
+		hud_removeitem = -480053738,
+		hud_removeitem_2 = -873921503,
+		smt_todo_with_player_team = 156817356,
+		looks_like_timer = 809872998,
+		camera = 869796886
+	--]]
+}) -- THESE NEEDS TO GET UPDATED ON MAJOR GTA UPDATES
 
 globals.NOTIFICATION_HASHES = essentials.const({
-	cash_added_bank = 1990572980,
-	cash_stolen = -2106994199,
-	cash_removed = 689178114,
-	vehicle_kill_list_will_explode_in_x = -1476617592
-})
+	cash_added_bank = -849958015,
+	cash_stolen = -1640162684,
+	cash_removed = -290070531,
+	vehicle_kill_list_will_explode_in_x = 948261434
+}) -- THESE NEEDS TO GET UPDATED ON MAJOR GTA UPDATES
 
-globals.NOTIFICATION_HASHES_RAW = essentials.const({
-	-1020918645,
-	--[[ Reliant on local script to be running
-		-744062923,
-		-1402204478,
-		-979388144,
-		521727704,
-	--]]
-	699524808,
-	-1946063584,
-	1178629347,
-	1358311090,
-	1154852585,
-	1310986203,
-	-40847318,
-	643078607,
-	1992208603,
-	1752574721,
-	912885596,
-	1381048616,
-	1990572980,
-	-2106994199,
-	689178114,
-	1138171492,
-	1704029734,
-	-264140477,
-	7194932,
-	1724437687,
-	-936043730,
-	1246736526,
-	-1830601824,
-	-1081859810,
-	1916687397,
-	645964512,
-	1280286772,
-	-319623026,
-	-1774948616,
-	-1692385791,
-	---890479893, -- Causes player to be kicked
-	-209964813,
-	1849048398,
-	1821665681,
-	1523360013,
-	-134517492,
-	809515035,
-	-848503500,
-	637726153,
-	1435588721,
-	-1530876828,
-	1241563604,
-	1997868686,
-	1204422451,
-	1690141969,
-	592859285,
-	-1233326488,
-	-1370555350,
-	-1476617592,
-	-1488135877,
-	1014637718,
-	-164715828,
-	-1355397705,
-	391530867,
-	721389992,
-	1903175301,
-	54080196,
-	1843011800,
-	-1344943948,
-	-1530692143,
-	-- -1774405356, Can cause crash
-	1323418434,
-	-769497109,
-	1339791014,
-	-866448721,
-	318737562,
-	1101934106,
-	1086826029,
-	-2143357669,
-	-523143632,
-	682666916,
-	-286082734,
-	-1317931763,
-	-853229590,
-	1705697128,
-	-1538398747,
-	-1013675809,
-	-1636931911,
-	686041060,
-	-775323166,
-	53185293,
-	312888440,
-	-1048310207,
-	1289803407,
-	1880156910,
-	-354370119,
-	155406806,
-	-1678006840,
-	1059917272,
-	-803052325,
-	1914235728,
-	1201782980,
-	1062837153,
-	-2072347577,
-	-781928854,
-	-931565749,
-	-1408108046,
-	165771741,
-	-1321780445,
-	-22225512,
-	-2129584942,
-	-1868112058,
-	218552651,
-	1985746964,
-	1080374994,
-	1567211575,
-	-1127630859,
-	1240089509,
-	577690197,
-	-1498220699,
-	1806910878,
-	1977077611,
-	1359589585,
-	1171104057,
-	1010044380,
-	-118624111,
-	-198990709,
-	-1269681122,
-	-393294977,
-	-142117497,
-	-591557771,
-	939590342,
-	1240053611,
-	-542572166,
-	2004413818,
-	-1249576871,
-	-1081059626,
-	1702541153,
-	160832359,
-	869574944,
-	1812609806,
-	1742672561,
-	-854233377,
-	-223879883,
-	-1973346552,
-	-615536014,
-	-155076576,
-	1758833487,
-	-1163995160,
-	91922191,
-	-1113591308,
-	-2079521652,
-	1010148135,
-	-1603758683,
-	-1564027124,
-	2025562671,
-	434620279,
-	1787604077,
-	-453322515,
-	-1777438880,
-	-439985365,
-	-1267886285,
-	882590859,
-	1187511629,
-	453765971,
-	-1248267178,
-	-113171830,
-	-1809326806,
-	1728435622,
-	-1496601475,
-	1788863165,
-	-1643758344,
-	980511777,
-	1541697920,
-	-293236205,
-	-2045628228,
-	-1469019744,
-	-616977148,
-	-1269285510,
-	1937950826,
-	-19244849,
-	1610198713,
-	1131952305,
-	-543685796,
-	1457441188,
-	1848443186,
-	-1483156346,
-	-1988274527,
-	-1771709808,
-	1459767362,
-	517318842,
-	288774761,
-	866966274,
-	-449255008
+globals.NOTIFICATION_HASHES_RAW = essentials.const({ -- THESE NEEDS TO GET UPDATED ON MAJOR GTA UPDATES
+	-798666348,
+	-- 2045988930,
+	-- 1023106342,
+	-- 687717091,
+	-- -545984491,
+	-1048629566,
+	1181306847,
+	1347513268,
+	1862353529,
+	1289157788,
+	1165399431,
+	-1739317812,
+	-579901295,
+	-1559779014,
+	-1337074122,
+	1837020641,
+	-1158837686,
+	-849958015,
+	-1640162684,
+	-290070531,
+	1486755921,
+	387297028,
+	-631411114,
+	191881921,
+	647151840,
+	131526974,
+	-1643558145,
+	1405242665,
+	-1241621212,
+	1236510126,
+	-957912558,
+	1895157572,
+	1445830269,
+	-282974408,
+	-1526812039,
+	-- -1223820331, Can cause player to get kicked
+	1338180443,
+	-762167709,
+	-834923907,
+	-1747140958,
+	-208885833,
+	990698863,
+	1584592718,
+	1884920006,
+	613904624,
+	-134157105,
+	1359375186,
+	624887500,
+	-1110361554,
+	1389707492,
+	-1934096369,
+	-1951068930,
+	42043832,
+	948261434,
+	-1324280291,
+	253422435,
+	-29110861,
+	-1825847691,
+	1895117223,
+	-1173679408,
+	954790247,
+	-1230145718,
+	1570493520,
+	1237679061,
+	238216506,
+	-- -547323955, Can cause player to get crashed
+	-1978767900,
+	51281702,
+	-1435009097,
+	-1448651733,
+	3618049,
+	922865935,
+	1096157875,
+	-1544466956,
+	-977704342,
+	-1423230718,
+	-1022474524,
+	-97742300,
+	-1619346917,
+	598067554,
+	-1113992458,
+	1031974379,
+	-1482084718,
+	1093368079,
+	-1401188087,
+	2016040430,
+	1591843457,
+	1123536029,
+	-1774148053,
+	-900992998,
+	642905839,
+	60196880,
+	107890679,
+	1331875651,
+	-1346244703,
+	-1774527360,
+	1112123527,
+	-1514817568,
+	-1135881253,
+	585200513,
+	1559122458,
+	1046868867,
+	-126299893,
+	652868691,
+	-1903994744,
+	-1955511189,
+	1298149895,
+	-581668973,
+	1846859874,
+	-1900627347,
+	-167623065,
+	-480184639,
+	-293038417,
+	284048987,
+	996671670,
+	460728128,
+	1953804132,
+	-338312328,
+	1644144667,
+	1663631674,
+	-751505045,
+	-97512675,
+	659568732,
+	1411579008,
+	1958000582,
+	2141857158,
+	-38157870,
+	-481169383,
+	-544350095,
+	670826302,
+	-1766566591,
+	-1553408327,
+	-157526016,
+	-1195445472,
+	1270194308,
+	653626137,
+	-35892297,
+	-1173993894,
+	-686394896,
+	1212517035,
+	-1394652000,
+	-1296682161,
+	199776836,
+	1036580915,
+	-250941162,
+	-2131157870,
+	-230148856,
+	806692428,
+	-1619652234,
+	227459735,
+	-1637241198,
+	-83571472,
+	-1269535056,
+	-765247904,
+	-877646868,
+	-455218537,
+	-1111422293,
+	-951694168,
+	-1003961910,
+	838576761,
+	-1975643673,
+	720553595,
+	1535844061,
+	-144028007,
+	-1693023939,
+	-1874451036,
+	1789320243,
+	-1863580758,
+	-1248118654,
+	584090642,
+	-1914651041,
+	-1571508379,
+	621721745,
+	-160157873,
+	-888400040,
+	224702245,
+	1685857344,
+	48937991,
+	-1138299166,
+	1394615985,
+	1353526176,
+	-1798575258,
+	1285823202,
+	2056072755,
+	64135927,
+	1218886043,
+	-1903866482,
+	560987145,
+	1823970438
 })
 
 function globals.get_script_event_hash(name)
@@ -397,7 +397,7 @@ function globals.get_global(global_name)
 	return script.get_global_i(globals.global_indices[global_name])
 end
 
-function globals.force_player_into_vehicle(pid, time) -- Creds to RulyPancake the 5th#1345 for logging this from stand menu
+function globals.force_player_into_vehicle(pid, timeout) -- Creds to RulyPancake the 5th#1345 for logging this from stand menu
 	local time <const> = utils.time_ms() + 15000
 	while player.is_player_dead(pid) and player.is_player_valid(pid) and time > utils.time_ms() do
 		system.yield(0)
@@ -405,7 +405,7 @@ function globals.force_player_into_vehicle(pid, time) -- Creds to RulyPancake th
 	local was_player_already_in_god <const> = player.is_player_god(pid)
 	if not player.is_player_dead(pid) then
 		globals.send_script_event(pid, "Force player into vehicle", nil, 1, 1, network.network_hash_from_player(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
-		local time <const> = utils.time_ms() + (time or 15000)
+		local time <const> = utils.time_ms() + (timeout or 15000)
 		system.yield(was_player_already_in_god and 8000 or 6000)
 		while not player.is_player_dead(pid) 
 		and player.is_player_valid(pid)
@@ -490,7 +490,7 @@ do
 end
 
 function globals.is_fully_transitioned_into_session()
-	return globals.get_global("transition") == 66
+	return globals.get_global("transition") == 66 or player.is_player_control_on(player.player_id()) -- For some people, the global doesn't return 66 while in singleplayer.
 end
 
 function globals.set_bounty(...)
@@ -546,7 +546,7 @@ function globals.script_event_crash_2(...) -- Has been unstable in the past, mig
 		local rand_pid <const> = essentials.get_random_player_except({[player.player_id()] = true})
 		script.trigger_script_event_2(1 << pid, globals.get_script_event_hash("Notifications"), 
 			player.player_id(), 
-			-1774405356, 
+			-547323955, 
 			math.random(-2147483647, 2147483647),
 			1, 0, 0, 0, 0, 0, pid, 
 			player.player_id(), 

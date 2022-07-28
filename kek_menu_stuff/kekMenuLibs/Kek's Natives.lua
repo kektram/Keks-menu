@@ -1,5 +1,5 @@
 -- Copyright © 2020-2022 Kektram
-local natives <const> = {version = "1.0.1"}
+local natives <const> = {version = "1.0.2"}
 
 local essentials <const> = require("Kek's Essentials")
 
@@ -778,7 +778,7 @@ local ids <const> = {
 		get_entity_pitch = {type = "float", id = 0xd45dc2893621e1fe, pars = "entity entity"},
 		get_entity_quaternion = {type = "void", id = 0x7b3703d2d32dfa18, pars = "entity entity, float* x, float* y, float* z, float* w", buffer_needed = true},
 		get_entity_roll = {type = "float", id = 0x831e0242595560df, pars = "entity entity"},
-		get_entity_rotation__native = {type = "vector3", id = 0xafbd61cc738d9eb9, pars = "entity entity, int rotationorder"},
+		get_entity_rotation = {type = "vector3", id = 0xafbd61cc738d9eb9, pars = "entity entity, int rotationorder"},
 		get_entity_rotation_velocity = {type = "vector3", id = 0x213b91045d09b983, pars = "entity entity"},
 		get_entity_script = {type = "const char*", id = 0xa6e9c38db51d7748, pars = "entity entity, scrhandle* script", buffer_needed = true},
 		get_entity_speed = {type = "float", id = 0xd5037ba82e12416f, pars = "entity entity"},
@@ -827,7 +827,7 @@ local ids <const> = {
 		is_entity_waiting_for_world_collision = {type = "bool", id = 0xd05bff0c0a12c68f, pars = "entity entity"},
 		apply_force_to_entity_center_of_mass = {type = "void", id = 0x18ff00fc7eff559e, pars = "entity entity, int forcetype, float x, float y, float z, bool p5, bool isdirectionrel, bool isforcerel, bool p8"},
 		apply_force_to_entity = {type = "void", id = 0xc5f68be9613e2d18, pars = "entity entity, int forceflags, float x, float y, float z, float offx, float offy, float offz, int boneindex, bool isdirectionrel, bool ignoreupvec, bool isforcerel, bool p12, bool p13"},
-		attach_entity_to_entity__native = {type = "void", id = 0x6b9bbd38ab0796df, pars = "entity entity1, entity entity2, int boneindex, float xpos, float ypos, float zpos, float xrot, float yrot, float zrot, bool p9, bool usesoftpinning, bool collision, bool isped, int rotationorder, bool fixedrot"},
+		attach_entity_to_entity = {type = "void", id = 0x6b9bbd38ab0796df, pars = "entity entity1, entity entity2, int boneindex, float xpos, float ypos, float zpos, float xrot, float yrot, float zrot, bool p9, bool usesoftpinning, bool collision, bool isped, int rotationorder, bool fixedrot"},
 		_attach_entity_bone_to_entity_bone = {type = "void", id = 0x5c48b75732c8456c, pars = "entity entity1, entity entity2, int boneindex1, int boneindex2, bool p4, bool p5"},
 		_attach_entity_bone_to_entity_bone_physically = {type = "void", id = 0xfd1695c5d3b05439, pars = "entity entity1, entity entity2, int boneindex1, int boneindex2, bool p4, bool p5"},
 		attach_entity_to_entity_physically = {type = "void", id = 0xc3675780c92f90f9, pars = "entity entity1, entity entity2, int boneindex1, int boneindex2, float xpos1, float ypos1, float zpos1, float xpos2, float ypos2, float zpos2, float xrot, float yrot, float zrot, float breakforce, bool fixedrot, bool p15, bool collision, bool p17, int p18"},
@@ -879,7 +879,7 @@ local ids <const> = {
 		_get_entity_proofs = {type = "bool", id = 0xbe8cd9be829bbebf, pars = "entity entity, bool* bulletproof, bool* fireproof, bool* explosionproof, bool* collisionproof, bool* meleeproof, bool* steamproof, bool* p7, bool* drownproof", buffer_needed = true},
 		set_entity_quaternion = {type = "void", id = 0x77b21be7ac540f07, pars = "entity entity, float x, float y, float z, float w"},
 		set_entity_records_collisions = {type = "void", id = 0x0a50a1eedad01e65, pars = "entity entity, bool toggle"},
-		set_entity_rotation__native = {type = "void", id = 0x8524a8b0171d5e07, pars = "entity entity, vector3 rot, int rotationorder, bool p5"}, -- float pitch, float roll, float yaw originally, stuff didnt work as it should if passed this way.
+		set_entity_rotation = {type = "void", id = 0x8524a8b0171d5e07, pars = "entity entity, float pitch, float roll, float yaw, int rotationorder, bool p5"},
 		set_entity_visible = {type = "void", id = 0xea1c610a04db6bbb, pars = "entity entity, bool toggle, bool unk"},
 		_0xc34bc448da29f5e9 = {type = "void", id = 0xc34bc448da29f5e9, pars = "entity entity, bool toggle"},
 		_0xe66377cddada4810 = {type = "void", id = 0xe66377cddada4810, pars = "entity entity, bool p1"},
@@ -5624,7 +5624,7 @@ local ids <const> = {
 		is_ped_cuffed = {type = "bool", id = 0x74e559b3bc910685, pars = "ped ped"},
 	},
 	vehicle = {
-		create_vehicle__native = {type = "vehicle", id = 0xaf35d0d2583051b0, pars = "hash modelhash, float x, float y, float z, float heading, bool isnetwork, bool bscripthostveh, bool p7"},
+		create_vehicle = {type = "vehicle", id = 0xaf35d0d2583051b0, pars = "hash modelhash, float x, float y, float z, float heading, bool isnetwork, bool bscripthostveh, bool p7"},
 		delete_vehicle = {type = "void", id = 0xea386986e786a54f, pars = "vehicle* vehicle", buffer_needed = true},
 		_0x7d6f9a3ef26136a0 = {type = "void", id = 0x7d6f9a3ef26136a0, pars = "vehicle vehicle, bool toggle, bool p2"},
 		_set_vehicle_can_be_locked_on = {type = "void", id = 0x1dda078d12879eee, pars = "vehicle vehicle, bool canbelockedon, bool unk"},
@@ -5779,7 +5779,7 @@ local ids <const> = {
 		_set_trailer_legs_lowered = {type = "void", id = 0x878c75c09fbdb942, pars = "any p0"},
 		set_vehicle_tyre_fixed = {type = "void", id = 0x6e13fc662b882d1d, pars = "vehicle vehicle, int tyreindex"},
 		set_vehicle_number_plate_text = {type = "void", id = 0x95a88f0b409cda47, pars = "vehicle vehicle, const char* platetext"},
-		get_vehicle_number_plate_text__native = {type = "const char*", id = 0x7ce1ccb9b293020e, pars = "vehicle vehicle"},
+		get_vehicle_number_plate_text = {type = "const char*", id = 0x7ce1ccb9b293020e, pars = "vehicle vehicle"},
 		get_number_of_vehicle_number_plates = {type = "int", id = 0x4c4d6b2644f458cb, pars = ""},
 		set_vehicle_number_plate_text_index = {type = "void", id = 0x9088eb5a43ffb0a1, pars = "vehicle vehicle, int plateindex"},
 		get_vehicle_number_plate_text_index = {type = "int", id = 0xf11bc2dd9a3e7195, pars = "vehicle vehicle"},
@@ -6567,13 +6567,24 @@ local function parse_parameters(pars, ...)
 end
 
 do
--- Integrates all natives into the global space
--- Any functions that needs buffers to return values are implicitly converted into a regular lua function returning multiple values
--- It makes function calls 3x slower. 120k calls per second to 40k calls. (_get_entity_proofs)
--- If the function have an any* parameter, they're not converted.
--- If the api already have a function with the same name, it's not overwritten.
--- NATIVES ACCEPT V3, EVEN IF IT ASKS FOR X,Y,Z ARGS. IN SOME CASES, YOU MUST USE V3 FOR IT TO WORK. (set_entity_rotation__native)
-	local _G_mt
+--[[ 
+	
+	Integrates all natives into the global space.
+
+	Any functions that needs buffers to return values are implicitly converted into a regular lua function returning multiple values.
+	Check out kek_entity.get_entity_proofs to see this in action.
+
+	It makes function calls 3x slower. 120k calls per second to 40k calls. (_get_entity_proofs)
+	If the function have an any* parameter, they're not converted.
+
+	There are a few functions that takes pointers as normal arguments and not purely a buffer. Those functions won't work by default.
+	It is really easy to make them just do native.call. I won't be supporting those functions unless I happen to need one of them.
+
+	If the api already have a function with the same name, it's not overwritten, but instead, added as: native_name .. "__native"
+	NATIVES ACCEPT V3, EVEN IF IT ASKS FOR X,Y,Z ARGS. IN SOME CASES, YOU MUST USE V3 FOR IT TO WORK. (set_entity_rotation__native)
+--]]
+
+	local _G_mt -- Debugger.lua raises error if messing with _G
 	if debug.getmetatable(_G) then
 		_G_mt = debug.getmetatable(_G)
 		setmetatable(_G, nil)
@@ -6585,43 +6596,51 @@ do
 			mt = debug.getmetatable(_G[category_name])
 			setmetatable(_G[category_name], nil)
 		else
-			_G[category_name] = {} -- Debugger raises error if messing with _G
+			_G[category_name] = {}
 		end
 		for native_name, info in pairs(category) do
-			_G[category_name][native_name] = _G[category_name][native_name] 
-			or info.buffer_needed and not info.pars:find("any*", 1, true) and function(...)
-				local args <const>, buffers <const> = parse_parameters(info.pars, ...)
-				local return_value
-				if info.type == "any" then
-					return_value = native.call(info.id, table.unpack(args))
-				else
-					return_value = parse_type(native.call(info.id, table.unpack(args)), info.type)
-				end
 
-				for i = 1, #buffers do
-					if buffers[i].type == "v3" then
-						buffers[i] = buffers[i].buffer:__tov3()
-					elseif buffers[i].type == "string" then
-						buffers[i] = buffers[i].buffer:__string(true)
-					elseif buffers[i].type == "float" then
-						buffers[i] = buffers[i].buffer:__tonumber()
-					elseif buffers[i].type == "bool" then
-						buffers[i] = buffers[i].buffer:__tointeger() == 1
+			if _G[category_name][native_name] then
+				native_name = native_name.."__native"
+			end
+
+			if not _G[category_name][native_name] then
+				_G[category_name][native_name] = 
+					info.buffer_needed and not info.pars:find("any*", 1, true) and 
+
+				function(...)
+					local args <const>, buffers <const> = parse_parameters(info.pars, ...)
+					local return_value
+					if info.type == "any" then
+						return_value = native.call(info.id, table.unpack(args))
 					else
-						buffers[i] = buffers[i].buffer:__tointeger()
+						return_value = parse_type(native.call(info.id, table.unpack(args)), info.type)
 					end
-				end
-				if type_string_to_type[info.type] ~= "void" then
-					return return_value, table.unpack(buffers)
-				else
-					return table.unpack(buffers)
-				end
-			end 
-			or function(...)
-				if info.type == "any" then
-					return native.call(info.id, ...)
-				else
-					return parse_type(native.call(info.id, ...), info.type)
+
+					for i = 1, #buffers do
+						if buffers[i].type == "v3" then
+							buffers[i] = buffers[i].buffer:__tov3()
+						elseif buffers[i].type == "string" then
+							buffers[i] = buffers[i].buffer:__string(true)
+						elseif buffers[i].type == "float" then
+							buffers[i] = buffers[i].buffer:__tonumber()
+						elseif buffers[i].type == "bool" then
+							buffers[i] = buffers[i].buffer:__tointeger() == 1
+						else
+							buffers[i] = buffers[i].buffer:__tointeger()
+						end
+					end
+					if type_string_to_type[info.type] ~= "void" then
+						return return_value, table.unpack(buffers)
+					else
+						return table.unpack(buffers)
+					end
+				end or function(...)
+					if info.type == "any" then
+						return native.call(info.id, ...)
+					else
+						return parse_type(native.call(info.id, ...), info.type)
+					end
 				end
 			end
 		end
@@ -6634,4 +6653,4 @@ do
 	end
 end
 
-return natives -- WHEN UPDATING NATIVES, REMEMBER TO MANUALLY REPLACE __native NAMED FUNCTIONS
+return natives

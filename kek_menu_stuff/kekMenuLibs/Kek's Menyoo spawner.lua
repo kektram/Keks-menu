@@ -300,7 +300,7 @@ local function apply_ped_modifications(...)
 	end
 end
 
-local function apply_entity_modifications(...) -- To be used with function spawn_entity. It doesnt freeze entities because that function does it.
+local function apply_entity_modifications(...)
 	local Entity <const>, info <const>, entities <const>, pid <const> = ...
 	if entity.is_an_entity(Entity) then
 		if entity.is_entity_a_vehicle(Entity) and info.VehicleProperties then
@@ -708,7 +708,7 @@ local function spawn_xml_map_type_1(info, entities, network_status) -- Most meny
 				attach(Entity, info, entities)
 			else
 				entity.set_entity_rotation__native(Entity, v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw), 2, true)
-				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
+				entity.set_entity_coords(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z), false, false, false, false)
 				entity.freeze_entity(Entity, is_frozen)
 				if not is_frozen then
 					rope.activate_physics(Entity)
@@ -737,7 +737,7 @@ local function spawn_xml_map_type_2(info, entities, network_status) -- Same as t
 				attach(Entity, info, entities)
 			else
 				entity.set_entity_rotation__native(Entity, v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw), 2, true)
-				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
+				entity.set_entity_coords(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z), false, false, false, false)
 				entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
 				if not entity.is_entity_an_object(Entity) then
 					rope.activate_physics(Entity)
@@ -756,10 +756,7 @@ local function spawn_xml_map_type_3(info, entities, network_status) -- LSCdamwit
 			local rot <const> = info.Rotation
 			local pos <const> = info.Position
 			entity.set_entity_rotation__native(Entity, v3(rot.X, rot.Y, rot.Z), 2, true)
-			essentials.assert(
-				entity.set_entity_coords_no_offset(Entity, v3(pos.X, pos.Y, pos.Z)), 
-				"Failed to set entity position."
-			)
+			entity.set_entity_coords(Entity, v3(pos.X, pos.Y, pos.Z), false, false, false, false)
 			entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
 			if not entity.is_entity_an_object(Entity) then
 				rope.activate_physics(Entity)
