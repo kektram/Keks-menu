@@ -1,21 +1,80 @@
 -- Copyright © 2020-2022 Kektram
 
-local menyoo <const> = {version = "2.2.2"}
+local menyoo <const> = {version = "2.2.6"}
 
-local language <const> = require("Language")
+local language <const> = require("Kek's Language")
 local lang <const> = language.lang
-local essentials <const> = require("Essentials")
-local kek_entity <const> = require("Kek's entity functions")
-local custom_upgrades <const> = require("Custom upgrades")
-local location_mapper <const> = require("Location mapper")
-local weapon_mapper <const> = require("Weapon mapper")
-local menyoo_saver <const> = require("Menyoo saver")
-local enums <const> = require("Enums")
-local settings <const> = require("Settings")
-local memoize <const> = require("Memoize")
+local essentials <const> = require("Kek's Essentials")
+local kek_entity <const> = require("Kek's Entity functions")
+local custom_upgrades <const> = require("Kek's Custom upgrades")
+local location_mapper <const> = require("Kek's Location mapper")
+local weapon_mapper <const> = require("Kek's Weapon mapper")
+local menyoo_saver <const> = require("Kek's Menyoo saver")
+local enums <const> = require("Kek's Enums")
+local settings <const> = require("Kek's Settings")
+local memoize <const> = require("Kek's Memoize")
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
+
+local function get_entity_counts_from_xml_parse(xml_table)
+	local is_model_an_object <const>, -- Tons of iterations below
+	is_model_a_vehicle <const>,
+	is_model_a_ped <const> = streaming.is_model_an_object, streaming.is_model_a_vehicle, streaming.is_model_a_ped
+
+	local counts <const> = {
+		object = 0,
+		ped = 0,
+		vehicle = 0
+	}
+	for i = 1, #xml_table do
+		local hash <const> = xml_table[i].ModelHash or xml_table[i].Hash
+		if is_model_an_object(hash) then
+			counts.object = counts.object + 1
+		elseif is_model_a_vehicle(hash) then
+			counts.vehicle = counts.vehicle + 1
+		elseif is_model_a_ped(hash) then
+			counts.ped = counts.ped + 1
+		end
+	end
+	return counts
+end
+
+local function get_entity_counts_from_ini_parse(...)
+	local info <const> = ...
+	local is_model_an_object <const>, -- Tons of iterations below
+	is_model_a_vehicle <const>,
+	is_model_a_ped <const> = streaming.is_model_an_object, streaming.is_model_a_vehicle, streaming.is_model_a_ped
+
+	local counts <const> = {
+		object = 0,
+		ped = 0,
+		vehicle = 0
+	}
+	for i = 1, #info do
+		local info <const> = info[i]
+		local hash <const> = 
+			math.tointeger(info.Hash)
+			or math.tointeger(info.hash)
+			or math.tointeger(info.Model)
+			or math.tointeger(info.model)
+			or math.tointeger(type(info.Vehicle) == "table" and info.Vehicle.Model)
+			or math.tointeger(type(info.VEHICLE) == "table" and info.VEHICLE.hash)
+			or math.tointeger(type(info.Model) == "table" and info.Model.Hash)
+			or 0
+
+		if is_model_an_object(hash) then
+			counts.object = counts.object + 1
+		elseif is_model_a_vehicle(hash) then
+			counts.vehicle = counts.vehicle + 1
+		elseif is_model_a_ped(hash) then
+			counts.ped = counts.ped + 1
+		end
+	end
+
+
+	return counts
+end
 
 local function apply_vehicle_modifications(...)
 	local Entity <const>, info <const> = ...
@@ -30,7 +89,7 @@ local function apply_vehicle_modifications(...)
 	if info.Mods._48[1] == -1 or info.Livery ~= -1 then
 		vehicle.set_vehicle_livery(Entity, info.Livery)
 	end
-	vehicle.set_vehicle_wheel_type(Entity, info.WheelType) -- Wheel type must go first. Has caused a crash earlier.
+	kek_entity.set_wheel_type(Entity, info.WheelType) -- Wheel type must go first. Has caused a crash earlier.
 	vehicle.set_vehicle_bulletproof_tires(Entity, info.BulletProofTyres == true)
 	for i = 0, 75 do -- setting[2] is mod variation. Verified in menyoo source code.
 		local setting <const> = info.Mods["_"..i]
@@ -42,7 +101,10 @@ local function apply_vehicle_modifications(...)
 	end
 	if info.ModExtras then
 		for i, value in pairs(info.ModExtras) do
-			vehicle.set_vehicle_extra(Entity, tonumber((i:gsub("_", ""))), value)
+			local extra_id <const> = tonumber((i:gsub("_", "")))
+			if vehicle.does_extra_exist(Entity, extra_id) then
+				vehicle.set_vehicle_extra(Entity, extra_id, not value) -- true == false. rockstar has made it opposite for some reason
+			end
 		end
 	end
 	if info.TorqueMultiplier and info.TorqueMultiplier ~= 1 then
@@ -70,7 +132,25 @@ local function apply_vehicle_modifications(...)
 	if colours.IsPearlColourCustom then
 		vehicle.set_vehicle_custom_pearlescent_colour(Entity, colours.PearlCustom)
 	end
+	if info.PaintFade then
+		vehicle.set_vehicle_enveff_scale(Entity, info.PaintFade)
+	end
+	if info.HeadlightIntensity then
+		vehicle.set_vehicle_light_multiplier(Entity, info.HeadlightIntensity)
+	end
+
+	if info.RoofState then
+		if info.RoofState == 1 or info.RoofState == 2 then
+			vehicle.raise_convertible_roof(Entity, info.RoofState == 2);
+		else
+			vehicle.lower_convertible_roof(Entity, info.RoofState == 0);
+		end
+	end
+
+	vehicle.set_vehicle_lights(Entity, info.LightsOn and 3 or 4)
+	vehicle.set_vehicle_siren(Entity, info.SirenActive == true)
 	vehicle.set_vehicle_number_plate_index(Entity, info.NumberPlateIndex)
+	vehicle.set_vehicle_dirt_level(Entity, info.DirtLevel)
 	vehicle.set_vehicle_window_tint(Entity, info.WindowTint)
 	vehicle.set_vehicle_engine_on(Entity, info.EngineOn == true, true, false)
 	vehicle.set_vehicle_neon_light_enabled(Entity, 0, info.Neons.Left == true)
@@ -199,10 +279,6 @@ local function apply_ped_modifications(...)
 	if type(info.PedProperties.RelationshipGroupAltered) == true then
 		ped.set_ped_relationship_group_hash(Entity, info.PedProperties.RelationshipGroup)
 	end
-	if info.MaxHealth then
-		ped.set_ped_max_health(Entity, info.MaxHealth)
-	end
-	ped.set_ped_health(Entity, info.Health)
 	if info.PedProperties.PedVehicleSeat
 	and info.PedProperties.PedVehicleSeat ~= -2
 	and info.Attachment
@@ -224,20 +300,43 @@ local function apply_ped_modifications(...)
 	end
 end
 
-local function apply_entity_modifications(...) -- To be used with function spawn_entity. It doesnt freeze entities because that function does it.
+local function apply_entity_modifications(...)
 	local Entity <const>, info <const>, entities <const>, pid <const> = ...
 	if entity.is_an_entity(Entity) then
 		if entity.is_entity_a_vehicle(Entity) and info.VehicleProperties then
 			apply_vehicle_modifications(Entity, info)
 		elseif entity.is_entity_a_ped(Entity) and info.PedProperties then
 			apply_ped_modifications(Entity, info, entities)
+		elseif entity.is_entity_an_object(Entity) and info.ObjectProperties and info.ObjectProperties.TextureVariation then
+			object._set_object_texture_variation(Entity, info.ObjectProperties.TextureVariation)
 		end
 		if info.OpacityLevel then
 			entity.set_entity_alpha(Entity, info.OpacityLevel, 1)
 		end
-		if type(info.LightsOn) == "boolean" then
-			entity.set_entity_lights(Entity, info.LightsOn)
+		if info.LodDistance then
+			entity.set_entity_lod_dist(Entity, info.LodDistance)
 		end
+		if info.MaxHealth then
+			entity.set_entity_max_health(Entity, info.MaxHealth)
+		end
+		if info.Health then
+			entity.set_entity_health(Entity, info.Health, 0) -- Third parameter is always 0 in freemode.ysc
+		end
+
+		local entity_proofs <const> = kek_entity.get_entity_proofs(Entity)
+
+		entity.set_entity_proofs( -- If the file doesn't specify all the proofs, the conditions prevent proofs from being modified.
+			Entity, 
+			info.IsBulletProof 	  == true or info.IsBulletProof 	 == nil and entity_proofs.bullet 	or false, 
+			info.IsFireProof 	  == true or entity_proofs.fire 	 == nil and entity_proofs.fire 		or false, 
+			info.IsExplosionProof == true or entity_proofs.explosion == nil and entity_proofs.explosion or false, 
+			info.IsCollisionProof == true or entity_proofs.collision == nil and entity_proofs.collision or false, 
+			info.IsMeleeProof 	  == true or entity_proofs.melee 	 == nil and entity_proofs.melee 	or false, 
+			info.IsSteamProof 	  == true or entity_proofs.steam 	 == nil and entity_proofs.steam 	or false, 
+			entity_proofs.unknown,
+			info.IsDrownProof	  == true or entity_proofs.drown 	 == nil and entity_proofs.drown 	or false
+		)
+
 		if type(info.HasGravity) == "boolean" then
 			entity.set_entity_gravity(Entity, info.HasGravity)
 		end
@@ -265,128 +364,118 @@ local function apply_entity_modifications(...) -- To be used with function spawn
 	end
 end
 
-local function update_spawn_counter(entities, hash, Entity)
-	if streaming.is_model_an_object(hash) then
-		if entity.is_entity_an_object(Entity) then
-			entities.objects.successful_spawns = entities.objects.successful_spawns + 1
-		else
-			entities.objects.failed_spawns = entities.objects.failed_spawns + 1
-		end
-	elseif streaming.is_model_a_ped(hash) then
-		if entity.is_entity_a_ped(Entity) then
-			entities.peds.successful_spawns = entities.peds.successful_spawns + 1
-		else
-			entities.peds.failed_spawns = entities.peds.failed_spawns + 1
-		end
-	elseif streaming.is_model_a_vehicle(hash) then
-		if entity.is_entity_a_vehicle(Entity) then
-			entities.vehicles.successful_spawns = entities.vehicles.successful_spawns + 1
-		else
-			entities.vehicles.failed_spawns = entities.vehicles.failed_spawns + 1
-		end
-	else
-		entities.invalid = entities.invalid + 1
-	end
-end
-
-local function send_spawn_counter_msg(entities)
-	essentials.msg(string.format("%s:\n%i/%i %s\n%i/%i %s\n%i/%i %s\n%i %s", 
+local function send_spawn_counter_msg(counts)
+	essentials.msg(string.format("%s\n%s: %i\n%s: %i\n%s: %i", 
 		lang["Spawned"], 
-		entities.peds.successful_spawns,
-		entities.peds.successful_spawns + entities.peds.failed_spawns,
-		lang["Peds"]:lower(),
-		entities.vehicles.successful_spawns,
-		entities.vehicles.successful_spawns + entities.vehicles.failed_spawns,
-		lang["Vehicles"]:lower(),
-		entities.objects.successful_spawns,
-		entities.objects.successful_spawns + entities.objects.failed_spawns,
-		lang["Objects"]:lower(),
-		entities.invalid,
-		lang["invalid models"]),
+		lang["Peds"],
+		counts.ped,
+		lang["Vehicles"],
+		counts.vehicle,
+		lang["Objects"],
+		counts.object),
 		"green", 
 		true,
 		6
 	)
 end
 
-local function spawn_entity(info, entities, is_not_networked)
-	if not streaming.is_model_valid(info.ModelHash) then
-		update_spawn_counter(entities, 0, 0)
+local function get_max_networked_vehicles() -- There requires some bypass or something to spawn over 128 vehicles.
+	return network.get_max_num_network_vehicles() > 128 and 128 or network.get_max_num_network_vehicles()
+end
+
+local function send_is_networked_msg(counts, network_status)
+	if network_status == "is_networked" then
+		essentials.msg(lang["The map/vehicle will be visible to other people."], "green", true, 5)
+	elseif counts.object <= network.get_max_num_network_objects() and counts.ped <= network.get_max_num_network_peds() and counts.vehicle <= get_max_networked_vehicles() then
+		essentials.msg(lang["The map/vehicle can be networked if you clear all entities. Currently there are other networked entities taking up space."], "yellow", true, 8)
+	else
+		essentials.msg(
+			string.format(
+				lang["The map/vehicle won't be visible to other players, it has too many entities. Networked maps/vehicles supports max:\n%i objects\n%i vehicles\n%i peds."], 
+				network.get_max_num_network_objects(),
+				get_max_networked_vehicles(),
+				network.get_max_num_network_peds()
+			), 
+			"red", 
+			true, 
+			8
+		)
+	end
+end
+
+local function spawn_entity(info, entities, network_status)
+	local hash <const> = info.ModelHash or type(info.Model) == "table" and info.Model.Hash or info.Model or info.model or info.hash or info.Hash
+	if not streaming.is_model_valid(hash) then
 		return 0
 	end
-	local Entity
-	if streaming.is_model_an_object(info.ModelHash) then
-		Entity = kek_entity.spawn_object(info.ModelHash, function()
+	local Entity = 0
+	if streaming.is_model_an_object(hash) and network_status == "is_networked" then
+		Entity = kek_entity.spawn_networked_object(hash, function()
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40)
-		end, info.Dynamic == false, is_not_networked, 6)
-	else
-		Entity = kek_entity.spawn_ped_or_vehicle(info.ModelHash, function()
+		end, info.Dynamic == false)
+	elseif streaming.is_model_an_object(hash) and network_status == "is_not_networked" then
+		Entity = kek_entity.spawn_local_object(hash, function()
+			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40)
+		end, info.Dynamic == false)
+	elseif streaming.is_model_a_ped(hash) and network_status == "is_networked" then
+		Entity = kek_entity.spawn_networked_ped(hash, function()
 			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
-		end, false, false, enums.ped_types.civmale, 6, is_not_networked)
+		end)
+	elseif streaming.is_model_a_ped(hash) and network_status == "is_not_networked" then
+		Entity = kek_entity.spawn_local_ped(hash, function()
+			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
+		end)
+	elseif streaming.is_model_a_vehicle(hash) and network_status == "is_networked" then
+		Entity = kek_entity.spawn_networked_vehicle(hash, function()
+			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
+		end, {
+			godmode = false,
+			max = false,
+			persistent = true
+		})
+	elseif streaming.is_model_a_vehicle(hash) and network_status == "is_not_networked" then
+		Entity = kek_entity.spawn_local_mission_vehicle(hash, function()
+			return memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40), 0
+		end)
 	end
 	if entity.is_an_entity(Entity) then
 		entity.freeze_entity(Entity, true)
 	end
-	update_spawn_counter(entities, info.ModelHash, Entity)
 	return Entity
 end
 
-local function get_info_containers()
+local function is_spawn_too_many_entities(counts, network_status)
 	kek_entity.entity_manager:update()
-	return
-		{ -- entities
-			peds = {
-				failed_spawns = 0, 
-				successful_spawns = 0
-			},
-			vehicles = {
-				failed_spawns = 0, 
-				successful_spawns = 0
-			},
-			objects = {
-				failed_spawns = 0, 
-				successful_spawns = 0
-			},
-			invalid = 0
-		}
-end
+	local status = false
 
-local function check_entity_limits(entities, hash)
-	if streaming.is_model_a_ped(hash) and kek_entity.entity_manager.counts.ped >= settings.valuei["Ped limit"].value then
-		kek_entity.clear_entities(entities)
-		essentials.msg(lang["Reached ped spawn limit. Cancelling menyoo spawn."], "red", true, 6)
-		return true
+	local number_of_peds <const> = math.ceil(network_status == "is_networked" and counts.ped * 1.5 or counts.ped)
+	local ped_cap <const> = math.ceil(settings.valuei["ped limits"].value - (kek_entity.entity_manager.counts.ped / 10))
+	if number_of_peds > ped_cap then
+		essentials.msg(lang["Requires %i more peds than can be spawned. Try deleting all peds, then try to spawn it again."]:format(number_of_peds - ped_cap), "red", true, 12)
+		status = true
 	end
-	if streaming.is_model_a_vehicle(hash) and kek_entity.entity_manager.counts.vehicle >= settings.valuei["Vehicle limit"].value then
-		kek_entity.clear_entities(entities)
-		essentials.msg(lang["Reached vehicle spawn limit. Cancelling menyoo spawn."], "red", true, 6)
-		return true
-	end
-	if streaming.is_model_an_object(hash) and kek_entity.entity_manager.counts.object >= settings.valuei["Object limit"].value then
-		kek_entity.clear_entities(entities)
-		essentials.msg(lang["Reached object spawn limit. Cancelling menyoo spawn."], "red", true, 6)
-		return true
-	end
-	return false
-end
 
-local function decrement_counter(Entity, entities)
-	if entity.is_entity_a_ped(Entity) then
-		entities.peds.successful_spawns = entities.peds.successful_spawns - 1
-		entities.peds.failed_spawns = entities.peds.failed_spawns + 1
-	elseif entity.is_entity_a_vehicle(Entity) then
-		entities.vehicles.successful_spawns = entities.vehicles.successful_spawns - 1
-		entities.vehicles.failed_spawns = entities.vehicles.failed_spawns + 1
-	else
-		entities.objects.successful_spawns = entities.objects.successful_spawns - 1
-		entities.objects.failed_spawns = entities.objects.failed_spawns + 1
+	local number_of_vehicles <const> = math.ceil(counts.vehicle)
+	local vehicle_cap <const> = math.ceil(settings.valuei["vehicle limits"].value - (kek_entity.entity_manager.counts.vehicle / 10))
+	if number_of_vehicles > vehicle_cap then
+		essentials.msg(lang["Requires %i more vehicles than can be spawned. Try deleting all vehicles, then try to spawn it again."]:format(number_of_vehicles - vehicle_cap), "red", true, 12)
+		status = true
 	end
+
+	local number_of_objects <const> = math.ceil(network_status == "is_networked" and counts.object or counts.object * 0.5)
+	local object_cap <const> = math.ceil(settings.valuei["object limits"].value - (kek_entity.entity_manager.counts.object / 10))
+	if number_of_objects > object_cap then
+		essentials.msg(lang["Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again."]:format(number_of_objects - object_cap), "red", true, 12)
+		status = true
+	end
+	return status
 end
 
 local function attach(...)
 	local Entity <const>,
 	info <const>,
 	entities <const> = ...
+	local status = false
 	local att_info = info.Attachment or info.Placement -- Maps use Placement, vehicles use Attachment
 
 	local offx  <const> = info.X 	 or info.x 	   or info.xt   or info.OffsetX or info["x offset"] or att_info and att_info.X     or 0
@@ -417,24 +506,31 @@ local function attach(...)
 	and type(roll)  == "number"
 	and type(yaw)   == "number"
 	and Entity ~= entity_attached_to then
-		entity.set_entity_collision(Entity, collision, collision, collision)
-		entity.attach_entity_to_entity(
+		if not entity.is_entity_attached(Entity) then
+			entity.set_entity_collision(Entity, collision, collision, collision)
+		end
+
+		entity.attach_entity_to_entity__native(
 			Entity, 							 -- Entity to attach
 			entity_attached_to, 			 	 -- Entity to attach to
 			att_info and att_info.BoneIndex or info.Bone or info.bone or 0, -- Bone index
 			v3(offx, offy, offz), 				 -- Offset from entity
 			v3(pitch, roll, yaw), 				 -- Rotation
+			false,								 -- Unknown, seems to not have any effect. Rockstar have it false.
 			false, 								 -- Soft attach (can detach easily or not)
 			collision, 							 -- Collision
 			entity.get_entity_type(Entity) == 4, -- Is entity to be attached a ped
-			0, 									 -- Vertex index
+			2, 									 -- Rotation order
 			true 								 -- Fixed rotation
 		)
-		if not entity.is_entity_attached(Entity) or entity.get_entity_attached_to(Entity) ~= entity_attached_to then -- Some objects are impossible to attach without attach_physically, which the api doesn't have.
-			decrement_counter(Entity, entities)
+		entity.process_entity_attachments(entity_attached_to)
+		if not entity.is_entity_attached(Entity) or entity.get_entity_attached_to(Entity) ~= entity_attached_to then
 			kek_entity.clear_entities({Entity})
+		else
+			status = true
 		end
-	else
+	end
+	if not status then
 		essentials.msg(lang["Failed to attach an entity. Check debug console for more details."], "blue", true, 6)
 		print(string.format(([[
 
@@ -467,7 +563,6 @@ local function attach(...)
 			is_attached,
 			Entity == entity_attached_to
 		))
-		decrement_counter(Entity, entities)
 		kek_entity.clear_entities({Entity})
 	end
 end
@@ -481,27 +576,55 @@ local function is_table_logic(Table)
 end
 
 function menyoo.spawn_xml_vehicle(...)
-	local file_path <const>, pid <const> = ...
-	if not utils.file_exists(file_path) then
-		essentials.msg(lang["This file doesn't exist or has an invalid file name."], "red", true, 6)
-		return 0
+	local file_path <const>, pid <const>, force_local <const> = ...
+	do
+		if not utils.file_exists(file_path) then
+			essentials.msg(lang["This file doesn't exist."], "red", true, 6)
+			return 0
+		end
+		local file <close> = io.open(file_path) -- file_exists can be true, but file failed to open due to unicode characters in file path.
+		if not file then
+			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", true, 12)
+			return 0
+		end
 	end
 	local info <const> = essentials.parse_xml(essentials.get_file_string(file_path)).Vehicle
-	local spooner <const> = info and info.SpoonerAttachments or nil
+
+	local spooner <const> = info and info.SpoonerAttachments
 
 	if not info then
 		essentials.msg(lang["Unsupported file format."], "red", true)
 		return 0
 	end
-	local entities <const> = get_info_containers()
-	local parent_entity <const> = spawn_entity(info, entities)
+	local entities <const> = {}
+
+	local counts <const> = get_entity_counts_from_xml_parse(
+		(type(spooner) == "table" and (spooner.Attachment or spooner.Placement)) and is_table_logic(spooner.Attachment or spooner.Placement) or {}
+	)
+	counts.vehicle = counts.vehicle + 1 -- Parent vehicle isn't accounted for in the get counts function
+
+	local network_status = 
+		counts.object <= network.get_max_num_network_objects() - #kek_entity.get_net_objects() 
+		and counts.ped <= network.get_max_num_network_peds() - #kek_entity.get_net_peds() 
+		and counts.vehicle <= get_max_networked_vehicles() - #kek_entity.get_net_vehicles()
+		and "is_networked" or "is_not_networked"
+
+	if force_local then
+		network_status = "is_not_networked"
+	end
+
+	if is_spawn_too_many_entities(counts, network_status) then
+		return 0
+	end	
+
+	local parent_entity <const> = spawn_entity(info, entities, network_status)
 	if streaming.is_model_valid(info.ModelHash) then
 		if entity.is_entity_a_vehicle(parent_entity) then
 			entity.freeze_entity(parent_entity, true)
 			entities[info.InitialHandle or "VEHICLE"] = parent_entity
 			apply_entity_modifications(parent_entity, info, entities, pid)
 		else
-			essentials.msg(lang["Failed to spawn driver vehicle for unknown reason."], "red", true, 6)
+			essentials.msg(lang["Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again."], "red", true, 14)
 			return 0
 		end
 	else
@@ -510,26 +633,29 @@ function menyoo.spawn_xml_vehicle(...)
 	end
 	if spooner and (spooner.Attachment or spooner.Placement) then -- Does it have attachments?
 		for _, info in pairs(is_table_logic(spooner.Attachment or spooner.Placement)) do
-			local Entity <const> = spawn_entity(info, entities)
+			local Entity <const> = spawn_entity(info, entities, network_status)
 			if entity.is_an_entity(Entity) then
 				entities[info.InitialHandle] = Entity
 				apply_entity_modifications(Entity, info, entities, pid)
 				if info.Attachment and info.Attachment.__attributes.isAttached then
 					attach(Entity, info, entities)
 				end
-				if check_entity_limits(entities, info.ModelHash) then
-					return 0
-				end
 			end
 		end
 	end
 	entity.freeze_entity(parent_entity, info.FrozenPos == true)
-	entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
-	send_spawn_counter_msg(entities)
+	if not info.FrozenPos == true then
+		rope.activate_physics(parent_entity)
+	end
+	kek_entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
+	send_spawn_counter_msg(counts)
+	if not force_local then
+		send_is_networked_msg(counts, network_status)
+	end
 	return parent_entity
 end
 
-local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow this format
+local function spawn_xml_map_type_1(info, entities, network_status) -- Most menyoo files follow this format
 	local spooner <const> = info.SpoonerPlacements
 	if player.player_count() > 0 and spooner.ClearWorld and spooner.ClearWorld > 0 then
 		for _, entities in pairs(kek_entity.get_table_of_entities_with_respect_to_distance_and_set_limit({
@@ -557,7 +683,7 @@ local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow 
 			},
 			player.get_player_ped(player.player_id())
 		)) do
-			kek_entity.clear_entities(entities)
+			kek_entity.clear_entities(entities, 25)
 		end
 	end
 	if spooner.WeatherToSet and enums.weather[spooner.WeatherToSet] then
@@ -572,7 +698,7 @@ local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow 
 		end
 	end
 	for _, info in pairs(is_table_logic(spooner.Placement or spooner.Attachment)) do
-		local Entity <const> = spawn_entity(info, entities, true)
+		local Entity <const> = spawn_entity(info, entities, network_status)
 		local is_frozen <const> = info.FrozenPos
 		info.FrozenPos = true
 		if entity.is_an_entity(Entity) then
@@ -581,25 +707,25 @@ local function spawn_xml_map_type_1(info, entities) -- Most menyoo files follow 
 			if info.Attachment and info.Attachment.__attributes.isAttached then
 				attach(Entity, info, entities)
 			else
-				essentials.assert(entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
-				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
+				entity.set_entity_rotation__native(Entity, v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw), 2, true)
+				entity.set_entity_coords(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z), false, false, false, false)
 				entity.freeze_entity(Entity, is_frozen)
-			end
-			if check_entity_limits(entities, info.ModelHash) then
-				return "failed"
+				if not is_frozen then
+					rope.activate_physics(Entity)
+				end
 			end
 		end
 	end
 end
 
-local function spawn_xml_map_type_2(info, entities) -- Same as type_1, but missing many properties, such as vehicle mods
+local function spawn_xml_map_type_2(info, entities, network_status) -- Same as type_1, but missing many properties, such as vehicle mods
 	if player.player_count() > 0 and info.SpoonerPlacements.ClearWorld then
-		kek_entity.clear_entities(kek_entity.remove_player_entities(vehicle.get_all_vehicles()))
-		kek_entity.clear_entities(kek_entity.remove_player_entities(ped.get_all_peds()))
-		kek_entity.clear_entities(object.get_all_objects())
+		kek_entity.clear_entities(kek_entity.remove_player_entities(vehicle.get_all_vehicles()), 25)
+		kek_entity.clear_entities(kek_entity.remove_player_entities(ped.get_all_peds()), 25)
+		kek_entity.clear_entities(object.get_all_objects(), 25)
 	end
 	for _, info in pairs(is_table_logic(info.SpoonerPlacements.Placement)) do
-		local Entity <const> = spawn_entity(info, entities, true)
+		local Entity <const> = spawn_entity(info, entities, network_status)
 		if entity.is_an_entity(Entity) then
 			entities[info.InitialHandle] = Entity
 			entity.set_entity_alpha(Entity, info.OpacityLevel, 1)
@@ -610,40 +736,34 @@ local function spawn_xml_map_type_2(info, entities) -- Same as type_1, but missi
 			if info.Attachment and info.Attachment.__attributes.isAttached then
 				attach(Entity, info, entities)
 			else
-				essentials.assert(entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw))), "Failed to set entity rotation.")
-				essentials.assert(entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z)), "Failed to set entity position.")
+				entity.set_entity_rotation__native(Entity, v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw), 2, true)
+				entity.set_entity_coords(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z), false, false, false, false)
 				entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
-			end
-			if check_entity_limits(entities, info.ModelHash) then
-				return "failed"
+				if not entity.is_entity_an_object(Entity) then
+					rope.activate_physics(Entity)
+				end
 			end
 		end
 	end
 end
 
-local function spawn_xml_map_type_3(info, entities) -- LSCdamwithpeds&vehicles.xml
+local function spawn_xml_map_type_3(info, entities, network_status) -- LSCdamwithpeds&vehicles.xml
 	for _, info in pairs(is_table_logic(info.Map.Objects.MapObject)) do
 		info.ModelHash = info.Hash
-		local Entity <const> = spawn_entity(info, entities, true)
+		local Entity <const> = spawn_entity(info, entities, network_status)
 		if entity.is_an_entity(Entity) then
 			entities[Entity] = Entity
 			local rot <const> = info.Rotation
 			local pos <const> = info.Position
-			essentials.assert(
-				entity.set_entity_rotation(Entity, kek_entity.correct_pitch(v3(rot.X, rot.Y, rot.Z))), 
-				"Failed to set entity rotation."
-			)
-			essentials.assert(
-				entity.set_entity_coords_no_offset(Entity, v3(pos.X, pos.Y, pos.Z)), 
-				"Failed to set entity position."
-			)
+			entity.set_entity_rotation__native(Entity, v3(rot.X, rot.Y, rot.Z), 2, true)
+			entity.set_entity_coords(Entity, v3(pos.X, pos.Y, pos.Z), false, false, false, false)
 			entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
+			if not entity.is_entity_an_object(Entity) then
+				rope.activate_physics(Entity)
+			end
 			if info.Type == "Ped" then
 				weapon.give_delayed_weapon_to_ped(Entity, gameplay.get_hash_key("weapon_"..info.Weapon:lower()), 0, 1)
 				ped.set_ped_relationship_group_hash(Entity, gameplay.get_hash_key(info.Relationship:upper()))
-			end
-			if check_entity_limits(entities, info.ModelHash) then
-				return "failed"
 			end
 		end
 	end
@@ -662,9 +782,16 @@ end
 
 function menyoo.spawn_xml_map(...)
 	local file_path <const>, teleport_to_map <const> = ...
-	if not utils.file_exists(file_path) then
-		essentials.msg(lang["This file doesn't exist or has an invalid file name."], "red", true, 6)
-		return
+	do
+		if not utils.file_exists(file_path) then
+			essentials.msg(lang["This file doesn't exist."], "red", true, 6)
+			return
+		end
+		local file <close> = io.open(file_path) -- file_exists can be true, but file failed to open due to unicode characters in file path.
+		if not file then
+			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", true, 12)
+			return
+		end
 	end
 	local info <const> = essentials.parse_xml(essentials.get_file_string(file_path))
 	local spooner <const> = info.SpoonerPlacements or info.Map
@@ -674,15 +801,29 @@ function menyoo.spawn_xml_map(...)
 		return
 	end
 
+	local counts <const> = get_entity_counts_from_xml_parse(
+		spooner.Objects and is_table_logic(spooner.Objects.MapObject)
+		or is_table_logic(spooner.Placement or spooner.Attachment)
+	)
+	local network_status <const> = 
+		counts.object <= network.get_max_num_network_objects() - #kek_entity.get_net_objects() 
+		and counts.ped <= network.get_max_num_network_peds() - #kek_entity.get_net_peds() 
+		and counts.vehicle <= get_max_networked_vehicles() - #kek_entity.get_net_vehicles()
+		and "is_networked" or "is_not_networked"
+
+	if is_spawn_too_many_entities(counts, network_status) then
+		return 0
+	end
+
 	local tp_state, tp_err
 	local frozen_vehicle <const> = player.get_player_vehicle(player.player_id())
 	if teleport_to_map then
+		entity.freeze_entity(player.get_player_ped(player.player_id()), true)
+		entity.freeze_entity(frozen_vehicle, true)
 		if spooner and spooner.ReferenceCoords then
-			entity.freeze_entity(player.get_player_ped(player.player_id()), true)
-			entity.freeze_entity(frozen_vehicle, true)
 			tp_state, tp_err = pcall(function() -- There has to be zero chance of user being frozen forever.
 				kek_entity.teleport(
-					essentials.get_most_relevant_entity(player.player_id()), 
+					kek_entity.get_most_relevant_entity(player.player_id()), 
 					v3(
 						spooner.ReferenceCoords.X, 
 						spooner.ReferenceCoords.Y, 
@@ -694,7 +835,7 @@ function menyoo.spawn_xml_map(...)
 			local t = info.Map.Objects.MapObject
 			t = t.__is_table and t[1] or t
 			local pos <const> = info.Map.Objects.ReferenceCoords or t.Position
-			kek_entity.teleport(essentials.get_most_relevant_entity(player.player_id()), v3(pos.X, pos.Y, pos.Z))
+			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), v3(pos.X, pos.Y, pos.Z))
 		else
 			essentials.msg(lang["Failed to find reference coordinates."], "red", true, 6)
 		end
@@ -702,22 +843,28 @@ function menyoo.spawn_xml_map(...)
 
 	local entities, map_type, status
 	local state <const>, err <const> = pcall(function() -- Must unfreeze user entities no matter what.
-		entities = get_info_containers()
+		entities = {}
 		map_type = get_xml_map_type(info)
+		if map_type and settings.toggle["Clear before spawning xml map"].on then
+			kek_entity.entity_manager:clear(true) -- This sets models as no longer needed
+			system.yield(1000) -- Waits until models have left memory; has made spawning far more stable
+		end
 
 		if map_type == "type_1" then
-			status = spawn_xml_map_type_1(info, entities)
+			status = spawn_xml_map_type_1(info, entities, network_status)
 		elseif map_type == "type_2" then
-			status = spawn_xml_map_type_2(info, entities)
+			status = spawn_xml_map_type_2(info, entities, network_status)
 		elseif map_type == "type_3" then
-			status = spawn_xml_map_type_3(info, entities)
+			status = spawn_xml_map_type_3(info, entities, network_status)
 		else
 			status = "failed"
 			essentials.msg(lang["Unsupported file format."], "red", true)
 		end
 	end)
 	entity.freeze_entity(player.get_player_ped(player.player_id()), false)
+	rope.activate_physics(player.get_player_ped(player.player_id()))
 	entity.freeze_entity(frozen_vehicle, false)
+	rope.activate_physics(frozen_vehicle)
 	essentials.assert(tp_state == nil or tp_state, tp_err)
 	essentials.assert(state, err)
 
@@ -747,11 +894,14 @@ function menyoo.spawn_xml_map(...)
 			end
 		end, nil)
 	end
-	send_spawn_counter_msg(entities)
+
+	send_spawn_counter_msg(counts)
+	send_is_networked_msg(counts, network_status)
+	return entities
 end
 
 function menyoo.clone_vehicle(...)
-	local Vehicle, pos <const> = ...
+	local Vehicle, pos <const>, heading <const> = ...
 	if entity.is_an_entity(Vehicle) then
 		Vehicle = kek_entity.get_parent_of_attachment(Vehicle)
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle.")
@@ -761,21 +911,19 @@ function menyoo.clone_vehicle(...)
 		local status <const>, err <const> = pcall(function() -- So that file is removed even in case of errors
 			menyoo_saver.save_vehicle(Vehicle, tmp_path)
 			car = menyoo.spawn_xml_vehicle(tmp_path, player.player_id())
-			entity.set_entity_heading(car, entity.get_entity_heading(Vehicle))
+			kek_entity.set_entity_heading(car, heading or entity.get_entity_heading(Vehicle))
 		end)
 		io.remove(tmp_path)
 		essentials.assert(status, err)
 		if pos and entity.is_entity_a_vehicle(car) then
 			kek_entity.teleport(car, pos)
 		end
+		vehicle.copy_vehicle_damages(Vehicle, car)
 		return car
 	else
 		return 0
 	end
 end
-
-
------------------------------------------------------------------------- INI FILES ------------------------------------------------------------------------
 
 local function get_ini_type(str)
 	if str:find("^%[VEHICLE%]") or (str:find("License Plate Text Index", 1, true) and str:find("Tire Smoke Green", 1, true)) then
@@ -906,25 +1054,38 @@ end
 	Any keys info["key"] is the other type
 	Any keys info.key is 2take1.
 --]]
-local function spawn_type_1_ini(info)
+local function spawn_type_1_ini(info, network_status)
 	info = info[1]
-	local entities <const> = get_info_containers()
+	local entities <const> = {}
 	local hash <const> = info["Vehicle"] and info["Vehicle"]["Model"] or info.VEHICLE and info.VEHICLE.hash
 	if not streaming.is_model_a_vehicle(hash) then
 		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
 		return -1
 	end
-	local Vehicle <const> = kek_entity.spawn_ped_or_vehicle(hash, function()
-		return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8), player.get_player_heading(player.player_id())
-	end)
-	update_spawn_counter(entities, hash, Vehicle)
+	local Vehicle
+
+	if network_status == "is_networked" then
+		Vehicle = kek_entity.spawn_networked_vehicle(hash, function()
+			return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8), player.get_player_heading(player.player_id())
+		end, {
+			godmode = false,
+			max = false,
+			persistent = true
+		})
+	else
+		Vehicle = kek_entity.spawn_local_mission_vehicle(hash, function()
+			return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8), player.get_player_heading(player.player_id())
+		end)
+	end
+
 	if entity.is_entity_a_vehicle(Vehicle) then
 		vehicle.set_vehicle_bulletproof_tires(Vehicle, is_bulletproof)
-		vehicle.set_vehicle_wheel_type(
+		kek_entity.set_wheel_type(
 			Vehicle, 
 			info.VEHICLE and info.VEHICLE.wheelType or info["Vehicle"]["Wheel Type"]
 		)
 		vehicle.set_vehicle_mod_kit_type(Vehicle, 0)
+
 		for i = 0, 48 do
 			if i >= 17 and i <= 22 then
 				local mod = info.MODS and info.MODS["mod"..i] == 1
@@ -988,10 +1149,10 @@ local function spawn_type_1_ini(info)
 			if info.isSecondaryColorCostum then
 				vehicle.set_vehicle_custom_secondary_colour(Vehicle, essentials.get_rgb(info.secondary_r, info.secondary_g, info.secondary_b))
 			end
-			vehicle.set_vehicle_neon_light_enabled(Vehicle, 0, info.neonsLeft == 1)
-			vehicle.set_vehicle_neon_light_enabled(Vehicle, 1, info.neonsRight == 1)
-			vehicle.set_vehicle_neon_light_enabled(Vehicle, 2, info.neonsFront == 1)
-			vehicle.set_vehicle_neon_light_enabled(Vehicle, 3, info.neonsBack == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 0, info.neonsLeft == 1 or info.neonLeft == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 1, info.neonsRight == 1 or info.neonRight == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 2, info.neonsFront == 1 or info.neonFront == 1)
+			vehicle.set_vehicle_neon_light_enabled(Vehicle, 3, info.neonsBack == 1 or info.neonBack == 1)
 			vehicle.set_vehicle_neon_lights_color(Vehicle, essentials.get_rgb(info.neon_r, info.neon_g, info.neon_b))
 			vehicle.set_vehicle_headlight_color(Vehicle, info.headlightColor)
 			local i = 1
@@ -1009,31 +1170,8 @@ local function spawn_type_1_ini(info)
 			end
 		end
 	end
-	send_spawn_counter_msg(entities)
 	return Vehicle
 end
-
-local function spawn_entity_for_ini_vehicle(info, entities)
-	local pos <const> = memoize.get_player_coords(player.player_id()) + memoize.v3(0, 0, 40)
-	local hash <const> = type(info.Model) == "table" and info.Model.Hash or info.Model or info.model or info.hash or info.Hash
-	local Entity
-	if streaming.is_model_a_vehicle(hash) then
-		Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
-			return pos, 0
-		end, false, false, nil, 6)
-	elseif streaming.is_model_a_ped(hash) then
-		Entity = kek_entity.spawn_ped_or_vehicle(hash, function()
-			return pos, 0
-		end, false, false, info.PedType or enums.ped_types.civmale, 6)			
-	elseif streaming.is_model_an_object(hash) then
-		Entity = kek_entity.spawn_object(hash, function()
-			return pos
-		end, info.Dynamic == false, false, 6)
-	end
-	update_spawn_counter(entities, hash, Entity or 0)
-	return Entity or 0
-end
-
 
 --[[
 	Supports 1 type of ini.
@@ -1041,16 +1179,16 @@ end
 	For some reason this type of ini sometimes use "," instead of "." for its numbers.
 --]]
 local function spawn_type_2_ini(...)
-	local info <const> = ...
+	local info <const>, network_status <const> = ...
 	local attached_entities <const> = {}
-	local entities <const> = get_info_containers()
+	local entities <const> = {}
 	local parent_entity
 	for _, info in pairs(info) do
 		local hash <const> = info.Hash or info.hash or type(info.Model) == "table" and info.Model.Hash
 		if hash then
-			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
+			local Entity <const> = spawn_entity(info, entities, network_status)
 			if entity.is_entity_a_vehicle(Entity) then
-				vehicle.set_vehicle_wheel_type(Entity, info.WheelType.Index)
+				kek_entity.set_wheel_type(Entity, info.WheelType.Index)
 				vehicle.set_vehicle_mod_kit_type(Entity, 0)
 				for i = 0, 49 do
 					if i >= 17 and i <= 22 then
@@ -1065,7 +1203,7 @@ local function spawn_type_2_ini(...)
 				end
 				for i = 0, 15 do
 					if info.Extras["E"..i] then
-						vehicle.set_vehicle_extra(Entity, i, info.Extras["E"..i])
+						vehicle.set_vehicle_extra(Entity, i, not info.Extras["E"..i])
 					end
 				end
 				vehicle.set_vehicle_tire_smoke_color(Entity, info.TireSmoke.R, info.TireSmoke.G, info.TireSmoke.B)
@@ -1083,6 +1221,8 @@ local function spawn_type_2_ini(...)
 				vehicle.set_vehicle_number_plate_index(Entity, info.Numberplate.Index)
 				vehicle.set_vehicle_number_plate_text(Entity, type(info.Numberplate.Text) == "string" and info.Numberplate.Text or "kektram")
 				vehicle.set_vehicle_window_tint(Entity, info.WindowTint.Index)
+				entity.set_entity_render_scorched(Entity, info.ScorchedRender == true)
+				vehicle.set_vehicle_siren(Entity, info.Siren == true)
 				if info.IsCustomPrimary.bool then
 					vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(info.CustomPrimaryColor.R, info.CustomPrimaryColor.G, info.CustomPrimaryColor.B))
 				end
@@ -1116,6 +1256,21 @@ local function spawn_type_2_ini(...)
 				if info.TyreBurst6MR then
 					vehicle.set_vehicle_tire_burst(Entity, 47, true, 1000.0)
 				end
+				if info.HeadlightMultiplier then
+					vehicle.set_vehicle_light_multiplier(Entity, info.HeadlightMultiplier)
+				end
+				if info.LightsState then
+					vehicle.set_vehicle_lights(Entity, info.LightsState)
+				end
+				if info.Dirt then
+					vehicle.set_vehicle_dirt_level(Entity, info.Dirt)
+				end
+				if info.WindscreenDetached then
+					vehicle.pop_out_vehicle_windscreen(Entity)
+				end
+				if info.PaintFade then
+					vehicle.set_vehicle_enveff_scale(Entity, info.PaintFade.PaintFade)
+				end
 			elseif entity.is_entity_a_ped(Entity) then
 				if info.ScenarioPlaying and type(info.ScenarioName) == "string" then
 					ai.task_start_scenario_in_place(Entity, info.ScenarioName, 0, true)
@@ -1148,6 +1303,9 @@ local function spawn_type_2_ini(...)
 				if info.Alpha then
 					entity.set_entity_alpha(Entity, info.Alpha, true)
 				end
+				if info.Health then
+					entity.set_entity_health(Entity, info.Health, 0)
+				end
 				if info.Gravity == false then
 					entity.set_entity_gravity(Entity, false)
 				end
@@ -1170,7 +1328,6 @@ local function spawn_type_2_ini(...)
 	for Entity, info in pairs(attached_entities) do
 		attach(Entity, info, entities)
 	end
-	send_spawn_counter_msg(entities)
 	return parent_entity
 end
 
@@ -1181,14 +1338,14 @@ end
 	Example 2: -JamezModz- Mr. Roboto v2.0.ini
 --]]
 local function spawn_type_3_ini(...)
-	local info <const> = ...
+	local info <const>, network_status <const> = ...
 	local attached_entities <const> = {}
-	local entities <const> = get_info_containers()
+	local entities <const> = {}
 	for _, info in pairs(info) do
 		if info.Model or info.model then
-			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
+			local Entity <const> = spawn_entity(info, entities, network_status)
 			if entity.is_entity_a_vehicle(Entity) and info["tyre smoke red"] then -- info["tyre smoke red"] One of the types doesnt apply any mods to vehicles.
-				vehicle.set_vehicle_wheel_type(Entity, info["wheel type"])
+				kek_entity.set_wheel_type(Entity, info["wheel type"])
 				vehicle.set_vehicle_mod_kit_type(Entity, 0)
 				for i = 0, 48 do
 					if i >= 17 and i <= 22 then
@@ -1226,6 +1383,7 @@ local function spawn_type_3_ini(...)
 				vehicle.set_vehicle_number_plate_index(Entity, info["plate index"])
 				vehicle.set_vehicle_number_plate_text(Entity, type(info["plate text"]) == "string" and info["plate text"] or "kektram")
 				vehicle.set_vehicle_window_tint(Entity, info["window tint"])
+				vehicle.set_vehicle_dirt_level(Entity, info["dirt level"])
 				vehicle.set_vehicle_bulletproof_tires(Entity, info["bulletproof tyres"] == 1)
 				if info["custom primary colour"] and info["custom primary colour"] ~= 0 then
 					vehicle.set_vehicle_custom_primary_colour(Entity, info["custom primary colour"])
@@ -1264,7 +1422,6 @@ local function spawn_type_3_ini(...)
 	for Entity, info in pairs(attached_entities) do
 		attach(Entity, info, entities)
 	end
-	send_spawn_counter_msg(entities)
 	return entities.parent_entity
 end
 
@@ -1275,15 +1432,15 @@ end
 	Example 2: 420car.ini
 --]]
 local function spawn_type_4_ini(...)
-	local info <const> = ...
+	local info <const>, network_status <const> = ...
 	local attached_entities <const> = {}
-	local entities <const> = get_info_containers()
+	local entities <const> = {}
 	for _, info in pairs(info) do
 		if info.Model or info.model then
-			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
+			local Entity <const> = spawn_entity(info, entities, network_status)
 			if entity.is_entity_a_vehicle(Entity) then
 				if not info.IsAttached then -- Mods are only set for parent vehicle
-					vehicle.set_vehicle_wheel_type(Entity, info.WheelsType or info.Wheels)
+					kek_entity.set_wheel_type(Entity, info.WheelsType or info.Wheels)
 					vehicle.set_vehicle_mod_kit_type(Entity, 0)
 					for i = 0, 45 do
 						if not (i >= 17 and i <= 22) and info[tostring(i)] then -- The file doesnt use every index from 0 to 45.
@@ -1319,6 +1476,12 @@ local function spawn_type_4_ini(...)
 					vehicle.set_vehicle_number_plate_text(Entity, type(info.PlateText) == "string" and info.PlateText or "kektram")
 					vehicle.set_vehicle_window_tint(Entity, info.WindowTint or info.Tint)
 					vehicle.set_vehicle_bulletproof_tires(Entity, (info.Bulletproof or info.BulletproofTires) == 1)
+					if info.PaintFade then
+						vehicle.set_vehicle_enveff_scale(Entity, info.PaintFade)
+					end
+					if info.Dirt then
+						vehicle.set_vehicle_dirt_level(Entity, info.Dirt)
+					end
 					if info.PrimaryPaintT == 1 then
 						vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(info.PrimaryR, info.PrimaryG, info.PrimaryB))
 					end
@@ -1353,7 +1516,6 @@ local function spawn_type_4_ini(...)
 	for Entity, info in pairs(attached_entities) do
 		attach(Entity, info, entities)
 	end
-	send_spawn_counter_msg(entities)
 	return entities.parent_entity
 end
 
@@ -1363,12 +1525,12 @@ end
 	Example: DeLoreanByEinar.ini
 --]]
 local function spawn_type_5_ini(...)
-	local info <const> = ...
+	local info <const>, network_status <const> = ...
 	local attached_entities <const> = {}
-	local entities <const> = get_info_containers()
+	local entities <const> = {}
 	for _, info in pairs(info) do
 		if info.Model or info.model then
-			local Entity <const> = spawn_entity_for_ini_vehicle(info, entities)
+			local Entity <const> = spawn_entity(info, entities, network_status)
 			if (not info.is_parent_vehicle and entity.is_an_entity(Entity)) or (info.is_parent_vehicle and entity.is_entity_a_vehicle(Entity)) then
 				if info.IsAttached then
 					entity.set_entity_collision(Entity, false, false, false)
@@ -1398,12 +1560,23 @@ local function spawn_type_5_ini(...)
 	for Entity, info in pairs(attached_entities) do
 		attach(Entity, info, entities)
 	end
-	send_spawn_counter_msg(entities)
 	return entities.parent_entity
 end
 
 function menyoo.spawn_ini_vehicle(...)
 	local file_path <const> = ...
+	do
+		if not utils.file_exists(file_path) then
+			essentials.msg(lang["This file doesn't exist."], "red", true, 6)
+			return 0
+		end
+		local file <close> = io.open(file_path) -- file_exists can be true, but file failed to open due to unicode characters in file path.
+		if not file then
+			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", true, 12)
+			return 0
+		end
+	end
+
 	local str <const> = essentials.get_file_string(file_path)
 	if str:find("?xml", 1, true) and str:find("Spooner", 1, true) then
 		essentials.msg(lang["Tried to spawn a xml vehicle with ini spawner."], "red", true, 6)
@@ -1411,26 +1584,44 @@ function menyoo.spawn_ini_vehicle(...)
 	end
 	local parent_entity
 	local ini_type <const> = get_ini_type(str)
+	local ini_parse <const> = parse_ini(
+		str, 
+		ini_type == "type_1" or ini_type == "type_2b"
+	)
+	local counts <const> = get_entity_counts_from_ini_parse(ini_parse) -- Parent vehicle is accounted for without manually incrementing
+	local network_status <const> = 
+		counts.object <= network.get_max_num_network_objects() - #kek_entity.get_net_objects() 
+		and counts.ped <= network.get_max_num_network_peds() - #kek_entity.get_net_peds() 
+		and counts.vehicle <= get_max_networked_vehicles() - #kek_entity.get_net_vehicles()
+		and "is_networked" or "is_not_networked"
+
+	if is_spawn_too_many_entities(counts, network_status) then
+		return 0
+	end	
+
 	if ini_type == "type_1" then
-		parent_entity = spawn_type_1_ini(parse_ini(str, true))
+		parent_entity = spawn_type_1_ini(ini_parse, network_status)
 	elseif ini_type == "type_2a" or ini_type == "type_2b" then
-		parent_entity = spawn_type_2_ini(parse_ini(str, ini_type == "type_2b"))
+		parent_entity = spawn_type_2_ini(ini_parse, network_status)
 	elseif ini_type == "type_3" or ini_type == "type_6" then
-		parent_entity = spawn_type_3_ini(parse_ini(str))
+		parent_entity = spawn_type_3_ini(ini_parse, network_status)
 	elseif ini_type == "type_4" then
-		parent_entity = spawn_type_4_ini(parse_ini(str))
+		parent_entity = spawn_type_4_ini(ini_parse, network_status)
 	elseif ini_type == "type_5" then
-		parent_entity = spawn_type_5_ini(parse_ini(str))
+		parent_entity = spawn_type_5_ini(ini_parse, network_status)
 	else
 		essentials.msg(lang["Unsupported file format."], "red", true)
 		return 0
 	end
 	if parent_entity and entity.is_entity_a_vehicle(parent_entity) then
 		entity.set_entity_rotation(parent_entity, memoize.v3())
-		entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
+		kek_entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
 	elseif parent_entity ~= -1 then
-		essentials.msg(lang["Failed to spawn driver vehicle for unknown reason."], "red", true, 6)
+		essentials.msg(lang["Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again."], "red", true, 6)
 	end
+
+	send_spawn_counter_msg(counts)
+	send_is_networked_msg(counts, network_status)
 	return parent_entity or 0
 end
 return essentials.const_all(menyoo)

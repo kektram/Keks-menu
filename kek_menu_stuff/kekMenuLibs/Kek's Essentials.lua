@@ -1,26 +1,12 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.4.5"}
+local essentials <const> = {version = "1.6.1"}
 
-local language <const> = require("Language")
+local language <const> = require("Kek's Language")
 local lang <const> = language.lang
-local enums <const> = require("Enums")
-local settings <const> = require("Settings")
-
-do 
---[[
-	This sets the __close metamethod for all files.
-	When local variables storing a file object goes out of scope,
-	the file is automatically closed with this metamethod.
---]]
-	local file <close> = io.open(debug.getinfo(1).source:sub(2, -1))
-	assert(io.type(file) == "file", "Failed to get file metatable.")
-	getmetatable(file).__close = function(file)
-		if io.type(file) == "file" then
-			file:close()
-		end
-	end
-end
+local enums <const> = require("Kek's Enums")
+local settings <const> = require("Kek's Settings")
+local memoize <const> = require("Kek's Memoize")
 
 essentials.listeners = {
 	player_leave = {},
@@ -29,22 +15,25 @@ essentials.listeners = {
 	exit = {}
 }
 essentials.nethooks = {}
-essentials.feats = {}
-essentials.player_feats = {}
 essentials.number_of_explosion_types = 82
+essentials.init_delay = utils.time_ms() + 1000 -- For notifications that should only display if user toggles on the feature (toggles being turned on due to settings and such)
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
 
-essentials.new_session_timer = utils.time_ms()
-do
-	local my_pid = player.player_id()
-	essentials.listeners["player_leave"]["timer"] = event.add_event_listener("player_leave", function(event)
-		if my_pid == event.player then
-			essentials.new_session_timer = utils.time_ms() + 15000
-			my_pid = player.player_id()
+function essentials.is_str(f, str) -- Greatly improves readability
+	local str_data <const> = f.str_data
+	local status = false
+	for i = 1, #str_data do
+		if str_data[i] == lang[str] then
+			status = true
+			break
 		end
-	end)
+	end
+	if not status then -- Done like this for minimal performance loss
+		essentials.assert(false, str.." doesn't match anything in str_data. feature name:", f.name)
+	end
+	return f.str_data[f.value + 1] == lang[str]
 end
 
 function essentials.assert(bool, msg, ...)
@@ -56,181 +45,194 @@ function essentials.assert(bool, msg, ...)
 		)
 		print(debug.traceback(msg, 2))
 		menu.notify(debug.traceback(msg, 2), "Error", 12, 0xff0000ff)
-		essentials.log_error(msg)
-		error(debug.traceback(msg, 2))
-	end
-end
-
---[[
-	Why would you store numbers this way?
-	It's far cheaper. A table with 3 (not enumerated) items will take up roughly 112 bytes. [https://wowwiki-archive.fandom.com/wiki/Lua_object_memory_sizes]
-	Packing numbers can save over 100 bytes per table. One 64 bit number takes up 8 bytes.
-	Now, accessing values from these packed numbers will be more expensive. 17x slower. However, we're talking 9 million accesses in 1 second vs 153 million.
-	The spared memory far outweighs the lost performance. The packing of numbers is about 60% slower than creating a table. [9.4 million in one sec vs 4.3 million]
---]]
-do 
-	local sign_bit_x <const> = 1 << 62
-	local sign_bit_y <const> = 1 << 61
-	local sign_bit_z <const> = 1 << 60
-	local max_20_bit_num <const> = 1048575
-	function essentials.pack_3_nums(x, y, z)
-		local xi = x * 100 // 1
-		local yi = y * 100 // 1
-		local zi = z * 100 // 1
-		essentials.assert(
-			xi >= -max_20_bit_num 
-			and xi <= max_20_bit_num 
-			and yi >= -max_20_bit_num 
-			and yi <= max_20_bit_num 
-			and zi >= -max_20_bit_num
-			and zi <= max_20_bit_num, "Number is too big to be packed.",
-			x, y, z
-		)
-
-		local signs = 0
-		if xi < 0 then
-			xi = xi * -1
-			signs = signs | sign_bit_x
-		end
-		if yi < 0 then
-			yi = yi * -1
-			signs = signs | sign_bit_y
-		end
-		if zi < 0 then
-			zi = zi * -1
-			signs = signs | sign_bit_z
-		end
-		return signs | xi << 40 | yi << 20 | zi
+		menu.create_thread(essentials.post_to_keks_menu_site, "https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="..web.urlencode("Version: "..__kek_menu.version.."\n"..debug.traceback(msg, 2)))
+		error(msg, 2)
 	end
 end
 
 do
-	local sign_bit_x <const> = 1 << 62
-	local sign_bit_y <const> = 1 << 61
-	local max_30_bit_num <const> = 1073741823
-	function essentials.pack_2_nums(x, y)
-		local xi = x * 100 // 1
-		local yi = y * 100 // 1
-		essentials.assert(
-			xi >= -max_30_bit_num 
-			and xi <= max_30_bit_num 
-			and yi >= -max_30_bit_num 
-			and yi <= max_30_bit_num,
-			"Number is too big to be packed.",
-			x, y
-		)
-
-		local signs = 0
-		if xi < 0 then
-			xi = xi * -1
-			signs = signs | sign_bit_x
+	local requests_in_last_10_minutes <const> = {}
+	local id = 0
+	function essentials.post_to_keks_menu_site(...) 
+	-- Limits entire script to 5 requests per 10 minutes.
+		local number_of_requests_in_last_10_minutes = 0
+		for i, time in pairs(requests_in_last_10_minutes) do
+			if utils.time_ms() > time then
+				requests_in_last_10_minutes[i] = nil
+			else
+				number_of_requests_in_last_10_minutes = number_of_requests_in_last_10_minutes + 1
+			end
 		end
-		if yi < 0 then
-			yi = yi * -1
-			signs = signs | sign_bit_y
+		if number_of_requests_in_last_10_minutes < 5 then
+			id = id + 1
+			requests_in_last_10_minutes[id] = utils.time_ms() + (1000 * 60 * 10)
+			web.post(...)
 		end
-		return signs | xi << 30 | yi
 	end
 end
 
-do
-	function essentials.pack_2_positive_integers(x, y)
-		return 0 | x << 31 | y
+function essentials.must_yield_for_specified_time(timeout)
+-- Use only where yielding shorter than specified time is a huge problem
+-- Primarily to deal with other scripts modifying system.yield, causing it to not yield like it's supposed to
+	local time <const> = utils.time_ms() + timeout
+	repeat
+		system.yield(0)
+	until utils.time_ms() > time
+end
+
+function essentials.get_time_plus_frametime(num_of_frames)
+	return utils.time_ms() + (gameplay.get_frame_time() * 1000 * num_of_frames)
+end
+
+function essentials.add_chat_event_listener(callback) -- Fixes crash if someone spams chat
+	local tracker <const> = {}
+	return event.add_event_listener("chat", function(event)
+		if not tracker[event.player] then
+			tracker[event.player] = true
+			callback(event)
+			tracker[event.player] = false
+		end
+	end)
+end
+
+function essentials.pack_3_nums(x, y, z)
+	local xi = x * 100 // 1
+	local yi = y * 100 // 1
+	local zi = z * 100 // 1
+
+	local signs = 0
+	if xi < 0 then
+		xi = xi * -1
+		signs = signs | 1 << 62
 	end
-end
-
-function essentials.get_rgb(r, g, b)
-	return (b << 16) | (g << 8) | r
-end
-
-function essentials.rgb_to_bytes(uint32_rgb)
-	return
-		(uint32_rgb << 56 >> 56),
-		(uint32_rgb << 48 >> 56),
-		(uint32_rgb >> 16)
+	if yi < 0 then
+		yi = yi * -1
+		signs = signs | 1 << 61
+	end
+	if zi < 0 then
+		zi = zi * -1
+		signs = signs | 1 << 60
+	end
+	return signs | xi << 40 | yi << 20 | zi
 end
 
 function essentials.unpack_3_nums(packed_num)
-	local sign_bit_1, sign_bit_2, sign_bit_3 = 1, 1, 1
-	if packed_num & 1 << 60 ~= 0 then sign_bit_1 = -1 end
-	if packed_num & 1 << 61 ~= 0 then sign_bit_2 = -1 end
-	if packed_num & 1 << 62 ~= 0 then sign_bit_3 = -1 end
+	local sign_bit_1 <const> = packed_num & 1 << 60 ~= 0
+	local sign_bit_2 <const> = packed_num & 1 << 61 ~= 0
+	local sign_bit_3 <const> = packed_num & 1 << 62 ~= 0
 	
-	-- Clear sign bits
-	packed_num = packed_num & (packed_num ~ (1 << 60))
-	packed_num = packed_num & (packed_num ~ (1 << 61))
-	packed_num = packed_num & (packed_num ~ (1 << 62))
+	packed_num = packed_num & 0xFFFFFFFFFFFFFFF
 	
 	return
-		(packed_num >> 40) / 100 * sign_bit_3,
-		(packed_num << 24 >> 44) / 100 * sign_bit_2,
-		(packed_num << 44 >> 44) / 100 * sign_bit_1
+		sign_bit_3 and -((packed_num >> 40 & 0xFFFFF) / 100) or ((packed_num >> 40 & 0xFFFFF) / 100),
+		sign_bit_2 and -((packed_num >> 20 & 0xFFFFF) / 100) or ((packed_num >> 20 & 0xFFFFF) / 100),
+		sign_bit_1 and -((packed_num       & 0xFFFFF) / 100) or ((packed_num       & 0xFFFFF) / 100)
+end
+
+function essentials.pack_2_nums(x, y)
+	local xi = x * 1000 // 1
+	local yi = y * 1000 // 1
+
+	local signs = 0
+	if xi < 0 then
+		xi = xi * -1
+		signs = signs | 1 << 62
+	end
+	if yi < 0 then
+		yi = yi * -1
+		signs = signs | 1 << 61
+	end
+	return signs | xi << 30 | yi
 end
 
 function essentials.unpack_2_nums(packed_num)
-	local sign_bit_1, sign_bit_2 = 1, 1
-	if packed_num & 1 << 61 ~= 0 then sign_bit_1 = -1 end
-	if packed_num & 1 << 62 ~= 0 then sign_bit_2 = -1 end
+	local sign_bit_1 <const> = packed_num & 1 << 61 ~= 0
+	local sign_bit_2 <const> = packed_num & 1 << 62 ~= 0
 	
-	-- Clear sign bits
-	packed_num = packed_num & (packed_num ~ (1 << 61))
-	packed_num = packed_num & (packed_num ~ (1 << 62))
-	
+	packed_num = packed_num & 0xFFFFFFFFFFFFFFF	
+
 	return
-		(packed_num >> 30) / 1000 * sign_bit_2,
-		(packed_num << 34 >> 34) / 1000 * sign_bit_1
+		sign_bit_2 and -((packed_num >> 30 & 0x3FFFFFFF) / 1000) or ((packed_num >> 30 & 0x3FFFFFFF) / 1000),
+		sign_bit_1 and -((packed_num	   & 0x3FFFFFFF) / 1000) or ((packed_num	   & 0x3FFFFFFF) / 1000)
 end
 
---[[
-	These functions replicates exactly what the originals did with one exception; they won't work on protected metatables.
-	A protected metatable have its __metatable set to something that isn't nil.
---]]
-function essentials.rawset(...)
-	local Table <const>, 
-	index <const>, 
-	value <const> = ...
-	local metatable <const> = getmetatable(Table)
-	local __newindex
-	if metatable then
-		__newindex = metatable.__newindex
-		metatable.__newindex = nil
+function essentials.get_rgb(r, g, b, a)
+	return 
+		((a or 0) << 24) 
+		| (b << 16) 
+		| (g << 8) 
+		| r
+end
+
+function essentials.rgb_to_bytes(uint32_rgba)
+	return
+		(uint32_rgba      ) & 0xFF, -- R
+		(uint32_rgba >>  8) & 0xFF, -- G
+		(uint32_rgba >> 16) & 0xFF, -- B
+		(uint32_rgba >> 24) & 0xFF  -- A
+end
+
+function essentials.get_max_variadic(...)
+	local max = math.mininteger
+	local t <const> = table.pack(...)
+	for i = 1, #t do
+		max = t[i] > max and t[i] or max
 	end
-	Table[index] = value
-	if __newindex then
-		metatable.__newindex = __newindex
+	return max
+end
+
+do
+    local _ENV <const> = {
+        getmetatable = debug.getmetatable
+    }
+	function essentials.rawset(Table, index, value) -- Matches performance of normal rawset.
+		local metatable <const> = getmetatable(Table)
+		local __newindex
+		if metatable then
+			__newindex = metatable.__newindex
+			metatable.__newindex = nil
+		end
+		Table[index] = value
+		if __newindex then
+			metatable.__newindex = __newindex
+		end
+		return Table
 	end
 end
 
-function essentials.rawget(...)
-	local Table <const>,
-	index <const> = ...
-	local __index
-	local metatable <const> = getmetatable(Table)
-	if metatable then
-		__index = metatable.__index
-		metatable.__index = nil
+do
+    local _ENV <const> = {
+        getmetatable = debug.getmetatable
+    }
+	function essentials.rawget(Table, index) -- Matches performance of normal rawget.
+		local metatable <const> = getmetatable(Table)
+		local __index
+		if metatable then
+			__index = metatable.__index
+			metatable.__index = nil
+		end
+		local value <const> = value
+		if __index then
+			metatable.__index = __index
+		end
+		return value
 	end
-	local value <const> = Table[index]
-	if metatable then
-		metatable.__index = __index
-	end
-	return value
 end
 
 do
 	local _ENV <const> = { -- 12% faster, 20% less garbage created
 		essentials = essentials,
-		getmetatable = getmetatable, 
+		getmetatable = debug.getmetatable, 
 		setmetatable = setmetatable, 
 		assert = essentials.assert,
 		__newindex = function()
 			essentials.assert(false, "Tried to modify a read-only table.")
 		end,
 		__pairs = function(Table)
-			return next, getmetatable(Table).__index
+			return next, debug.getmetatable(Table).__index
 		end,
 		__len = function(Table)
-			return #getmetatable(Table).__index
+			return #debug.getmetatable(Table).__index
 		end
 	}
 
@@ -251,7 +253,7 @@ do
 end
 
 function essentials.const_all(Table, timeout)
-	timeout = timeout or utils.time_ms() + 1000
+	timeout = timeout or utils.time_ms() + 1000 -- In case a table with references to itself. Faster than using a tracking table. Unless I actually need to properly handle self reference, I will keep it this way.
 	essentials.assert(timeout > utils.time_ms(), "Entered recursion loop while setting table to const all.")
 	for key, value in pairs(Table) do
 		if type(value) == "table" then
@@ -268,15 +270,68 @@ function essentials.make_string_case_insensitive(str)
 	return str
 end
 
-function essentials.split_string(str, size)
+function essentials.get_player_coords(pid) -- Allows you to get player coords with accurate z coordinate.
+	if pid == player.player_id() then
+		return player.get_player_coords(pid)
+	else
+		return network._network_get_player_coords(pid)
+	end
+end
+
+function essentials.split_string(str, size) 
+--[[
+	Strings may be up to 4 bytes smaller than requested size if unicode is present. (alternative would be up to 3 bytes bigger, which cause more problems)
+	This happens if it finds a unicode character that needs more space than requested size. (at the end of the string)
+	Performance: split a 46k byte string (with chinese and ascii characters) by size 255 9,000 times in one second. (110 micro seconds per iteration).
+	Returns a table with 1 empty string if str is empty.
+	Have applied every micro-optimization in the book. They yield 15% improved performance.
+--]]
+	essentials.assert(size >= 4, "Failed to split string. Split size must be 4 or more.", str, size) -- Infinite loop (only if unicode is present). For consistency, 4 or more is required.
 	local strings <const> = {}
-	local pos = 1
-	local len <const> = utf8.len(str)
+	local pos, i, len <const> = 0, 1, #str
+	local find <const>, sub <const> = string.find, string.sub
+	local found_no_more_unicode = false
+	local start_pos, end_pos = math.mininteger, math.mininteger
 	repeat
-		strings[#strings + 1] = essentials.sub_unicode(str, pos, math.min(len, pos + size))
-		pos = pos + size + 1
-	until pos > len
+		local posz <const> = pos + size
+		if not found_no_more_unicode and posz > end_pos then -- Makes sure all bytes in the string is searched no more than once.
+			start_pos, end_pos = find(str, "[\0-\x7F\xC2-\xFD][\x80-\xBF]+", posz > 4 and posz - 4 or 1) -- This will cause no unicode strings to be slower. Many smaller string.finds is much cheaper than one massive string.find.
+			if not start_pos then
+				found_no_more_unicode, end_pos, start_pos = true, math.mininteger, math.mininteger
+			end
+		end
+		strings[i] = sub(
+			str,
+			pos + 1, 
+			end_pos >= posz - 4 and end_pos <= posz and end_pos -- Found unicode char that fits in the requested size?
+			or start_pos >= posz - 4 and start_pos <= posz and start_pos - 1 -- Found uni char, but it doesn't fit the requested size?
+			or posz -- No unicode interference.
+		)
+		pos = pos + #strings[i]
+		i = i + 1
+	until pos >= len
 	return strings
+end
+
+function essentials.split_string_table_by_size(string_table, size) -- Split strings will always be equal to or smaller in size than requested size
+	local strings, count = {}, 0
+	local strings_to_return <const> = {}
+
+	for i = 1, #string_table do
+		essentials.assert(size >= #string_table[i], "One of the strings are longer then the requested split size.", string_table[i])
+		count = count + #string_table[i] + (#string_table > 0 and 1 or 0) -- Account for new lines
+		if count <= size then
+			strings[#strings + 1] = string_table[i]
+			if i == #string_table then
+				strings_to_return[#strings_to_return + 1] = table.concat(strings, "\n")
+			end
+		else
+			strings_to_return[#strings_to_return + 1] = table.concat(strings, "\n")
+			strings, count = {string_table[i]}, #string_table[i]
+		end
+	end
+
+	return strings_to_return
 end
 
 function essentials.date_to_int(date)
@@ -302,7 +357,7 @@ function essentials.are_all_lines_pattern_valid(str, pattern)
 	local line_num = 1
 	for line in str:gmatch(pattern) do
 		if not pcall(function()
-			return str:find(line)
+			return (""):find(line)
 		end) then
 			return false, line_num
 		end
@@ -311,180 +366,73 @@ function essentials.are_all_lines_pattern_valid(str, pattern)
 	return true
 end
 
-function essentials.delete_feature(id)
-	essentials.assert(essentials.feats[id], "Tried to delete a feature that was already deleted.")
-	essentials.assert(menu.delete_feature(id), "Failed to delete feature.", essentials.feats[id].name)
-	essentials.feats[id] = nil
-	return true
-end
-
-function essentials.delete_player_feature(id)
-	essentials.assert(essentials.player_feats[id], "Attempted to delete player feature that was already deleted.")
-	essentials.assert(menu.delete_player_feature(id), "Failed to delete player feature.", menu.get_player_feature(id).feats[0].name)
-	essentials.player_feats[id] = nil
-	return true
-end
-
-function essentials.delete_thread(id)
+function essentials.delete_thread(id) -- If this assert fails, it often means the thread had a runtime error.
 	essentials.assert(not menu.has_thread_finished(id) and menu.delete_thread(id), "Attempted to delete a finished thread.")
 end
 
 do
-	local originals <const> = essentials.const({
-		add_feature = menu.add_feature,
-		add_player_feature = menu.add_player_feature,
-		menu_newindex = getmetatable(menu).__newindex
-	})
-	getmetatable(menu).__newindex = nil
-
-	local feat_err_msg <const> = "This error might be related to your script, not necessarily Kek's menu. Either the parent id or feature type specified is incorrect."
-	menu.add_feature = function(...)
-		local name <const>,
-		Type <const>,
-		parent <const>,
-		func <const> = ...
-		local feat
-		local type <const> = type
-		if type(func) == "function" then
-			feat = originals.add_feature(name, Type, parent, function(f, data)
-				if type(f) == "userdata" then
-					if func(f, data) == HANDLER_CONTINUE then
-						return HANDLER_CONTINUE
-					end
-				end
-			end)
-		else
-			feat = originals.add_feature(name, Type, parent)
+	local v3_mt <const>, v2_mt <const> = debug.getmetatable(memoize.v3()), debug.getmetatable(memoize.v2())
+	function essentials.deep_copy(object, keep_meta, tracker)
+		if object == nil then
+			return nil
 		end
-		essentials.assert(
-			feat, "Failed to create feature:",
-			feat_err_msg,
-			"Feature name: ",
-			name, 
-			debug.getinfo(2, "S").source, 
-			"line:",
-			debug.getinfo(2, "l").currentline
-		)
-		essentials.feats[feat.id] = feat
-		return feat
-	end
-	menu.add_player_feature = function(...)
-		local name <const>,
-		Type <const>,
-		parent <const>,
-		func <const> = ...
-		local feat
-		local type <const> = type
-		if type(func) == "function" then
-			feat = originals.add_player_feature(name, Type, parent, function(f, pid, data)
-				if type(f) == "userdata" then
-					if func(f, pid, data) == HANDLER_CONTINUE then
-						return HANDLER_CONTINUE
-					end
-				end
-			end)
-		else
-			feat = originals.add_player_feature(name, Type, parent)
+		tracker = tracker or {}
+		if tracker[object] then 
+			return tracker[object] 
 		end
-		essentials.assert(
-			feat, "Failed to create player feature:", 
-			feat_err_msg,
-			"Feature name: ",
-			name,
-			debug.getinfo(2, "S").source, 
-			"line:",
-			debug.getinfo(2, "l").currentline
-		)
-		essentials.player_feats[feat.id] = feat.id
-		return feat
-	end
-	getmetatable(menu).__newindex = originals.menu_newindex
-end
 
-function essentials.deep_copy(Table, keep_meta, timeout)
-	local new_copy <const> = {}
-	timeout = timeout or utils.time_ms() + 1000 -- Far cheaper than using a seen table.
-	for key, value in pairs(Table) do
-		if type(value) == "table" then
-			new_copy[key] = essentials.deep_copy(value, keep_meta, timeout)
-			if keep_meta and type(getmetatable(value)) == "table" then
-				setmetatable(new_copy[key], essentials.deep_copy(getmetatable(value), true, timeout))
+		local new_object
+		local object_mt <const> = debug.getmetatable(object)
+		if type(object) == "table" then
+			new_object = {}
+			tracker[object] = new_object
+
+			for key, value in next, object do
+				new_object[essentials.deep_copy(key, keep_meta, tracker)] = essentials.deep_copy(value, keep_meta, tracker)
 			end
+			if keep_meta then
+				setmetatable(new_object, essentials.deep_copy(debug.getmetatable(object), keep_meta, tracker))
+			end
+		elseif rawequal(object_mt, v3_mt) then
+			new_object = v3(object.x, object.y, object.z)
+		elseif rawequal(object_mt, v2_mt) then
+			new_object = v2(object.x, object.y)
 		else
-			new_copy[key] = value
+			new_object = object
 		end
+		return new_object
 	end
-	if keep_meta and type(getmetatable(Table)) == "table" then
-		setmetatable(new_copy, essentials.deep_copy(getmetatable(Table), true, timeout))
-	end
-	essentials.assert(timeout > utils.time_ms(), "Entered recursion loop while attempting to deep copy table.")
-	return new_copy
 end
 
 do
-	local memoized <const> = {}
 	local is_valid <const> = player.is_player_valid
 	function essentials.players(me)
 		local pid = -1
 		if not me then
 			me = player.player_id()
 		end
-		if #memoized == 0 then
-			local func
-			func = function()
-				repeat
-					pid = pid + 1
-				until pid == 32 or (me ~= pid and is_valid(pid))
-				if pid ~= 32 then
-					return pid
-				end
-				table.insert(memoized, func)
+		return function()
+			repeat
+				pid = pid + 1
+			until pid == 32 or (me ~= pid and is_valid(pid))
+			if pid ~= 32 then
+				return pid
 			end
-			return func
-		else
-			local i <const> = #memoized
-			local func <const> = memoized[i]
-			table.remove(memoized, i)
-			essentials.assert(debug.getupvalue(func, 2) == "me" and debug.setupvalue(func, 2, me), "FAILED TO SET UPVALUE: me")
-			essentials.assert(debug.getupvalue(func, 1) == "pid" and debug.setupvalue(func, 1, -1), "FAILED TO SET UPVALUE: pid")
-			return func
 		end
 	end
 end
 
-do
-	local memoized <const> = {}
-	local is_entity <const> = entity.is_an_entity
-	local math_type <const> = math.type
-	local next <const> = next
-	function essentials.entities(Table)
-		local mt <const> = getmetatable(Table)
-		if mt and mt.__is_const then
-			Table = mt.__index
-		end
-		local key
-		if #memoized == 0 then
-			local func
-			func = function()
-				local Entity
-				repeat
-					key, Entity = next(Table, key)
-				until key == nil 
-				or (math_type(Entity) == "integer" and is_entity(Entity)) 
-				or (math_type(key) == "integer" and is_entity(key))
-				if key == nil then
-					table.insert(memoized, func)
-				end
-				return Entity, key
-			end
-			return func
-		else
-			local i <const> = #memoized
-			local func <const> = memoized[i]
-			table.remove(memoized, i)
-			essentials.assert(debug.getupvalue(func, 3) == "Table" and debug.setupvalue(func, 3, Table), "FAILED TO SET UPVALUE: Table")
-			return func
-		end
+function essentials.entities(Table)
+	local mt <const> = debug.getmetatable(Table)
+	if mt and mt.__is_const then
+		Table = mt.__index
+	end
+	local key, Entity
+	return function()
+		repeat
+			key, Entity = next(Table, key)
+		until key == nil or (Entity ~= 0 and entity.is_an_entity(Entity)) -- Not confirmed, but I suspect 0 can be a valid entity handle.
+		return Entity, key
 	end
 end
 
@@ -503,7 +451,9 @@ essentials.FEATURE_ID_MAP = essentials.const({ -- The table keys are derived fro
 	[1 << 1 | 1 << 7 | 1 << 10] = "autoaction_value_f",
 	[1 << 1 | 1 << 3 | 1 << 10] = "autoaction_value_i",
 	[1 << 1 | 1 << 5 | 1 << 9 ] = "action_value_str",
+	[1 << 1 | 1 << 4 | 1 << 9 ] = "action_value_str",
 	[1 << 0 | 1 << 1 | 1 << 5 ] = "value_str",
+	[1 << 0 | 1 << 14] = "value_str",
 -- Regular feat types
 
 	[1 << 11] = "parent", -- Both player feat & regular feat type have same id
@@ -530,11 +480,13 @@ essentials.FEATURE_ID_MAP = essentials.const({ -- The table keys are derived fro
 	1 << 1 == Not a parent, toggle or regular action feature?
 	1 << 2 == slider flag
 	1 << 3 == value_i flag
+	1 << 4 == Seems to be show info, like properties of a fake friend. Only available in menu features
 	1 << 5 == value_str flag
 	1 << 7 == value_f flag
 	1 << 9 == action flag
 	1 << 10 == autoaction flag
 	1 << 11 == parent flag
+	1 << 14 == player_feat flag
 	1 << 15 == player_feat flag
 --]]
 
@@ -604,6 +556,57 @@ function essentials.wait_conditional(duration, func, ...)
 	repeat -- Must guarantee one yield or else there's a possibility of loops without yield
 		system.yield(0)
 	until not func(...) or utils.time_ms() > time
+end
+
+function essentials.write_table_recursively_to_file(Table, tracker, file, level)
+	tracker = tracker or {}
+	level = level or 0
+	file = file or io.open(paths.home.."scripts\\printed_table.txt", "w+")
+	for key, value in pairs(Table) do
+		if type(value) == "table" and not tracker[value] then
+			file:write(string.format("\n%s%s:\n", string.rep("\t", level), key))
+			tracker[value] = true
+			essentials.write_table_recursively_to_file(value, tracker, file, level + 1)
+			file:write("\n")
+		else
+			file:write(string.format("%s%s: %s\n", string.rep("\t", level), key, value))
+		end
+	end
+	if level == 0 then
+		essentials.msg(paths.home.."scripts\\printed_table.txt", "green", true, 10)
+		file:flush()
+		file:close()
+	end
+end
+
+function essentials.get_all_files_recursively(path, file_extension, obtained_folders)
+	obtained_folders = obtained_folders or {}
+	obtained_folders[path] = utils.get_all_files_in_directory(path, file_extension)
+	local folders <const> = utils.get_all_sub_directories_in_directory(path)
+	for i = 1, #folders do
+		obtained_folders[path] = essentials.get_all_files_recursively(path.."\\"..folders[i], file_extension, obtained_folders)
+	end
+	obtained_folders[path] = #obtained_folders[path] > 0 and obtained_folders[path] or nil
+	return obtained_folders
+end
+
+function essentials.is_file_name_change_is_invalid(folder_path, input, extension)
+	if input:find("..", 1, true) or input:find("%.$") then
+		essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
+		return true
+	elseif input:find("[<>:\"/\\|%?%*]") then
+		essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
+		return true
+	elseif extension ~= "FOLDER" and not utils.dir_exists(folder_path) then
+		essentials.msg(lang["This folder no longer exists."], "red", true, 8)
+		return true
+	elseif extension == "FOLDER" and utils.dir_exists(folder_path.."\\"..input) then
+		essentials.msg(lang["Existing folder found. Please choose another name."], "red", true)
+		return true
+	elseif extension ~= "FOLDER" and utils.file_exists(folder_path.."\\"..input.."."..extension) then
+		essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
+		return true
+	end
 end
 
 function essentials.table_to_xml(...)
@@ -700,9 +703,9 @@ end
 	Parses are remembered until garbage collector is collecting.
 --]]
 
-local __is_table_mt = {__index = {__is_table = true}}
+local __is_table_mt <const> = {__index = {__is_table = true}}
 
-local accepted_whitespace <const> = "[\t\n\r\32]"
+local accepted_whitespace <const> = "[\t\n\r]"
 local escape_seq_map <const> = {
 	["&quot;"] = "\"",
 	["&apos;"] = "'",
@@ -771,10 +774,16 @@ function essentials.parse_xml(str)
 				goto continue
 			end
 
-			memoized.new_tag_find = memoized.new_tag_find or find(line, "^<.+\32/>$")
+			memoized.new_tag_find = memoized.new_tag_find or find(line, "^<.+/>$")
 			if memoized.new_tag_find then
 				local name <const>, attributes <const> = parse_attribute(line)
-				parent_tree[#parent_tree][name] = {__attributes = attributes}
+				if parent_tree[#parent_tree][name] then
+					local mt <const> = getmetatable(parent_tree[#parent_tree][name])
+					mt.__count = mt.__count + 1
+					parent_tree[#parent_tree][name.."_"..mt.__count] = {__attributes = attributes}
+				else
+					parent_tree[#parent_tree][name] = setmetatable({__attributes = attributes}, {__count = 1})
+				end
 				goto continue
 			end
 
@@ -813,50 +822,6 @@ function essentials.parse_xml(str)
 	return info
 end
 
-local last_error_time = 0
-local last_error = ""
-function essentials.log_error(...)
-	local error_message <const>, yield <const>, file_path = ...
-	file_path = file_path or paths.kek_menu_stuff.."kekMenuLogs\\kek_menu_log.log"
-	if utils.time_ms() > last_error_time and last_error ~= debug.traceback(error_message, 2) then
-		last_error_time = utils.time_ms() + 100
-		last_error = debug.traceback(error_message, 2)
-		local file <close> = io.open(file_path, "a+")
-		local additional_info <const> = {""}
-		for i2 = 2, 1000 do
-			if pcall(function() 
-				return debug.getlocal(i2 + 2, 1)
-			end) then
-				additional_info[#additional_info + 1] = string.format("\9Locals at level %i:", i2)
-				for i = 1, 200 do
-					local name <const>, value <const> = debug.getlocal(i2, i)
-					if not name then
-						break
-					end
-					if name ~= "(temporary)" then
-						local Type = type(value)
-						if Type == "number" then
-							Type = math.type(value)
-						end
-						additional_info[#additional_info + 1] = string.format("\9\9[%s] = %s (%s)", name, tostring(value):sub(1, 100), Type)
-					end
-				end
-			else
-				break
-			end
-		end
-		file:write(debug.traceback(
-			string.format("\n\n[%s]: < %s > [Kek's menu version: %s]\n%s\n",
-				os.date(), 
-				error_message, 
-				__kek_menu_version, 
-				table.concat(additional_info, "\n")), 2))
-	end
-	if yield then
-		system.yield(0)
-	end
-end
-
 function essentials.is_z_coordinate_correct(pos)
 	return pos.z ~= -50 and pos.z ~= -180 and pos.z ~= -190
 end
@@ -893,8 +858,8 @@ function essentials.msg(...)
 	essentials.assert(type(text) == "string", "Failed to send a notification.", text)
 	if notifyOn then
 		header = header or ""
-		if header == "" and __kek_menu_version then
-			header = lang["Kek's menu"].." "..__kek_menu_version
+		if header == "" and __kek_menu.version then
+			header = lang["Kek's menu"].." "..__kek_menu.version
 		end
 		menu.notify(text, header, duration or 3, essentials.notif_colors[color])
 	end
@@ -974,47 +939,33 @@ end
 
 function essentials.kick_player(pid)
 	essentials.assert(pid ~= player.player_id(), "Tried to kick yourself.")
-	if network.network_is_host() then
-		network.network_session_kick_player(pid) -- Is a void function
-		return true
-	else
-		return network.force_remove_player(pid)
-	end
-end
-
-function essentials.get_most_relevant_entity(...)
-	local pid <const> = ...
-	if player.is_player_in_any_vehicle(pid) then
-		return player.get_player_vehicle(pid)
-	else
-		return player.get_player_ped(pid)
-	end
+	return network.force_remove_player(pid)
 end
 
 do
-	local last_message_sent = 0
-	local number_of_active_messages = 0
+	local msg_queue <const> = {}
+	local id = 0
 	function essentials.send_message(...)
 		local text, team <const> = ...
-		if number_of_active_messages > 30 then
-			return
+		if not utf8.len(text) then -- split_string requires valid utf8
+			text = text:gsub("[\0-\x7F\xC2-\xFD][\x80-\xBF]+", "")
+			text = text:gsub("[\x80-\xFF]", "")
 		end
-		essentials.assert(type(text) == "string", "Tried to send a chat message with a non string value.", text, type(text))
-		number_of_active_messages = number_of_active_messages + 1
-		local time <const> = utils.time_ms() + 2000
-		repeat
+		local local_id = id + 1
+		id = local_id
+		msg_queue[#msg_queue + 1] = local_id
+		while msg_queue[1] ~= local_id do
 			system.yield(0)
-		until utils.time_ms() > last_message_sent or utils.time_ms() > time
-		if time > utils.time_ms() then
-			local time <const> = utils.time_ms() + 5000
-			repeat
-				network.send_chat_message(text:sub(1, 255), team == true)
-				text = text:sub(256, -1)
-				system.yield(150)
-			until #text == 0 or utils.time_ms() > time
-			last_message_sent = utils.time_ms() + 150
 		end
-		number_of_active_messages = number_of_active_messages - 1
+		local strings <const> = essentials.split_string(text, 255)
+		for i = 1, math.min(#strings, 50) do
+			network.send_chat_message(strings[i], team == true)
+			system.yield(100)
+		end
+		if #strings == 0 then -- Some features rely on this function yielding. [chat spam is example]
+			system.yield(100)
+		end
+		table.remove(msg_queue, 1)
 	end
 end
 
@@ -1053,7 +1004,11 @@ function essentials.get_random_player_except(...)
 	if #pids > 0 then
 		return pids[math.random(1, #pids)]
 	else
-		return player.player_id()
+		local pids <const> = {}
+		for pid in essentials.players(true) do
+			pids[#pids + 1] = pid
+		end
+		return pids[math.random(1, #pids)]
 	end
 end
 
@@ -1092,8 +1047,10 @@ function essentials.get_descendants(...)
 	local parent <const>,
 	Table,
 	add_parent_of_descendants <const> = ...
-	for _, feat in pairs(parent.children) do
-		if feat.type == 2048 and feat.child_count > 0 then
+	local children <const> = parent.children
+	for i = 1, #children do
+		local feat <const> = children[i]
+		if feat.type & 1 << 11 == 1 << 11 and feat.child_count > 0 then
 			essentials.get_descendants(feat, Table)
 		end
 		Table[#Table + 1] = feat
@@ -1110,7 +1067,7 @@ function essentials.get_player_descendants(...)
 	add_parent_of_descendants <const> = ...
 	for _, feat in pairs(parent.feats[0].children) do
 		feat = menu.get_player_feature(feat.id)
-		if feat.feats[0].type == 2048 and feat.feats[0].child_count > 0 then
+		if feat.feats[0].type == 2048 and feat.child_count > 0 then
 			essentials.get_player_descendants(menu.get_player_feature(feat.id), Table)
 		end
 		Table[#Table + 1] = menu.get_player_feature(feat.id)
@@ -1121,6 +1078,31 @@ function essentials.get_player_descendants(...)
 	return Table
 end
 
+function essentials.get_feat_hierarchy(feat, tab)
+	local str <const>, parent = {}, feat.parent
+	while parent do
+		local encoded_parent_name = parent.name:gsub("[%s%p%c]", "_")
+		table.insert(str, 1, encoded_parent_name)
+		parent = parent.parent
+	end
+	local encoded_feat_name = feat.name:gsub("[%s%p%c]", "_")
+	table.insert(str, 1, tab or "local")
+	str[#str + 1] = encoded_feat_name
+	return table.concat(str, ".")
+end
+
+function essentials.player_feat_to_pid(feat)
+	local player_name_map <const> = {}
+	for pid in essentials.players(true) do
+		player_name_map[player.get_player_name(pid)] = pid
+	end
+	local parent = feat.parent
+	while parent and not player_name_map[parent.name] do
+		parent = parent.parent
+	end
+	return player_name_map[parent and parent.name]
+end
+
 function essentials.name_to_pid(name)
 	if type(name) == "string" then
 		name = name:lower()
@@ -1128,6 +1110,15 @@ function essentials.name_to_pid(name)
 			if player.get_player_name(pid):lower():find(name, 1, true) then
 				return pid
 			end
+		end
+	end
+	return 32
+end
+
+function essentials.name_to_pid_strict(name)
+	for pid in essentials.players(true) do
+		if player.get_player_name(pid) == name then
+			return pid
 		end
 	end
 	return 32
@@ -1165,6 +1156,395 @@ function essentials.is_any_true(...)
 		end
 	end
 	return false
+end
+
+function essentials.is_any_virtual_key_pressed(...)
+	for i = 1, select("#", ...) do
+		local Key <const> = MenuKey()
+		Key:push_str(select(i, ...))
+		if Key:is_down_stepped() then
+			return true
+		end
+	end
+	return false
+end
+
+function essentials.draw_text_prevent_offscreen(...)
+	local text <const>, 
+	pos <const>, -- Coordinates must be in relative, not pixels
+	scale <const>,
+	rgba <const>,
+	outline <const> = ...
+
+	pos.x = pos.x < -0.995 and -0.995 or pos.x
+	pos.y = pos.y > 0.995 and 0.995 or pos.y
+
+	local size <const> = scriptdraw.get_text_size(text, scale, nil)
+	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
+	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
+
+	pos.x = pos.x + size.x > 0.995 and 0.995 - size.x or pos.x
+	pos.y = pos.y - size.y < -0.995 and -0.995 + size.y or pos.y
+	scriptdraw.draw_text(
+		text, 
+		pos,
+		size,
+		scale,
+		rgba,
+		outline and enums.scriptdraw_flags.shadow or 0,
+		nil
+	)
+end
+
+function essentials.draw_auto_adjusted_text(...)
+	local text <const>, rgba <const>, scale <const>, y_pos <const> = ...
+
+	local size <const> = scriptdraw.get_text_size(text, scale or 0.7, nil)
+	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
+	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
+
+	local pos <const> = v2(-size.x, size.y) / 2
+	pos.y = type(y_pos) == "table" and y_pos.y or y_pos or pos.y
+
+	scriptdraw.draw_text(
+		text, 
+		pos,
+		size,
+		scale or 0.7,
+		rgba,
+		enums.scriptdraw_flags.shadow,
+		nil
+	)
+
+	return (pos.y - size.y) - (scriptdraw.size_pixel_to_rel_y(scriptdraw.get_text_size("One line of text.", scale or 0.7, nil).y) / 2)
+end
+
+function essentials.dont_retry_request(status) -- Too much work with little benefit to handle all codes properly
+	return enums.html_response_codes[status] ~= "OK" and enums.html_response_codes[status] ~= "Not Found"
+end
+
+function essentials.web_get_file(url, rgba, scale, y_pos)
+	local try_count = 0
+	local file_name <const> = web.urldecode(url:match(".+/(.-)$"))
+	local status, str, is_done
+	local thread <const> = menu.create_thread(function()
+		while true do
+			essentials.draw_auto_adjusted_text(
+				is_done and enums.html_response_codes[status] == "OK" and lang["Successfully fetched %s."]:format(file_name)
+				or is_done and lang["Failed to fetch %s with error: %s"]:format(file_name, enums.html_response_codes[status] or status)
+				or lang["Attempt %i / %i to fetch %s."]:format(try_count, 3, file_name), 
+
+				is_done and enums.html_response_codes[status] == "OK" and essentials.get_rgb(0, 255, 0, 255) 
+				or is_done and essentials.get_rgb(255, 0, 0, 255) 
+				or rgba, 
+				
+				scale,
+				y_pos
+			)
+			system.yield(0)
+		end
+	end)
+	system.yield(0)
+	repeat
+		if try_count > 0 then
+			system.yield(2000)
+		end
+		try_count = try_count + 1
+		status, str = web.get(url)
+	until try_count == 3 or not essentials.dont_retry_request(status)
+	is_done = true
+	system.yield(enums.html_response_codes[status] ~= "OK" and 5000 or 250)
+	essentials.delete_thread(thread)
+	return status, str
+end
+
+essentials.is_changelog_currently_shown = false
+function essentials.show_changelog()
+	if not essentials.is_changelog_currently_shown then
+		essentials.is_changelog_currently_shown = true
+		menu.create_thread(function()
+			while essentials.is_any_virtual_key_pressed(
+				"LCONTROL",
+				"RCONTROL",
+				"SPACE"
+			) do
+				system.yield(0)
+			end
+			local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
+			local status <const>, str <const> = essentials.web_get_file(
+				"https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md",
+				essentials.get_rgb(0, 255, 0, 255), 
+				1.2
+			)
+			if enums.html_response_codes[status] ~= "OK" then
+				essentials.is_changelog_currently_shown = false
+				return
+			end
+
+			local str_t <const> = {}
+			for line in str:gmatch("[^\n]+") do
+				str_t[#str_t + 1] = line
+			end
+
+			local str <const> = table.concat(str_t, "\n")
+			while not essentials.is_any_virtual_key_pressed(
+				"LCONTROL",
+				"RCONTROL",
+				"SPACE"
+			) do
+				local y_pos <const> = essentials.draw_auto_adjusted_text(str, essentials.get_rgb(255, 140, 0, 255), 0.7)
+				essentials.draw_auto_adjusted_text(lang["Press space or ctrl to remove this message."], essentials.get_rgb(255, 0, 0, 255), 0.7, y_pos)
+				system.yield(0)
+			end
+			while essentials.is_any_virtual_key_pressed(
+				"LCONTROL",
+				"RCONTROL",
+				"SPACE"
+			) do
+				system.yield(0)
+			end
+			essentials.is_changelog_currently_shown = false
+		end, nil)
+	end
+end
+
+function essentials.update_keks_menu()
+	local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
+	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
+	local y_pos_2 = {y = 0} -- Is table so most up-to-date value is always being used
+	local version_check_draw_thread <const> = menu.create_thread(function()
+		while true do
+			y_pos_2.y = essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
+			system.yield(0)
+		end
+	end, nil)
+	system.yield(0)
+	local status <const>, update_details = essentials.web_get_file(
+		base_path.."VERSION.lua",
+		essentials.get_rgb(0, 255, 120, 255),
+		1.0,
+		y_pos_2
+	)
+	essentials.delete_thread(version_check_draw_thread)
+	local
+		update_status,
+		current_file_num,
+		lib_file_strings, 
+		language_file_strings, 
+		current_file,
+		html_page_info,
+		kek_menu_file_string = true, 0, {}, {}
+
+	if enums.html_response_codes[status] ~= "OK" then
+		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
+		return "failed to check what is the latest version"
+	end
+	update_details = load(update_details, "Update info", "t", {})()
+	local script_version <const> = update_details.version
+	local updated_lib_files <const> = update_details.libs
+	local updated_language_files <const> = update_details.language_files
+
+	if __kek_menu.version == script_version then
+		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
+		return "is latest version"
+	else
+		if __kek_menu_has_done_update then
+			essentials.msg(lang["Kektram messed up the version strings! You have the latest version."], "green", true, 8)
+			return "already updated"
+		end
+		while essentials.is_any_virtual_key_pressed( -- Prevent accidental presses
+			"ALT",
+			"LCONTROL",
+			"RCONTROL",
+			"SPACE",
+			"RETURN",
+			"LSHIFT",
+			"RSHIFT",
+			"TAB"
+		) do
+			system.yield(0)
+		end
+
+		local time = utils.time_ms() + 25000
+		while not essentials.is_any_virtual_key_pressed("ALT", "RETURN") and time > utils.time_ms() do
+
+			local y_pos <const> = essentials.draw_auto_adjusted_text(lang["A new update for Kek's menu is available. Press alt or enter to install it, space or ctrl to not."], essentials.get_rgb(255, 140, 0, 255), 1.0)
+			local y_pos <const> = essentials.draw_auto_adjusted_text(lang["Press shift or tab to show changelog."], essentials.get_rgb(255, 0, 0, 255), 1.0, y_pos)
+			essentials.draw_auto_adjusted_text(lang["This message will disappear in %i seconds and will assume you don't want the update."]:format(math.ceil((time - utils.time_ms()) / 1000)), essentials.get_rgb(255, 140, 0, 255), 1.0, y_pos)
+
+			if essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") then
+				while essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") do
+					system.yield(0)
+				end
+				essentials.show_changelog()
+				while essentials.is_changelog_currently_shown do
+					system.yield(0)
+				end
+				while essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") do
+					system.yield(0)
+				end
+				time = utils.time_ms() + 25000
+			end
+			if essentials.is_any_virtual_key_pressed("SPACE", "LCONTROL", "RCONTROL") then
+				return "Cancelled update"
+			end
+			system.yield(0)
+		end
+		if not essentials.is_any_virtual_key_pressed("ALT", "RETURN") then
+			return "Cancelled update"
+		end
+
+		if __kek_menu.debug_mode then
+			essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
+			return "tried to update with debug mode on"
+		end
+
+		menu.create_thread(function()
+			while update_status ~= "done" do
+				y_pos_2.y = essentials.draw_auto_adjusted_text(
+					string.format(
+						"%i / %i "..lang["files downloaded"].." [%s]", 
+						current_file_num, 
+						#updated_lib_files + #updated_language_files + 1, 
+						current_file
+					),
+					essentials.get_rgb(0, 255, 0, 255), 
+					1.2, 
+					y_pos
+				)
+				system.yield(0)
+			end
+		end, nil)
+
+	end
+	do
+		current_file = "Kek's menu.lua" -- Download updated files
+		local status <const>, str <const> = essentials.web_get_file(
+			base_path.."Kek's%20menu.lua",
+			essentials.get_rgb(0, 255, 0, 255), 
+			1.2, 
+			y_pos_2
+		)
+		update_status = enums.html_response_codes[status] == "OK"
+		if not update_status then
+			goto exit
+		end
+		kek_menu_file_string = str
+		current_file_num = current_file_num + 1
+	end
+
+	for i = 1, #updated_lib_files do
+		current_file = updated_lib_files[i]
+		local status <const>, str <const> = essentials.web_get_file(
+			base_path.."kek_menu_stuff/kekMenuLibs/"..updated_lib_files[i]:gsub("\32", "%%20"),
+			essentials.get_rgb(0, 255, 0, 255), 
+			1.2, 
+			y_pos_2
+		)
+		update_status = enums.html_response_codes[status] == "OK"
+		if not update_status then
+			goto exit
+		end
+		lib_file_strings[updated_lib_files[i]] = str
+		current_file_num = current_file_num + 1
+	end
+
+	for i = 1, #updated_language_files do
+		current_file = updated_language_files[i]
+		local status <const>, str <const> = essentials.web_get_file(
+			base_path.."kek_menu_stuff/kekMenuLibs/Languages/"..updated_language_files[i]:gsub("\32", "%%20"),
+			essentials.get_rgb(0, 255, 0, 255), 
+			1.2, 
+			y_pos_2
+		)
+		update_status = enums.html_response_codes[status] == "OK"
+		if not update_status then
+			goto exit
+		end
+		language_file_strings[updated_language_files[i]] = str
+		current_file_num = current_file_num + 1
+	end
+
+	::exit::
+	if __kek_menu.version ~= script_version then
+		if update_status then
+			do -- Checks if there's write permissions to all files that needs to be overwritten.
+				local msg <const> = lang["Missing write permissions for \"%s\". Update cancelled, no files changed."]
+				local file <close> = io.open(paths.home.."scripts\\Kek's menu.lua", "a")
+				if utils.file_exists(paths.home.."scripts\\Kek's menu.lua") and not file then
+					essentials.msg(msg:format("Kek's menu.lua"), "red", true, 10)
+					update_status = "done"
+					return "missing write permissions"
+				end
+
+				for file_name in pairs(lib_file_strings) do
+					local file_path <const> = paths.kek_menu_stuff.."kekMenuLibs\\"..file_name
+					if utils.file_exists(file_path) then
+						local file <close> = io.open(file_path, "a")
+						if not file then
+							essentials.msg(msg:format(file_name), "red", true, 10)
+							update_status = "done"
+							return "missing write permissions"
+						end
+					end
+				end
+
+				for file_name in pairs(language_file_strings) do
+					local file_path <const> = paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name
+					if utils.file_exists(file_path) then
+						local file <close> = io.open(file_path, "a")
+						if not file and language_file_strings[file_name] then
+							essentials.msg(msg:format(file_name), "red", true, 10)
+							update_status = "done"
+							return "missing write permissions"
+						end
+					end
+				end
+			end
+
+			__kek_menu.version = script_version
+			essentials.msg(lang["Update successfully installed."], "green", true, 6)
+
+			-- Remove old files & undo all changes to the global space
+			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")) do
+				package.loaded[file_name:sub(1, -5)] = nil
+				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name)
+			end
+			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages", "txt")) do
+				io.remove(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name)
+			end
+
+			local file <close> = io.open(paths.home.."scripts\\Kek's menu.lua", "w+b")
+			file:write(kek_menu_file_string)
+			file:flush()
+
+			-- Copy new files to their desired locations
+			for file_name in pairs(lib_file_strings) do
+				local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\"..file_name, "w+b")
+				file:write(lib_file_strings[file_name])
+				file:flush()
+			end
+
+			for file_name in pairs(language_file_strings) do
+				local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\"..file_name, "w+b")
+				file:write(language_file_strings[file_name])
+				file:flush()
+			end
+
+			update_status = "done"
+			system.yield(0)
+			essentials.show_changelog()
+			system.yield(0) -- show_changelog creates a thread
+			__kek_menu = nil
+			__kek_menu_has_done_update = true
+			dofile(paths.home.."scripts\\Kek's menu.lua")
+			return "has updated"
+		else
+			update_status = "done"
+			essentials.msg(lang["Update failed. No files are changed."], "green", true, 6)
+			return "failed update"
+		end
+	end
 end
 
 function essentials.is_all_true(...)
@@ -1215,7 +1595,13 @@ function essentials.set_all_player_feats_except(...)
 end
 
 function essentials.dec_to_ipv4(ip)
-	return string.format("%i.%i.%i.%i", ip >> 24 & 255, ip >> 16 & 255, ip >> 8 & 255, ip & 255)
+	return string.format(
+		"%i.%i.%i.%i", 
+		ip >> 24 & 0xFF, 
+		ip >> 16 & 0xFF, 
+		ip >> 8  & 0xFF, 
+		ip 		 & 0xFF
+	)
 end
 
 function essentials.ipv4_to_dec(...)
@@ -1240,14 +1626,23 @@ function essentials.search_for_match_and_get_line(...)
 	local file_path <const>,
 	search <const>,
 	exact <const> = ...
+
+	local search_without_special_chars
+	if exact then
+		search_without_special_chars = {}
+		for i = 1, #search do
+			search_without_special_chars[i] = essentials.remove_special(search[i])
+		end
+	end
+
 	local str <const> = essentials.get_file_string(file_path, "rb")
 	for i = 1, #search do
 		local str_pos
 		if exact then
-			str_pos = str:find(string.format("[\r\n]%s[\r\n]", search[i]))
-			or str:find(string.format("^%s[\r\n]", search[i])) -- These 3 extra checks are super fast no matter size of string. Anchors make sure #search[i] is max number of characters searched.
-			or str:find(string.format("[\r\n]%s$", search[i]))
-			or str:find(string.format("^%s$", search[i]))
+			str_pos = str:find(string.format("[\r\n]%s[\r\n]", search_without_special_chars[i]))
+			or str:find(string.format("^%s[\r\n]", search_without_special_chars[i]))
+			or str:find(string.format("[\r\n]%s$", search_without_special_chars[i]))
+			or str:find(string.format("^%s$", search_without_special_chars[i]))
 		else
 			str_pos = str:find(search[i], 1, true)
 		end
@@ -1311,7 +1706,6 @@ do
 		"qq",
 		"%.gg",
 		"#%d%d%d%d", -- Discord ig tag
-		"%d%d%d%d%d", -- tencent qq codes are 5 - 12 digits
 		"gta%d%d"
 	})
 	function essentials.contains_advert(str)
@@ -1347,6 +1741,7 @@ function essentials.log(...)
 end
 
 function essentials.add_to_timeout(pid)
+	essentials.assert(pid ~= player.player_id(), "Tried to add yourself to join timeout.")
 	essentials.log(paths.home.."cfg\\scid.cfg", 
 		string.format("%s:%x:c", player.get_player_name(pid), player.get_player_scid(pid)), 
 		{string.format("%x", player.get_player_scid(pid)), player.get_player_name(pid)})

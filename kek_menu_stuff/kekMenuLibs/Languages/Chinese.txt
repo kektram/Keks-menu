@@ -1,5 +1,4 @@
 ﻿Kek's menu §Kek菜单
-General settings §通用设置
 Vehicle §载具选项
 Self §自我
 Vehicle peaceful §战局载具
@@ -13,12 +12,9 @@ Chat §聊天选项
 Custom chat judger §自定义聊天审判
 Chat bot §聊天触发信息回应
 Chat spamming §聊天信息轰炸
-Hotkey settings §快捷键选项
 Modder detection §外挂检测
 Protections §保护功能
 Modder logging settings §作弊者记录设置
-Auto kick tag settings §自动踢标签设置
-Which modder detections are on §检测哪些作弊者
 Weapons §武器选项
 Kek's utilities §实体功能
 Script loader §脚本加载器
@@ -32,15 +28,12 @@ as default language. §作为默认语言
 Empty script loader file §清空脚本加载器
 Add script to auto loader §设置自动加载某个脚本(点击输入脚本名称)
 Remove script from auto loader §取消自动加载某个脚本(点击输入脚本名称)
-Modded name detection §检测虚假名称
 Entity crash protection §检测尝试使用实体崩溃的作弊者
 Blacklist §黑名单
-Check people's stats automatically §自动检查玩家的统计数据
 Kick any vote kickers §自动踢战局内使用投票踢的玩家
 Add session §添加战局
 Remove session §删除战局
 Get host automatically §自动获取每个战局主机
-Log modders with selected tags to blacklist §将带有选定标签的作弊者记录到黑名单
 Auto kicker §自动踢出战局
 Ram everyone §载具撞击战局所有人
 Vehicle fly nearby vehicles §载具飞行附近的载具
@@ -50,7 +43,7 @@ Copy ip to clipboard §复制IP到剪贴板
 Player history §历史玩家
 Clear search list §清空搜索列表
 Search §搜索
-Vehicle blacklist §启用载具黑名单
+Vehicle blacklist §载具黑名单
 Spawn vehicle for everyone §给战局所有人生成默认载具
 Max everyone's car §最大化升级战局所有人的载具
 Current position §当前位置
@@ -60,8 +53,6 @@ Give session bounty §战局悬赏
 Never wanted §永不通缉
 off the radar §人间蒸发
 Reapply bounty §悬赏循环
-Send to random mission §发送到随机任务
-Perico island §发送到佩里科海岛
 Apartment invites §公寓邀请
 Ban §禁止注册
 Dismiss §解散
@@ -73,17 +64,15 @@ Text to spam, type it in §输入轰炸文本
 Random text from file §从文件中获取随机文本
 Echo delay, click to type §复读机延迟
 Echo chat §启用复读机
-Answer delay chatbot §聊天信息回应发送延迟
-Chat bot §启用聊天机器人
+Chat bot §聊天机器人
 Max car §载具最大化升级
 Change backplate text §更改车牌文本
 Spawn vehicle §生成载具
 Vehicle fly speed, click to type §载具飞行速度
 Vehicle fly §载具飞行模式
-Type in what object §发射什么物体?点击输入物体名称
 Object gun §物体枪
 Airstrike gun §空袭枪
-What vehicle vehicle gun §发射什么载具?点击输入载具英文名
+What vehicle vehicle gun §发射什么载具?输入载具名称
 Vehicle gun §载具枪
 Clear entity type §清除选择的对应实体类型
 Shoot entity| get model name of entity §实体信息枪(瞄准或射击实体)
@@ -93,7 +82,6 @@ Spawn a ped §生成NPC
 Car godmode §载具无敌
 Vehicle fly player §控制载具(先观看)
 Spastic car §抽搐载具
-What vehicle to spawn §输入要生成的载具
 Disable vehicles §踢出载具
 Off the radar §人间蒸发
 apply bounty §给予赏金
@@ -127,7 +115,6 @@ Chat judge\nCrashing §聊天审判:崩溃玩家
 sent vote kick. Kicking them... §尝试投票踢人.踢出他们...
 tried to crash you. §尝试崩溃你.
 has: §有作弊嫌疑:
-has a modded name. §使用了虚假名称.
 Recognized §检测到黑名单玩家:
 \nDetected: §\n信息:\n
 \nTags:\n §\n添加原因:\n
@@ -143,7 +130,7 @@ Kicking §正在踢出
 Invalid entry. §无效条目
 Couldn't find entry. §找不到条目
 Emptied vehicle blacklist. §已清空载具黑名单中的内容.
-Vehicle blacklist:\nEMP'd §载具黑名单:\n熄灭引擎'd
+Vehicle blacklist:\nEMP'd §载具黑名单:\n熄灭引擎
 Vehicle blacklist:\nKicked §载具黑名单:\n踢出载具
 Vehicle blacklist:\nExploding §载具黑名单:\n爆炸
 out of their §从他们的
@@ -154,22 +141,16 @@ to clipboard. §载具名称到剪贴板
 Cars spawned. §载具已生成.
 Maxed everyone's cars. §最大化升级所有人的载具
 Please set a waypoint. §请先设置一个标记点.
-Successfully added entry. §成功添加条目
-Removed entry. §已删除条目
-is not in a vehicle. §不在载具内
-Hotkey:\nTurned on §快捷键:\n已开启
-Hotkey:\nTurned off §快捷键:\n已关闭
-Hotkey:\nMaxed vehicle. §快捷键:\n已最大化升级载具
-Hotkey:\nSpawned vehicle. §快捷键:\n已生成载具
-Hotkey:\nRepaired vehicle. §快捷键:\n已修理载具
-vehicle fly. §载具飞行
+Successfully added entry. §已成功添加条目.
+Removed entry. §已删除条目.
+is not in a vehicle. §不在载具内.
 vehicle gun. §载具枪
 Turned off the keybinding:\n\" §关闭了按键绑定:\n\"
 Keybinding not changed. Empty input or input is the same as existing keybinding. §按键绑定没有改变.输入为空或输入与现有的按键绑定冲突.
 Invalid keybinding.\nIt's case sensitive, get it right. §无效的按键绑定,检查是不是大写,再次确认？
 Most of the keys like, left shift. are written in all caps. Example: LSHIFT. §大部分的键,如左shift.都是大写的.例如 LSHIFT.
 Settings saved! §设置已保存!
-Successfully loaded §成功加载
+Successfully loaded §已成功加载
 Saved §已保存
 Saved profile name. §已保存配置名称.
 Successfully loaded Kek's menu. §成功加载Kek菜单.
@@ -178,27 +159,25 @@ Type in the lua script you want to remove. §请输入你要删除的LUA脚本�
 Type in why you're adding this person. §请输入添加原因.
 Type in social club ID, also known as: rid / scid. §请输入RID.
 Type in ip. §请输入IP.
-Type in their name. §shu ru ta men de ming zi.
-Type in why you're adding everyone. §请输入添加原因
-Type in what player you wanna search for. rid / name / ip §请输入玩家信息(RID/名称/IP)
-Type in what to add. §请输入你想添加的内容
-Type in what to remove. §请输入要删除的内容
+Type in their name. §输入他的名称.
+Type in why you're adding everyone. §请输入添加原因.
+Type in what player you wanna search for. rid / name / ip §请输入玩家信息(RID/名称/IP).
+Type in what to add. §请输入你想添加的内容.
+Type in what to remove. §请输入要删除的内容.
 Type in which car to spawn §请输入想要生成的载具
 Type in echo delay. §请输入复读延迟
-Type in what the bot will react to. §请输入触发后输入的信息
-Type in what the bot will say to what you previously typed in. §请输入检测的内容
-Type in what the text the bot reacts to in the entry you wish to remove. §请输入要删除的条目
-Type in answer delay. §请输入应答延迟
-Type in the text you want displayed on the backplate of your cars after maxing them. §请输入车牌的文本信息
+Type in what the bot will react to. §请输入触发的信息内容.
+Type in what the text the bot reacts to in the entry you wish to remove. §请输入要删除的条目.
+Type in answer delay. §请输入回复延迟.
+Type in the text you want displayed on the backplate of your cars after maxing them. §请输入车牌的文本信息.
 Type in vehicle speed §请输入载具速度
 Type in which car to ram with §请输入想要撞击的载具
 Type in what you want the keybinding to be. §请按下你想要绑定的按键
-Type in the name of the profile. §请输入配置文件名称
+Type in the name of the profile. §请输入配置文件名称.
 Log: §记录
 Kick: §踢出
 Max vehicle §最大化升级载具
 Spawn vehicle §生成载具
-Repair vehicle §修理载具
 Vehicle fly §载具飞行
 Vehicle gun §载具枪
 Glitch vehicle §故障载具
@@ -217,7 +196,6 @@ Has Negative lvl §有不正常的等级
 Has Negative k/d §有不正常的KDA
 Has a high rank. §等级过高
 Has a high k/d. §KDA 过高
-Has modded armor. §进行了护甲数值修改
 Block areas §阻止区域
 Los santos customs §洛圣都改车王
 Ammu-Nations §武装国度商店
@@ -225,10 +203,6 @@ Casino §赌场
 Rid §R*id
 IP §IP
 Name §名称
-Press key to set to hotkey. §请按下要设置为快捷键的键.
-Turned off the hotkey:\n §已关闭快捷键
-Changed §已更改
-to §到
 Turned off §已关闭
 Hotkey:\nloaded §快捷键:\n已加载
 One of the people further in host queue is your friend! Cancelled. §主机队列中在你前一位的玩家是你的好友!已取消.
@@ -281,7 +255,6 @@ Nearby cars have no collision §附近的载具无碰撞
 Clown vans §小丑面包车
 Clear all owned entities §清除所有拥有的实体
 Aim protection §瞄准保护
-Nearby cars have zero gravity §附近的载具零重力
 Entity manager §实体管理
 Entity manager §实体管理
 Vehicles §载具
@@ -292,10 +265,8 @@ Explode §爆炸
 Delete §删除
 Resurrect §复活
 Godmode §无敌
-Zero gravity §零重力
 Teleport in front of player §传送到玩家面前
 Teleport to entity §传送到实体
-Follow entity §尾随实体
 Set yourself in seat §设置自己的座位
 All entities of this type §此类型的所有实体
 Set speed §设置速度
@@ -309,11 +280,11 @@ Vehicles §载具
 Peds §NPC
 Objects §物体
 Pickups §可拾取物
-Peds & vehicles §NPC & 载具
+Peds & vehicles §NPC &载具
 All §所有
 Cops §警察
-Kill player § 击杀玩家
-Send clown van § 发送攻击小丑
+Kill player §击杀玩家
+Send clown van §发送攻击小丑
 Kick from session §踢出战局
 Crash §崩溃
 Random §随机
@@ -337,15 +308,14 @@ Send each line §分行发送
 Chat commands §聊天命令
 Chat commands §聊天命令
 Kill player §击杀玩家
-Only friends can use commands §仅对好友生效
 Teleport to §传送到
 This player can't use chat commands §禁用聊天命令
-Send command list every § §每隔一段时间发送命令列表
+Send command list every §每隔一段时间发送命令列表
 Cage player §套笼子
 Kick §踢出战局
 Send attack chopper §派出攻击直升机
 Float §原地升天
-Type in name of menyoo vehicle. §请输入模组载具名称.
+Type in name of menyoo vehicle. §请输入Menyoo载具名称.
 Crash §崩溃玩家
 Godmode detection §无敌检测
 is in godmode. §开了无敌
@@ -354,8 +324,6 @@ Revenge §复仇
 Turned off §关闭
 Horn boost §喇叭加速
 Notifications §通知
-Auto kicker notifications §自动踢时通知
-Give nearby players horn boost §给附近的玩家喇叭加速
 Turn everything off §关闭所有
 First seen §首次遇见
 Last seen §最后遇见
@@ -364,11 +332,8 @@ times. §次.
 Load §加载
 Save §保存
 Change name §更改名称
-keyboard §键盘
-controller §手柄
 Hotkeys §快捷键
 Type in bounty amount §请输入赏金金额.
-Turn all on or off §全部开启或关闭
 This language file is the wrong version. You can still use it. §该语言文件是错误的版本. 但你仍然可以使用它.
 Cage session §笼子战局
 Drive force multiplier §牵引力倍数
@@ -376,16 +341,7 @@ The hash was copied to your clipboard, more info in the debug console. §哈希�
 Send command list §发送命令列表
 Friends can't be targeted §排除好友
 You can't be targeted §排除自己
-Number of responses §回应数
-Hotkey change timed out or failed. §快捷键更改超时或失败
-Turn off §关闭
-1 key §1个按键
-2 keys §2个组合键
-3 keys §3个组合键
 Clear entities §清除实体
-Set vehicle §设置载具
-Tp personal vehicle §传送到个人载具
-Hotkey:\nTeleported into personal vehicle. §快捷键:\已传送到个人载具内
 Auto tp to waypoint §自动传送到标记点
 Turn on script loader §开启脚本加载器
 Turn off script loader §关闭脚本加载器
@@ -398,22 +354,18 @@ Chat judge reaction §聊天判断反应
 Chat spammer §聊天轰炸
 Clear entities §清除实体
 Modify chatbot §聊天机器人编辑
-Hotkey mode §快捷键模式
 Driver's seat §驾驶座位
 Front passenger seat §前排乘客座位
 Left backseat §左后座
 Right backseat §右后座
 Extra seat §额外座位
 Commands §命令
-CEO §CEO / 摩托帮
 Explode with blame §栽赃
 Taze §电击
 Invite to apartment §邀请到公寓
 Cage §笼子
 Give weapon §给予武器
-Remove weapon §移除武器
 Send clipboard to chat §发送剪贴板内容到聊天窗口
-Clipboard to chat §发送剪贴板内容到聊天框
 Send to session §发送到战局
 Army §军队
 Teleport session §传送战局
@@ -439,7 +391,6 @@ no one §无
 Offset §偏移
 Strength towards you §朝你的力量强度
 Strength away from you §远离你的力量强度
-Block passive §阻止开启被动模式
 Send §发送
 Rid §Rid
 IP §IP
@@ -476,11 +427,11 @@ Missing necessarry file. Please reinstall. Read the README that comes with the s
 New profile §创建配置文件
 Type in name of vehicle §输入载具名称
 Vehicle name §载具名称
-Save to Menyoo vehicles §保存为模组载具
+Save to Menyoo vehicles §保存为Menyoo载具
 Clone §复制
 Send Menyoo vehicle attacker §派出模组NPC攻击
-Menyoo vehicles §模组载具
-Type in name of menyoo vehicle. §请输入模组载具名称
+Menyoo vehicles §Menyoo载具
+Type in name of menyoo vehicle. §请输入Menyoo载具名称
 Create new judger profile §创建新的聊天审判配置文件
 Warning notifications §显示警告通知
 Create new chatbot profile §创建新的聊天机器人配置文件
@@ -514,20 +465,16 @@ Display time opacity §显示时间不透明度
 Opacity §不透明度
 Type in the size of the text. §输入字体大小
 Size §字体大小
-Font §字体
 time. §次
 Outline §字体加粗
-Hotkey:\nTeleported forward. §快捷键:\n向前传送
-Teleport forward §向前传送
 Vehicle blacklist:\nstealing §载具黑名单:\n抢车
 Mount Chiliad & kill §C山山顶 & 击杀
-Log chat & use as chatbot §记录聊天信息并作为聊天机器人使用
 Compacts §小型汽车
 Sedans §轿车
 SUVs §SUV
 Coupes §轿跑车
 Muscle §肌肉车
-Sports classics §经典跑车
+Sports Classics §经典跑车
 Sports §跑车
 Super §超级跑车
 Motorcycles §摩托车
@@ -560,18 +507,15 @@ has finished lap §已完成一圈
 Failed to load file. §加载文件失败.
 Cleared old race & recording a new one. §已清除旧比赛记录并开始记录新的比赛
 Save recorded race §保存记录的比赛轨迹
-Teleport to player when spectating §被人观看时自动传送到玩家
+Move mini map to people you spectate §观看别人时同步小地图
 Flamethrower §火焰喷射器
 Display notifications §显示通知
-Display 2take1 notifications on screen §在屏幕上显示2take1通知日志
 Number of notifications §通知数量
 Filter §过滤无用信息
 Log to console §记录到控制台
 Still §悬空
 Upwards §向上
 Downwards §向下
-Stretch §拉伸
-Type in stretch §输入拉伸数值
 Atomize §原子能枪射击
 This feature doesn't work on yourself. §此功能不可用于你自己.
 minute §分钟
@@ -587,13 +531,9 @@ Melee §近战武器
 Miscellaneous §其他
 Toggle engine §开关引擎
 Show sphere §显示球面
-Lock player inside §将玩家锁在里面
-Anti chat spam §反聊天轰炸
+Anti chat spam §反聊天刷屏
 kicked for spamming chat. §因聊天轰炸已踢出战局.
-kicked for sending the same message 3 times in a row. §因连续发送3条相同的信息已踢出战局.
 Kick & add to timeout §踢出并添加到加入超时
-Crash & add to timeout §崩溃并添加到加入超时
-Type in name of a player or regular feature. §输入玩家或通用功能的名称
 Has modded weapons. §拥有作弊者武器.
 Type in name of entity. §请输入实体名称.
 Kill engine §破坏引擎
@@ -608,7 +548,6 @@ All scripts will run slower and might lag. More errors will occur, especially if
 Only use this mode if you intend to find bugs. §只有在你想找BUG的时候才使用此模式.
 Failed to find reference coordinates. §查找参考坐标失败
 The player must be an associate of an organization to use this. They can't be the ceo. §该玩家必须组织成员才能对他使用.他不能是CEO.
-Eclipse §日蚀
 Also known as §是否遇见过
 Check rid in also known as §检查rid是否遇见过
 Check name in also known as §检查名称是否遇见过
@@ -616,12 +555,7 @@ Check ip in also known as §检查ip是否遇见过
 What is known for §已知的内容有
 This player already have a bounty set on them. §该玩家已被设置了赏金.
 Team §团队
-What ped to spawn §输入要生成的NPC
 Spawned §已生成
-invalid models §无效模型
-Reached ped spawn limit. Cancelling menyoo spawn. §已达到NPC生成限制.已取消menyoo生成.
-Reached vehicle spawn limit. Cancelling menyoo spawn. §已达到载具生成限制.已取消menyoo生成.
-Reached object spawn limit. Cancelling menyoo spawn. §已达到物体生成限制.已取消menyoo生成.
 Object limit §物体限制
 Ped limit §NPC限制
 Vehicle limit §载具限制
@@ -632,9 +566,8 @@ search oldest to newest §从最旧到最新搜索
 Blacklist reason §黑名单原因
 Is added to join timeout §添加到加入超时中
 isn't blacklisted §未添加到黑名单
-Type in name of entity. §清输入实体名称.
+Type in name of entity. §请输入实体名称.
 Invalid model name. §模型名称无效.
-Vote kick §投票踢
 Draw number of se sent §显示发送次数
 Number of script events sent §发送脚本事件次数
 You can't use this on yourself. §你不能对自己使用这个
@@ -644,15 +577,266 @@ Chat log §聊天日志
 Mark as modder §标记为作弊者
 Don't reapply marks §不要重复标记
 Reapply marks §重复标记
-Failed to get control. If you're blocking "give control" in net event hooks, disable it. §未能获得控制权.如果你在网络事件中启用了阻止"给予控制",请关闭它.
-Failed to spawn driver vehicle for unknown reason. §因未知原因未能生成驾驶载具.
 Copied to clipboard. §已复制到剪贴板.
 Ini vehicles §Ini载具
 This can't be used in singleplayer. §这不能在故事模式中中使用.
 Tried to spawn a xml vehicle with ini spawner. §已尝试使用Ini载具生成xml载具.
 Failed to attach an entity. Check debug console for more details. §尝试附加一个实体时失败了. 检查调试控制台以获取更多详细信息.
-This file doesn't exist or has an invalid file name. §此文件不存在或文件名无效.
 Failed to set coordinates. §设置坐标失败.
 Failed to cleanup crash entity while it is still in memory. §清理崩溃实体失败,它仍在内存中.
 Crash entity went out of memory before it could be cleaned up. §崩溃实体在清理之前内存不足.
 Saved map. §已保存地图.
+Session peaceful §战局友好
+Peaceful §友好
+Add entry §添加条目
+Remove entry §删除条目
+Delete profile §删除配置
+For chat to show here, chat logger must be on. You can find chat logger in script features > Chat §要在此处显示聊天信息,必须打开聊天记录器.你可以在 脚本功能 > 聊天选项 中找到记录聊天信息到日志
+Gravity §重力
+Swap nearby vehicles to police §将附近的载具变成警车并为警察驾驶
+Respawn vehicle after death §死亡后重新生成载具
+Failed to get control. If you're blocking "give control" in net event hooks, disable it. Even if it's disabled, it can fail to get control for a variety of reasons. §未能获得控制权.如果你在网络事件中启用了阻止"给予控制",请关闭它.即使它已经是关闭状态,也可能因为各种原因而无法获得控制权.
+Teleport to Perico island §传送到佩里科海岛
+"Log to file" must be toggled on in 2take1 notification settings in order for this to work. §必须在2take1的通知设置中打开“记录到文件”才能使其正常工作
+No filter §不过滤
+Display 2take1 notifications §显示2take1通知
+Set vehicle in use §设置要使用的载具
+Set ped in use §设置要使用的NPC
+Set object in use §设置要使用的物体
+Set to "?" to make it random. §设置为 "?" 可使其随机
+Attach players §附加玩家
+Attach player vehicle to entity §将玩家载具附加到实体
+Rotation x §旋转 x
+Rotation y §旋转 y
+Rotation z §旋转 z
+Offset x §偏移 x
+Offset y §偏移 y
+Offset z §偏移 z
+Detach §分离
+Reset rot §重置rot
+Reset offset §重置偏移
+Player is not in a vehicle. §玩家不在载具中.
+Clear attachments §清除附加
+Collision §碰撞
+Log flags below to blacklist §将以下标志记录到黑名单
+Notifications on §开启通知
+Notifications off §关闭通知
+Auto kicker settings §自动踢设置
+Notify when recognized in blacklist §检测到黑名单时通知
+Modded stats detection §检查修改后的统计
+Block passive mode §阻止被动模式
+Organization §组织
+Ptfx §粒子特效
+Ptfx clear distance §粒子特效清除距离
+Unlocked their car. §已解锁他的车
+Locked their car. §已锁住他的车
+Unlock / lock inside §解锁 / 锁 在里面
+Killed their engine. §已熄灭他的引擎
+Revived their engine. §已恢复他的引擎
+Clear owned entities before spawning map §在生成地图前清除拥有的实体
+Notify when typing & stopped typing §当有人在打字时通知
+is typing. §正在打字
+is no longer typing. §已停止打字
+Debug mode §调试模式
+Draw garbage collection stats §显示垃圾收集统计
+Garbage count §垃圾数量
+Garbage change §垃圾更改
+Jet §天煞
+You must turn on trusted mode->Natives to use this script. §你必须启用 信任模式 -> Natives 才能使用此脚本.
+Draw entity queue §显示实体队列
+Num of entities in queue §队列中的实体数量
+Num of entities spawned §已生成的实体数量
+Save only mission entities §仅保存任务实体
+Wait until the previous map is done spawning. §正在等待上一张地图完成生成.
+You have the latest version of Kek's menu. §当前为最新版本的Kek菜单.
+Update successfully installed. §更新已安装成功.
+Update failed. No files are changed. §更新失败了. 没有文件被更改.
+Failed to check what the latest version of the script is. §检查脚本的最新版本失败.
+files downloaded §个文件已下载.
+Turn off debug mode to use auto-updater. §关闭 调试模式 以使用自动更新.
+Show latest update changelog §显示最新的更新日志
+Participate in betas §参与测试
+Translation §翻译
+Afrikaans §南非荷兰语
+Albanian §阿尔巴尼亚语
+Amharic §阿姆哈拉语
+Arabic §阿拉伯语
+Armenian §亚美尼亚
+Azerbaijani §阿塞拜疆语
+Basque §巴斯克语
+Belarusian §白俄罗斯语
+Bengali §孟加拉语
+Bosnian §波斯尼亚语
+Bulgarian §保加利亚语
+Catalan §加泰罗尼亚语
+Cebuano §宿务语
+Chinese (Simplified) §简中
+Chinese (Traditional) §繁中
+Corsican §科西嘉岛语
+Croatian §克罗地亚语
+Czech §捷克语
+Danish §丹麦语
+Dutch §荷兰语
+English §英语
+Esperanto §世界语
+Estonian §爱沙尼亚语
+Finnish §芬兰语
+French §法语
+Frisian §弗里斯兰语
+Galician §加利西亚语
+Georgian §格鲁吉亚语
+German §德语
+Greek §希腊语
+Gujarati §古吉拉特语
+Haitian Creole §海地克里奥尔语
+Hausa §豪萨语
+Hawaiian §夏威夷语
+Hebrew §希伯来语
+Hindi §印地语
+Hmong §苗族语
+Hungarian §匈牙利语
+Icelandic §冰岛语
+Igbo §伊博语
+Indonesian §印度尼西亚语
+Irish §爱尔兰语
+Italian §意大利语
+Japanese §日语
+Javanese §爪哇语
+Kannada §卡纳达语
+Kazakh §哈萨克语
+Khmer §高棉语
+Kinyarwanda §卢旺达语
+Korean §韩语
+Kurdish §库尔德语
+Kyrgyz §吉尔吉斯斯坦语
+Lao §老挝语
+Latin §拉丁语
+Latvian §拉脱维亚语
+Lithuanian §立陶宛语
+Luxembourgish §卢森堡语
+Macedonian §马其顿
+Malagasy §马达加斯加语
+Malay §马来语
+Malayalam §马拉雅拉姆语
+Maltese §马耳他语
+Maori §毛利语
+Marathi §马拉地语
+Mongolian §蒙古语
+Myanmar (Burmese) §缅甸语
+Nepali §尼泊尔语
+Norwegian §挪威语
+Nyanja (Chichewa) §奇切瓦语
+Odia (Oriya) §奥里亚语
+Pashto §普什图语
+Persian §波斯语
+Polish §抛光语
+Portuguese (Portugal, Brazil) §葡萄牙语
+Punjabi §旁遮普语
+Romanian §罗马尼亚语
+Russian §俄语
+Samoan §萨摩亚语
+Scots Gaelic §苏格兰盖尔语
+Serbian §塞尔维亚语
+Sesotho §塞索托语
+Shona §绍纳语
+Sindhi §信德语
+Sinhala (Sinhalese) §僧伽罗语
+Slovak §斯洛伐克语
+Slovenian §斯洛文尼亚语
+Somali §索马里语
+Spanish §西班牙语
+Sundanese §巽他语
+Swahili §斯瓦希里语
+Swedish §瑞典语
+Tagalog (Filipino) §菲律宾语
+Tajik §塔吉克斯坦语
+Tamil §泰米尔语
+Tatar §鞑靼语
+Telugu §泰卢固语
+Thai §泰语
+Turkish §土耳其语
+Turkmen §土库曼语
+Ukrainian §乌克兰语
+Urdu §乌尔都语
+Uyghur §维吾尔语
+Uzbek §乌兹别克语
+Vietnamese §越南语
+Welsh §威尔士语
+Xhosa §科萨语
+Yiddish §意第绪语
+Yoruba §约鲁巴语
+Zulu §祖鲁语
+Forcing player into vehicle. This can take up to 15 seconds. §强制玩家进入载具中...最多可能需要15秒.
+Failed to teleport player. §传送玩家失败.
+Translate your messages into §翻译你的聊天信息
+This message will disappear in %i seconds and will assume you don't want the update. §此信息将在%i秒后消失,并假设你不想更新.
+Check for updates §自动检查更新
+You must turn on trusted mode->Http to use this script. §你必须打开 信任模式 -> Http 才能使用此脚本.
+The map/vehicle won't be visible to other players, it has too many entities. Networked maps/vehicles supports max:\n%i objects\n%i vehicles\n%i peds. §这个 地图/载具 其他玩家看不到,它有太多实体. 联网地图/载具最多支持: \n%i 个物体\n%i 辆载具\n%i 个NPC.
+The map/vehicle will be visible to other people. §这个 地图/载具 其他人可以看到.
+The map/vehicle can be networked if you clear all entities. Currently there are other networked entities taking up space. §如果你清除掉所有实体,地图/载具 将可以联网. 目前还有其他网络实体占用空间.
+Notification §通知
+Languages to not translate §不翻译的语言
+Type in what to translate. §输入要翻译的内容.
+Translate input §翻译输入
+Send to team chat §发送到团队聊天
+Send to all chat §发送到全部聊天
+Tip: set hotkeys for the translate inputs below §提示: 为下面的翻译输入设置快捷键
+Translate your messages §翻译你的信息
+Menu features §菜单功能
+Type in name of feature. §输入功能名称.
+Failed to go to feature. §无法跳转到功能.
+Go to §跳转
+Where §在哪
+Set hotkey on this to go here §可在此设置快捷键以跳转到这里.
+Search features §搜索功能
+Missing write permissions for "%s". Update cancelled, no files changed. §缺少 "%s" 的写入权限. 更新已取消,没有文件被更改.
+Kektram messed up the version strings! You have the latest version. §Kektram 把版本号搞错了！ 你已经是最新版本.
+A new update for Kek's menu is available. Press alt or enter to install it, space or ctrl to not. §Kek菜单有新的更新. 按 alt或回车 安装, 按 空格或ctrl 不安装.
+Press space or ctrl to remove this message. §按 空格 或 ctrl 移除此信息.
+Obtaining Kek's menu version info... §获取Kek菜单的版本信息中...
+Press shift or tab to show changelog. §按 shift 或 tab 以显示更新日志.
+Local Lua features §本地Lua功能
+This player is no longer here. §此玩家已不存在.
+Player features §玩家功能
+Max characters per line §每行最大字符数
+Type in the maximum number of characters per line. §输入每行的最大字符数.
+Type in number of notifications to display. §输入要显示的通知数量.
+24-hour clock §24 小时制
+12-hour clock §12 小时制
+They were spoofing as §他正在伪装为
+The green line is where it will align itself to if there's enough space. §如果有足够的屏幕空间,绿线就是对齐的位置.
+The text is auto aligned to never be off-screen. §文字是自动对齐的,永远不会超过屏幕.
+Attempt %i / %i to fetch %s. §尝试获取 %i / %i,%s.
+Failed to fetch %s with error: %s §获取 %s 失败,错误: %s
+Successfully fetched %s. §成功获取了 %s.
+Unknown vehicle name §未知载具名称
+Where to send inputs §在哪里发送输入的内容
+Translate chat into §翻译聊天信息为
+Display session location info §显示战局玩家的IP位置信息
+Obtaining location info. This usually takes between 5-10 seconds. Max 45 api requests per minute.\nIf the list is smaller than expected, it means you hit the limit. The limit will reset in one minute. §获取IP位置信息. 通常需要 5-10 秒. 每分钟最多 45 个 api 请求.\n如果有些玩家没有显示,则说明你达到了限制. 限制将在一分钟内重置.
+private range §私人范围
+reserved range §保留范围
+invalid query §无效查询
+Unknown error §未知错误
+Answer delay §回复延迟
+Type in number of responses to add for this entry. §请输入要为此条目添加的回复次数.
+Type in the responses. §输入回复内容.
+Translate chat §翻译聊天
+Everyone §所有人
+You & friends §你 & 好友
+You only §仅自己
+Big while loops §大while循环
+25 notifs in one frame §一帧 25 个通知
+Invalid file path. Check that all category folders and the file name doesn't contain unicode. §无效的文件路径. 检查所有类别的文件夹和文件名是否包含unicode字符.
+This file doesn't exist. §此文件不存在
+Refresh files & folders §刷新文件和文件夹
+This folder no longer exists. §此文件夹已不存在.
+Type in name of the folder. §输入文件夹名称.
+Create new folder §创建新文件夹
+Existing folder found. Please choose another name. §发现同名文件夹. 请输入其他名称.
+Requires %i more peds than can be spawned. Try deleting all peds, then try to spawn it again. §需要多于 %i 个NPC才能生成. 尝试删除所有NPC,然后尝试再次生成它.
+Requires %i more vehicles than can be spawned. Try deleting all vehicles, then try to spawn it again. §需要多于 %i 个载具才能生成. 尝试删除所有NPC,然后尝试再次生成它.
+Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again. §需要多于 %i 个物体才能生成. 尝试删除所有NPC,然后尝试再次生成它.
+Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again. §生成失败. 载具池可能已满. 我建议删除所有车辆,然后重试.
+Failed to create folder. §创建文件夹失败.

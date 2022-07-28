@@ -1,10 +1,10 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = require("Essentials")
-local memoize <const> = require("Memoize")
-local enums <const> = require("Enums")
+local essentials <const> = require("Kek's Essentials")
+local memoize <const> = require("Kek's Memoize")
+local enums <const> = require("Kek's Enums")
 
-local location_mapper <const> = {version = "1.0.1"}
+local location_mapper <const> = {version = "1.0.2"}
 
 local los_santos_customs <const> = essentials.const_all({
 	{"Beeker's garage", v3(112, 6619, 31)},
@@ -130,25 +130,13 @@ local casino_locations <const> = essentials.const_all({
 location_mapper.GENERAL_POSITIONS = essentials.const({
 	["Beach"] = v3(-1480.0867919922, -1249.8076171875, 1.7118327617645),
 	["Beeker's garage"] = v3(113.18008422852, 6608.1157226562, 31.126474380493),
-	["lsc near Blaine county"] = v3(1179.6661376953, 2663.5729980469, 37.182151794434),
-	["lsc near airport"] = v3(-1134.7719726562, -1990.3885498047, 12.407137870789),
-	["los santos customs"] = v3(707.18817138672, -1083.9012451172, 21.644563674927),
+	["los santos customs"] = v3(-376.28533935547, -113.73271179199, 37.938228607178),
 	["lsc"] = v3(-376.28533935547, -113.73271179199, 37.938228607178),
 	["Benny's workshop"] = v3(-198.14692687988, -1302.5266113281, 30.526945114136),
-	["Blaine county ammu-nation"] = v3(1707.7568359375, 3746.9343261719, 33.028430938721),
-	["Blaine county west ammu-nation"] = v3(-1113, 2690, 18),
-	["Blaine county east ammu-nation"] = v3(2569, 303, 108),
-	["Blaine county upper west ammu-nation"] = v3(-3164, 1082, 20),
-	["Paleto bay ammu-nation"] = v3(-326, 6076, 31),
-	["City north ammu-nation"] = v3(243, -45, 69),
-	["City east ammu-nation"] = v3(844, -1025, 28),
-	["City west ammu-nation"] = v3(-1316, -391, 36),
-	["City center ammu-nation"] = v3(-664, -945, 21),
 	["ammu-nation"] = v3(12.883389472961, -1127.8360595703, 27.938398361206),
-	["City south ammu-nation"] = v3(811, -2148, 29),
-	["Casino main entrance"] = v3(921, 42, 80),
-	["Casino garage"] = v3(936, 0, 79),
-	["Casino music locker"] = v3(988, 80, 81),
+	["ammu nation"] = v3(12.883389472961, -1127.8360595703, 27.938398361206),
+	["ammo nation"] = v3(12.883389472961, -1127.8360595703, 27.938398361206),
+	["ammo-nation"] = v3(12.883389472961, -1127.8360595703, 27.938398361206),
 	["casino"] = v3(920, 57, 80),
 	["airport"] = v3(-1216, -3032, 13),
 	["Mount Chiliad"] = v3(492, 5590, 795),
@@ -156,88 +144,103 @@ location_mapper.GENERAL_POSITIONS = essentials.const({
 	["paleto bay"] = v3(-301, 6231, 32),
 	["city center"] = v3(-258, -659, 34),
 	["zancudo"] = v3(-2465, 3142, 32),
+	["military base"] = v3(-2465, 3142, 32),
 	["highway"] = v3(-2177, -345, 14),
 	["Maze bank"] = v3(30, -773, 46),
 	["Del Perro"] = v3(-1439.6046142578, -549.73590087891, 34.741821289062),
-	["Del Perro 2"] = v3(-1560.1781005859, -409.95785522461, 42.383972167969),
-	["Del Perro 3"] = v3(-1610.5906982422, -428.62158203125, 40.463871002197),
-	["Del Perro 4"] = v3(-1439.5778808594, -549.73309326172, 34.741813659668),
-	["Del Perro 5"] = v3(-1439.572265625, -549.71917724609, 34.741817474365),
-	["Del Perro 6"] = v3(-1582.9714355469, -556.29315185547, 34.953998565674),
-	["Del Perro 7"] = v3(-1371.4266357422, -503.98715209961, 33.157104492188),
-	["Del Perro 8"] = v3(-1582.9714355469, -556.28582763672, 34.953647613525),
-	["Del Perro 9"] = v3(-1371.4154052734, -503.98706054688, 33.156635284424),
 	["Pillbox Hill"] = v3(-258.17333984375, -976.86767578125, 31.219993591309),
 	["Integrity way"] = v3(-51.684658050537, -584.12390136719, 36.847732543945),
 	["Arcadius"] = v3(-114.88362121582, -603.20477294922, 36.280319213867),
 	["Maze bank entrance"] = v3(-83.803260803223, -791.29583740234, 44.227420806885),
 	["Rockford Hills"] = v3(-774.58654785156, 305.92651367188, 85.703315734863),
-	["Rockford Hills 2"] = v3(-920.51867675781, -459.44213867188, 38.558090209961),
-	["Rockford Hills 3"] = v3(-938.18103027344, -387.47103881836, 38.961296081543),
-	["Rockford Hills 4"] = v3(-1243.7801513672, -255.2668762207, 39.089099884033),
-	["Rockford Hills 5"] = v3(-774.60815429688, 305.92889404297, 85.703323364258),
-	["Rockford Hills 6"] = v3(-938.18170166016, -387.49154663086, 38.961296081543),
-	["Rockford Hills 7"] = v3(-774.62768554688, 305.92456054688, 85.703346252441),
 	["Vinewood Hills"] = v3(-1407.8507080078, 535.52978515625, 122.91879272461),
-	["Vinewood Hills 2"] = v3(-177.11218261719, 507.16415405273, 136.23385620117),
-	["Vinewood Hills 3"] = v3(-751.27911376953, 623.16876220703, 142.35229492188),
-	["Vinewood Hills 4"] = v3(-689.93408203125, 598.46997070312, 143.10797119141),
-	["Vinewood Hills 5"] = v3(118.85260772705, 567.41485595703, 183.12605285645),
-	["Vinewood Hills 6"] = v3(-558.18463134766, 665.30078125, 145.30397033691),
-	["Vinewood Hills 7"] = v3(-732.79119873047, 594.79089355469, 141.89848327637),
-	["Vinewood Hills 8"] = v3(-855.21783447266, 699.65765380859, 148.79365539551),
-	["Vinewood Hills 9"] = v3(-1300.3253173828, 455.88687133789, 97.618019104004),
 	["Downtown Vinewood"] = v3(350.32073974609, 442.70700073242, 147.08125305176),
-	["Downtown Vinewood 2"] = v3(371.84078979492, 434.85308837891, 144.38188171387),
 	["Grapeseed"] = v3(2551.98046875, 4672.8598632812, 33.974056243896),
-	["Grapeseed 2"] = v3(1669.8518066406, 4769.6420898438, 41.85277557373),
 	["West Vinewood"] = v3(1.1384910345078, 31.003908157349, 71.069595336914),
-	["West Vinewood 9"] = v3(11.519178390503, 87.537254333496, 78.398086547852),
-	["West Vinewood 3"] = v3(-512.44268798828, 115.72742462158, 63.315162658691),
-	["West Vinewood 4"] = v3(-199.31295776367, 95.202644348145, 69.530326843262),
-	["West Vinewood 5"] = v3(-633.30316162109, 169.21343994141, 61.21223449707),
-	["West Vinewood 6"] = v3(-206.57997131348, 184.62852478027, 80.322662353516),
 	["Vespucci Canals"] = v3(-814.94494628906, -985.64196777344, 13.944014549255),
-	["West Vinewood 7"] = v3(-618.50714111328, 31.774396896362, 43.530242919922),
 	["Ron Alternates Wind Farm"] = v3(2467.8786621094, 1589.9990234375, 32.720291137695),
 	["Zancudo River"] = v3(-1132.0476074219, 2696.0075683594, 18.800401687622),
 	["Strawberry"] = v3(-8.4986581802368, -1642.8865966797, 29.168998718262),
-	["West Vinewood 8"] = v3(-618.51159667969, 31.772859573364, 43.530242919922),
 	["Sandy Shores"] = v3(1904.5463867188, 3783.9182128906, 32.809673309326),
 	["Hawick"] = v3(278.39898681641, -158.70204162598, 63.622375488281),
 	["La Puerta"] = v3(-976.40704345703, -1433.9505615234, 7.6791663169861),
 	["Little Seoul"] = v3(-831.7451171875, -852.05090332031, 19.547384262085),
-	["Little Seoul 2"] = v3(-753.58837890625, -754.25537109375, 26.620523452759),
-	["Hawick 2"] = v3(-45.114429473877, -56.711330413818, 63.217189788818),
-	["Little Seoul 3"] = v3(-663.06030273438, -848.8466796875, 24.39402961731),
 	["Morningwood"] = v3(-1538.3284912109, -323.337890625, 47.387268066406),
 	["Murrieta Heights"] = v3(968.12860107422, -1016.4660644531, 40.847469329834),
-	["Murrieta Heights 2"] = v3(890.26245117188, -889.07470703125, 26.809213638306),
 	["La Mesa"] = v3(817.63879394531, -919.59399414062, 25.883798599243),
-	["La Mesa 2"] = v3(764.02661132812, -755.24847412109, 26.746635437012),
-	["La Mesa 3"] = v3(842.05706787109, -1160.4915771484, 25.267831802368),
-	["La Mesa 4"] = v3(524.03662109375, -1599.9301757812, 29.308277130127),
-	["La Mesa 5"] = v3(572.15765380859, -1567.9792480469, 28.589670181274),
-	["La Mesa 6"] = v3(725.99713134766, -1194.6510009766, 24.278142929077),
 	["Rancho"] = v3(504.87023925781, -1499.0659179688, 29.288551330566),
-	["Rancho 2"] = v3(478.44390869141, -1543.873046875, 29.225391387939),
 	["Paleto Bay"] = v3(-73.197280883789, 6430.9404296875, 31.439607620239),
-	["Paleto Bay 2"] = v3(-243.0806427002, 6236.6176757812, 31.490028381348),
 	["North Chumash"] = v3(-2206.3103027344, 4248.8217773438, 47.538906097412),
 	["Harmony"] = v3(216.47438049316, 2607.8110351562, 46.273460388184),
 	["Grand Senora Desert"] = v3(193.08575439453, 2787.7536621094, 45.655193328857),
-	["Harmony 2"] = v3(641.1142578125, 2777.2834472656, 41.95166015625),
 	["Cypress Flats"] = v3(1029.1507568359, -2399.4174804688, 29.751884460449),
-	["Cypress Flats 2"] = v3(868.85723876953, -2236.5600585938, 30.542938232422),
 	["Los Santos International Airport"] = v3(-668.75109863281, -2377.9194335938, 13.838815689087),
-	["Los Santos International Airport 2"] = v3(-1085.3282470703, -2230.7758789062, 13.240743637085),
-	["La Puerta 2"] = v3(-337.60162353516, -1464.9465332031, 30.563171386719),
+	["lsia"] = v3(-668.75109863281, -2377.9194335938, 13.838815689087),
 	["East Vinewood"] = v3(902.02032470703, -142.54748535156, 76.650444030762),
-	["Pillbox Hill 2"] = v3(-52.446479797363, -583.78283691406, 36.853244781494),
 	["El Burro Heights"] = v3(1340.2352294922, -1583.8933105469, 54.067855834961),
-	["Paleto Bay 5"] = v3(-106.56526184082, 6535.458984375, 29.809148788452),
-	["Paleto Bay 3"] = v3(-306.98236083984, 6333.0219726562, 32.180763244629),
-	["Paleto Bay 4"] = v3(-8.2490711212158, 6559.8842773438, 31.970911026001)
+	["Main LS Customs"] = v3(-365.425, -131.809, 37.873),
+	["Very High Up"] = v3(-129.964, 8130.873, 6705.307),
+	["IAA Roof"] = v3(134.085, -637.859, 262.851),
+	["FIB Roof"] = v3(150.126, -754.591, 262.865),
+	["Maze Bank Roof"] = v3(-75.015, -818.215, 326.176),
+	["Top of the Mt Chilad"] = v3(450.718, 5566.614, 806.183),
+	["Most Northerly Point"] = v3(24.775, 7644.102, 19.055),
+	["Vinewood Bowl Stage"] = v3(686.245, 577.950, 130.461),
+	["Sisyphus Theater Stage"] = v3(205.316, 1167.378, 227.005),
+	["Director Mod Trailer"] = v3(-20.004, -10.889, 500.602),
+	["Galileo Observatory Roof"] = v3(-438.804, 1076.097, 352.411),
+	["Kortz Center"] = v3(-2243.810, 264.048, 174.615),
+	["Chumash Historic Family Pier"] = v3(-3426.683, 967.738, 8.347),
+	["Paleto Bay Pier"] = v3(-275.522, 6635.835, 7.425),
+	["God's thumb"] = v3(-1006.402, 6272.383, 1.503),
+	["Calafia Train Bridge"] = v3(-517.869, 4425.284, 89.795),
+	["Altruist Cult Camp"] = v3(-1170.841, 4926.646, 224.295),
+	["Maze Bank Arena Roof"] = v3(-324.300, -1968.545, 67.002),
+	["Marlowe Vineyards"] = v3(-1868.971, 2095.674, 139.115),
+	["Hippy Camp"] = v3(2476.712, 3789.645, 41.226),
+	["Devin Weston's House"] = v3(-2639.872, 1866.812, 160.135),
+	["Abandon Mine"] = v3(-595.342, 2086.008, 131.412),
+	["Weed Farm"] = v3(2208.777, 5578.235, 53.735),
+	["Stab City"] = v3(126.975, 3714.419, 46.827),
+	["Airplane Graveyard Airplane Tail"] = v3(2395.096, 3049.616, 60.053),
+	["Satellite Dish Antenna"] = v3(2034.988, 2953.105, 74.602),
+	["Satellite Dishes"] = v3(2062.123, 2942.055, 47.431),
+	["Windmill Top"] = v3(2026.677, 1842.684, 133.313),
+	["Sandy Shores Building Site Crane"] = v3(1051.209, 2280.452, 89.727),
+	["Rebel Radio"] = v3(736.153, 2583.143, 79.634),
+	["Quarry"] = v3(2954.196, 2783.410, 41.004),
+	["Palmer-Taylor Power Station Chimney"] = v3(2732.931, 1577.540, 83.671),
+	["Merryweather Dock"] = v3(486.417, -3339.692, 6.070),
+	["Cargo Ship"] = v3(899.678, -2882.191, 19.013),
+	["Del Perro Pier"] = v3(-1850.127, -1231.751, 13.017),
+	["Play Boy Mansion"] = v3(-1475.234, 167.088, 55.841),
+	["Jolene Cranley-Evans Ghost"] = v3(3059.620, 5564.246, 197.091),
+	["NOOSE Headquarters"] = v3(2535.243, -383.799, 92.993),
+	["Snowman"] = v3(971.245, -1620.993, 30.111),
+	["Oriental Theater"] = v3(293.089, 180.466, 104.301),
+	["Beach Skatepark"] = v3(-1374.881, -1398.835, 6.141),
+	["Underpass Skatepark"] = v3(718.341, -1218.714, 26.014),
+	["Casino"] = v3(925.329, 46.152, 80.908),
+	["University of San Andreas"] = v3(-1696.866, 142.747, 64.372),
+	["La Puerta Freeway Bridge"] = v3(-543.932, -2225.543, 122.366),
+	["Land Act Dam"] = v3(1660.369, -12.013, 170.020),
+	["Mount Gordo"] = v3(2877.633, 5911.078, 369.624),
+	["Little Seoul"] = v3(-889.655, -853.499, 20.566),
+	["Epsilon Building"] = v3(-695.025, 82.955, 55.855),
+	["The Richman Hotel"] = v3(-1330.911, 340.871, 64.078),
+	["Vinewood sign"] = v3(711.362, 1198.134, 348.526),
+	["Los Santos Golf Club"] = v3(-1336.715, 59.051, 55.246),
+	["Chicken"] = v3(-31.010, 6316.830, 40.083),
+	["Little Portola"] = v3(-635.463, -242.402, 38.175),
+	["Pacific Bluffs Country Club"] = v3(-3022.222, 39.968, 13.611),
+	["Paleto Forest Sawmill Chimney"] = v3(-549.467, 5308.221, 114.146),
+	["Mirror Park"] = v3(1070.206, -711.958, 58.483),
+	["Rocket"] = v3(1608.698, 6438.096, 37.637),
+	["El Gordo Lighthouse"] = v3(3430.155, 5174.196, 41.280),
+	["Mile High Club"] = v3(-144.274, -946.813, 269.135),
+	["strip club"] = v3(132.78796386719, -1307.802734375, 29.061506271362),
+	["Police station"] = v3(1869.2264404297, 2605.0708007812, 45.672019958496),
+	["Facility"] = v3(1857.9187011719, 257.68801879883, 163.71415710449)
 })
 
 --[[
@@ -7625,7 +7628,15 @@ local gta5_map <const> = essentials.const({
 	v3(2.5857584476471, 7612.4926757812, 7.5269594192505),
 	v3(14.891045570374, 7630.0112304688, 12.069850921631),
 	v3(21.540128707886, 7640.26171875, 16.660110473633),
-	v3(22.129667282104, 7640.9047851562, 17.001989364624)
+	v3(22.129667282104, 7640.9047851562, 17.001989364624),
+	v3(3090.5500488281, -4810.5747070312, 14.503931045532),
+	v3(3056.1547851562, -4722.6015625, 14.490640640259),
+	v3(3044.9736328125, -4672.625, 14.490529060364),
+	v3(3031.716796875, -4597.45703125, 14.503693580627),
+	v3(3065.0532226562, -4607.4975585938, 14.500725746155),
+	v3(3094.5227050781, -4684.6440429688, 14.503049850464),
+	v3(3107.3100585938, -4755.84765625, 14.499282836914),
+	v3(3101.3798828125, -4799.5551757812, 14.501123428345)
 })
 
 local function get_vectors(...) -- Converts multi-dimensional table into an array of vectors
@@ -7638,7 +7649,7 @@ local function get_vectors(...) -- Converts multi-dimensional table into an arra
 end
 
 local function attempt_ground_z(...)
-	local pos = ...
+	local pos <const> = ...
 	if memoize.get_entity_coords(essentials.get_ped_closest_to_your_pov()):magnitude(pos) < 1100 then
 		local offset = memoize.v3()
 		for i = 1, 60, 3 do
@@ -7668,39 +7679,33 @@ local function attempt_ground_z(...)
 	return pos, false
 end
 
-function location_mapper.get_set_of_vectors(...)
-	local pos <const>,
-	min_distance <const>,
-	max_distance <const>,
-	max_height <const> = ...
-	local coords <const> = {}
-	for i = 1, 50 do
-		local pos2 <const>, status <const> = attempt_ground_z(pos + kek_entity.get_random_offset(-max_distance, max_distance, min_distance, max_distance))
-		if status 
-		and pos2.z < max_height 
-		and pos2.z > max_height - 13 
-		and pos:magnitude(pos2) >= min_distance then
-			coords[#coords + 1] = pos2
-		end
-	end
-	if #coords == 0 then
-		for i = 1, #gta5_map do
-			local distance <const> = pos:magnitude(gta5_map[i])
-			if distance >= min_distance 
-			and distance <= max_distance 
-			and gta5_map[i].z < max_height 
-			and gta5_map[i].z > max_height - 13 then
-				coords[#coords + 1] = gta5_map[i]
+local function attempt_ground_z_no_offset(...)
+	local pos <const> = ...
+	for i = 1, 60, 3 do
+		local temp = 825
+		local Z = 825
+		local status
+		while temp == Z do
+			status, temp = gameplay.get_ground_z(v3(pos.x, pos.y, Z))
+			if status and temp ~= Z then
+				pos.z = temp
+				return pos, status and temp ~= Z
+			else
+				temp = Z - 12.5
+			end
+			Z = Z - 12.5
+			if Z == -25 then
+				break
 			end
 		end
 	end
-	return coords
+	return pos, false
 end
 
 function location_mapper.get_closest_vector_to_pos(...)
 	local pos <const> = ...
 	local distance = 99999
-	local pos2 = memoize.v3()
+	local pos2 = v3()
 	for i = 1, #gta5_map, 4 do
 		local temp <const> = pos:magnitude(gta5_map[i])
 		if temp < distance then
@@ -7726,21 +7731,38 @@ function location_mapper.get_zone_entity_is_in(...) -- Zones do overlap each oth
 end
 
 function location_mapper.get_most_accurate_position(...)
-	local pos, always <const> = ...
+	local original_pos, always <const> = ...
+	local pos <const> = v3(original_pos.x, original_pos.y, original_pos.z)
 	if not always and pos.z > -10 then
 		return pos
 	end
 	local pos2 <const>, status <const> = attempt_ground_z(pos)
 	if status then
 		return pos2
-	else
-		local pos2 <const> = location_mapper.get_closest_vector_to_pos(pos)
-		if math.abs((pos.z) - (pos2.z)) < 5 then
-			pos.z = pos2.z
-			return pos
-		else
-			return pos2
+	end
+	for i = -180, 180, 45 do -- Has been confirmed to make it work more than if I just set it to v3()
+		local status <const>, pos3 <const> = gameplay.find_spawn_point_in_direction(pos, memoize.v3(0, 0, i), 8)
+		if status and pos3:magnitude(pos) < 45 then
+			return pos3
 		end
+	end
+	local pos2 <const> = location_mapper.get_closest_vector_to_pos(pos)
+	if math.abs((pos.z) - (pos2.z)) < 5 then
+		pos.z = pos2.z
+		return pos
+	else
+		return pos2
+	end
+end
+
+function location_mapper.get_most_accurate_position_soft(...)
+	local original_pos <const> = ...
+	local pos <const> = v3(original_pos.x, original_pos.y, original_pos.z)
+	local pos2 <const>, status <const> = attempt_ground_z_no_offset(pos)
+	if status then
+		return pos2
+	else
+		return original_pos
 	end
 end
 

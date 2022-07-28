@@ -1,7 +1,7 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = require("Essentials")
-local enums <const> = require("Enums")
+local essentials <const> = require("Kek's Essentials")
+local enums <const> = require("Kek's Enums")
 
 local drive_style_mapper <const> = {version = "1.0.4"}
 

@@ -1,8 +1,8 @@
 -- Copyright © 2020-2022 Kektram
 
-local object_mapper <const> = {version = "1.2.6"}
-local essentials <const> = require("Essentials")
-local enums <const> = require("Enums")
+local object_mapper <const> = {version = "1.2.7"}
+local essentials <const> = require("Kek's Essentials")
+local enums <const> = require("Kek's Enums")
 
 local model_names <const> = essentials.const({
 	[446398] = "ba_prop_glass_garage_opaque",
@@ -17616,7 +17616,7 @@ function object_mapper.get_hash_from_user_input(...)
 		return object_mapper.get_random_object()
 	end
 	user_input = user_input:lower()
-	if streaming.is_model_valid(gameplay.get_hash_key(user_input)) then
+	if model_names[gameplay.get_hash_key(user_input)] then
 		return gameplay.get_hash_key(user_input)
 	end
 	for hash, Model in pairs(model_names) do

@@ -1,20 +1,20 @@
 -- Copyright © 2020-2022 Kektram
 
-local custom_upgrades <const> = {version = "1.0.1"}
+local custom_upgrades <const> = {version = "1.0.2"}
 
-local essentials <const> = require("Essentials")
-local kek_entity <const> = require("Kek's entity functions")
-local weapon_mapper <const> = require("Weapon mapper")
-local enums <const> = require("Enums")
+local essentials <const> = require("Kek's Essentials")
+local kek_entity <const> = require("Kek's Entity functions")
+local weapon_mapper <const> = require("Kek's Weapon mapper")
+local enums <const> = require("Kek's Enums")
 
 function custom_upgrades.create_combat_ped(...)
 	local Vehicle <const> = ...
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		if vehicle.get_free_seat(Vehicle) ~= -2 then
-			local Ped <const> = kek_entity.spawn_ped_or_vehicle(gameplay.get_hash_key("a_f_y_topless_01"), function()
+			local Ped <const> = kek_entity.spawn_networked_ped(gameplay.get_hash_key("a_f_y_topless_01"), function()
 				return kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8), player.get_player_heading(player.player_id())
-			end, false, false, enums.ped_types.civmale)
+			end)
 			kek_entity.set_combat_attributes(Ped, true, {})
 			local weapon_hash <const> = weapon.get_all_weapon_hashes()[math.random(1, #weapon.get_all_weapon_hashes())]
 			weapon.give_delayed_weapon_to_ped(Ped, weapon_hash, 0, 1)
@@ -35,14 +35,15 @@ function custom_upgrades.vehicle_turret(...)
 			while entity.is_entity_an_object(turret) and entity.is_entity_a_vehicle(Vehicle) do
 				if player.get_player_vehicle(player.player_id()) == Vehicle and player.is_player_in_any_vehicle(player.player_id()) then
 					entity.attach_entity_to_entity(turret, Vehicle, 0, offset, cam.get_gameplay_cam_rot() + v3(cam.get_gameplay_cam_rot().x * -2, 0, 180), false, true, false, 0, false)
+					entity.process_entity_attachments(Vehicle)
 					if controls.is_disabled_control_pressed(0, enums.inputs["RIGHT MOUSE BUTTON A"]) then
-						gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_in_front_of_me(turret, 0.5), kek_entity.get_vector_in_front_of_me(turret, 2000), 100, gameplay.get_hash_key("weapon_heavysniper_mk2"), player.get_player_ped(player.player_id()), true, false, 3000)
+						gameplay.shoot_single_bullet_between_coords(kek_entity.get_vector_in_front_of_me(0.5), kek_entity.get_vector_in_front_of_me(2000), 100, gameplay.get_hash_key("weapon_heavysniper_mk2"), player.get_player_ped(player.player_id()), true, false, 3000)
 					end
 					if controls.is_disabled_control_pressed(0, enums.inputs["LEFT MOUSE BUTTON RT"]) then
 						essentials.use_ptfx_function(
 							gameplay.shoot_single_bullet_between_coords, 
-							kek_entity.get_vector_in_front_of_me(turret, 8), 
-							kek_entity.get_vector_in_front_of_me(turret, 2000), 
+							kek_entity.get_vector_in_front_of_me(8), 
+							kek_entity.get_vector_in_front_of_me(2000), 
 							100, 
 							gameplay.get_hash_key("weapon_airstrike_rocket"), 
 							player.get_player_ped(player.player_id()), 

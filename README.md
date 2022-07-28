@@ -27,12 +27,8 @@
 	2. Drag all the files to C:\Users\USERNAME\AppData\Roaming\PopstarDevs\2Take1Menu\scripts
 
 ## Updating to a new version
-	1. Delete scripts\Kek's menu.lua
-	2. Delete scripts\kek_menu_stuff\kekMenuLibs
-	3. Open keks_menu.zip
-	4. Drag kek's menu.lua into the scripts folder
-	5. Open the kek_menu_stuff folder inside of keks_menu.zip
-	6. Drag kekMenuLibs to scripts\kek_menu_stuff
+> The script will check for a new update whenever you run the script.
+> Accept the update, and it installs it for you.
 
 ## Feature list
 
@@ -61,45 +57,6 @@
 	Add a script
 	Remove a script
 
-#### Hotkeys
-
-##### Notifications
-	Toggle whether to show a notification whenever a hotkey is pressed or not
-
-##### Hotkey mode
-	Before setting hotkeys, make sure you have set the right hotkey mode.
-	If it's set to keyboard, it looks for keyboard input. If it's set to controller, it looks for controller input.
-	This means that setting the wrong input mode before setting hotkeys will lead to unpredictable behaviour.
-
-##### Setting hotkeys
-	A hotkey can be bound to 1 - 3 keys
-	Holding down a hotkey for 550ms will loop the feature every 80ms
-	The script uses gta 5's input system, so some keys can't be set as hotkeys.
-
-##### Keys that can be set as hotkeys
-	A-Y (WITH EXCEPTION OF i, j and o)
-	Up, Down, Left, Right
-	f1 - f11 (f4 is not supported)
-	1 - 9
-	Num 4 - Num 9
-	Scroll down, Scroll up
-	Lmouse, Rmouse
-	Page down, Page up
-	Num plus, Num minus
-	Alt
-	Shift
-	Break
-	Ctrl
-	Space
-	Insert
-	Caps lock
-	Delete
-	Tab
-	Backspace
-	Esc
-	Home
-	Enter
-
 #### Language configuration
 	To change your language, just click on one of the "set X as default language" and reset lua state.
 
@@ -118,11 +75,6 @@
 ##### Godmode detection
 	Detects people with godmode status on + doing multiple things that can't be done when legit players are in godmode
 
-##### Modded name detection
-	Detects people with illegal characters in the name
-	Detects too short / long names
-	If multiple people have the same illegal name, it won't trigger the detection
-
 ##### Check people's stats
 	Based on a system of severity
 	To triggers it detection, the person must have a severity of 3 or higher
@@ -132,7 +84,6 @@
 > Suspicious rank = 1<br/>
 > Suspicious kd = 1<br/>
 > Negative stats = 3<br/>
-> Modded armor = 3<br/>
 > Illegal weapons = 2
 
 #### Blacklist

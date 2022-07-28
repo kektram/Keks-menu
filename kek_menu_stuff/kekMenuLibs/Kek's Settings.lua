@@ -1,8 +1,8 @@
 -- Copyright © 2020-2022 Kektram
 
-local settings <const> = {version = "1.0.1"}
+local settings <const> = {version = "1.0.2"}
 
-local language <const> = require("Language")
+local language <const> = require("Kek's Language")
 local lang <const> = language.lang
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
@@ -19,7 +19,6 @@ settings.user_entity_features = {
 settings.drive_style_toggles = {}
 settings.valuei = {}
 settings.valuef = {}
-settings.hotkey_features = {}
 
 function settings:add_setting(...)
 	local properties <const> = ...
@@ -32,11 +31,11 @@ function settings:update_user_entity_feats(Type)
 	local setting_name <const> = string.format("User %s", Type)
 	assert(self.default[setting_name], "Invalid setting.")
 	for _, feat in pairs(self.user_entity_features[Type].feats) do
-    	feat:set_str_data({self.in_use[setting_name]})
-    end
-    for _, feat_id in pairs(self.user_entity_features[Type].player_feats) do
-    	menu.get_player_feature(feat_id):set_str_data({self.in_use[setting_name]})
-    end
+		feat:set_str_data({self.in_use[setting_name]})
+	end
+	for _, feat_id in pairs(self.user_entity_features[Type].player_feats) do
+		menu.get_player_feature(feat_id):set_str_data({self.in_use[setting_name]})
+	end
 end
 
 function settings:update_user_entity(model_name, Type)
@@ -84,7 +83,7 @@ function settings:initialize(...)
 			setting = setting == "true"
 		end
 		self.in_use[name] = setting
-    end
+	end
 	local file = io.open(file_path, "a+")
 	file:setvbuf("full")
 	assert(io.type(file) == "file", debug.traceback("Failed to open settings file.", 2))
@@ -95,33 +94,25 @@ function settings:initialize(...)
 		end
 	end
 	file:close()
-    for name, feat in pairs(self.toggle) do
-    	feat.on = self.in_use[name]
-    end
-    for name, feat in pairs(self.valuei) do
-    	feat.value = self.in_use[name]
-    end
-    for name, feat in pairs(self.valuef) do
-    	feat.value = self.in_use[name]
-    end
-    for _, feat in pairs(self.drive_style_toggles) do
-    	feat.on = self.in_use["Drive style"] & feat.data == feat.data
-    end
-    for _, Type in pairs({
-    	"vehicle",
-    	"ped",
-    	"object"
-    }) do
+	for name, feat in pairs(self.toggle) do
+		feat.on = self.in_use[name]
+	end
+	for name, feat in pairs(self.valuei) do
+		feat.value = self.in_use[name]
+	end
+	for name, feat in pairs(self.valuef) do
+		feat.value = self.in_use[name]
+	end
+	for _, feat in pairs(self.drive_style_toggles) do
+		feat.on = self.in_use["Drive style"] & feat.data == feat.data
+	end
+	for _, Type in pairs({
+		"vehicle",
+		"ped",
+		"object"
+	}) do
 		self:update_user_entity_feats(Type)
 	end
-	for _, profile in pairs(self.hotkey_features) do
-		if self.in_use[profile[3]] ~= "off" then
-			profile[2].name = string.format("%s: %s", profile[1], self.in_use[profile[3]])
-		else
-			profile[2].name = string.format("%s: %s", profile[1], lang["Turned off"])
-		end
-	end
-    self.hotkey_control_keys_update = true
 end
 
 return settings
