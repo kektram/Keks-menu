@@ -2,7 +2,8 @@
 
 local essentials <const> = {version = "1.6.2"}
 
-local lang <const> = require("Kek's Language").lang
+local language <const> = require("Kek's Language")
+local lang <const> = language.lang
 local enums <const> = require("Kek's Enums")
 local settings <const> = require("Kek's Settings")
 local memoize <const> = require("Kek's Memoize")
@@ -1275,7 +1276,11 @@ function essentials.draw_text_prevent_offscreen(...)
 	)
 end
 
-function essentials.draw_auto_adjusted_text(...)
+function essentials.draw_auto_adjusted_text(...) 
+
+-- REMEMBER, IF MULTIPLE DRAWS ARE RELATED, THEY MUST USE "dont_adjust_scale", and pass an already handled scale to all draws. essentials.show_changelog does this.
+-- This is only relevant if the text size varies, and scaling down to fit the screen occurs.
+
 	local text <const>, rgba <const>, scale, y_pos <const>, dont_adjust_scale <const> = ...
 
 	if not dont_adjust_scale then -- To have scales matched if 2 scriptdraws are matched together
@@ -1353,7 +1358,12 @@ function essentials.show_changelog()
 			) do
 				system.yield(0)
 			end
-			local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
+			local github_branch_name <const> = 
+				__kek_menu.participate_in_betas and "beta" 
+				or language.what_language == "Chinese.txt" and "chinese"
+				or "main"
+
+
 			local status <const>, str <const> = essentials.web_get_file(
 				"https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/Changelog.md",
 				essentials.get_rgb(0, 255, 0, 255), 

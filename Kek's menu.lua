@@ -5599,6 +5599,7 @@ do
 		"LUA state has been reset",
 		"\\",
 		"] [Kek's ",
+		"] [Kek菜单",
 		"] Saved ",
 		"[Spoofer]",
 		"Error executing",

@@ -1100,9 +1100,9 @@ function ped_mapper.get_random_ped(Type)
 end
 
 function ped_mapper.get_model_from_hash(hash)
-	essentials.assert(streaming.is_model_a_ped(hash), "Expected a valid ped hash:", hash)
-	essentials.assert(ped_models[hash], "Failed to get information about a valid, ped hash:", hash)
-	return ped_models[hash]
+	essentials.assert(hash == 0 or streaming.is_model_a_ped(hash), "Expected a valid ped hash:", hash)
+	essentials.assert(hash == 0 or ped_models[hash], "Failed to get information about a valid, ped hash:", hash)
+	return ped_models[hash] or "unknown_ped_name"
 end
 
 function ped_mapper.get_hash_from_model(model)
