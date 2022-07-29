@@ -1,8 +1,7 @@
 -- Copyright © 2020-2022 Kektram
 
 local enums <const> = require("Kek's Enums")
-local language <const> = require("Kek's Language")
-local lang <const> = language.lang
+local lang <const> = require("Kek's Language").lang
 local essentials <const> = require("Kek's Essentials")
 local vehicle_mapper <const> = require("Kek's Vehicle mapper")
 local object_mapper <const> = require("Kek's Object mapper")

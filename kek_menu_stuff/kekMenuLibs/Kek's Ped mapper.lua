@@ -1044,7 +1044,6 @@ ped_mapper.ANIMAL_HASHES = essentials.const({
 
 ped_mapper.PED_HASHES = {}
 for hash, model in pairs(ped_models) do
-	essentials.assert(streaming.is_model_a_ped(hash), "Invalid ped in ped_models table:", hash)
 	if not model:find("a_c", 1, true) then -- To make sure animal hashes are the 34 last in the array.
 		ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = hash
 	end

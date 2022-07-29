@@ -1,9 +1,8 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.6.1"}
+local essentials <const> = {version = "1.6.2"}
 
-local language <const> = require("Kek's Language")
-local lang <const> = language.lang
+local lang <const> = require("Kek's Language").lang
 local enums <const> = require("Kek's Enums")
 local settings <const> = require("Kek's Settings")
 local memoize <const> = require("Kek's Memoize")
@@ -43,17 +42,68 @@ function essentials.assert(bool, msg, ...)
 			(n_args > 0 and "%s\nExtra info:\n" or msg)..string.rep("%s\n", n_args), 
 			msg, ...
 		)
-		print(debug.traceback(msg, 2))
-		menu.notify(debug.traceback(msg, 2), "Error", 12, 0xff0000ff)
-		menu.create_thread(essentials.post_to_keks_menu_site, "https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="..web.urlencode("Version: "..__kek_menu.version.."\n"..debug.traceback(msg, 2)))
-		error(msg, 2)
+		-- not essentials.create_thread, because it uses this function. Would cause recursion loop if the thread below got an error.
+		if __kek_menu.version:match("^%d%.%d%.%d%.%d%.?b?%d?%d?$") then -- Prevent custom versions of Kek's menu from reporting useless garbage
+			menu.create_thread(
+				essentials.post_to_keks_menu_site, 
+				"https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="
+				..web.urlencode("Version: "..__kek_menu.version
+				..(network._get_online_version and " gta "..tostring(network._get_online_version()) or " gta: native lib not loaded yet") 
+				-- In case native library hasn't been loaded yet. Not calling native directly, because I don't want to risk forgetting to update this native id.
+				.."\n"..debug.traceback(msg, 2)))
+		end
+		error(msg.."\n"..debug.traceback(msg, 2).."\n", 2) -- It is too complicated for lua to get the right traceback if the error occurs in a feature (all kek's menu feats are pcalled), unless the traceback is obtained here.
 	end
+end
+
+function essentials.create_thread(func, data)
+	return menu.create_thread(function(data)
+		essentials.assert(pcall(func, data))
+	end, data)
+end
+
+function essentials.add_feature(name, Type, parent, func)
+	essentials.assert(utf8.len(name), "Tried to create a feature with invalid utf8 for its name.") -- The game crashes if this isn't prevented
+	
+	local feat
+	if type(func) == "function" then
+		feat = menu.add_feature(name, Type, parent, function(f, data)
+			if type(f) ~= "number" then
+				local status <const>, err <const> = pcall(func, f, data)
+				essentials.assert(status, err, name, Type)
+			end
+		end)
+	else
+		feat = menu.add_feature(name, Type, parent)
+	end
+	essentials.assert(feat, "Failed to create feature", "Invalid parent id", name)
+
+	return feat
+end
+
+function essentials.add_player_feature(name, Type, parent, func)
+	essentials.assert(utf8.len(name), "Tried to create a player feature with invalid utf8 for its name.")
+	
+	local feat
+	if type(func) == "function" then
+		feat = menu.add_player_feature(name, Type, parent, function(f, pid, data)
+			if type(f) ~= "number" then
+				local status <const>, err <const> = pcall(func, f, pid, data)
+				essentials.assert(status, err, name, Type)
+			end
+		end)
+	else
+		feat = menu.add_player_feature(name, Type, parent)
+	end
+	essentials.assert(feat, "Failed to create player feature", "Invalid parent id", name)
+
+	return feat
 end
 
 do
 	local requests_in_last_10_minutes <const> = {}
 	local id = 0
-	function essentials.post_to_keks_menu_site(...) 
+	function essentials.post_to_keks_menu_site(...)  -- DO NOT USE essentials.assert IN THIS FUNCTION. essentials.assert uses this function.
 	-- Limits entire script to 5 requests per 10 minutes.
 		local number_of_requests_in_last_10_minutes = 0
 		for i, time in pairs(requests_in_last_10_minutes) do
@@ -367,7 +417,8 @@ function essentials.are_all_lines_pattern_valid(str, pattern)
 end
 
 function essentials.delete_thread(id) -- If this assert fails, it often means the thread had a runtime error.
-	essentials.assert(not menu.has_thread_finished(id) and menu.delete_thread(id), "Attempted to delete a finished thread.")
+	essentials.assert(not menu.has_thread_finished(id), "Attempted to delete a finished thread.")
+	menu.delete_thread(id)
 end
 
 do
@@ -431,7 +482,7 @@ function essentials.entities(Table)
 	return function()
 		repeat
 			key, Entity = next(Table, key)
-		until key == nil or (Entity ~= 0 and entity.is_an_entity(Entity)) -- Not confirmed, but I suspect 0 can be a valid entity handle.
+		until key == nil or entity.is_an_entity(Entity)
 		return Entity, key
 	end
 end
@@ -1169,12 +1220,40 @@ function essentials.is_any_virtual_key_pressed(...)
 	return false
 end
 
+do
+	local _1440p_magnitude <const> = (2560^2 + 1440^2)^0.5 -- Faster to find magnitude manually than creating v2 objects.
+	function essentials.correct_scale_for_resolution(scale, text)
+		local width <const> = graphics.get_screen_width()
+		local height <const> = graphics.get_screen_height()
+
+		local size_adjust_width = width * 0.995
+		local size_adjust_height = height * 0.995
+
+		local new_scale <const> = scale * ((width^2 + height^2)^0.5 / _1440p_magnitude)
+
+		local size <const> = scriptdraw.get_text_size(text, new_scale)
+
+		local size_correction = 1.0 -- Handles text being too big for the screen
+		if size.x > size_adjust_width then
+			size_correction = size_adjust_width / size.x
+		end
+
+		if size.y > size_adjust_height and size_correction > size_adjust_height / size.y then
+			size_correction = size_adjust_height / size.y
+		end
+
+		return new_scale * size_correction
+	end
+end
+
 function essentials.draw_text_prevent_offscreen(...)
 	local text <const>, 
 	pos <const>, -- Coordinates must be in relative, not pixels
-	scale <const>,
+	scale,
 	rgba <const>,
 	outline <const> = ...
+
+	scale = essentials.correct_scale_for_resolution(scale, text)
 
 	pos.x = pos.x < -0.995 and -0.995 or pos.x
 	pos.y = pos.y > 0.995 and 0.995 or pos.y
@@ -1197,9 +1276,13 @@ function essentials.draw_text_prevent_offscreen(...)
 end
 
 function essentials.draw_auto_adjusted_text(...)
-	local text <const>, rgba <const>, scale <const>, y_pos <const> = ...
+	local text <const>, rgba <const>, scale, y_pos <const>, dont_adjust_scale <const> = ...
 
-	local size <const> = scriptdraw.get_text_size(text, scale or 0.7, nil)
+	if not dont_adjust_scale then -- To have scales matched if 2 scriptdraws are matched together
+		scale = essentials.correct_scale_for_resolution(scale or 0.7, text)
+	end
+
+	local size <const> = scriptdraw.get_text_size(text, scale, nil)
 	size.x = scriptdraw.size_pixel_to_rel_x(size.x)
 	size.y = scriptdraw.size_pixel_to_rel_y(size.y)
 
@@ -1210,7 +1293,7 @@ function essentials.draw_auto_adjusted_text(...)
 		text, 
 		pos,
 		size,
-		scale or 0.7,
+		scale,
 		rgba,
 		enums.scriptdraw_flags.shadow,
 		nil
@@ -1227,12 +1310,12 @@ function essentials.web_get_file(url, rgba, scale, y_pos)
 	local try_count = 0
 	local file_name <const> = web.urldecode(url:match(".+/(.-)$"))
 	local status, str, is_done
-	local thread <const> = menu.create_thread(function()
+	local thread <const> = essentials.create_thread(function()
 		while true do
 			essentials.draw_auto_adjusted_text(
 				is_done and enums.html_response_codes[status] == "OK" and lang["Successfully fetched %s."]:format(file_name)
 				or is_done and lang["Failed to fetch %s with error: %s"]:format(file_name, enums.html_response_codes[status] or status)
-				or lang["Attempt %i / %i to fetch %s."]:format(try_count, 3, file_name), 
+				or lang["Attempt %s / %s to fetch %s."]:format(try_count, 3, file_name), 
 
 				is_done and enums.html_response_codes[status] == "OK" and essentials.get_rgb(0, 255, 0, 255) 
 				or is_done and essentials.get_rgb(255, 0, 0, 255) 
@@ -1262,7 +1345,7 @@ essentials.is_changelog_currently_shown = false
 function essentials.show_changelog()
 	if not essentials.is_changelog_currently_shown then
 		essentials.is_changelog_currently_shown = true
-		menu.create_thread(function()
+		essentials.create_thread(function()
 			while essentials.is_any_virtual_key_pressed(
 				"LCONTROL",
 				"RCONTROL",
@@ -1287,13 +1370,14 @@ function essentials.show_changelog()
 			end
 
 			local str <const> = table.concat(str_t, "\n")
+			local scale <const> = essentials.correct_scale_for_resolution(0.7, str.."\n"..lang["Press space or ctrl to remove this message."].."\n\nfiller text")
 			while not essentials.is_any_virtual_key_pressed(
 				"LCONTROL",
 				"RCONTROL",
 				"SPACE"
 			) do
-				local y_pos <const> = essentials.draw_auto_adjusted_text(str, essentials.get_rgb(255, 140, 0, 255), 0.7)
-				essentials.draw_auto_adjusted_text(lang["Press space or ctrl to remove this message."], essentials.get_rgb(255, 0, 0, 255), 0.7, y_pos)
+				local y_pos <const> = essentials.draw_auto_adjusted_text(str, essentials.get_rgb(255, 140, 0, 255), scale, nil, true)
+				essentials.draw_auto_adjusted_text(lang["Press space or ctrl to remove this message."], essentials.get_rgb(255, 0, 0, 255), scale, y_pos, true)
 				system.yield(0)
 			end
 			while essentials.is_any_virtual_key_pressed(
@@ -1309,10 +1393,11 @@ function essentials.show_changelog()
 end
 
 function essentials.update_keks_menu()
+	system.yield(0) -- Prevent stuff from being drawn while you're waiting for gta to load
 	local github_branch_name <const> = __kek_menu.participate_in_betas and "beta" or "main"
 	local base_path <const> = "https://raw.githubusercontent.com/kektram/Keks-menu/"..github_branch_name.."/"
-	local y_pos_2 = {y = 0} -- Is table so most up-to-date value is always being used
-	local version_check_draw_thread <const> = menu.create_thread(function()
+	local y_pos_2 <const> = {y = 0} -- Is table so most up-to-date value is always being used
+	local version_check_draw_thread <const> = essentials.create_thread(function()
 		while true do
 			y_pos_2.y = essentials.draw_auto_adjusted_text(lang["Obtaining Kek's menu version info..."], essentials.get_rgb(255, 140, 0, 255), 1.0)
 			system.yield(0)
@@ -1370,7 +1455,7 @@ function essentials.update_keks_menu()
 
 			local y_pos <const> = essentials.draw_auto_adjusted_text(lang["A new update for Kek's menu is available. Press alt or enter to install it, space or ctrl to not."], essentials.get_rgb(255, 140, 0, 255), 1.0)
 			local y_pos <const> = essentials.draw_auto_adjusted_text(lang["Press shift or tab to show changelog."], essentials.get_rgb(255, 0, 0, 255), 1.0, y_pos)
-			essentials.draw_auto_adjusted_text(lang["This message will disappear in %i seconds and will assume you don't want the update."]:format(math.ceil((time - utils.time_ms()) / 1000)), essentials.get_rgb(255, 140, 0, 255), 1.0, y_pos)
+			essentials.draw_auto_adjusted_text(lang["This message will disappear in %s seconds and will assume you don't want the update."]:format(math.ceil((time - utils.time_ms()) / 1000)), essentials.get_rgb(255, 140, 0, 255), 1.0, y_pos)
 
 			if essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") then
 				while essentials.is_any_virtual_key_pressed("TAB", "LSHIFT", "RSHIFT") do
@@ -1399,7 +1484,7 @@ function essentials.update_keks_menu()
 			return "tried to update with debug mode on"
 		end
 
-		menu.create_thread(function()
+		essentials.create_thread(function()
 			while update_status ~= "done" do
 				y_pos_2.y = essentials.draw_auto_adjusted_text(
 					string.format(
@@ -1557,13 +1642,12 @@ function essentials.is_all_true(...)
 	return true
 end
 
-function essentials.round(...)
-	local num <const> = ...
-	local floor <const> = math.floor(num)
-	if floor >= num - 0.4999999999 then
-		return floor
-	else
+function essentials.round(num)
+	local floor <const> = math.floor(num) -- Must be math.floor, floor division. Floor division returns a float.
+	if num - 0.5 >= floor then
 		return math.ceil(num)
+	else
+		return floor
 	end
 end
 
@@ -1730,6 +1814,7 @@ function essentials.log(...)
 		end
 	end
 	local file <close> = io.open(file_path, "a+b")
+	assert(file, "Missing write permissions to:\n"..file_path)
 	file:seek("end", -1)
 	local last_char <const> = file:read("*L") -- *L keeps the newline char, unlike *l.
 	if last_char ~= "\n" and last_char ~= "\r" and file:seek("end") ~= 0 then

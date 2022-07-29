@@ -5,8 +5,7 @@ local kek_entity <const> = require("Kek's Entity functions")
 local enums <const> = require("Kek's Enums")
 local memoize <const> = require("Kek's Memoize")
 local settings <const> = require("Kek's Settings")
-local language <const> = require("Kek's Language")
-local lang <const> = language.lang
+local lang <const> = require("Kek's Language").lang
 
 local menyoo_saver <const> = {version = "1.0.9"}
 

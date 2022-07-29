@@ -2,8 +2,7 @@
 
 local menyoo <const> = {version = "2.2.6"}
 
-local language <const> = require("Kek's Language")
-local lang <const> = language.lang
+local lang <const> = require("Kek's Language").lang
 local essentials <const> = require("Kek's Essentials")
 local kek_entity <const> = require("Kek's Entity functions")
 local custom_upgrades <const> = require("Kek's Custom upgrades")
@@ -885,7 +884,7 @@ function menyoo.spawn_xml_map(...)
 		for _, ipl in pairs(ipls.IPL) do
 			streaming.request_ipl(ipl)
 		end
-		menu.create_thread(function()
+		essentials.create_thread(function()
 			while entity.is_an_entity(Entity) do
 				system.yield(0)
 			end

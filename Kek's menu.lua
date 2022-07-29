@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.0",
+	version = "0.4.8.1",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -58,7 +58,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.5",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.6.1"
+	["Kek's Essentials"] = "1.6.2"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", package.loaded["Kek's Language"].lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -118,7 +118,7 @@ if __kek_menu.check_for_updates then
 	end
 end
 
-menu.create_thread(function()
+essentials.create_thread(function()
 	essentials.post_to_keks_menu_site("https://keks-menu-stats.kektram.com?increment=true&FROM_KEKS=true&version="..web.urlencode(__kek_menu.version))
 	while true do
 		essentials.must_yield_for_specified_time(11 * 60 * 1000)
@@ -180,8 +180,13 @@ do -- What kek's menu modifies in the global space. The natives library adds to 
 			__index = function()
 				local msg <const> = "attempt to index a nil value"
 				local path <const> = debug.traceback(msg, 2)
-				if path:find("\\kekMenuLibs\\", 1,  true) or path:find("Kek's menu.lua:", 1, true) then
-					menu.create_thread(essentials.post_to_keks_menu_site, "https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="..web.urlencode("Version: "..__kek_menu.version.."\n"..debug.traceback(msg, 2)))
+				if path:find("\\kekMenuLibs\\", 1,  true) or path:find("Kek's menu.lua:", 1, true) and __kek_menu.version:match("^%d%.%d%.%d%.%d%.?b?%d?%d?$") then
+					essentials.create_thread(
+						essentials.post_to_keks_menu_site, 
+						"https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="
+						..web.urlencode("Version: "..__kek_menu.version
+						.." gta "..tostring(network._get_online_version()) -- tostring in case native is outdated. __tostring would return a nil.
+						.."\n"..debug.traceback(msg, 2)))
 				end
 				error(msg, 2)
 			end
@@ -236,75 +241,6 @@ do -- What kek's menu modifies in the global space. The natives library adds to 
 			if io.type(file) == "file" then
 				file:close()
 			end
-		end
-	end
-
-	do
-		local originals <const> = essentials.const({
-			add_feature = menu.add_feature,
-			add_player_feature = menu.add_player_feature,
-		})
-
-		local feat_err_msg <const> = "This error might be related to your script, not necessarily Kek's menu. Either the parent id or feature type specified is incorrect."
-		menu.add_feature = function(...)
-			local name <const>,
-			Type <const>,
-			parent <const>,
-			func <const> = ...
-			local feat
-			local type <const> = type
-			essentials.assert(utf8.len(name), "Tried to create a feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
-			if type(func) == "function" then
-				feat = originals.add_feature(name, Type, parent, function(f, data)
-					if type(f) ~= "number" then
-						if func(f, data) == HANDLER_CONTINUE then
-							return HANDLER_CONTINUE
-						end
-					end
-				end)
-			else
-				feat = originals.add_feature(name, Type, parent)
-			end
-			essentials.assert(
-				feat, "Failed to create feature:",
-				feat_err_msg,
-				"Feature name: ",
-				name, 
-				debug.getinfo(2, "S").source, 
-				"line:",
-				debug.getinfo(2, "l").currentline
-			)
-			return feat
-		end
-		menu.add_player_feature = function(...)
-			local name <const>,
-			Type <const>,
-			parent <const>,
-			func <const> = ...
-			local feat
-			local type <const> = type
-			essentials.assert(utf8.len(name), "Tried to create a player feature with invalid utf8 for its name. YOU WOULD HAVE CRASHED IF THIS CHECK WASN'T HERE.")
-			if type(func) == "function" then
-				feat = originals.add_player_feature(name, Type, parent, function(f, pid, data)
-					if type(f) ~= "number" then -- Must check if not a number, custom UIs pass table instead of userdata.
-						if func(f, pid, data) == HANDLER_CONTINUE then
-							return HANDLER_CONTINUE
-						end
-					end
-				end)
-			else
-				feat = originals.add_player_feature(name, Type, parent)
-			end
-			essentials.assert(
-				feat, "Failed to create player feature:", 
-				feat_err_msg,
-				"Feature name: ",
-				name,
-				debug.getinfo(2, "S").source, 
-				"line:",
-				debug.getinfo(2, "l").currentline
-			)
-			return feat
 		end
 	end
 
@@ -474,24 +410,24 @@ end
 if utils.file_exists(paths.kek_settings) and essentials.get_file_string(paths.kek_settings):match("Script quick access=(%a%a%a%a)") == "true" then
 	u.kekMenu, u.kekMenuP = 0, 0
 else
-	u.kekMenu = menu.add_feature(lang["Kek's menu"], "parent", 0).id
-	u.kekMenuP = menu.add_player_feature(lang["Kek's menu"], "parent", 0).id
+	u.kekMenu = essentials.add_feature(lang["Kek's menu"], "parent", 0).id
+	u.kekMenuP = essentials.add_player_feature(lang["Kek's menu"], "parent", 0).id
 end
-u.player_history = menu.add_feature(lang["Player history"], "parent", u.kekMenu)
-u.gvehicle = menu.add_feature(lang["Vehicle"], "parent", u.kekMenu)
-u.self_options = menu.add_feature(lang["Self options"], "parent", u.kekMenu)
-u.weapons_self = menu.add_feature(lang["Weapons"], "parent", u.self_options.id)
-u.search_menu_features = menu.add_feature(lang["Search features"], "parent", u.kekMenu)
-u.chat_stuff = menu.add_feature(lang["Chat"], "parent", u.kekMenu)
-menu.add_feature(lang["Send clipboard to chat"], "action", u.chat_stuff.id, function()
+u.player_history = essentials.add_feature(lang["Player history"], "parent", u.kekMenu)
+u.gvehicle = essentials.add_feature(lang["Vehicle"], "parent", u.kekMenu)
+u.self_options = essentials.add_feature(lang["Self options"], "parent", u.kekMenu)
+u.weapons_self = essentials.add_feature(lang["Weapons"], "parent", u.self_options.id)
+u.search_menu_features = essentials.add_feature(lang["Search features"], "parent", u.kekMenu)
+u.chat_stuff = essentials.add_feature(lang["Chat"], "parent", u.kekMenu)
+essentials.add_feature(lang["Send clipboard to chat"], "action", u.chat_stuff.id, function()
 	essentials.send_message(utils.from_clipboard())
 end)
 
-u.chat_spammer = menu.add_feature(lang["Chat spamming"], "parent", u.chat_stuff.id)
-u.custom_chat_judger = menu.add_feature(lang["Custom chat judger"], "parent", u.chat_stuff.id)
-u.chat_bot = menu.add_feature(lang["Chat bot"], "parent", u.chat_stuff.id)
-u.chat_commands = menu.add_feature(lang["Chat commands"], "parent", u.chat_stuff.id)
-u.translate_chat = menu.add_feature(lang["Translate chat"], "parent", u.chat_stuff.id)
+u.chat_spammer = essentials.add_feature(lang["Chat spamming"], "parent", u.chat_stuff.id)
+u.custom_chat_judger = essentials.add_feature(lang["Custom chat judger"], "parent", u.chat_stuff.id)
+u.chat_bot = essentials.add_feature(lang["Chat bot"], "parent", u.chat_stuff.id)
+u.chat_commands = essentials.add_feature(lang["Chat commands"], "parent", u.chat_stuff.id)
+u.translate_chat = essentials.add_feature(lang["Translate chat"], "parent", u.chat_stuff.id)
 
 for _, properties in pairs({
 	{
@@ -533,7 +469,7 @@ for _, properties in pairs({
 			return
 		end
 
-		feat_name_map[safe_feat_name.."."..properties.extension] = menu.add_feature(safe_feat_name, "action_value_str", parent.id, function(f)
+		feat_name_map[safe_feat_name.."."..properties.extension] = essentials.add_feature(safe_feat_name, "action_value_str", parent.id, function(f)
 			if not utils.dir_exists(folder_path) then
 				essentials.msg(lang["This folder no longer exists."], "red", true, 8)
 				return
@@ -576,7 +512,7 @@ for _, properties in pairs({
 
 	local get_new_feat_map_object
 	local function create_main_feat(feat_name_map, parent, folder_path)
-		menu.add_feature(lang[properties.folder_name], "action_value_str", parent.id, function(f)
+		essentials.add_feature(lang[properties.folder_name], "action_value_str", parent.id, function(f)
 			if not essentials.is_str(f, "Refresh files & folders") and not utils.dir_exists(folder_path) then
 				essentials.msg(lang["This folder no longer exists."], "red", true, 8)
 				return
@@ -614,7 +550,7 @@ for _, properties in pairs({
 					return
 				end
 				
-				local new_parent <const> = menu.add_feature(input, "parent", parent.id)
+				local new_parent <const> = essentials.add_feature(input, "parent", parent.id)
 				feat_name_map[folder_path] = get_new_feat_map_object(folder_path, new_parent, feat_name_map)
 
 				create_main_feat(feat_name_map[folder_path], new_parent, folder_path)
@@ -670,7 +606,7 @@ for _, properties in pairs({
 				for _, folder_name in pairs(utils.get_all_sub_directories_in_directory(object_mt.folder_path)) do
 					local folder_path <const> = object_mt.folder_path.."\\"..folder_name
 					if not self[folder_path] then
-						local new_parent <const> = menu.add_feature(folder_name, "parent", object_mt.parent.id)
+						local new_parent <const> = essentials.add_feature(folder_name, "parent", object_mt.parent.id)
 						self[folder_path] = get_new_feat_map_object(folder_path, new_parent, self)
 						create_main_feat(self[folder_path], new_parent, folder_path)
 						self[folder_path]:rebuild()
@@ -700,7 +636,7 @@ for _, properties in pairs({
 		for _, folder_name in pairs(utils.get_all_sub_directories_in_directory(folder_path)) do
 			
 			local folder_path <const> = folder_path.."\\"..folder_name
-			local new_parent <const> = menu.add_feature(folder_name, "parent", parent.id)
+			local new_parent <const> = essentials.add_feature(folder_name, "parent", parent.id)
 
 			feat_name_map[folder_path] = get_new_feat_map_object(folder_path, new_parent, feat_name_map)
 			create_vehicle_features(
@@ -711,7 +647,7 @@ for _, properties in pairs({
 		end
 	end
 
-	local new_parent <const> = menu.add_feature(lang[properties.folder_name], "parent", properties.parent.id)
+	local new_parent <const> = essentials.add_feature(lang[properties.folder_name], "parent", properties.parent.id)
 	local feat_name_map <const> = get_new_feat_map_object(properties.folder, new_parent, {})
 
 	create_vehicle_features(
@@ -723,33 +659,33 @@ for _, properties in pairs({
 	feat_name_map:rebuild()
 end
 
-u.vehicleSettings = menu.add_feature(lang["Vehicle settings"], "parent", u.gvehicle.id)
-u.settingsUI = menu.add_feature(lang["Settings"], "parent", u.kekMenu)
-u.profiles = menu.add_feature(lang["Settings"], "parent", u.settingsUI.id)
-u.script_loader = menu.add_feature(lang["Script loader"], "parent", u.settingsUI.id)
-u.language_config = menu.add_feature(lang["Language configuration"], "parent", u.settingsUI.id)
-u.ai_drive = menu.add_feature(lang["Ai driving"], "parent", u.gvehicle.id)
-u.drive_style_cfg = menu.add_feature(lang["Drive style"], "parent", u.gvehicle.id)
-u.protections = menu.add_feature(lang["Protections"], "parent", u.self_options.id)
-u.modder_detection = menu.add_feature(lang["Modder detection"], "parent", u.kekMenu)
-u.flagsTolog = menu.add_feature(lang["Modder logging settings"], "parent", u.modder_detection.id)
-u.flagsToKick = menu.add_feature(lang["Auto kicker settings"], "parent", u.modder_detection.id)
-u.vehicle_friendly = menu.add_feature(lang["Vehicle peaceful"], "parent", u.gvehicle.id)
-u.vehicle_blacklist = menu.add_feature(lang["Vehicle blacklist"], "parent", u.gvehicle.id)
-u.debug = menu.add_feature("Debugging", "parent", u.settingsUI.id)
-u.session_trolling = menu.add_feature(lang["Session trolling"], "parent", u.kekMenu)
-u.session_malicious = menu.add_feature(lang["Session malicious"], "parent", u.kekMenu)
-u.weapon_blacklist = menu.add_feature(lang["Weapon blacklist"], "parent", u.session_malicious.id)
-u.session_peaceful = menu.add_feature(lang["Session peaceful"], "parent", u.kekMenu)
-u.kek_utilities = menu.add_feature(lang["Kek's utilities"], "parent", u.kekMenu)
+u.vehicleSettings = essentials.add_feature(lang["Vehicle settings"], "parent", u.gvehicle.id)
+u.settingsUI = essentials.add_feature(lang["Settings"], "parent", u.kekMenu)
+u.profiles = essentials.add_feature(lang["Settings"], "parent", u.settingsUI.id)
+u.script_loader = essentials.add_feature(lang["Script loader"], "parent", u.settingsUI.id)
+u.language_config = essentials.add_feature(lang["Language configuration"], "parent", u.settingsUI.id)
+u.ai_drive = essentials.add_feature(lang["Ai driving"], "parent", u.gvehicle.id)
+u.drive_style_cfg = essentials.add_feature(lang["Drive style"], "parent", u.gvehicle.id)
+u.protections = essentials.add_feature(lang["Protections"], "parent", u.self_options.id)
+u.modder_detection = essentials.add_feature(lang["Modder detection"], "parent", u.kekMenu)
+u.flagsTolog = essentials.add_feature(lang["Modder logging settings"], "parent", u.modder_detection.id)
+u.flagsToKick = essentials.add_feature(lang["Auto kicker settings"], "parent", u.modder_detection.id)
+u.vehicle_friendly = essentials.add_feature(lang["Vehicle peaceful"], "parent", u.gvehicle.id)
+u.vehicle_blacklist = essentials.add_feature(lang["Vehicle blacklist"], "parent", u.gvehicle.id)
+u.debug = essentials.add_feature("Debugging", "parent", u.settingsUI.id)
+u.session_trolling = essentials.add_feature(lang["Session trolling"], "parent", u.kekMenu)
+u.session_malicious = essentials.add_feature(lang["Session malicious"], "parent", u.kekMenu)
+u.weapon_blacklist = essentials.add_feature(lang["Weapon blacklist"], "parent", u.session_malicious.id)
+u.session_peaceful = essentials.add_feature(lang["Session peaceful"], "parent", u.kekMenu)
+u.kek_utilities = essentials.add_feature(lang["Kek's utilities"], "parent", u.kekMenu)
 
-u.player_vehicle_features = menu.add_player_feature(lang["Vehicle"], "parent", u.kekMenuP).id
-u.malicious_player_features = menu.add_player_feature(lang["Malicious"], "parent", u.kekMenuP).id
-u.script_stuff = menu.add_player_feature(lang["Scripts"], "parent", u.kekMenuP).id
-u.pWeapons = menu.add_player_feature(lang["Weapons"], "parent", u.kekMenuP).id
-u.player_misc_features = menu.add_player_feature(lang["Misc"], "parent", u.kekMenuP).id
-u.player_peaceful = menu.add_player_feature(lang["Peaceful"], "parent", u.kekMenuP).id
-u.player_trolling_features = menu.add_player_feature(lang["Trolling"], "parent", u.kekMenuP).id
+u.player_vehicle_features = essentials.add_player_feature(lang["Vehicle"], "parent", u.kekMenuP).id
+u.malicious_player_features = essentials.add_player_feature(lang["Malicious"], "parent", u.kekMenuP).id
+u.script_stuff = essentials.add_player_feature(lang["Scripts"], "parent", u.kekMenuP).id
+u.pWeapons = essentials.add_player_feature(lang["Weapons"], "parent", u.kekMenuP).id
+u.player_misc_features = essentials.add_player_feature(lang["Misc"], "parent", u.kekMenuP).id
+u.player_peaceful = essentials.add_player_feature(lang["Peaceful"], "parent", u.kekMenuP).id
+u.player_trolling_features = essentials.add_player_feature(lang["Trolling"], "parent", u.kekMenuP).id
 
 local keks_custom_modder_flags = 
 	{
@@ -1154,7 +1090,7 @@ for _, properties in pairs({
 	settings:add_setting(properties)
 end
 
-settings.toggle["Exclude friends from attacks"] = menu.add_feature(lang["Exclude friends from attacks"], "toggle", u.session_malicious.id)
+settings.toggle["Exclude friends from attacks"] = essentials.add_feature(lang["Exclude friends from attacks"], "toggle", u.session_malicious.id)
 
 for _, properties in pairs({
 	{
@@ -1177,7 +1113,7 @@ for _, properties in pairs({
 	}
 }) do
 	settings:add_setting(properties)
-	settings.toggle[properties.setting_name] = menu.add_feature(properties.feature_name, "toggle", properties.feature_parent.id, function(f)
+	settings.toggle[properties.setting_name] = essentials.add_feature(properties.feature_name, "toggle", properties.feature_parent.id, function(f)
 		settings.in_use[properties.setting_name] = f.on
 	end)
 end
@@ -1220,11 +1156,11 @@ for _, properties in pairs({
 	}
 }) do
 	settings:add_setting(properties)
-	settings.toggle[properties.setting_name] = menu.add_feature(properties.feature_name, "toggle", u.vehicleSettings.id)
+	settings.toggle[properties.setting_name] = essentials.add_feature(properties.feature_name, "toggle", u.vehicleSettings.id)
 end
 
 -- Mod tag related settings
-settings.toggle["Log modders"] = menu.add_feature(lang["Log flags below to blacklist"], "toggle", u.flagsTolog.id, function(f)
+settings.toggle["Log modders"] = essentials.add_feature(lang["Log flags below to blacklist"], "toggle", u.flagsTolog.id, function(f)
 	local blacklist_flag <const> = keks_custom_modder_flags["Blacklist"]
 	while f.on do
 		system.yield(0)
@@ -1277,7 +1213,7 @@ settings.toggle["Log modders"].data = {
 	recently_logged = {} -- Accessed by blacklist feat
 } -- settings.toggle["Log modders"].data is accessed by the auto kicker
 
-settings.toggle["Auto kicker"] = menu.add_feature(lang["Auto kicker"], "value_str", u.flagsToKick.id, function(f)
+settings.toggle["Auto kicker"] = essentials.add_feature(lang["Auto kicker"], "value_str", u.flagsToKick.id, function(f)
 	while f.on do
 		system.yield(0)
 		for pid in essentials.players() do
@@ -1317,7 +1253,7 @@ for setting_prefix, setting_property in pairs(u.modder_flag_setting_properties) 
 			setting = false
 		})
 
-		settings.toggle[setting_name] = menu.add_feature(lang[setting_property.feat_name].." "..player.get_modder_flag_text(modIdStuff[i]), "toggle", setting_property.parent.id, function(f) 
+		settings.toggle[setting_name] = essentials.add_feature(lang[setting_property.feat_name].." "..player.get_modder_flag_text(modIdStuff[i]), "toggle", setting_property.parent.id, function(f) 
 			settings.in_use[setting_name] = f.on
 			if f.on then
 				setting_property.bits = setting_property.bits | modIdStuff[i]
@@ -1328,7 +1264,7 @@ for setting_prefix, setting_property in pairs(u.modder_flag_setting_properties) 
 	end
 end
 
-menu.add_feature(string.format("%s English %s", lang["Set"], lang["as default language."]), "action", u.language_config.id, function(f)
+essentials.add_feature(string.format("%s English %s", lang["Set"], lang["as default language."]), "action", u.language_config.id, function(f)
 	local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\language.ini", "w+")
 	file:write("English.txt")
 	file:flush()
@@ -1336,7 +1272,7 @@ menu.add_feature(string.format("%s English %s", lang["Set"], lang["as default la
 	essentials.msg("Reset lua state for language change to apply.", "red", true, 10)
 end)
 for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs\\Languages", "txt")) do
-	menu.add_feature(string.format("%s %s %s", lang["Set"], file_name:gsub("%.txt$", ""), lang["as default language."]), "action", u.language_config.id, function(f)
+	essentials.add_feature(string.format("%s %s %s", lang["Set"], file_name:gsub("%.txt$", ""), lang["as default language."]), "action", u.language_config.id, function(f)
 		local file <close> = io.open(paths.kek_menu_stuff.."kekMenuLibs\\Languages\\language.ini", "w+")
 		file:write(file_name)
 		file:flush()
@@ -1368,7 +1304,7 @@ do
 				"-- sjhvnciuyu44khdjkhUSx",
 				"local appdata_path <const> = utils.get_appdata_path(\"PopstarDevs\", \"2Take1Menu\")..\"\\\\\"",
 				"local scripts <const> = {}",
-				"menu.create_thread(function()",
+				"essentials.create_thread(function()",
 				"	system.yield(0)",
 				"	for i = 0, #scripts - 1 do",
 				"		local script_name <const> = scripts[#scripts - i]",
@@ -1383,7 +1319,7 @@ do
 		end
 	end
 
-	u.toggle_script_loader = menu.add_feature("", "action", u.script_loader.id, function(f)
+	u.toggle_script_loader = essentials.add_feature("", "action", u.script_loader.id, function(f)
 		update_autoexec(true)
 		local str <const> = essentials.get_file_string(paths.home.."scripts\\autoexec.lua")
 		if str:find("^if false then return end") then
@@ -1404,14 +1340,14 @@ do
 		update_script_loader_toggle_name()
 	end)
 
-	menu.add_feature(lang["Empty script loader file"], "action", u.script_loader.id, function()
+	essentials.add_feature(lang["Empty script loader file"], "action", u.script_loader.id, function()
 		local file <close> = io.open(paths.home.."scripts\\autoexec.lua", "w+")
 		update_autoexec(true)
 		update_script_loader_toggle_name()
 		essentials.msg(lang["Emptied script loader"], "blue", true)
 	end)
 
-	menu.add_feature(lang["Add script to auto loader"], "action", u.script_loader.id, function()
+	essentials.add_feature(lang["Add script to auto loader"], "action", u.script_loader.id, function()
 		local input, status <const> = keys_and_input.get_input(lang["Type in the name of the lua script to add."], "", 128, 0)
 		if status == 2 then
 			return
@@ -1438,7 +1374,7 @@ do
 		essentials.msg(lang["Couldn't find file"], "red", true)
 	end)
 
-	menu.add_feature(lang["Remove script from auto loader"], "action", u.script_loader.id, function()
+	essentials.add_feature(lang["Remove script from auto loader"], "action", u.script_loader.id, function()
 		local input, status <const> = keys_and_input.get_input(lang["Type in the lua script you want to remove."], "", 128, 0)
 		if status == 2 then
 			return
@@ -1460,7 +1396,7 @@ do
 end
 
 do
-	settings.toggle["Godmode detection"] = menu.add_feature(lang["Godmode detection"], "toggle", u.modder_detection.id, function(f)
+	settings.toggle["Godmode detection"] = essentials.add_feature(lang["Godmode detection"], "toggle", u.modder_detection.id, function(f)
 		while f.on do
 			system.yield(0)
 			for pid in essentials.players() do
@@ -1470,7 +1406,7 @@ do
 				then
 					local scid <const> = player.get_player_scid(pid)
 					f.data.tracker[scid] = utils.time_ms() + 15000
-					menu.create_thread(function()
+					essentials.create_thread(function()
 						local time <const> = utils.time_ms() + 1000
 						while time > utils.time_ms() and f.data.is_god(f, pid)
 						and #kek_entity.is_any_tasks_active(player.get_player_ped(pid), f.data.tasks) > 1 do
@@ -1538,7 +1474,7 @@ do
 	}
 end
 
-settings.toggle["Blacklist"] = menu.add_feature(lang["Blacklist"], "value_str", u.modder_detection.id, function(f)
+settings.toggle["Blacklist"] = essentials.add_feature(lang["Blacklist"], "value_str", u.modder_detection.id, function(f)
 	if f.on then
 		if essentials.listeners["player_join"]["blacklist"] then -- value_str creates a new thread if no thread is active. Meaning duplicate event listeners.
 			return
@@ -1670,7 +1606,7 @@ do
 		end
 	end
 
-	settings.toggle["Automatically check player stats"] = menu.add_feature(lang["Modded stats detection"], "toggle", u.modder_detection.id, function(f)
+	settings.toggle["Automatically check player stats"] = essentials.add_feature(lang["Modded stats detection"], "toggle", u.modder_detection.id, function(f)
 		while f.on do
 			for pid in essentials.players() do
 				suspicious_stats(pid)
@@ -1740,7 +1676,7 @@ local function remove_from_blacklist(...)
 	end
 end
 
-menu.add_player_feature(lang["Blacklist"], "action_value_str", u.player_misc_features, function(f, pid)
+essentials.add_player_feature(lang["Blacklist"], "action_value_str", u.player_misc_features, function(f, pid)
 	if essentials.is_str(f, "Add") then
 		if pid == player.player_id() then
 			essentials.msg(lang["You can't add yourself to the blacklist..."], "red", true)
@@ -1760,7 +1696,7 @@ end):set_str_data({
 	lang["Remove"]
 })
 
-settings.toggle["Kick any vote kickers"] = menu.add_feature(lang["Kick any vote kickers"], "toggle", u.protections.id, function(f)
+settings.toggle["Kick any vote kickers"] = essentials.add_feature(lang["Kick any vote kickers"], "toggle", u.protections.id, function(f)
 	if f.on then
 		essentials.nethooks["vote_kick_protex"] = hook.register_net_event_hook(function(...)
 			local sender <const>, target <const>, event <const> = ...
@@ -1782,7 +1718,7 @@ settings.toggle["Kick any vote kickers"] = menu.add_feature(lang["Kick any vote 
 	end
 end)
 
-settings.toggle["Revenge"] = menu.add_feature(lang["Revenge"], "value_str", u.protections.id, function(f)
+settings.toggle["Revenge"] = essentials.add_feature(lang["Revenge"], "value_str", u.protections.id, function(f)
 	while f.on do
 		system.yield(0)
 		if player.is_player_dead(player.player_id()) then
@@ -1812,7 +1748,7 @@ settings.valuei["Revenge mode"]:set_str_data({
 	lang["Crash"]
 })
 
-settings.toggle["Aim protection"] = menu.add_feature(lang["Aim protection"], "value_str", u.protections.id, function(f)
+settings.toggle["Aim protection"] = essentials.add_feature(lang["Aim protection"], "value_str", u.protections.id, function(f)
 	while f.on do
 		for pid in essentials.players() do
 			if essentials.is_not_friend(pid) and player.get_entity_player_is_aiming_at(pid) == player.get_player_ped(player.player_id()) then
@@ -1859,7 +1795,7 @@ settings.valuei["Aim protection mode"]:set_str_data({
 	lang["Invite to apartment"]
 })
 
-menu.add_feature(lang["Blacklist"], "action_value_str", u.modder_detection.id, function(f)
+essentials.add_feature(lang["Blacklist"], "action_value_str", u.modder_detection.id, function(f)
 	local illegal_chars_msg <const> = lang["Illegal characters detected. Please try again. Illegal chars:"].." \"/\", \"§\", \"&\", \"<\", \">\""
 	if essentials.is_str(f, "Add") then
 		local ip, reason, name = "", "", ""
@@ -1948,9 +1884,9 @@ end):set_str_data({
 	lang["Remove session"]
 })
 
-settings.toggle["Script quick access"] = menu.add_feature(lang["Script quick access"], "toggle", u.settingsUI.id)
+settings.toggle["Script quick access"] = essentials.add_feature(lang["Script quick access"], "toggle", u.settingsUI.id)
 
-settings.user_entity_features.vehicle.feats["Change user vehicle setting"] = menu.add_feature(lang["Set vehicle in use"], "action_value_str", u.settingsUI.id, function()
+settings.user_entity_features.vehicle.feats["Change user vehicle setting"] = essentials.add_feature(lang["Set vehicle in use"], "action_value_str", u.settingsUI.id, function()
 	local input <const>, status <const> = keys_and_input.input_user_entity("vehicle")
 	if status == 2 then
 		return
@@ -1958,7 +1894,7 @@ settings.user_entity_features.vehicle.feats["Change user vehicle setting"] = men
 	settings:update_user_entity(input, "vehicle")
 end)
 
-settings.user_entity_features.ped.feats["Change user ped setting"] = menu.add_feature(lang["Set ped in use"], "action_value_str", u.settingsUI.id, function()
+settings.user_entity_features.ped.feats["Change user ped setting"] = essentials.add_feature(lang["Set ped in use"], "action_value_str", u.settingsUI.id, function()
 	local input <const>, status <const> = keys_and_input.input_user_entity("ped")
 	if status == 2 then
 		return
@@ -1966,7 +1902,7 @@ settings.user_entity_features.ped.feats["Change user ped setting"] = menu.add_fe
 	settings:update_user_entity(input, "ped")
 end)
 
-settings.user_entity_features.object.feats["Change user object setting"] = menu.add_feature(lang["Set object in use"], "action_value_str", u.settingsUI.id, function()
+settings.user_entity_features.object.feats["Change user object setting"] = essentials.add_feature(lang["Set object in use"], "action_value_str", u.settingsUI.id, function()
 	local input <const>, status <const> = keys_and_input.input_user_entity("object")
 	if status == 2 then
 		return
@@ -1974,21 +1910,21 @@ settings.user_entity_features.object.feats["Change user object setting"] = menu.
 	settings:update_user_entity(input, "object")
 end)
 
-menu.add_feature(lang["Set to \"?\" to make it random."], "action", u.settingsUI.id)
+essentials.add_feature(lang["Set to \"?\" to make it random."], "action", u.settingsUI.id)
 
-menu.add_feature(lang["Show latest update changelog"], "action", u.settingsUI.id, function(f)
+essentials.add_feature(lang["Show latest update changelog"], "action", u.settingsUI.id, function(f)
 	essentials.show_changelog()
 end)
 
-settings.toggle["Participate in betas"] = menu.add_feature(lang["Participate in betas"], "toggle", u.settingsUI.id, function(f)
+settings.toggle["Participate in betas"] = essentials.add_feature(lang["Participate in betas"], "toggle", u.settingsUI.id, function(f)
 	__kek_menu.participate_in_betas = f.on
 end)
 
-settings.toggle["Check for updates"] = menu.add_feature(lang["Check for updates"], "toggle", u.settingsUI.id, function(f)
+settings.toggle["Check for updates"] = essentials.add_feature(lang["Check for updates"], "toggle", u.settingsUI.id, function(f)
 	__kek_menu.check_for_updates = f.on
 end)
 
-settings.toggle["Debug mode"] = menu.add_feature(lang["Debug mode"], "toggle", u.debug.id, function(f)
+settings.toggle["Debug mode"] = essentials.add_feature(lang["Debug mode"], "toggle", u.debug.id, function(f)
 	if f.on and keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
 		essentials.msg(lang["Save settings and reset lua state to load in debug mode."], "blue", true, 12)
 		essentials.msg(lang["All scripts will run slower and might lag. More errors will occur, especially if you run other scripts."], "red", true, 12)
@@ -2002,21 +1938,21 @@ do
 	end
 	local f
 
-	f = menu.add_feature(lang["Vehicle limit"], "action_value_i", u.debug.id, update_limit)
+	f = essentials.add_feature(lang["Vehicle limit"], "action_value_i", u.debug.id, update_limit)
 	f.max = 125
 	settings.valuei["vehicle limits"] = f
 
-	f = menu.add_feature(lang["Ped limit"], "action_value_i", u.debug.id, update_limit)
+	f = essentials.add_feature(lang["Ped limit"], "action_value_i", u.debug.id, update_limit)
 	f.max = 170
 	settings.valuei["ped limits"] = f
 
-	f = menu.add_feature(lang["Object limit"], "action_value_i", u.debug.id, update_limit)
+	f = essentials.add_feature(lang["Object limit"], "action_value_i", u.debug.id, update_limit)
 	f.max = 800
 	settings.valuei["object limits"] = f
 
 end
 
-settings.toggle["Draw entity limits"] = menu.add_feature(lang["Draw entity limits"], "toggle", u.debug.id, function(f)
+settings.toggle["Draw entity limits"] = essentials.add_feature(lang["Draw entity limits"], "toggle", u.debug.id, function(f)
 	while f.on do
 		system.yield(0)
 		ui.set_text_color(255, 255, 255, 255)
@@ -2038,7 +1974,7 @@ settings.toggle["Draw entity limits"] = menu.add_feature(lang["Draw entity limit
 	end
 end)
 
-settings.toggle["Draw entity queue"] = menu.add_feature(lang["Draw entity queue"], "toggle", u.debug.id, function(f)
+settings.toggle["Draw entity queue"] = essentials.add_feature(lang["Draw entity queue"], "toggle", u.debug.id, function(f)
 	while f.on do
 		system.yield(0)
 		ui.set_text_color(255, 255, 255, 255)
@@ -2055,7 +1991,7 @@ settings.toggle["Draw entity queue"] = menu.add_feature(lang["Draw entity queue"
 	end
 end)
 
-settings.toggle["Draw number of script events sent"] = menu.add_feature(lang["Draw number of se sent"], "toggle", u.debug.id, function(f)
+settings.toggle["Draw number of script events sent"] = essentials.add_feature(lang["Draw number of se sent"], "toggle", u.debug.id, function(f)
 	while f.on do
 		system.yield(0)
 		ui.set_text_color(255, 255, 255, 255)
@@ -2066,7 +2002,7 @@ settings.toggle["Draw number of script events sent"] = menu.add_feature(lang["Dr
 	end
 end)
 
-settings.toggle["Draw garbage collection"] = menu.add_feature(lang["Draw garbage collection stats"], "toggle", u.debug.id, function(f)
+settings.toggle["Draw garbage collection"] = essentials.add_feature(lang["Draw garbage collection stats"], "toggle", u.debug.id, function(f)
 	local previous, change = 0, 0
 	local timer = 0
 	while f.on do
@@ -2088,7 +2024,7 @@ settings.toggle["Draw garbage collection"] = menu.add_feature(lang["Draw garbage
 	end
 end)
 
-menu.add_feature("Benchmark function", "action", u.debug.id, function(f)
+essentials.add_feature("Benchmark function", "action", u.debug.id, function(f)
 	local passes = 0
 	local time = utils.time_ms() + 1000
 	local func <const> = "Change this to your function"
@@ -2104,55 +2040,6 @@ menu.add_feature("Benchmark function", "action", u.debug.id, function(f)
 	end
 	essentials.msg((passes * 10).."k passes in 1 second.", "blue", true, 6)
 end)
-
-do
-	local object_testing_parent <const> = menu.add_feature("Object test", "parent", u.debug.id)
-	local f1, f2, f3
-	local feat = menu.add_feature("Spawn object & draw object properties", "toggle", object_testing_parent.id, function(f)
-		local model <const> = settings.user_entity_features.object.feats["Change object testing"]:get_str_data()[1]
-		f.data = kek_entity.spawn_local_object(object_mapper.get_hash_from_user_input(model), function()
-			return essentials.get_player_coords(player.player_id()) + 2
-		end)
-		f1.on = true -- Update newly spawned object to current set rot
-		entity.freeze_entity(f.data, true)
-		while f.on do
-			ui.set_text_color(255, 255, 255, 255)
-			ui.set_text_scale(0.5)
-			ui.set_text_font(1)
-			ui.set_text_outline(true)
-			ui.draw_text(string.format("%s", entity.get_entity_rotation__native(f.data, 2)), 
-			memoize.v2(0.8, 0.6))
-			system.yield(0)
-			if model ~= settings.user_entity_features.object.feats["Change object testing"]:get_str_data()[1] then
-				kek_entity.clear_entities({f.data})
-				return HANDLER_CONTINUE
-			end
-		end
-		kek_entity.clear_entities({f.data})
-	end)
-
-	settings.user_entity_features.object.feats["Change object testing"] = menu.add_feature("Set new object", "action_value_str", object_testing_parent.id, function(f)
-		local input <const>, status <const> = keys_and_input.input_user_entity("object")
-		if status == 2 then
-			return
-		end
-		settings:update_user_entity(input, "object")
-	end)
-
-	local rot_set_callback <const> = function(f)
-		if entity.is_entity_an_object(feat.data or 0) then
-			entity.set_entity_rotation__native(feat.data, v3(f1.value, f2.value, f3.value), 2, true)
-		end
-	end
-	f1 = menu.add_feature("X", "autoaction_value_i", object_testing_parent.id, rot_set_callback)
-	f1.min = -180 f1.max = 180 f1.mod = 5
-
-	f2 = menu.add_feature("Y", "autoaction_value_i", object_testing_parent.id, rot_set_callback)
-	f2.min = -180 f2.max = 180 f2.mod = 5
-
-	f3 = menu.add_feature("Z", "autoaction_value_i", object_testing_parent.id, rot_set_callback)
-	f3.min = -180 f3.max = 180 f3.mod = 5
-end
 
 local function vehicle_effect_standard(...)
 	local remove_players <const>, effect_callback <const>, dont_yield <const> = ...
@@ -2176,7 +2063,7 @@ local function vehicle_effect_standard(...)
 	end
 end		
 
-settings.valuei["Horn boost speed"] = menu.add_feature(lang["Horn boost"], "slider", u.session_peaceful.id, function(f)
+settings.valuei["Horn boost speed"] = essentials.add_feature(lang["Horn boost"], "slider", u.session_peaceful.id, function(f)
 	while f.on do
 		system.yield(0)
 		for pid in essentials.players() do
@@ -2197,7 +2084,7 @@ settings.valuei["Horn boost speed"].min = 5
 settings.valuei["Horn boost speed"].mod = 5
 settings.toggle["Horn boost"] = settings.valuei["Horn boost speed"]
 
-menu.add_feature(lang["Max nearby cars"], "toggle", u.vehicle_friendly.id, function(f)
+essentials.add_feature(lang["Max nearby cars"], "toggle", u.vehicle_friendly.id, function(f)
 	local max_car <const> = function(car)
 		kek_entity.max_car(car)
 	end
@@ -2207,7 +2094,7 @@ menu.add_feature(lang["Max nearby cars"], "toggle", u.vehicle_friendly.id, funct
 	end
 end)
 
-menu.add_feature(lang["Repair nearby cars"], "toggle", u.vehicle_friendly.id, function(f)
+essentials.add_feature(lang["Repair nearby cars"], "toggle", u.vehicle_friendly.id, function(f)
 	local func <const> = function(car)
 		kek_entity.repair_car(car)
 	end
@@ -2217,7 +2104,7 @@ menu.add_feature(lang["Repair nearby cars"], "toggle", u.vehicle_friendly.id, fu
 	end			
 end)
 
-menu.add_feature(lang["Give nearby cars godmode"], "toggle", u.vehicle_friendly.id, function(f)
+essentials.add_feature(lang["Give nearby cars godmode"], "toggle", u.vehicle_friendly.id, function(f)
 	local func <const> = function(car) 
 		kek_entity.modify_entity_godmode(car, true) 
 	end
@@ -2230,7 +2117,7 @@ menu.add_feature(lang["Give nearby cars godmode"], "toggle", u.vehicle_friendly.
 	end)
 end)
 
-menu.add_feature(lang["Nearby cars have no collision"], "toggle", u.vehicle_friendly.id, function(f)
+essentials.add_feature(lang["Nearby cars have no collision"], "toggle", u.vehicle_friendly.id, function(f)
 	local tracker = {}
 	while f.on do 
 		system.yield(0)
@@ -2251,7 +2138,7 @@ menu.add_feature(lang["Nearby cars have no collision"], "toggle", u.vehicle_frie
 	end, true)
 end)
 
-u.modify_nearby_car_top_speed = menu.add_feature(lang["Drive force multiplier"], "value_f", u.vehicle_friendly.id, function(f)
+u.modify_nearby_car_top_speed = essentials.add_feature(lang["Drive force multiplier"], "value_f", u.vehicle_friendly.id, function(f)
 	local func <const> = function(car)
 		entity.set_entity_max_speed(car, 45000)
 		vehicle.modify_vehicle_top_speed(car, (f.value - 1) * 100)
@@ -2266,7 +2153,7 @@ u.modify_nearby_car_top_speed.min = -4.0
 u.modify_nearby_car_top_speed.mod = 0.1
 u.modify_nearby_car_top_speed.value = 1.0
 
-local gravity <const> = menu.add_feature(lang["Gravity"], "value_f", u.vehicle_friendly.id, function(f)
+local gravity <const> = essentials.add_feature(lang["Gravity"], "value_f", u.vehicle_friendly.id, function(f)
 	local func <const> = function(car)
 		if player.get_player_vehicle(player.player_id()) ~= car then
 			vehicle.set_vehicle_gravity_amount(car, f.value)
@@ -2337,7 +2224,7 @@ do
 		use_fireing_weapons =  true
 	})
 
-	swap_nearby_to_police = menu.add_feature(lang["Swap nearby vehicles to police"], "toggle", u.session_trolling.id, function(f)
+	swap_nearby_to_police = essentials.add_feature(lang["Swap nearby vehicles to police"], "toggle", u.session_trolling.id, function(f)
 		settings.user_entity_features.vehicle.feats["Swap nearby cars"].on = false
 		local buf <const> = {}
 		while f.on and not settings.user_entity_features.vehicle.feats["Swap nearby cars"].on do
@@ -2392,7 +2279,7 @@ do
 	end)
 end
 
-settings.user_entity_features.vehicle.feats["Swap nearby cars"] = menu.add_feature(lang["Swap nearby cars"], "value_str", u.vehicle_friendly.id, function(f)
+settings.user_entity_features.vehicle.feats["Swap nearby cars"] = essentials.add_feature(lang["Swap nearby cars"], "value_str", u.vehicle_friendly.id, function(f)
 	swap_nearby_to_police.on = false
 	while f.on do
 		system.yield(0)
@@ -2446,7 +2333,7 @@ settings.user_entity_features.vehicle.feats["Swap nearby cars"] = menu.add_featu
 	end
 end)
 
-menu.add_feature(lang["Vehicle fly nearby vehicles"], "toggle", u.vehicle_friendly.id, function(f)
+essentials.add_feature(lang["Vehicle fly nearby vehicles"], "toggle", u.vehicle_friendly.id, function(f)
 	while f.on do
 		system.yield(0)
 		local control_indexes <const> = essentials.const({
@@ -2496,7 +2383,7 @@ menu.add_feature(lang["Vehicle fly nearby vehicles"], "toggle", u.vehicle_friend
 	end
 end)
 
-settings.user_entity_features.vehicle.feats["Ram everyone"] = menu.add_feature(lang["Ram everyone"], "value_str", u.session_trolling.id, function(f)
+settings.user_entity_features.vehicle.feats["Ram everyone"] = essentials.add_feature(lang["Ram everyone"], "value_str", u.session_trolling.id, function(f)
 	local hash, vehicle_name
 	while f.on do
 		if vehicle_name ~= settings.in_use["User vehicle"] then
@@ -2527,7 +2414,7 @@ settings.user_entity_features.vehicle.feats["Ram everyone"] = menu.add_feature(l
 	end
 end)
 
-menu.add_feature(lang["Disable vehicles"], "toggle", u.session_malicious.id, function(f)
+essentials.add_feature(lang["Disable vehicles"], "toggle", u.session_malicious.id, function(f)
 	while f.on do
 		for pid in essentials.players() do
 			if (player.get_player_vehicle(player.player_id()) == 0 or player.get_player_vehicle(pid) ~= player.get_player_vehicle(player.player_id())) then
@@ -2597,7 +2484,7 @@ do
 	end
 end
 
-menu.add_feature(lang["Disable weapons"], "value_str", u.session_malicious.id, function(f, pid)
+essentials.add_feature(lang["Disable weapons"], "value_str", u.session_malicious.id, function(f, pid)
 	while f.on do
 		system.yield(0)
 		for pid in essentials.players() do
@@ -2615,7 +2502,7 @@ end):set_str_data({
 
 do
 	local weapon_hashes_to_blacklist <const> = {}
-	settings.toggle["Weapon blacklist"] = menu.add_feature(lang["Weapon blacklist"], "value_str", u.weapon_blacklist.id, function(f)
+	settings.toggle["Weapon blacklist"] = essentials.add_feature(lang["Weapon blacklist"], "value_str", u.weapon_blacklist.id, function(f)
 		while f.on do
 			system.yield(0)
 			for hash in pairs(weapon_hashes_to_blacklist) do
@@ -2655,7 +2542,7 @@ do
 		lang["Melee"],
 		lang["Miscellaneous"]
 	}) do
-		local parent <const> = menu.add_feature(weapon_group_name, "parent", u.weapon_blacklist.id)
+		local parent <const> = essentials.add_feature(weapon_group_name, "parent", u.weapon_blacklist.id)
 		for _, hash in pairs(weapon_mapper.get_table_of_weapons({
 			rifles = 1 == i,
 			smgs = 2 == i,
@@ -2674,7 +2561,7 @@ do
 					setting_name = setting_name,
 					setting = false
 				})
-				settings.toggle[setting_name] = menu.add_feature(weapon.get_weapon_name(hash), "toggle", parent.id, function(f)
+				settings.toggle[setting_name] = essentials.add_feature(weapon.get_weapon_name(hash), "toggle", parent.id, function(f)
 					weapon_hashes_to_blacklist[f.data] = f.on or nil
 				end)
 				settings.toggle[setting_name].data = hash
@@ -2691,7 +2578,7 @@ end
 function player_history.add_features(main_parent, rid, ip, name)
 	if main_parent.child_count == 0 then
 		local blacklist_feat
-		menu.add_feature(lang["Copy to clipboard"], "action_value_str", main_parent.id, function(f, pid)
+		essentials.add_feature(lang["Copy to clipboard"], "action_value_str", main_parent.id, function(f, pid)
 			if essentials.is_str(f, "rid") then
 				utils.to_clipboard(rid)
 			elseif essentials.is_str(f, "ip") then
@@ -2705,7 +2592,7 @@ function player_history.add_features(main_parent, rid, ip, name)
 			lang["name"]
 		})
 
-		menu.add_feature(lang["Blacklist"], "action_value_str", main_parent.id, function(f)
+		essentials.add_feature(lang["Blacklist"], "action_value_str", main_parent.id, function(f)
 			if essentials.is_str(f, "Add") then
 				if name == player.get_player_name(player.player_id()) then
 					essentials.msg(lang["You can't add yourself to the blacklist..."], "red", true)
@@ -2781,7 +2668,7 @@ function player_history.add_features(main_parent, rid, ip, name)
 
 				local feat
 				local temporarily_disable_copy_to_clipboard
-				menu.add_feature(lang["Chat log"], "parent", main_parent.id, function(parent)
+				essentials.add_feature(lang["Chat log"], "parent", main_parent.id, function(parent)
 					if not settings.toggle["Chat logger"].on then
 						essentials.msg(lang["For chat to show here, chat logger must be on. You can find chat logger in script features > Chat"], "blue", true, 8)
 					end
@@ -2791,7 +2678,7 @@ function player_history.add_features(main_parent, rid, ip, name)
 					parent.data = essentials.get_all_matches(str, "["..name..spaces.."]", "%]:\32(.+)")
 					if parent.child_count == 0 then
 						local feats <const> = {}
-						feat = menu.add_feature(lang["Scroll through messages"], "autoaction_value_i", parent.id, function(f)
+						feat = essentials.add_feature(lang["Scroll through messages"], "autoaction_value_i", parent.id, function(f)
 							if #parent.data > 0 then
 								local i2 = 1
 								for i = f.value - 10, f.value - 1 do
@@ -2817,7 +2704,7 @@ function player_history.add_features(main_parent, rid, ip, name)
 							end
 						end)
 						for i = 1, 10 do
-							feats[i] = menu.add_feature("", "autoaction_value_i", parent.id, function(f)
+							feats[i] = essentials.add_feature("", "autoaction_value_i", parent.id, function(f)
 								if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
 									utils.to_clipboard(table.concat(f.data))
 									essentials.msg(lang["Copied to clipboard."], "blue", true, 3)
@@ -2836,22 +2723,22 @@ function player_history.add_features(main_parent, rid, ip, name)
 
 				local is_added_to_join_timeout = essentials.search_for_match_and_get_line(paths.home.."cfg\\scid.cfg", {string.format("%x", rid), name}) or ""
 				local fake_friend_flags = tonumber(is_added_to_join_timeout:match(".+:%x+:(%x+)$") or "", 16)
-				menu.add_feature(lang["Is added to join timeout"], "action_value_str", main_parent.id):set_str_data({tostring(fake_friend_flags ~= nil and fake_friend_flags & 4 == 4)})
+				essentials.add_feature(lang["Is added to join timeout"], "action_value_str", main_parent.id):set_str_data({tostring(fake_friend_flags ~= nil and fake_friend_flags & 4 == 4)})
 
 				local is_blacklisted <const> = essentials.search_for_match_and_get_line(paths.blacklist, {string.format("/%i/", rid), string.format("&%s&", essentials.ipv4_to_dec(ip)), string.format("§%s§", name)}) or ""
-				blacklist_feat = menu.add_feature(string.format("%s: %s", lang["Blacklist reason"], is_blacklisted:match("<(.+)>") or lang["isn't blacklisted"]), "action", main_parent.id)
+				blacklist_feat = essentials.add_feature(string.format("%s: %s", lang["Blacklist reason"], is_blacklisted:match("<(.+)>") or lang["isn't blacklisted"]), "action", main_parent.id)
 
-				menu.add_feature(string.format("%s: %s", lang["First seen"], seen[1].feat_name), "action", main_parent.id)
+				essentials.add_feature(string.format("%s: %s", lang["First seen"], seen[1].feat_name), "action", main_parent.id)
 				if #seen > 1 then
-					menu.add_feature(string.format("%s: %s", lang["Last seen"], seen[#seen].feat_name), "action", main_parent.id)
-					menu.add_feature(string.format("%s %i %s", lang["Seen"], #seen, lang["times."]), "action", main_parent.id)
+					essentials.add_feature(string.format("%s: %s", lang["Last seen"], seen[#seen].feat_name), "action", main_parent.id)
+					essentials.add_feature(string.format("%s %i %s", lang["Seen"], #seen, lang["times."]), "action", main_parent.id)
 				else
-					menu.add_feature(string.format("%s 1 %s", lang["Seen"], lang["time."]), "action", main_parent.id)
+					essentials.add_feature(string.format("%s 1 %s", lang["Seen"], lang["time."]), "action", main_parent.id)
 				end
-				menu.add_feature(lang["Also known as"]..":", "action_value_str", main_parent.id):set_str_data({lang["What is known for"]})
+				essentials.add_feature(lang["Also known as"]..":", "action_value_str", main_parent.id):set_str_data({lang["What is known for"]})
 				for _, properties in pairs(known_as) do
 					if not main_parent.name:find(properties.name, 1, true) then
-						menu.add_feature(string.format("%s [%s]", properties.name, properties.date), "action_value_str", main_parent.id):set_str_data({properties.matched})
+						essentials.add_feature(string.format("%s [%s]", properties.name, properties.date), "action_value_str", main_parent.id):set_str_data({properties.matched})
 					end
 				end
 			end
@@ -2872,7 +2759,7 @@ do
 		until not start or essentials.is_str(f, "search oldest to newest") or pattern_input == ""
 		return results, str
 	end
-	menu.add_feature(lang["Player history"], "action_value_str", u.player_history.id, function(f)
+	essentials.add_feature(lang["Player history"], "action_value_str", u.player_history.id, function(f)
 		if essentials.is_str(f, "search newest to oldest") or essentials.is_str(f, "search oldest to newest") then
 			local input, status <const> = keys_and_input.get_input(lang["Type in what player you wanna search for. rid / name / ip"], "", 128, 0)
 			if status == 2 then
@@ -2901,7 +2788,7 @@ do
 				local name <const> = line:match("|(.+)|") or "" 
 				local rid <const> = line:match("&(%d+)&") or ""
 				local ip <const> = line:match("%^([%d.]+)%^") or ""
-				player_history.searched_players[#player_history.searched_players + 1] = menu.add_feature(name, "parent", u.player_history.id, function(f)
+				player_history.searched_players[#player_history.searched_players + 1] = essentials.add_feature(name, "parent", u.player_history.id, function(f)
 					player_history.add_features(f, rid, ip, name)	
 				end)
 			else
@@ -2924,25 +2811,25 @@ end
 
 for _, year in pairs(player_history.sort_numbers(utils.get_all_sub_directories_in_directory(paths.kek_menu_stuff.."Player history"))) do
 	local year_folder <const> = paths.kek_menu_stuff.."Player history\\"..year
-	player_history.year_parents[year_folder] = menu.add_feature(year, "parent", u.player_history.id)
+	player_history.year_parents[year_folder] = essentials.add_feature(year, "parent", u.player_history.id)
 
 	for _, month in pairs(player_history.sort_numbers(utils.get_all_sub_directories_in_directory(year_folder))) do
 		local month_folder <const> = year_folder.."\\"..month
-		player_history.month_parents[month_folder] = menu.add_feature(string.gsub(month:gsub("_", " "), "%d", ""), "parent", player_history.year_parents[year_folder].id)
+		player_history.month_parents[month_folder] = essentials.add_feature(string.gsub(month:gsub("_", " "), "%d", ""), "parent", player_history.year_parents[year_folder].id)
 
 		for i, day in pairs(player_history.sort_numbers(utils.get_all_sub_directories_in_directory(month_folder))) do
 			if i == 3 then
 				goto exit
 			end
 			local day_folder <const> = month_folder.."\\"..day
-			player_history.day_parents[day_folder] = menu.add_feature(day, "parent", player_history.month_parents[month_folder].id)
+			player_history.day_parents[day_folder] = essentials.add_feature(day, "parent", player_history.month_parents[month_folder].id)
 
 			for _, current_file in pairs(player_history.sort_numbers(utils.get_all_files_in_directory(day_folder, "log"))) do
 				local file_path <const> = day_folder.."\\"..current_file
-				player_history.hour_parents[file_path] = menu.add_feature(current_file:gsub("%.log$", ""), "parent", player_history.day_parents[day_folder].id)
+				player_history.hour_parents[file_path] = essentials.add_feature(current_file:gsub("%.log$", ""), "parent", player_history.day_parents[day_folder].id)
 
 				for name, rid, ip, time in essentials.get_file_string(file_path):gmatch("|([^\n\r|]+)| &(%d+)& %^([%d.]+)%^ !([%d:]+)!") do
-					menu.add_feature(essentials.get_safe_feat_name(string.format("%s [%s]", name, time)), "parent", player_history.hour_parents[file_path].id, function(f)
+					essentials.add_feature(essentials.get_safe_feat_name(string.format("%s [%s]", name, time)), "parent", player_history.hour_parents[file_path].id, function(f)
 						player_history.add_features(f, rid, ip, name)	
 					end)
 					player_history.players_added_to_history[string.format("|%s| &%d& ^%s^", name, rid, ip)] = true
@@ -2954,8 +2841,8 @@ end
 ::exit::
 
 do
-	local parent <const> = menu.add_feature(lang["Settings"], "parent", u.player_history.id)
-	settings.toggle["Player history"] = menu.add_feature(lang["Player history"], "toggle", parent.id, function(f)
+	local parent <const> = essentials.add_feature(lang["Settings"], "parent", u.player_history.id)
+	settings.toggle["Player history"] = essentials.add_feature(lang["Player history"], "toggle", parent.id, function(f)
 		while f.on do
 			system.yield(0)
 			for pid in essentials.players() do
@@ -2993,16 +2880,16 @@ do
 					end
 
 					if not player_history.year_parents[year_folder] then
-						player_history.year_parents[year_folder] = menu.add_feature(year, "parent", u.player_history.id)
+						player_history.year_parents[year_folder] = essentials.add_feature(year, "parent", u.player_history.id)
 					end
 					if not player_history.month_parents[month_folder] then
-						player_history.month_parents[month_folder] = menu.add_feature(string.gsub(month:gsub("_", " "), "%d", ""), "parent", player_history.year_parents[year_folder].id)
+						player_history.month_parents[month_folder] = essentials.add_feature(string.gsub(month:gsub("_", " "), "%d", ""), "parent", player_history.year_parents[year_folder].id)
 					end
 					if not player_history.day_parents[day_folder] then
-						player_history.day_parents[day_folder] = menu.add_feature(day, "parent", player_history.month_parents[month_folder].id)
+						player_history.day_parents[day_folder] = essentials.add_feature(day, "parent", player_history.month_parents[month_folder].id)
 					end
 					if not player_history.hour_parents[file_path] then
-						player_history.hour_parents[file_path] = menu.add_feature(time, "parent", player_history.day_parents[day_folder].id)
+						player_history.hour_parents[file_path] = essentials.add_feature(time, "parent", player_history.day_parents[day_folder].id)
 					end
 
 					local name <const> = player.get_player_name(pid)
@@ -3020,7 +2907,7 @@ do
 						essentials.log(paths.player_history_all_players, info_to_log)
 						essentials.log(file_path, info_to_log)
 						local name_of_feat <const> = string.format("%s [%s]", name, os.date("%X"))
-						menu.add_feature(name_of_feat, "parent", player_history.hour_parents[file_path].id, function(f)
+						essentials.add_feature(name_of_feat, "parent", player_history.hour_parents[file_path].id, function(f)
 							if f.child_count == 0 then
 								player_history.add_features(f, rid, ip, name)
 							end
@@ -3033,12 +2920,12 @@ do
 		end
 	end)
 
-	settings.toggle["Check rid in also known as"] = menu.add_feature(lang["Check rid in also known as"], "toggle", parent.id)
-	settings.toggle["Check name in also known as"] = menu.add_feature(lang["Check name in also known as"], "toggle", parent.id)
-	settings.toggle["Check ip in also known as"] = menu.add_feature(lang["Check ip in also known as"], "toggle", parent.id)
+	settings.toggle["Check rid in also known as"] = essentials.add_feature(lang["Check rid in also known as"], "toggle", parent.id)
+	settings.toggle["Check name in also known as"] = essentials.add_feature(lang["Check name in also known as"], "toggle", parent.id)
+	settings.toggle["Check ip in also known as"] = essentials.add_feature(lang["Check ip in also known as"], "toggle", parent.id)
 end
 
-menu.add_player_feature(lang["Script event crash"], "action_value_str", u.malicious_player_features, function(f, pid)
+essentials.add_player_feature(lang["Script event crash"], "action_value_str", u.malicious_player_features, function(f, pid)
 	if essentials.is_str(f, "Big while loops") then
 		globals.script_event_crash(pid)
 	elseif essentials.is_str(f, "25 notifs in one frame") then
@@ -3049,7 +2936,7 @@ end):set_str_data({
 	lang["25 notifs in one frame"]
 })
 
-menu.add_player_feature(lang["Crash"], "action", u.malicious_player_features, function(f, pid)
+essentials.add_player_feature(lang["Crash"], "action", u.malicious_player_features, function(f, pid)
 	if player.player_count() == 0 then
 		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
 		return
@@ -3089,7 +2976,7 @@ menu.add_player_feature(lang["Crash"], "action", u.malicious_player_features, fu
 	end
 end)
 
-menu.add_player_feature(lang["Disable weapons"], "value_str", u.malicious_player_features, function(f, pid)
+essentials.add_player_feature(lang["Disable weapons"], "value_str", u.malicious_player_features, function(f, pid)
 	while f.on do
 		system.yield(0)
 		disable_weapons(f, pid)
@@ -3101,14 +2988,14 @@ end):set_str_data({
 	lang["Explode with blame"]
 })
 
-menu.add_player_feature(lang["Disable vehicles"], "toggle", u.malicious_player_features, function(f, pid)
+essentials.add_player_feature(lang["Disable vehicles"], "toggle", u.malicious_player_features, function(f, pid)
 	while f.on do
 		globals.disable_vehicle(pid)
 		system.yield(2000)
 	end
 end)
 
-settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_player_feature(lang["Hurricane"], "value_str", u.malicious_player_features, function(f, pid)
+settings.user_entity_features.vehicle.player_feats["Hurricane"] = essentials.add_player_feature(lang["Hurricane"], "value_str", u.malicious_player_features, function(f, pid)
 	if player.player_count() == 0 then
 		f.on = false
 		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
@@ -3116,7 +3003,7 @@ settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_playe
 	end
 	essentials.set_all_player_feats_except(menu.get_player_feature(f.id).id, false, {[pid] = true})
 	local vehicles <const> = {}
-	menu.create_thread(function()
+	essentials.create_thread(function()
 		while f.on do
 			system.yield(0)
 			for i = 1, 7 do
@@ -3152,7 +3039,7 @@ settings.user_entity_features.vehicle.player_feats["Hurricane"] = menu.add_playe
 	end
 end).id
 
-menu.add_player_feature(lang["Perma-cage"], "toggle", u.malicious_player_features, function(f, pid)
+essentials.add_player_feature(lang["Perma-cage"], "toggle", u.malicious_player_features, function(f, pid)
 	if player.player_count() == 0 then
 		f.on = false
 		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
@@ -3206,7 +3093,7 @@ do
 		})
 	end
 
-	menu.add_feature(lang["Turn everything off"], "action", u.vehicle_blacklist.id, function()
+	essentials.add_feature(lang["Turn everything off"], "action", u.vehicle_blacklist.id, function()
 		for _, feat in pairs(essentials.get_descendants(u.vehicle_blacklist, {})) do
 			if feat.value then
 				feat.value = 0
@@ -3217,9 +3104,9 @@ do
 		end
 	end)
 
-	local parent <const> = menu.add_feature(lang["Search"], "parent", u.vehicle_blacklist.id)
+	local parent <const> = essentials.add_feature(lang["Search"], "parent", u.vehicle_blacklist.id)
 
-	menu.add_feature(lang["Search"], "action", parent.id, function(f)
+	essentials.add_feature(lang["Search"], "action", parent.id, function(f)
 		local input, status <const> = keys_and_input.get_input(lang["Type in name of vehicle"], "", 128, 0)
 		if status == 2 then
 			return
@@ -3235,7 +3122,7 @@ do
 		for _, hash in pairs(vehicle.get_all_vehicle_model_hashes()) do
 			if vehicle_mapper.get_vehicle_name(hash):find(input) then
 				local setting_name <const> = "vehicle_blacklist_"..vehicle_mapper.GetModelFromHash(hash)
-				f.data[#f.data + 1] = menu.add_feature(vehicle_mapper.get_vehicle_name(hash), "autoaction_value_str", parent.id, function(f)
+				f.data[#f.data + 1] = essentials.add_feature(vehicle_mapper.get_vehicle_name(hash), "autoaction_value_str", parent.id, function(f)
 					for _, feat in pairs(essentials.get_descendants(u.vehicle_blacklist, {})) do
 						if f ~= feat and feat.data == f.data then
 							feat.value = f.value
@@ -3251,7 +3138,7 @@ do
 		end
 	end).data = {}
 
-	settings.toggle["Vehicle blacklist"] = menu.add_feature(lang["Vehicle blacklist"], "toggle", u.vehicle_blacklist.id, function(f)
+	settings.toggle["Vehicle blacklist"] = essentials.add_feature(lang["Vehicle blacklist"], "toggle", u.vehicle_blacklist.id, function(f)
 		local tracker <const> = {}
 		while f.on do
 			for pid in essentials.players() do
@@ -3269,7 +3156,7 @@ do
 							end
 							local veh_name <const> = vehicle_mapper.get_vehicle_name(p_veh_hash)
 							tracker[player_vehicle] = utils.time_ms() + 20000
-							menu.create_thread(function()
+							essentials.create_thread(function()
 								if setting == "EMP" then
 									essentials.msg(string.format("%s %s's' %s.", lang["Vehicle blacklist:\nEMP'd"], name, veh_name), "orange", notif_on)
 									local pos <const> = essentials.get_player_coords(pid)
@@ -3329,7 +3216,7 @@ do
 	)
 end
 
-menu.add_feature(lang["Spawn vehicle for everyone"], "action", u.session_peaceful.id, function()
+essentials.add_feature(lang["Spawn vehicle for everyone"], "action", u.session_peaceful.id, function()
 	local default, hash = ""
 	repeat
 		local input <const>, status <const> = keys_and_input.get_input(lang["Type in which car to spawn"], default, 128, 0)
@@ -3362,7 +3249,7 @@ menu.add_feature(lang["Spawn vehicle for everyone"], "action", u.session_peacefu
 	essentials.msg(lang["Cars spawned."], "green", true)
 end)
 
-menu.add_feature(lang["Max everyone's car"], "action", u.session_peaceful.id, function()
+essentials.add_feature(lang["Max everyone's car"], "action", u.session_peaceful.id, function()
 	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	for pid in essentials.players() do
 		if kek_entity.check_player_vehicle_and_teleport_if_necessary(pid) then
@@ -3373,7 +3260,7 @@ menu.add_feature(lang["Max everyone's car"], "action", u.session_peaceful.id, fu
 	essentials.msg(lang["Maxed everyone's cars."], "green", true)
 end)	
 
-menu.add_player_feature(lang["Kidnap player"], "toggle", u.player_trolling_features, function(f, pid)
+essentials.add_player_feature(lang["Kidnap player"], "toggle", u.player_trolling_features, function(f, pid)
 	if f.on then
 		if player.player_id() == pid then
 			essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
@@ -3383,7 +3270,7 @@ menu.add_player_feature(lang["Kidnap player"], "toggle", u.player_trolling_featu
 		essentials.set_all_player_feats_except(menu.get_player_feature(f.id).id, false, {[pid] = true})
 		kek_entity.remove_player_vehicle(player.player_id())
 		local van = 0
-		menu.create_thread(function()
+		essentials.create_thread(function()
 			while f.on and player.is_player_valid(pid) do
 				system.yield(0)
 				ped.clear_ped_tasks_immediately(player.get_player_ped(pid))
@@ -3419,7 +3306,7 @@ menu.add_player_feature(lang["Kidnap player"], "toggle", u.player_trolling_featu
 	end
 end)
 
-menu.add_player_feature(lang["Make nearby peds hostile"], "toggle", u.player_trolling_features, function(f, pid)
+essentials.add_player_feature(lang["Make nearby peds hostile"], "toggle", u.player_trolling_features, function(f, pid)
 	if f.on then
 		local weapons <const> = weapon_mapper.get_table_of_weapons({
 			rifles = true,
@@ -3464,7 +3351,7 @@ menu.add_player_feature(lang["Make nearby peds hostile"], "toggle", u.player_tro
 	end
 end)
 
-player_feat_ids["Mad peds"] = menu.add_player_feature(lang["Mad peds in their car"], "action_value_str", u.player_trolling_features, function(f, pid)
+player_feat_ids["Mad peds"] = essentials.add_player_feature(lang["Mad peds in their car"], "action_value_str", u.player_trolling_features, function(f, pid)
 	for Vehicle in essentials.entities({player.get_player_vehicle(pid), player.player_count() > 0 and globals.get_player_global("personal_vehicle", pid) or nil}) do
 		if not entity.is_entity_dead(Vehicle) then
 			if (essentials.is_str(f, "Fill, steal & run away") or essentials.is_str(f, "Fill & steal")) and ped.is_ped_a_player(vehicle.get_ped_in_vehicle_seat(Vehicle, enums.vehicle_seats.driver) or 0) then
@@ -3501,9 +3388,9 @@ menu.get_player_feature(player_feat_ids["Mad peds"]):set_str_data({
 	lang["Fill"]
 })
 
-menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, function(f)
+essentials.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, function(f)
 	local initial_pos <const>, threads <const> = essentials.get_player_coords(player.player_id()), {}
-	menu.create_thread(function()
+	essentials.create_thread(function()
 		while f.on do
 			entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
 			system.yield(0)
@@ -3530,7 +3417,7 @@ menu.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, f
 				end
 				if essentials.is_not_friend(pid) then
 					if not essentials.is_in_vehicle(pid) and menu.has_thread_finished(threads[pid] or -1) then
-						threads[pid] = menu.create_thread(function()
+						threads[pid] = essentials.create_thread(function()
 							globals.force_player_into_vehicle(pid)
 						end, nil)
 					end
@@ -3598,11 +3485,11 @@ do
 		end
 	end
 
-	menu.add_feature(lang["Get host"], "action", u.session_malicious.id, function(f)
+	essentials.add_feature(lang["Get host"], "action", u.session_malicious.id, function(f)
 		get_host()
 	end)
 
-	settings.toggle["Force host"] = menu.add_feature(lang["Get host automatically"], "toggle", u.session_malicious.id, function(f)
+	settings.toggle["Force host"] = essentials.add_feature(lang["Get host automatically"], "toggle", u.session_malicious.id, function(f)
 		while f.on do
 			system.yield(0)
 			local players_in_queue <const>, friends_in_queue <const> = get_people_in_front_of_person_in_host_queue()
@@ -3615,11 +3502,11 @@ do
 	end)
 end
 
-settings.valuei["Max number of people to kick in force host"] = menu.add_feature(lang["Max kicks for auto host"], "autoaction_value_i", u.session_malicious.id)
+settings.valuei["Max number of people to kick in force host"] = essentials.add_feature(lang["Max kicks for auto host"], "autoaction_value_i", u.session_malicious.id)
 settings.valuei["Max number of people to kick in force host"].max, settings.valuei["Max number of people to kick in force host"].min, settings.valuei["Max number of people to kick in force host"].mod = 31, 1, 1
 
 do
-	local block_area_parent <const> = menu.add_feature(lang["Block areas"], "parent", u.session_malicious.id)
+	local block_area_parent <const> = essentials.add_feature(lang["Block areas"], "parent", u.session_malicious.id)
 
 	local function block_area(...)
 		local angles <const>,
@@ -3645,7 +3532,7 @@ do
 		return objects
 	end
 
-	menu.add_feature(lang["Los santos customs"], "action_value_str", block_area_parent.id, function(f)
+	essentials.add_feature(lang["Los santos customs"], "action_value_str", block_area_parent.id, function(f)
 		if essentials.is_str(f, "Block") then
 			local angles <const> = essentials.const({
 				-135, 
@@ -3665,7 +3552,7 @@ do
 		lang["Unblock"]
 	})
 
-	menu.add_feature(lang["Ammu-Nations"], "action_value_str", block_area_parent.id, function(f)
+	essentials.add_feature(lang["Ammu-Nations"], "action_value_str", block_area_parent.id, function(f)
 		if essentials.is_str(f, "Block") then
 			f.data = f.data or block_area({}, {}, location_mapper.AMMU_NATION_POSITIONS, "prop_air_monhut_03_cr")
 		elseif essentials.is_str(f, "Unblock") and f.data then
@@ -3677,7 +3564,7 @@ do
 		lang["Unblock"]
 	})
 
-	menu.add_feature(lang["Casino"], "action_value_str", block_area_parent.id, function(f)
+	essentials.add_feature(lang["Casino"], "action_value_str", block_area_parent.id, function(f)
 		if essentials.is_str(f, "Block") then
 			local offsets <const> = 
 				{
@@ -3701,7 +3588,7 @@ do
 	})
 end
 
-menu.add_feature(lang["Freeze session"], "toggle", u.session_malicious.id, function(f)
+essentials.add_feature(lang["Freeze session"], "toggle", u.session_malicious.id, function(f)
 	while f.on do
 		system.yield(0)
 		for pid in essentials.players() do
@@ -3714,7 +3601,7 @@ menu.add_feature(lang["Freeze session"], "toggle", u.session_malicious.id, funct
 	end
 end)	
 
-menu.add_feature(lang["Cage session"], "action", u.session_malicious.id, function()
+essentials.add_feature(lang["Cage session"], "action", u.session_malicious.id, function()
 	for pid in essentials.players() do
 		if essentials.is_not_friend(pid) then
 			kek_entity.create_cage(pid)
@@ -3722,7 +3609,7 @@ menu.add_feature(lang["Cage session"], "action", u.session_malicious.id, functio
 	end
 end)
 
-menu.add_feature(lang["Give session bounty"], "action_value_str", u.session_trolling.id, function(f)
+essentials.add_feature(lang["Give session bounty"], "action_value_str", u.session_trolling.id, function(f)
 	if essentials.is_str(f, "Change amount") then
 		local input <const>, status <const> = keys_and_input.get_input(lang["Type in bounty amount"], "", 5, 3)
 		if status == 2 then
@@ -3742,7 +3629,7 @@ end):set_str_data({
 	lang["Change amount"]		
 })
 
-menu.add_feature(lang["Reapply bounty"], "value_str", u.session_trolling.id, function(f)
+essentials.add_feature(lang["Reapply bounty"], "value_str", u.session_trolling.id, function(f)
 	while f.on do
 		for pid in essentials.players() do
 			if essentials.is_not_friend(pid) then
@@ -3759,7 +3646,7 @@ end):set_str_data({
 	lang["With your name"]	
 })
 
-menu.add_feature(lang["Never wanted"], "toggle", u.session_peaceful.id, function(f)
+essentials.add_feature(lang["Never wanted"], "toggle", u.session_peaceful.id, function(f)
 	while f.on do
 		local bits = 0
 		for pid in essentials.players() do
@@ -3772,7 +3659,7 @@ menu.add_feature(lang["Never wanted"], "toggle", u.session_peaceful.id, function
 	end
 end)
 
-menu.add_feature(lang["off the radar"], "toggle", u.session_peaceful.id, function(f)
+essentials.add_feature(lang["off the radar"], "toggle", u.session_peaceful.id, function(f)
 	while f.on do
 		for pid in essentials.players() do
 			if globals.get_player_global("otr_status", pid) ~= 1 and player.is_player_playing(pid) and not player.is_player_modder(pid, -1) then
@@ -3783,9 +3670,9 @@ menu.add_feature(lang["off the radar"], "toggle", u.session_peaceful.id, functio
 	end
 end)
 
-u.send_30k_to_session = menu.add_feature(lang["30k ceo loop"], "toggle", u.session_peaceful.id, function(f)
+u.send_30k_to_session = essentials.add_feature(lang["30k ceo loop"], "toggle", u.session_peaceful.id, function(f)
 	essentials.set_all_player_feats_except(player_feat_ids["30k ceo"], false, {[player.player_id()] = true})
-	menu.create_thread(function()
+	essentials.create_thread(function()
 		while f.on do
 			for pid in essentials.players() do
 				if globals.get_player_global("organization_associate_hash", pid) ~= -1 then
@@ -3810,7 +3697,7 @@ u.send_30k_to_session = menu.add_feature(lang["30k ceo loop"], "toggle", u.sessi
 	end
 end)
 
-settings.user_entity_features.vehicle.feats["Respawn vehicle"] = menu.add_feature(lang["Respawn vehicle after death"], "value_str", u.session_peaceful.id, function(f)
+settings.user_entity_features.vehicle.feats["Respawn vehicle"] = essentials.add_feature(lang["Respawn vehicle after death"], "value_str", u.session_peaceful.id, function(f)
 	local states <const> = {}
 	while f.on do
 		system.yield(0)
@@ -3835,7 +3722,7 @@ settings.user_entity_features.vehicle.feats["Respawn vehicle"] = menu.add_featur
 end)
 settings.user_entity_features.vehicle.feats["Respawn vehicle"].data = {}
 
-settings.toggle["Is player typing"] = menu.add_feature(lang["Notify when typing & stopped typing"], "toggle", u.session_peaceful.id, function(f)
+settings.toggle["Is player typing"] = essentials.add_feature(lang["Notify when typing & stopped typing"], "toggle", u.session_peaceful.id, function(f)
 	while f.on do
 		system.yield(0)
 		for pid in essentials.players() do
@@ -3853,7 +3740,7 @@ settings.toggle["Is player typing"] = menu.add_feature(lang["Notify when typing 
 end)
 settings.toggle["Is player typing"].data = {}
 
-menu.add_feature(lang["Block passive mode"], "toggle", u.session_trolling.id, function(f)
+essentials.add_feature(lang["Block passive mode"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
 		local bits = 0
 		for pid in essentials.players() do
@@ -3873,7 +3760,7 @@ menu.add_feature(lang["Block passive mode"], "toggle", u.session_trolling.id, fu
 	globals.send_script_event(bits, "Block passive", {send_to_multiple_people = true}, 0)
 end)
 
-menu.add_feature(lang["Teleport to Perico island"], "action", u.session_trolling.id, function(f)
+essentials.add_feature(lang["Teleport to Perico island"], "action", u.session_trolling.id, function(f)
 	local bits = 0
 	for pid in essentials.players() do
 		if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
@@ -3883,7 +3770,7 @@ menu.add_feature(lang["Teleport to Perico island"], "action", u.session_trolling
 	globals.send_script_event(bits, "Send to Perico island", {send_to_multiple_people = true}, globals.get_script_event_hash("Send to Perico island"), 0, 0)
 end)
 
-menu.add_feature(lang["Organization"], "action_value_str", u.session_trolling.id, function(f)
+essentials.add_feature(lang["Organization"], "action_value_str", u.session_trolling.id, function(f)
 	local bits = 0
 	if essentials.is_str(f, "Ban") then
 		for pid in essentials.players() do
@@ -3913,7 +3800,7 @@ end):set_str_data({
 	lang["Terminate"]
 })
 
-menu.add_feature(lang["Notification spam"], "toggle", u.session_trolling.id, function(f)
+essentials.add_feature(lang["Notification spam"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
 		local bits = 0
 		for pid in essentials.players() do
@@ -3934,7 +3821,7 @@ menu.add_feature(lang["Notification spam"], "toggle", u.session_trolling.id, fun
 	end
 end)
 
-menu.add_feature(lang["Transaction error"], "toggle", u.session_trolling.id, function(f)
+essentials.add_feature(lang["Transaction error"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
 		for pid in essentials.players() do
 			if not player.is_player_modder(pid, -1) then
@@ -3945,7 +3832,7 @@ menu.add_feature(lang["Transaction error"], "toggle", u.session_trolling.id, fun
 	end
 end)
 
-settings.toggle["Chat logger"] = menu.add_feature(lang["Chat logger"], "toggle", u.chat_stuff.id, function(f)
+settings.toggle["Chat logger"] = essentials.add_feature(lang["Chat logger"], "toggle", u.chat_stuff.id, function(f)
 	if f.on then
 		essentials.listeners["chat"]["logger"] = essentials.add_chat_event_listener(function(event)
 			local sender <const> = event.sender
@@ -3974,7 +3861,7 @@ settings.toggle["Chat logger"] = menu.add_feature(lang["Chat logger"], "toggle",
 end)
 settings.toggle["Chat logger"].data = {}
 
-settings.toggle["Anti chat spam"] = menu.add_feature(lang["Anti chat spam"], "value_str", u.chat_stuff.id, function(f)
+settings.toggle["Anti chat spam"] = essentials.add_feature(lang["Anti chat spam"], "value_str", u.chat_stuff.id, function(f)
 	if f.on then
 		if essentials.listeners["chat"]["anti spam"] then
 			return
@@ -4052,7 +3939,7 @@ do
 		language_names[#language_names + 1] = lang[enums.supported_langs_by_google[i]]
 	end
 
-	settings.toggle["Translate chat into language"] = menu.add_feature(lang["Translate chat into"], "value_str", u.translate_chat.id, function(f)
+	settings.toggle["Translate chat into language"] = essentials.add_feature(lang["Translate chat into"], "value_str", u.translate_chat.id, function(f)
 		if f.on then
 			if essentials.listeners["chat"]["translate"] then
 				return
@@ -4086,7 +3973,7 @@ do
 	settings.valuei["Translate chat into language option"] = settings.toggle["Translate chat into language"]
 
 	-- Chose to do duplicate code, it's more readable and works more intuitively to have these 2 features be independent of each other.
-	settings.toggle["Translate your messages"] = menu.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id, function(f)
+	settings.toggle["Translate your messages"] = essentials.add_feature(lang["Translate your messages into"], "value_str", u.translate_chat.id, function(f)
 		if f.on then
 			if essentials.listeners["chat"]["translate your messages"] then
 				return
@@ -4118,13 +4005,13 @@ do
 	settings.toggle["Translate your messages"]:set_str_data(language_names)
 	settings.valuei["Translate your messages option"] = settings.toggle["Translate your messages"]
 
-	settings.valuei["Where to send your translated messages"] = menu.add_feature(lang["Translate your messages"], "action_value_str", u.translate_chat.id)
+	settings.valuei["Where to send your translated messages"] = essentials.add_feature(lang["Translate your messages"], "action_value_str", u.translate_chat.id)
 	settings.valuei["Where to send your translated messages"]:set_str_data({
 		lang["Send to all chat"],
 		lang["Send to team chat"]
 	})
 
-	local excluded_languages_from_translation <const> = menu.add_feature(lang["Languages to not translate"], "parent", u.translate_chat.id)
+	local excluded_languages_from_translation <const> = essentials.add_feature(lang["Languages to not translate"], "parent", u.translate_chat.id)
 	for _, name in pairs(enums.supported_langs_by_google) do
 		local code <const> = enums.supported_langs_by_google_to_code[name]
 		settings:add_setting({
@@ -4132,18 +4019,18 @@ do
 			setting = false
 		})
 
-		settings.toggle["Excluded "..name.." from translation"] = menu.add_feature(lang[name], "toggle", excluded_languages_from_translation.id, function(f)
+		settings.toggle["Excluded "..name.." from translation"] = essentials.add_feature(lang[name], "toggle", excluded_languages_from_translation.id, function(f)
 			excluded_languages[code] = f.on
 		end)
 	end
 
-	settings.valuei["Where to send inputs"] = menu.add_feature(lang["Where to send inputs"], "action_value_str", u.translate_chat.id)
+	settings.valuei["Where to send inputs"] = essentials.add_feature(lang["Where to send inputs"], "action_value_str", u.translate_chat.id)
 	settings.valuei["Where to send inputs"]:set_str_data({
 		lang["Send to all chat"],
 		lang["Send to team chat"]
 	})
 
-	menu.add_feature(lang["Tip: set hotkeys for the translate inputs below"], "action", u.translate_chat.id)
+	essentials.add_feature(lang["Tip: set hotkeys for the translate inputs below"], "action", u.translate_chat.id)
 	for i = 1, 10 do
 		settings:add_setting(
 			{
@@ -4151,7 +4038,7 @@ do
 				setting = i - 1
 			}
 		)
-		settings.valuei["Input text to translate to chat "..i] = menu.add_feature(lang["Translate input"].." "..i, "action_value_str", u.translate_chat.id, function(f)
+		settings.valuei["Input text to translate to chat "..i] = essentials.add_feature(lang["Translate input"].." "..i, "action_value_str", u.translate_chat.id, function(f)
 			local text <const>, status <const> = keys_and_input.get_input(lang["Type in what to translate."].. " ["..lang[enums.supported_langs_by_google[f.value + 1]].."]", "", 128, 0)
 			if status == 2 then
 				return
@@ -4174,7 +4061,7 @@ end
 do
 	local function create_anti_stuck_thread(...)
 		local f <const>, wp <const> = ...
-		return menu.create_thread(function()
+		return essentials.create_thread(function()
 			local consecutive_stuck_counter = 0
 			while f.on do
 				system.yield(0)
@@ -4218,9 +4105,9 @@ do
 		end, nil)
 	end
 
-	settings.toggle["Anti stuck measures"] = menu.add_feature(lang["Anti stuck"], "toggle", u.ai_drive.id)
+	settings.toggle["Anti stuck measures"] = essentials.add_feature(lang["Anti stuck"], "toggle", u.ai_drive.id)
 
-	u.ai_drive_feature = menu.add_feature(lang["Ai driving"], "value_str", u.ai_drive.id, function(f)
+	u.ai_drive_feature = essentials.add_feature(lang["Ai driving"], "value_str", u.ai_drive.id, function(f)
 		if f.on then
 			local thread <const> = create_anti_stuck_thread(f, true)
 			local value, speed, style, Vehicle
@@ -4271,7 +4158,7 @@ do
 	})
 
 
-	player_feat_ids["Follow player"] = menu.add_player_feature(lang["Follow player"], "toggle", u.player_misc_features, function(f, pid)
+	player_feat_ids["Follow player"] = essentials.add_player_feature(lang["Follow player"], "toggle", u.player_misc_features, function(f, pid)
 		if f.on then
 			if player.player_id() == pid then
 				essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
@@ -4324,7 +4211,7 @@ do
 	for i = 1, #modIdStuff do
 		flag_names[#flag_names + 1] = player.get_modder_flag_text(modIdStuff[i])
 	end
-	menu.add_player_feature(lang["Mark as modder"], "action_value_str", u.player_misc_features, function(f, pid)
+	essentials.add_player_feature(lang["Mark as modder"], "action_value_str", u.player_misc_features, function(f, pid)
 		if player.is_player_modder(pid, 1 << f.value) then
 			player.unset_player_as_modder(pid, 1 << f.value)
 		else
@@ -4333,14 +4220,14 @@ do
 	end):set_str_data(flag_names)
 end
 
-u.drive_speed = menu.add_feature(lang["Drive speed"], "action_slider", u.ai_drive.id, function(f)
+u.drive_speed = essentials.add_feature(lang["Drive speed"], "action_slider", u.ai_drive.id, function(f)
 	keys_and_input.input_number_for_feat(f, lang["Type in vehicle speed"])
 end)
 u.drive_speed.max, u.drive_speed.min, u.drive_speed.mod = 150, 5, 5
 u.drive_speed.value = 90
 
 for _, properties in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
-	settings.drive_style_toggles[#settings.drive_style_toggles + 1] = menu.add_feature(lang[properties.name], "toggle", u.drive_style_cfg.id, function(f)
+	settings.drive_style_toggles[#settings.drive_style_toggles + 1] = essentials.add_feature(lang[properties.name], "toggle", u.drive_style_cfg.id, function(f)
 		if f.on and settings.in_use["Drive style"] & f.data == 0 then
 			settings.in_use["Drive style"] = settings.in_use["Drive style"] ~ f.data
 		elseif not f.on and settings.in_use["Drive style"] & f.data == f.data then
@@ -4350,7 +4237,7 @@ for _, properties in pairs(drive_style_mapper.DRIVE_STYLE_FLAGS) do
 	settings.drive_style_toggles[#settings.drive_style_toggles].data = properties.flag
 end
 
-menu.add_player_feature(lang["This player can't use chat commands"], "toggle", u.player_misc_features, function(f, pid)
+essentials.add_player_feature(lang["This player can't use chat commands"], "toggle", u.player_misc_features, function(f, pid)
 	settings.toggle["Chat commands"].data.player_chat_command_blacklist[player.get_player_scid(pid)] = f.on
 end)
 
@@ -4360,7 +4247,7 @@ do
 		if name:find("..", 1, true) or name:find("%.$") or name ~= essentials.get_safe_feat_name(name) then
 			return
 		end
-		menu.add_feature(essentials.get_safe_feat_name(name):gsub("%.ini$", ""), "action_value_str", u.custom_chat_judger.id, function(f)
+		essentials.add_feature(essentials.get_safe_feat_name(name):gsub("%.ini$", ""), "action_value_str", u.custom_chat_judger.id, function(f)
 			if essentials.is_str(f, "Load") then
 				if not utils.file_exists(paths.kek_menu_stuff.."Chat judger profiles\\"..f.name..".ini") then
 					essentials.msg(lang["Couldn't find file"], "red", true)
@@ -4436,7 +4323,7 @@ do
 		})
 	end
 
-	settings.toggle["Custom chat judger"] = menu.add_feature(lang["Custom chat judge"], "value_str", u.custom_chat_judger.id, function(f)
+	settings.toggle["Custom chat judger"] = essentials.add_feature(lang["Custom chat judge"], "value_str", u.custom_chat_judger.id, function(f)
 		if f.on then
 			if essentials.listeners["chat"]["judger"] then
 				return
@@ -4523,7 +4410,7 @@ do
 		lang["Crash"]
 	})
 
-	menu.add_feature(lang["Create new judger profile"], "action", u.custom_chat_judger.id, function(f)
+	essentials.add_feature(lang["Create new judger profile"], "action", u.custom_chat_judger.id, function(f)
 		local input, status
 		while true do
 			input, status = keys_and_input.get_input(lang["Type in the name of the profile."], input, 128, 0)
@@ -4538,7 +4425,7 @@ do
 		create_judge_feat(input)
 	end)
 
-	menu.add_feature(lang["How to use"], "action_value_str", u.custom_chat_judger.id, function(f)
+	essentials.add_feature(lang["How to use"], "action_value_str", u.custom_chat_judger.id, function(f)
 		essentials.send_pattern_guide_msg(f.value, "Chat judger")
 	end):set_str_data({
 		lang["Part"].." 1",
@@ -4555,7 +4442,7 @@ do
 end
 
 do
-	local feat = menu.add_feature(lang["Chat spammer"], "value_str", u.chat_spammer.id, function(f)
+	local feat = essentials.add_feature(lang["Chat spammer"], "value_str", u.chat_spammer.id, function(f)
 		while f.on do
 			local time <const> = utils.time_ms() -- Send each line won't iterate if string is empty. Therefore it must force a wait if sending a message didn't take > 90ms.
 			if essentials.is_str(f, "Spam text") then
@@ -4650,12 +4537,12 @@ do
 	})
 end
 
-settings.valuei["Spam speed"] = menu.add_feature(lang["Spam speed, click to type"], "action_value_i", u.chat_spammer.id, function(f)
+settings.valuei["Spam speed"] = essentials.add_feature(lang["Spam speed, click to type"], "action_value_i", u.chat_spammer.id, function(f)
 	keys_and_input.input_number_for_feat(f, lang["Type in chat spam speed"])
 end)
 settings.valuei["Spam speed"].max, settings.valuei["Spam speed"].min, settings.valuei["Spam speed"].mod = 1000000, 100, 25
 
-menu.add_feature(lang["Text to spam, type it in"], "action", u.chat_spammer.id, function(f)
+essentials.add_feature(lang["Text to spam, type it in"], "action", u.chat_spammer.id, function(f)
 	local input <const>, status <const> = keys_and_input.get_input(lang["Type in what to spam in chat"], "", 128, 0)
 	if status == 2 then
 		return
@@ -4663,11 +4550,11 @@ menu.add_feature(lang["Text to spam, type it in"], "action", u.chat_spammer.id, 
 	settings.in_use["Spam text"] = input
 end)
 
-settings.toggle["Friends can't be targeted by chat commands"] = menu.add_feature(lang["Friends can't be targeted"], "toggle", u.chat_commands.id)
+settings.toggle["Friends can't be targeted by chat commands"] = essentials.add_feature(lang["Friends can't be targeted"], "toggle", u.chat_commands.id)
 
-settings.toggle["You can't be targeted"] = menu.add_feature(lang["You can't be targeted"], "toggle", u.chat_commands.id)
+settings.toggle["You can't be targeted"] = essentials.add_feature(lang["You can't be targeted"], "toggle", u.chat_commands.id)
 
-settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "toggle", u.chat_commands.id, function(f)
+settings.toggle["Chat commands"] = essentials.add_feature(lang["Chat commands"], "toggle", u.chat_commands.id, function(f)
 	if not f.on then
 		event.remove_event_listener("chat", essentials.listeners["chat"]["commands"])
 		essentials.listeners["chat"]["commands"] = nil
@@ -4801,7 +4688,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 				f.data.send_message("This vehicle is blacklisted.", event.sender)
 				return
 			end
-			menu.create_thread(function()
+			essentials.create_thread(function()
 				local Vehicle <const> = kek_entity.spawn_networked_vehicle(hash, function()
 					local pos = kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(command_target))
 					local accurate_pos <const> = location_mapper.get_most_accurate_position_soft(pos)
@@ -4839,7 +4726,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 				f.data.send_message("Invalid weapon name.", event.sender)
 			end
 		elseif what_command == "kill" then
-			menu.create_thread(function()
+			essentials.create_thread(function()
 				ped.clear_ped_tasks_immediately(player.get_player_ped(command_target))
 				system.yield(300)
 				local time <const> = utils.time_ms() + 900
@@ -4852,7 +4739,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 		elseif what_command == "cage" then
 			local update <const> = kek_entity.entity_manager:update()
 			if update.is_object_limit_not_breached and update.is_ped_limit_not_breached then
-				menu.create_thread(function()
+				essentials.create_thread(function()
 					local Ped <const> = kek_entity.create_cage(command_target)
 					if Ped == -1 then
 						f.data.send_message("This player already have a cage on them.", event.sender)
@@ -4885,30 +4772,30 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 				f.data.send_message("You can't crash this player.", event.sender)
 				return
 			end
-			menu.create_thread(globals.script_event_crash, command_target)
+			essentials.create_thread(globals.script_event_crash, command_target)
 		elseif what_command == "clowns" then
-			menu.create_thread(function()
+			essentials.create_thread(function()
 				local clown_van <const> = troll_entity.send_clown_van(command_target)
 				if not entity.is_entity_a_vehicle(clown_van) then
 					f.data.send_message("Failed to spawn clown van.", event.sender)
 				end
 			end, nil)
 		elseif what_command == "jet" then
-			menu.create_thread(function()
+			essentials.create_thread(function()
 				local jet <const> = troll_entity.send_jet(command_target)
 				if not entity.is_entity_a_vehicle(jet) then
 					f.data.send_message("Failed to spawn jet.", event.sender)
 				end
 			end, nil)
 		elseif what_command == "chopper" then
-			menu.create_thread(function()
+			essentials.create_thread(function()
 				local chopper <const> = troll_entity.send_attack_chopper(command_target)
 				if not entity.is_entity_a_vehicle(chopper) then
 					f.data.send_message("Failed to spawn chopper.", event.sender)
 				end
 			end, nil)
 		elseif what_command == "tp" then
-			menu.create_thread(function()
+			essentials.create_thread(function()
 				local pos
 				if player.is_player_valid(essentials.name_to_pid(args["player name/location"])) then
 					pos = "player_pos" -- forcing player causes out-of-date position, so position is grabbed afterwards
@@ -4926,7 +4813,7 @@ settings.toggle["Chat commands"] = menu.add_feature(lang["Chat commands"], "togg
 					end
 				end
 				if pos then
-					menu.create_thread(function()
+					essentials.create_thread(function()
 						if player.player_id() ~= command_target and not essentials.is_in_vehicle(command_target) then
 							f.data.send_message("Forcing player into a vehicle. This may take up to 45 seconds.", event.sender)
 							globals.force_player_into_vehicle(command_target, 30000)
@@ -5227,14 +5114,14 @@ do
 		end
 	end
 
-	menu.add_feature(lang["Send command list"], "action_value_str", u.chat_commands.id, function(f)
+	essentials.add_feature(lang["Send command list"], "action_value_str", u.chat_commands.id, function(f)
 		settings.toggle["Chat commands"].data.send_chat_commands(essentials.is_str(f, "Team"))
 	end):set_str_data({
 		lang["All"],
 		lang["Team"]
 	})
 
-	settings.toggle["Send command info"] = menu.add_feature(lang["Send command list every"], "value_str", u.chat_commands.id, function(f)
+	settings.toggle["Send command info"] = essentials.add_feature(lang["Send command list every"], "value_str", u.chat_commands.id, function(f)
 		while f.on do
 			local time <const> = utils.time_ms() + ((f.value + 1) * 60000)
 			local value <const> = f.value
@@ -5265,9 +5152,9 @@ do
 	end
 	settings.valuei["Help interval"] = settings.toggle["Send command info"]
 
-	u.chat_commands_parent = menu.add_feature(lang["Commands"], "parent", u.chat_commands.id)
+	u.chat_commands_parent = essentials.add_feature(lang["Commands"], "parent", u.chat_commands.id)
 	for _, properties in pairs(chat_command_properties) do
-		settings.toggle[properties.setting_name] = menu.add_feature(properties.feature_name, "value_str", u.chat_commands_parent.id, function(f)
+		settings.toggle[properties.setting_name] = essentials.add_feature(properties.feature_name, "value_str", u.chat_commands_parent.id, function(f)
 			local command_name <const> = properties.setting_name:match("^%w+"):lower()
 			settings.toggle["Chat commands"].data.enabled_commands[command_name] = f.on
 		end)
@@ -5280,12 +5167,12 @@ do
 	end
 end
 
-settings.valuei["Echo delay"] = menu.add_feature(lang["Echo delay, click to type"], "action_value_i", u.chat_spammer.id, function(f)
+settings.valuei["Echo delay"] = essentials.add_feature(lang["Echo delay, click to type"], "action_value_i", u.chat_spammer.id, function(f)
 	keys_and_input.input_number_for_feat(f, lang["Type in echo delay."])	
 end)
 settings.valuei["Echo delay"].max, settings.valuei["Echo delay"].min, settings.valuei["Echo delay"].mod = 20000, 0, 25
 
-settings.toggle["Echo chat"] = menu.add_feature(lang["Echo chat"], "toggle", u.chat_spammer.id, function(f)
+settings.toggle["Echo chat"] = essentials.add_feature(lang["Echo chat"], "toggle", u.chat_spammer.id, function(f)
 	if f.on then
 		essentials.listeners["chat"]["echo"] = essentials.add_chat_event_listener(function(event)
 			if player.is_player_valid(event.sender) 
@@ -5312,7 +5199,7 @@ do
 		if name:find("..", 1, true) or name:find("%.$") or name ~= essentials.get_safe_feat_name(name) then
 			return
 		end
-		menu.add_feature(essentials.get_safe_feat_name(name):gsub("%.ini$", ""), "action_value_str", u.chat_bot.id, function(f)
+		essentials.add_feature(essentials.get_safe_feat_name(name):gsub("%.ini$", ""), "action_value_str", u.chat_bot.id, function(f)
 			if essentials.is_str(f, "Load") then
 				if not utils.file_exists(paths.kek_menu_stuff.."Chatbot profiles\\"..f.name..".ini") then
 					essentials.msg(lang["Couldn't find file"], "red", true)
@@ -5417,7 +5304,7 @@ do
 		})
 	end
 
-	settings.toggle["chat bot"] = menu.add_feature(lang["Chat bot"], "toggle", u.chat_bot.id, function(f)
+	settings.toggle["chat bot"] = essentials.add_feature(lang["Chat bot"], "toggle", u.chat_bot.id, function(f)
 		if f.on then
 			local str = essentials.get_file_string(paths.chat_bot)
 			do
@@ -5486,17 +5373,17 @@ do
 		end
 	end)
 
-	settings.valuei["chat bot delay"] = menu.add_feature(lang["Answer delay"], "action_value_i", u.chat_bot.id, function(f)
+	settings.valuei["chat bot delay"] = essentials.add_feature(lang["Answer delay"], "action_value_i", u.chat_bot.id, function(f)
 		keys_and_input.input_number_for_feat(f, lang["Type in answer delay."])	
 	end)
 	settings.valuei["chat bot delay"].max, settings.valuei["chat bot delay"].min, settings.valuei["chat bot delay"].mod = 10000, 20, 20
 
-	settings.valuei["Chance to reply"] = menu.add_feature(lang["Chance to reply"].." %", "action_value_i", u.chat_bot.id)
+	settings.valuei["Chance to reply"] = essentials.add_feature(lang["Chance to reply"].." %", "action_value_i", u.chat_bot.id)
 	settings.valuei["Chance to reply"].min = 1
 	settings.valuei["Chance to reply"].max = 100
 	settings.valuei["Chance to reply"].mod = 1
 
-	menu.add_feature(lang["Create new chatbot profile"], "action", u.chat_bot.id, function(f)
+	essentials.add_feature(lang["Create new chatbot profile"], "action", u.chat_bot.id, function(f)
 		local input, status
 		while true do
 			input, status = keys_and_input.get_input(lang["Type in the name of the profile."], input, 128, 0)
@@ -5515,7 +5402,7 @@ do
 		create_chatbot_feat(file_name)
 	end
 
-	menu.add_feature(lang["How to use"], "action_value_str", u.chat_bot.id, function(f)
+	essentials.add_feature(lang["How to use"], "action_value_str", u.chat_bot.id, function(f)
 		essentials.send_pattern_guide_msg(f.value, "Chatbot")
 	end):set_str_data({
 		lang["Part"].." 1",
@@ -5526,7 +5413,7 @@ do
 	})
 end
 
-settings.toggle["Auto tp to waypoint"] = menu.add_feature(lang["Auto tp to waypoint"], "toggle", u.self_options.id, function(f)
+settings.toggle["Auto tp to waypoint"] = essentials.add_feature(lang["Auto tp to waypoint"], "toggle", u.self_options.id, function(f)
 	while f.on do
 		system.yield(0)
 		if hud.is_waypoint_active() and kek_entity.get_control_of_entity(kek_entity.get_most_relevant_entity(player.player_id())) then
@@ -5536,9 +5423,10 @@ settings.toggle["Auto tp to waypoint"] = menu.add_feature(lang["Auto tp to waypo
 	end
 end)
 
-settings.toggle["Move mini map to people you spectate"] = menu.add_feature(lang["Move mini map to people you spectate"], "toggle", u.self_options.id, function(f)
+settings.toggle["Move mini map to people you spectate"] = essentials.add_feature(lang["Move mini map to people you spectate"], "toggle", u.self_options.id, function(f)
 	local who_spectating
 	local pos <const> = player.get_player_coords(player.player_id())
+	menu.get_feature_by_hierarchy_key("online.services.disable_out_of_bounds_death").on = true -- Prevents you dying when you spectate people
 	while f.on do
 		system.yield(0)
 		if network.get_player_player_is_spectating(player.player_id()) then
@@ -5564,7 +5452,7 @@ local function display_settings(...)
 		if not menu.has_thread_finished(f.data.thread or -1) then
 			f.data.time = utils.time_ms() + 6000
 		else
-			f.data.thread = menu.create_thread(function()
+			f.data.thread = essentials.create_thread(function()
 				f.data.time = utils.time_ms() + 6000
 				while f.data.time > utils.time_ms() do
 					local y_pos <const> = essentials.draw_auto_adjusted_text(
@@ -5613,7 +5501,7 @@ local function display_settings(...)
 		end
 	end
 
-	settings.valuei[name_of_feature.." x"] = menu.add_feature("X", "autoaction_value_i", parent.id, function(f)
+	settings.valuei[name_of_feature.." x"] = essentials.add_feature("X", "autoaction_value_i", parent.id, function(f)
 		if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
 			keys_and_input.input_number_for_feat(f, lang["Type in where horizontally the time is displayed."])
 		end
@@ -5628,7 +5516,7 @@ local function display_settings(...)
 		setting = x
 	})
 
-	settings.valuei[name_of_feature.." y"] = menu.add_feature("Y", "autoaction_value_i", parent.id, function(f)
+	settings.valuei[name_of_feature.." y"] = essentials.add_feature("Y", "autoaction_value_i", parent.id, function(f)
 		if keys_and_input.is_table_of_virtual_keys_all_pressed(keys_and_input.get_virtual_key_of_2take1_bind("MenuSelect")) then
 			keys_and_input.input_number_for_feat(f, lang["Type in where vertically the time is displayed."])
 		end
@@ -5643,13 +5531,13 @@ local function display_settings(...)
 		setting = y
 	})
 
-	settings.toggle[name_of_feature.." outline"] = menu.add_feature(lang["Outline"], "toggle", parent.id)
+	settings.toggle[name_of_feature.." outline"] = essentials.add_feature(lang["Outline"], "toggle", parent.id)
 	settings:add_setting({
 		setting_name = name_of_feature.." outline", 
 		setting = true
 	})
 
-	settings.valuei[name_of_feature.." R"] = menu.add_feature("R", "action_value_i", parent.id, function(f)
+	settings.valuei[name_of_feature.." R"] = essentials.add_feature("R", "action_value_i", parent.id, function(f)
 		keys_and_input.input_number_for_feat(f, lang["Type in RGB"]..": R")
 	end)
 	settings.valuei[name_of_feature.." R"].min = 0
@@ -5660,7 +5548,7 @@ local function display_settings(...)
 		setting = 255
 	})
 
-	settings.valuei[name_of_feature.." G"] = menu.add_feature("G", "action_value_i", parent.id, function(f)
+	settings.valuei[name_of_feature.." G"] = essentials.add_feature("G", "action_value_i", parent.id, function(f)
 		keys_and_input.input_number_for_feat(f, lang["Type in RGB"]..": G")
 	end)
 	settings.valuei[name_of_feature.." G"].min = 0
@@ -5671,7 +5559,7 @@ local function display_settings(...)
 		setting = 100
 	})
 
-	settings.valuei[name_of_feature.." B"] = menu.add_feature("B", "action_value_i", parent.id, function(f)
+	settings.valuei[name_of_feature.." B"] = essentials.add_feature("B", "action_value_i", parent.id, function(f)
 		keys_and_input.input_number_for_feat(f, lang["Type in RGB"]..": B")
 	end)
 	settings.valuei[name_of_feature.." B"].min = 0
@@ -5682,7 +5570,7 @@ local function display_settings(...)
 		setting = 255
 	})
 
-	settings.valuei[name_of_feature.." Scale"] = menu.add_feature(lang["Size"], "action_slider", parent.id, function(f)
+	settings.valuei[name_of_feature.." Scale"] = essentials.add_feature(lang["Size"], "action_slider", parent.id, function(f)
 		keys_and_input.input_number_for_feat(f, lang["Type in the size of the text."])
 	end)
 	settings.valuei[name_of_feature.." Scale"].min = 10
@@ -5693,7 +5581,7 @@ local function display_settings(...)
 		setting = scale
 	})
 
-	settings.valuei[name_of_feature.." A"] = menu.add_feature(lang["Opacity"], "action_slider", parent.id, function(f)
+	settings.valuei[name_of_feature.." A"] = essentials.add_feature(lang["Opacity"], "action_slider", parent.id, function(f)
 		keys_and_input.input_number_for_feat(f, lang["Type in RGB opacity"])
 	end)
 	settings.valuei[name_of_feature.." A"].min = 0
@@ -5763,8 +5651,8 @@ do
 		end
 	end
 
-	u.display_notifications = menu.add_feature(lang["Display notifications"], "parent", u.self_options.id)
-	settings.toggle["Display 2take1 notifications"] = menu.add_feature(lang["Display 2take1 notifications"], "value_str", u.display_notifications.id, function(f)
+	u.display_notifications = essentials.add_feature(lang["Display notifications"], "parent", u.self_options.id)
+	settings.toggle["Display 2take1 notifications"] = essentials.add_feature(lang["Display 2take1 notifications"], "value_str", u.display_notifications.id, function(f)
 		if not utils.file_exists(paths.home.."notification.log") then
 			essentials.create_empty_file(paths.home.."notification.log")
 		end
@@ -5826,21 +5714,21 @@ do
 		lang["Filter"]
 	})
 
-	settings.valuei["Number of notifications to display"] = menu.add_feature(lang["Number of notifications"], "action_value_i", u.display_notifications.id, function(f)
+	settings.valuei["Number of notifications to display"] = essentials.add_feature(lang["Number of notifications"], "action_value_i", u.display_notifications.id, function(f)
 		keys_and_input.input_number_for_feat(f, lang["Type in number of notifications to display."])
 	end)
 	settings.valuei["Number of notifications to display"].max = 100
 	settings.valuei["Number of notifications to display"].min = 1
 	settings.valuei["Number of notifications to display"].mod = 1
 
-	settings.valuei["Max characters per line"] = menu.add_feature(lang["Max characters per line"], "action_value_i", u.display_notifications.id, function(f)
+	settings.valuei["Max characters per line"] = essentials.add_feature(lang["Max characters per line"], "action_value_i", u.display_notifications.id, function(f)
 		keys_and_input.input_number_for_feat(f, lang["Type in the maximum number of characters per line."])
 	end)
 	settings.valuei["Max characters per line"].max = 500
 	settings.valuei["Max characters per line"].min = 30
 	settings.valuei["Max characters per line"].mod = 5
 
-	settings.toggle["Log 2take1 notifications to console"] = menu.add_feature(lang["Log to console"], "value_str", u.display_notifications.id, function(f)
+	settings.toggle["Log 2take1 notifications to console"] = essentials.add_feature(lang["Log to console"], "value_str", u.display_notifications.id, function(f)
 		if utils.time_ms() > essentials.init_delay and not menu.get_feature_by_hierarchy_key("local.settings.notifications.log_to_file").on then
 			essentials.msg(lang["\"Log to file\" must be toggled on in 2take1 notification settings in order for this to work."], "red", true, 10)
 		end
@@ -5866,8 +5754,8 @@ end
 
 display_settings(u.display_notifications, "Display 2take1 notifications", 800, 1000, 36, 100)
 
-u.display_time = menu.add_feature(lang["Display time"], "parent", u.self_options.id)
-settings.toggle["Time OSD"] = menu.add_feature(lang["Display time"], "value_str", u.display_time.id, function(f)
+u.display_time = essentials.add_feature(lang["Display time"], "parent", u.self_options.id)
+settings.toggle["Time OSD"] = essentials.add_feature(lang["Display time"], "value_str", u.display_time.id, function(f)
 	while f.on do
 		essentials.draw_text_prevent_offscreen(
 			essentials.is_str(f, "12-hour clock") and os.date("%a %b %d %I:%M:%S %p %Y") or os.date("%a %b %d %H:%M:%S %Y"), 
@@ -5890,12 +5778,12 @@ settings.valuei["Time OSD option"]:set_str_data({
 
 display_settings(u.display_time, "Time OSD", -990, 990, 60, 200)
 
-u.display_location_info = menu.add_feature(lang["Display session location info"], "parent", u.self_options.id)
-settings.toggle["Display country info"] = menu.add_feature(lang["Display session location info"], "toggle", u.display_location_info.id, function(f)
+u.display_location_info = essentials.add_feature(lang["Display session location info"], "parent", u.self_options.id)
+settings.toggle["Display country info"] = essentials.add_feature(lang["Display session location info"], "toggle", u.display_location_info.id, function(f)
 	local default_str <const> = lang["Obtaining location info. This usually takes between 5-10 seconds. Max 45 api requests per minute.\nIf the list is smaller than expected, it means you hit the limit. The limit will reset in one minute."]
 	local text = default_str
 	local str <const> = {}
-	menu.create_thread(function()
+	essentials.create_thread(function()
 		while f.on do
 			essentials.draw_text_prevent_offscreen(
 				text, 
@@ -5968,12 +5856,12 @@ end)
 settings.toggle["Display country info"].data = {}
 display_settings(u.display_location_info, "Display country info", -990, 990, 36, 100)
 
-u.force_field = menu.add_feature(lang["Force field"], "parent", u.self_options.id)
+u.force_field = essentials.add_feature(lang["Force field"], "parent", u.self_options.id)
 
-menu.add_feature(lang["Force field"], "value_str", u.force_field.id, function(f)
+essentials.add_feature(lang["Force field"], "value_str", u.force_field.id, function(f)
 	if f.on then
 		local pos = memoize.v3()
-		menu.create_thread(function()
+		essentials.create_thread(function()
 			while f.on do
 				if settings.toggle["Force field sphere"].on then
 					graphics.draw_marker(28, pos, memoize.v3(0, 90, 0), memoize.v3(0, 90, 0), memoize.v3(u.force_field_radius.value, u.force_field_radius.value, u.force_field_radius.value), 0, 255, 0, 35, false, false, 2, false, nil, "MarkerTypeDebugSphere", false)
@@ -6031,61 +5919,61 @@ end):set_str_data({
 	lang["Towards you"]
 })
 
-settings.toggle["Force field sphere"] = menu.add_feature(lang["Show sphere"], "toggle", u.force_field.id)
+settings.toggle["Force field sphere"] = essentials.add_feature(lang["Show sphere"], "toggle", u.force_field.id)
 
-u.force_field_radius = menu.add_feature(lang["Force field radius"], "action_slider", u.force_field.id)
+u.force_field_radius = essentials.add_feature(lang["Force field radius"], "action_slider", u.force_field.id)
 u.force_field_radius.max = 225
 u.force_field_radius.min = 7.5
 u.force_field_radius.mod = 7.5
 u.force_field_radius.value = 22.5
 
-u.strength_towards = menu.add_feature(lang["Strength towards you"], "action_slider", u.force_field.id)
+u.strength_towards = essentials.add_feature(lang["Strength towards you"], "action_slider", u.force_field.id)
 u.strength_towards.max = 100
 u.strength_towards.min = 2.5
 u.strength_towards.mod = 2.5
 u.strength_towards.value = 10
 
-u.strength_away = menu.add_feature(lang["Strength away from you"], "action_slider", u.force_field.id)
+u.strength_away = essentials.add_feature(lang["Strength away from you"], "action_slider", u.force_field.id)
 u.strength_away.max = 100
 u.strength_away.min = 2.5
 u.strength_away.mod = 2.5
 u.strength_away.value = 10
 
-u.exclude_from_force_field = menu.add_feature(lang["Exclude"], "action_value_str", u.force_field.id)
+u.exclude_from_force_field = essentials.add_feature(lang["Exclude"], "action_value_str", u.force_field.id)
 u.exclude_from_force_field:set_str_data({
 	lang["friends"],
 	lang["players"],
 	lang["no one"]
 })
 
-u.force_field_entity_type = menu.add_feature(lang["Entities"], "action_value_str", u.force_field.id)
+u.force_field_entity_type = essentials.add_feature(lang["Entities"], "action_value_str", u.force_field.id)
 u.force_field_entity_type:set_str_data({
 	lang["Vehicles"], 
 	lang["Peds"], 
 	lang["Peds & vehicles"]
 })
 
-u.force_field_offset_x = menu.add_feature(lang["Offset"].." x", "action_value_i", u.force_field.id)
+u.force_field_offset_x = essentials.add_feature(lang["Offset"].." x", "action_value_i", u.force_field.id)
 u.force_field_offset_x.max = 100
 u.force_field_offset_x.min = -100
 u.force_field_offset_x.mod = 2
 u.force_field_offset_x.value = 0
 
-u.force_field_offset_y = menu.add_feature(lang["Offset"].." y", "action_value_i", u.force_field.id)
+u.force_field_offset_y = essentials.add_feature(lang["Offset"].." y", "action_value_i", u.force_field.id)
 u.force_field_offset_y.max = 100
 u.force_field_offset_y.min = -100
 u.force_field_offset_y.mod = 2
 u.force_field_offset_y.value = 0
 
-u.force_field_offset_z = menu.add_feature(lang["Offset"].." z", "action_value_i", u.force_field.id)
+u.force_field_offset_z = essentials.add_feature(lang["Offset"].." z", "action_value_i", u.force_field.id)
 u.force_field_offset_z.max = 100
 u.force_field_offset_z.min = -100
 u.force_field_offset_z.mod = 2
 u.force_field_offset_z.value = 0
 
 do
-	local custom_maps_parent <const> = menu.add_feature(lang["Menyoo maps"], "parent", u.self_options.id)
-	local race_ghost_parent <const> = menu.add_feature(lang["Race ghosts"], "parent", u.self_options.id)
+	local custom_maps_parent <const> = essentials.add_feature(lang["Menyoo maps"], "parent", u.self_options.id)
+	local race_ghost_parent <const> = essentials.add_feature(lang["Race ghosts"], "parent", u.self_options.id)
 
 	local ghost_feat_callback <const> = function(f)
 		if essentials.is_str(f, "Load") then
@@ -6108,7 +5996,7 @@ do
 				f.data.number_of_racers = f.data.number_of_racers + 1
 				f.data.id[Vehicle] = f.data.number_of_racers
 				kek_entity.set_blip(Vehicle, 56, math.min(f.data.number_of_racers, 84))
-				f.data.threads[Vehicle] = menu.create_thread(function()
+				f.data.threads[Vehicle] = essentials.create_thread(function()
 					while f.data.status ~= "STOP" do
 						system.yield(0)
 						local i = 2
@@ -6229,7 +6117,7 @@ do
 		if name:find("..", 1, true) or name:find(".", -1, true) or name ~= safe_feat_name then
 			return
 		end
-		local feat <const> = menu.add_feature(safe_feat_name, "action_value_str", race_ghost_parent.id, ghost_feat_callback)
+		local feat <const> = essentials.add_feature(safe_feat_name, "action_value_str", race_ghost_parent.id, ghost_feat_callback)
 		feat:set_str_data(feat_str_data)
 		feat.data = {
 			number_of_racers = 0,
@@ -6240,7 +6128,7 @@ do
 		}
 	end
 
-	local record_race <const> = menu.add_feature(lang["Record race"], "toggle", race_ghost_parent.id, function(f)
+	local record_race <const> = essentials.add_feature(lang["Record race"], "toggle", race_ghost_parent.id, function(f)
 		if player.is_player_in_any_vehicle(player.player_id()) then
 			if utils.file_exists(paths.kek_menu_stuff.."kekMenuData\\Temp recorded race.lua") then
 				essentials.msg(lang["Cleared old race & recording a new one."], "green", true, 3)
@@ -6264,7 +6152,7 @@ do
 		end
 	end)
 
-	menu.add_feature(lang["Save recorded race"], "action", race_ghost_parent.id, function(f)
+	essentials.add_feature(lang["Save recorded race"], "action", race_ghost_parent.id, function(f)
 		if record_race.on then
 			record_race.on = false
 			system.yield(500)
@@ -6400,13 +6288,13 @@ do
 		if name:find("..", 1, true) or name:find(".", -1, true) or name ~= safe_feat_name then
 			return
 		end
-		local feat = menu.add_feature(safe_feat_name, "action_value_str", custom_maps_parent.id, map_feat_callback)
+		local feat = essentials.add_feature(safe_feat_name, "action_value_str", custom_maps_parent.id, map_feat_callback)
 		feat.data = "MENYOO"
 		feat:set_str_data(feat_str_data)
 		feat_name_map[feat.name..".xml"] = true
 	end
 
-	local main_feat <const> = menu.add_feature(lang["Menyoo maps"], "action_value_str", custom_maps_parent.id, function(f)
+	local main_feat <const> = essentials.add_feature(lang["Menyoo maps"], "action_value_str", custom_maps_parent.id, function(f)
 		if essentials.is_str(f, "Search") then
 			local input, status <const> = keys_and_input.get_input(lang["Type in name of menyoo map."], "", 128, 0)
 			if status == 2 then
@@ -6453,11 +6341,11 @@ do
 	})
 	main_feat.data = "MAIN_FEAT"
 
-	menu.add_feature(lang["Clear all owned entities"], "action", custom_maps_parent.id, function()
+	essentials.add_feature(lang["Clear all owned entities"], "action", custom_maps_parent.id, function()
 		u.clear_owned_entities.on = true
 	end).data = "CLEAR_ENTITIES_FEAT"
 
-	settings.toggle["Clear before spawning xml map"] = menu.add_feature(lang["Clear owned entities before spawning map"], "toggle", custom_maps_parent.id)
+	settings.toggle["Clear before spawning xml map"] = essentials.add_feature(lang["Clear owned entities before spawning map"], "toggle", custom_maps_parent.id)
 
 	local files <const> = utils.get_all_files_in_directory(paths.menyoo_maps, "xml")
 	for i = 1, #files do
@@ -6470,7 +6358,7 @@ do
 	end
 end
 
-settings.user_entity_features.ped.player_feats["Spawn ped"] = menu.add_player_feature(lang["Spawn a ped"], "action_value_str", u.player_misc_features, function(f, pid)
+settings.user_entity_features.ped.player_feats["Spawn ped"] = essentials.add_player_feature(lang["Spawn a ped"], "action_value_str", u.player_misc_features, function(f, pid)
 	local hash <const> = ped_mapper.get_hash_from_user_input(settings.in_use["User ped"])
 	if streaming.is_model_a_ped(hash) then
 		kek_entity.spawn_networked_ped(hash, function() 
@@ -6479,11 +6367,11 @@ settings.user_entity_features.ped.player_feats["Spawn ped"] = menu.add_player_fe
 	end
 end).id
 
-settings.user_entity_features.ped.player_feats["Change ped"] = menu.add_player_feature(lang["Set ped in use"], "action_value_str", u.player_misc_features, function()
+settings.user_entity_features.ped.player_feats["Change ped"] = essentials.add_player_feature(lang["Set ped in use"], "action_value_str", u.player_misc_features, function()
 	settings.user_entity_features.ped.feats["Change user ped setting"].on = true
 end).id
 
-u.max_self_vehicle_loop = menu.add_feature(lang["Max car"], "slider", u.gvehicle.id, function(f)
+u.max_self_vehicle_loop = essentials.add_feature(lang["Max car"], "slider", u.gvehicle.id, function(f)
 	while f.on do
 		kek_entity.max_car(player.get_player_vehicle(player.player_id()), false, true)
 		system.yield(math.floor(1000 - f.value))
@@ -6494,11 +6382,11 @@ u.max_self_vehicle_loop.min = 25
 u.max_self_vehicle_loop.mod = 25
 u.max_self_vehicle_loop.value = 500
 
-menu.add_feature(lang["Max vehicle"], "action", u.gvehicle.id, function(f)
+essentials.add_feature(lang["Max vehicle"], "action", u.gvehicle.id, function(f)
 	kek_entity.max_car(player.get_player_vehicle(player.player_id()), false, true)
 end)
 
-menu.add_feature(lang["Change backplate text"], "action", u.vehicleSettings.id, function(f)
+essentials.add_feature(lang["Change backplate text"], "action", u.vehicleSettings.id, function(f)
 	local input <const>, status <const> = keys_and_input.get_input(lang["Type in the text you want displayed on the backplate of your cars after maxing them."], "", 128, 0)
 	if status == 2 then
 		return
@@ -6506,20 +6394,20 @@ menu.add_feature(lang["Change backplate text"], "action", u.vehicleSettings.id, 
 	settings.in_use["Plate vehicle text"] = input
 end)
 
-settings.user_entity_features.vehicle.feats["Change vehicle"] = menu.add_feature(lang["Set vehicle in use"], "action_value_str", u.gvehicle.id, function()
+settings.user_entity_features.vehicle.feats["Change vehicle"] = essentials.add_feature(lang["Set vehicle in use"], "action_value_str", u.gvehicle.id, function()
 	settings.user_entity_features.vehicle.feats["Change user vehicle setting"].on = true
 end)
 
-settings.user_entity_features.vehicle.feats["Spawn vehicle"] = menu.add_feature(lang["Spawn vehicle"], "action_value_str", u.gvehicle.id, function()
+settings.user_entity_features.vehicle.feats["Spawn vehicle"] = essentials.add_feature(lang["Spawn vehicle"], "action_value_str", u.gvehicle.id, function()
 	kek_entity.spawn_car()
 end)
 
-settings.valuei["Vehicle fly speed"] = menu.add_feature(lang["Vehicle fly speed, click to type"], "action_value_i", u.gvehicle.id, function(f)
+settings.valuei["Vehicle fly speed"] = essentials.add_feature(lang["Vehicle fly speed, click to type"], "action_value_i", u.gvehicle.id, function(f)
 	keys_and_input.input_number_for_feat(f, lang["Type in vehicle speed"])
 end)
 settings.valuei["Vehicle fly speed"].min, settings.valuei["Vehicle fly speed"].max, settings.valuei["Vehicle fly speed"].mod = 0, 45000, 10
 
-u.vehicle_fly = menu.add_feature(lang["Vehicle fly"], "toggle", u.gvehicle.id, function(f)
+u.vehicle_fly = essentials.add_feature(lang["Vehicle fly"], "toggle", u.gvehicle.id, function(f)
 	if f.on then
 		local control_indexes <const> = essentials.const({
 			[-3] = enums.inputs["A LEFT STICK"], 
@@ -6541,7 +6429,7 @@ u.vehicle_fly = menu.add_feature(lang["Vehicle fly"], "toggle", u.gvehicle.id, f
 		while f.on do
 			system.yield(0)
 			if menu.has_thread_finished(thread) and player.is_player_in_any_vehicle(player.player_id()) and not entity.is_entity_a_vehicle(fly_entity) then
-				thread = menu.create_thread(function()
+				thread = essentials.create_thread(function()
 					fly_entity = kek_entity.spawn_local_mission_vehicle(gameplay.get_hash_key("bmx"), function() 
 						return essentials.get_player_coords(player.player_id()), 0 
 					end)
@@ -6611,7 +6499,7 @@ u.vehicle_fly = menu.add_feature(lang["Vehicle fly"], "toggle", u.gvehicle.id, f
 	end
 end)
 
-player_feat_ids["player otr"] = menu.add_player_feature(lang["Off the radar"], "toggle", u.player_peaceful, function(f, pid)
+player_feat_ids["player otr"] = essentials.add_player_feature(lang["Off the radar"], "toggle", u.player_peaceful, function(f, pid)
 	while f.on do
 		if globals.get_player_global("otr_status", pid) ~= 1 then
 			globals.send_script_event(pid, "Give OTR or ghost organization", nil, utils.time() - 60, utils.time(), 1, 1, globals.get_player_global("generic", pid))
@@ -6621,7 +6509,7 @@ player_feat_ids["player otr"] = menu.add_player_feature(lang["Off the radar"], "
 	end
 end).id
 
-player_feat_ids["Never wanted"] = menu.add_player_feature(lang["Never wanted"], "toggle", u.player_peaceful, function(f, pid)
+player_feat_ids["Never wanted"] = essentials.add_player_feature(lang["Never wanted"], "toggle", u.player_peaceful, function(f, pid)
 	while f.on do
 		if player.is_player_valid(pid) and player.get_player_wanted_level(pid) > 0 then
 			globals.send_script_event(pid, "Generic event", nil, globals.GENERIC_ARG_HASHES.clear_wanted)
@@ -6643,7 +6531,7 @@ end).id
 							  : paid for being an associate, shows message but doesn't give money after it successfully gave money once, unless you wait a long time to give again [max 10k]
 				  1160415507 /
 ]]
-player_feat_ids["30k ceo"] = menu.add_player_feature(lang["30k ceo loop"], "toggle", u.player_peaceful, function(f, pid)
+player_feat_ids["30k ceo"] = essentials.add_player_feature(lang["30k ceo loop"], "toggle", u.player_peaceful, function(f, pid)
 	if u.send_30k_to_session.on and player.player_id() ~= pid then
 		essentials.msg(lang["The 30k loop for session is already toggled on."], "red", true, 6)
 		f.on = false
@@ -6655,7 +6543,7 @@ player_feat_ids["30k ceo"] = menu.add_player_feature(lang["30k ceo loop"], "togg
 		return
 	end
 
-	menu.create_thread(function()
+	essentials.create_thread(function()
 		while f.on do
 			globals.send_script_event(pid, "CEO money", nil, 10000, -1292453789, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"))
 			essentials.wait_conditional(40000, function() 
@@ -6673,7 +6561,7 @@ player_feat_ids["30k ceo"] = menu.add_player_feature(lang["30k ceo loop"], "togg
 	f.on = false
 end).id
 
-menu.add_player_feature(lang["Set bounty"], "action_value_str", u.script_stuff, function(f, pid)
+essentials.add_player_feature(lang["Set bounty"], "action_value_str", u.script_stuff, function(f, pid)
 	if essentials.is_str(f, "Change amount") then
 		local input <const>, status <const> = keys_and_input.get_input(lang["Type in bounty amount"], "", 5, 3)
 		if status == 2 then
@@ -6693,7 +6581,7 @@ end):set_str_data({
 	lang["Change amount"]
 })
 
-menu.add_player_feature(lang["Reapply bounty"], "value_str", u.script_stuff, function(f, pid)
+essentials.add_player_feature(lang["Reapply bounty"], "value_str", u.script_stuff, function(f, pid)
 	while f.on do
 		globals.set_bounty(pid, false, essentials.is_str(f, "Anonymous"))
 		local value <const> = f.value
@@ -6707,18 +6595,18 @@ end):set_str_data({
 })
 
 
-menu.add_player_feature(lang["Teleport to Perico island"], "action", u.script_stuff, function(f, pid)
+essentials.add_player_feature(lang["Teleport to Perico island"], "action", u.script_stuff, function(f, pid)
 	globals.send_script_event(pid, "Send to Perico island", nil, globals.get_script_event_hash("Send to Perico island"), 0, 0)
 end)
 
-menu.add_player_feature(lang["Apartment invites"], "toggle", u.script_stuff, function(f, pid)
+essentials.add_player_feature(lang["Apartment invites"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
 		globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1, 0)
 		system.yield(5000)
 	end
 end)
 
-menu.add_player_feature(lang["Block passive mode"], "toggle", u.script_stuff, function(f, pid)
+essentials.add_player_feature(lang["Block passive mode"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
 		globals.send_script_event(pid, "Block passive", nil, 1)
 		system.yield(1000)
@@ -6726,7 +6614,7 @@ menu.add_player_feature(lang["Block passive mode"], "toggle", u.script_stuff, fu
 	globals.send_script_event(pid, "Block passive", nil, 0)
 end)
 
-menu.add_player_feature(lang["Notification spam"], "toggle", u.script_stuff, function(f, pid)
+essentials.add_player_feature(lang["Notification spam"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
 		local rand_pid <const> = essentials.get_random_player_except({[player.player_id()] = true})
 		globals.send_script_event(pid, "Notifications", nil, 
@@ -6741,14 +6629,14 @@ menu.add_player_feature(lang["Notification spam"], "toggle", u.script_stuff, fun
 	end
 end)
 
-menu.add_player_feature(lang["Transaction error"], "toggle", u.script_stuff, function(f, pid)
+essentials.add_player_feature(lang["Transaction error"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
 		globals.send_script_event(pid, "Transaction error", nil, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1)
 		system.yield(500)
 	end
 end)
 
-menu.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicle_features, function(f, pid)
+essentials.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicle_features, function(f, pid)
 	if essentials.is_str(f, "waypoint") and not hud.is_waypoint_active() then
 		essentials.msg(lang["Please set a waypoint."], "red", true)
 		return
@@ -6789,7 +6677,7 @@ end):set_str_data({
 })
 
 do
-	local feat <const> = menu.add_player_feature(lang["Vehicle"], "action_value_str", u.player_vehicle_features, function(f, pid)
+	local feat <const> = essentials.add_player_feature(lang["Vehicle"], "action_value_str", u.player_vehicle_features, function(f, pid)
 		f.data = f.data and f.data.scid == player.get_player_scid(pid) and f.data or setmetatable({scid = player.get_player_scid(pid)}, {
 			__index = function()
 				return 0
@@ -6873,7 +6761,7 @@ do
 	})
 end
 
-settings.user_entity_features.vehicle.player_feats["Spawn vehicle"] = menu.add_player_feature(lang["Spawn vehicle"], "action_value_str", u.player_vehicle_features, function(f, pid)
+settings.user_entity_features.vehicle.player_feats["Spawn vehicle"] = essentials.add_player_feature(lang["Spawn vehicle"], "action_value_str", u.player_vehicle_features, function(f, pid)
 	local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 	if streaming.is_model_a_vehicle(hash) then
 		if not kek_entity.entity_manager:update().is_vehicle_limit_not_breached then
@@ -6890,11 +6778,11 @@ settings.user_entity_features.vehicle.player_feats["Spawn vehicle"] = menu.add_p
 	end
 end).id
 
-settings.user_entity_features.vehicle.player_feats["Change vehicle player"] = menu.add_player_feature(lang["Set vehicle in use"], "action_value_str", u.player_vehicle_features, function()
+settings.user_entity_features.vehicle.player_feats["Change vehicle player"] = essentials.add_player_feature(lang["Set vehicle in use"], "action_value_str", u.player_vehicle_features, function()
 	settings.user_entity_features.vehicle.feats["Change user vehicle setting"].on = true
 end).id
 
-u.spawn_vehicle_parent = menu.add_player_feature(lang["Spawn vehicle"], "parent", u.player_vehicle_features).id
+u.spawn_vehicle_parent = essentials.add_player_feature(lang["Spawn vehicle"], "parent", u.player_vehicle_features).id
 kek_entity.generate_player_vehicle_list({
 		type = "action"
 	},
@@ -6915,7 +6803,7 @@ kek_entity.generate_player_vehicle_list({
 	""
 )
 
-player_feat_ids["Player horn boost"] = menu.add_player_feature(lang["Horn boost"], "slider", u.player_peaceful, function(f, pid)
+player_feat_ids["Player horn boost"] = essentials.add_player_feature(lang["Horn boost"], "slider", u.player_peaceful, function(f, pid)
 	while f.on do
 		system.yield(0)
 		if player.is_player_valid(pid) 
@@ -6933,7 +6821,7 @@ menu.get_player_feature(player_feat_ids["Player horn boost"]).mod = 5
 menu.get_player_feature(player_feat_ids["Player horn boost"]).value = 25
 
 do
-	local feat = menu.add_player_feature(lang["Flamethrower"], "action_value_str", u.player_peaceful, function(f, pid)
+	local feat = essentials.add_player_feature(lang["Flamethrower"], "action_value_str", u.player_peaceful, function(f, pid)
 		local initial_pos <const> = essentials.get_player_coords(player.player_id())
 		local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
 		if status then
@@ -6967,7 +6855,7 @@ do
 	})
 end
 
-player_feat_ids["Drive force multiplier"] = menu.add_player_feature(lang["Drive force multiplier"], "action_value_f", u.player_vehicle_features, function(f, pid)
+player_feat_ids["Drive force multiplier"] = essentials.add_player_feature(lang["Drive force multiplier"], "action_value_f", u.player_vehicle_features, function(f, pid)
 	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
 	if status and kek_entity.get_control_of_entity(player.get_player_vehicle(pid), nil, nil, true) then
@@ -6983,7 +6871,7 @@ menu.get_player_feature(player_feat_ids["Drive force multiplier"]).min = -4.0
 menu.get_player_feature(player_feat_ids["Drive force multiplier"]).mod = 0.1
 menu.get_player_feature(player_feat_ids["Drive force multiplier"]).value = 1.0
 
-menu.add_player_feature(lang["Car godmode"], "value_str", u.player_vehicle_features, function(f, pid)
+essentials.add_player_feature(lang["Car godmode"], "value_str", u.player_vehicle_features, function(f, pid)
 	while f.on do
 		system.yield(0)
 		kek_entity.modify_entity_godmode(player.get_player_vehicle(pid), essentials.is_str(f, "Give"))
@@ -6993,7 +6881,7 @@ end):set_str_data({
 	lang["Remove"]
 })
 
-menu.add_player_feature(lang["Vehicle can't be locked on"], "action_value_str", u.player_peaceful, function(f, pid)
+essentials.add_player_feature(lang["Vehicle can't be locked on"], "action_value_str", u.player_peaceful, function(f, pid)
 	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(pid)
 	if status and kek_entity.get_control_of_entity(player.get_player_vehicle(pid), nil, nil, true) then
@@ -7007,7 +6895,7 @@ end):set_str_data({
 	lang["Remove"]
 })
 
-settings.user_entity_features.vehicle.player_feats["Respawn vehicle"] = menu.add_player_feature(lang["Respawn vehicle after death"], "value_str", u.player_peaceful, function(f, pid)
+settings.user_entity_features.vehicle.player_feats["Respawn vehicle"] = essentials.add_player_feature(lang["Respawn vehicle after death"], "value_str", u.player_peaceful, function(f, pid)
 	local state = false
 	while f.on do
 		system.yield(0)
@@ -7028,7 +6916,7 @@ settings.user_entity_features.vehicle.player_feats["Respawn vehicle"] = menu.add
 	end
 end).id
 
-menu.add_player_feature(lang["Vehicle fly player"], "toggle", u.player_vehicle_features, function(f, pid)
+essentials.add_player_feature(lang["Vehicle fly player"], "toggle", u.player_vehicle_features, function(f, pid)
 	while f.on do
 		system.yield(0)
 		local control_indexes <const> = essentials.const({
@@ -7061,7 +6949,7 @@ menu.add_player_feature(lang["Vehicle fly player"], "toggle", u.player_vehicle_f
 	end
 end)
 
-settings.user_entity_features.vehicle.player_feats["Ram player"] = menu.add_player_feature(lang["Ram player with vehicle"], "value_str", u.player_trolling_features, function(f, pid)
+settings.user_entity_features.vehicle.player_feats["Ram player"] = essentials.add_player_feature(lang["Ram player with vehicle"], "value_str", u.player_trolling_features, function(f, pid)
 	if player.player_count() == 0 then
 		f.on = false
 		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
@@ -7081,7 +6969,7 @@ settings.user_entity_features.vehicle.player_feats["Ram player"] = menu.add_play
 	f.on = false
 end).id
 
-menu.add_player_feature(lang["Spastic car"], "toggle", u.player_trolling_features, function(f, pid)
+essentials.add_player_feature(lang["Spastic car"], "toggle", u.player_trolling_features, function(f, pid)
 	while f.on do
 		if kek_entity.get_control_of_entity(player.get_player_vehicle(pid)) then
 			entity.set_entity_rotation(player.get_player_vehicle(pid), v3(essentials.random_real(-179.9999, 179.9999), essentials.random_real(-179.9999, 179.9999), essentials.random_real(-179.9999, 179.9999)))
@@ -7092,7 +6980,7 @@ menu.add_player_feature(lang["Spastic car"], "toggle", u.player_trolling_feature
 	end
 end)
 
-menu.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player_trolling_features, function(f, pid)
+essentials.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player_trolling_features, function(f, pid)
 	local input <const>, status <const> = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], "", 128, 0)
 	if status == 2 then
 		return
@@ -7114,7 +7002,7 @@ menu.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player
 	end
 end)
 
-menu.add_player_feature(lang["Send"], "value_str", u.player_trolling_features, function(f, pid)
+essentials.add_player_feature(lang["Send"], "value_str", u.player_trolling_features, function(f, pid)
 	if player.player_count() == 0 then
 		f.on = false
 		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
@@ -7149,15 +7037,15 @@ end):set_str_data({
 	lang["Army"]
 })
 
-settings.toggle["Exclude yourself from trolling"] = menu.add_feature(lang["Exclude you from session trolling"], "toggle", u.self_options.id, function(f)
+settings.toggle["Exclude yourself from trolling"] = essentials.add_feature(lang["Exclude you from session trolling"], "toggle", u.self_options.id, function(f)
 	settings.in_use["Exclude yourself from trolling"] = f.on
 end)
 
-menu.add_feature(lang["Get parachute"], "action", u.self_options.id, function(f)
+essentials.add_feature(lang["Get parachute"], "action", u.self_options.id, function(f)
 	weapon.give_delayed_weapon_to_ped(player.get_player_ped(player.player_id()), gameplay.get_hash_key("gadget_parachute"), 1, 0)
 end)
 
-menu.add_feature(lang["Send to session"], "value_str", u.session_trolling.id, function(f)
+essentials.add_feature(lang["Send to session"], "value_str", u.session_trolling.id, function(f)
 	if player.player_count() == 0 then
 		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
 		f.on = false
@@ -7192,7 +7080,7 @@ end):set_str_data({
 	lang["Jet"]
 })
 
-menu.add_player_feature(lang["Taze player"], "toggle", u.player_trolling_features, function(f, pid)
+essentials.add_player_feature(lang["Taze player"], "toggle", u.player_trolling_features, function(f, pid)
 	if player.player_id() == pid then
 		essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
 		f.on = false
@@ -7204,7 +7092,7 @@ menu.add_player_feature(lang["Taze player"], "toggle", u.player_trolling_feature
 	end
 end)
 
-u.atomize = menu.add_player_feature(lang["Atomize"], "slider", u.player_trolling_features, function(f, pid)
+u.atomize = essentials.add_player_feature(lang["Atomize"], "slider", u.player_trolling_features, function(f, pid)
 	if player.player_id() == pid then
 		essentials.msg(lang["You can't use this on yourself."], "red", true, 6)
 		f.on = false
@@ -7232,7 +7120,7 @@ u.atomize.min = 200
 u.atomize.mod = 50
 u.atomize.value = 1000
 
-menu.add_player_feature(lang["Float"], "value_str", u.player_trolling_features, function(f, pid)
+essentials.add_player_feature(lang["Float"], "value_str", u.player_trolling_features, function(f, pid)
 	if player.player_count() == 0 then
 		f.on = false
 		essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
@@ -7269,7 +7157,7 @@ end):set_str_data({
 	lang["Downwards"]
 })
 
-menu.add_player_feature(lang["Glitch vehicle"], "action_value_str", u.player_trolling_features, function(f, pid)
+essentials.add_player_feature(lang["Glitch vehicle"], "action_value_str", u.player_trolling_features, function(f, pid)
 	if essentials.is_str(f, "Glitch") then
 		kek_entity.glitch_vehicle(player.get_player_vehicle(pid))
 	elseif essentials.is_str(f, "Unglitch") then
@@ -7288,25 +7176,25 @@ end):set_str_data({
 	lang["Unglitch"]
 })
 
-menu.add_feature(lang["Give all weapons"], "action", u.weapons_self.id, function()
+essentials.add_feature(lang["Give all weapons"], "action", u.weapons_self.id, function()
 	for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
 		weapon.give_delayed_weapon_to_ped(player.get_player_ped(player.player_id()), weapon_hash, 0, 0)
 	end
 end)
 
-menu.add_feature(lang["Max all weapons"], "action", u.weapons_self.id, function()
+essentials.add_feature(lang["Max all weapons"], "action", u.weapons_self.id, function()
 	for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
 		weapon_mapper.set_ped_weapon_attachments(player.get_player_ped(player.player_id()), false, weapon_hash)
 	end
 end)
 
-menu.add_feature(lang["Randomize all weapons"], "action", u.weapons_self.id, function()
+essentials.add_feature(lang["Randomize all weapons"], "action", u.weapons_self.id, function()
 	for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
 		weapon_mapper.set_ped_weapon_attachments(player.get_player_ped(player.player_id()), true, weapon_hash)
 	end
 end)
 
-settings.toggle["Random weapon camos"] = menu.add_feature(lang["Random weapon camo"], "slider", u.weapons_self.id, function(f)
+settings.toggle["Random weapon camos"] = essentials.add_feature(lang["Random weapon camo"], "slider", u.weapons_self.id, function(f)
 	while f.on do
 		for _, weapon_hash in pairs(weapon.get_all_weapon_hashes()) do
 			if weapon.has_ped_got_weapon(player.get_player_ped(player.player_id()), weapon_hash) then
@@ -7325,13 +7213,13 @@ settings.valuei["Random weapon camos speed"].min = 0
 settings.valuei["Random weapon camos speed"].mod = 20
 settings.valuei["Random weapon camos speed"].value = 500
 
-player_feat_ids["Vehicle gun"] = menu.add_player_feature(lang["Vehicle gun"], "value_str", u.pWeapons, function(f, pid)
+player_feat_ids["Vehicle gun"] = essentials.add_player_feature(lang["Vehicle gun"], "value_str", u.pWeapons, function(f, pid)
 	if f.on then
 		if player.player_id() == pid then
 			u.self_vehicle_gun.on = true
 		end
 		local entities <const>, distance_from_player = {}
-		menu.create_thread(function()
+		essentials.create_thread(function()
 			while f.on do
 				if #entities > 15 then
 					kek_entity.clear_entities({entities[1]})
@@ -7377,7 +7265,7 @@ player_feat_ids["Vehicle gun"] = menu.add_player_feature(lang["Vehicle gun"], "v
 end).id
 settings.user_entity_features.vehicle.player_feats["Player vehicle gun"] = player_feat_ids["Vehicle gun"]
 
-menu.add_player_feature(lang["Kick gun"], "toggle", u.pWeapons, function(f, pid)
+essentials.add_player_feature(lang["Kick gun"], "toggle", u.pWeapons, function(f, pid)
 	while f.on do
 		system.yield(0)
 		local Ped <const> = player.get_entity_player_is_aiming_at(pid)
@@ -7390,7 +7278,7 @@ menu.add_player_feature(lang["Kick gun"], "toggle", u.pWeapons, function(f, pid)
 	end
 end)
 
-menu.add_player_feature(lang["Delete gun"], "toggle", u.pWeapons, function(f, pid)
+essentials.add_player_feature(lang["Delete gun"], "toggle", u.pWeapons, function(f, pid)
 	while f.on do
 		system.yield(0)
 		local Entity <const> = player.get_entity_player_is_aiming_at(pid)
@@ -7404,7 +7292,7 @@ menu.add_player_feature(lang["Delete gun"], "toggle", u.pWeapons, function(f, pi
 	end
 end)
 
-menu.add_player_feature(lang["Explosion gun"], "toggle", u.pWeapons, function(f, pid)
+essentials.add_player_feature(lang["Explosion gun"], "toggle", u.pWeapons, function(f, pid)
 	while f.on do
 		if ped.is_ped_shooting(player.get_player_ped(pid)) then
 			local pos = select(2, ped.get_ped_last_weapon_impact(player.get_player_ped(pid)))
@@ -7414,11 +7302,11 @@ menu.add_player_feature(lang["Explosion gun"], "toggle", u.pWeapons, function(f,
 	end
 end)
 
-settings.user_entity_features.object.feats["Change object"] = menu.add_feature(lang["Set object in use"], "action_value_str", u.weapons_self.id, function()
+settings.user_entity_features.object.feats["Change object"] = essentials.add_feature(lang["Set object in use"], "action_value_str", u.weapons_self.id, function()
 	settings.user_entity_features.object.feats["Change user object setting"].on = true
 end)
 
-settings.user_entity_features.object.feats["Object gun"] = menu.add_feature(lang["Object gun"], "value_str", u.weapons_self.id, function(f)
+settings.user_entity_features.object.feats["Object gun"] = essentials.add_feature(lang["Object gun"], "value_str", u.weapons_self.id, function(f)
 	local entities <const> = {}
 	while f.on do
 		if ped.is_ped_shooting(player.get_player_ped(player.player_id())) then
@@ -7441,7 +7329,7 @@ settings.user_entity_features.object.feats["Object gun"] = menu.add_feature(lang
 	kek_entity.clear_entities(entities)
 end)
 
-u.airstrike_gun = menu.add_feature(lang["Airstrike gun"], "toggle", u.weapons_self.id, function(f)
+u.airstrike_gun = essentials.add_feature(lang["Airstrike gun"], "toggle", u.weapons_self.id, function(f)
 	while f.on do
 		system.yield(0)
 		if ped.is_ped_shooting(player.get_player_ped(player.player_id())) then
@@ -7453,18 +7341,18 @@ u.airstrike_gun = menu.add_feature(lang["Airstrike gun"], "toggle", u.weapons_se
 	end
 end)
 
-settings.user_entity_features.vehicle.feats["Change vehicle gun"] = menu.add_feature(lang["Set vehicle in use"], "action_value_str", u.weapons_self.id, function()
+settings.user_entity_features.vehicle.feats["Change vehicle gun"] = essentials.add_feature(lang["Set vehicle in use"], "action_value_str", u.weapons_self.id, function()
 	settings.user_entity_features.vehicle.feats["Change user vehicle setting"].on = true
 end)
 
-u.self_vehicle_gun = menu.add_feature(lang["Vehicle gun"], "value_str", u.weapons_self.id, function(f)
+u.self_vehicle_gun = essentials.add_feature(lang["Vehicle gun"], "value_str", u.weapons_self.id, function(f)
 	menu.get_player_feature(player_feat_ids["Vehicle gun"]).feats[player.player_id()].on = f.on
 end)
 settings.user_entity_features.vehicle.feats["Vehicle gun"] = u.self_vehicle_gun
 
-menu.add_feature(lang["Clear entities"], "value_str", u.kek_utilities.id, function(f)
+essentials.add_feature(lang["Clear entities"], "value_str", u.kek_utilities.id, function(f)
 	local radius = 0
-	menu.create_thread(function()
+	essentials.create_thread(function()
 		while f.on do
 			if settings.toggle["Show red sphere clear entities"].on and not essentials.is_str(f, "Peds & vehicles") and not essentials.is_str(f, "All") and radius < 10001 then
 				graphics.draw_marker(28, essentials.get_player_coords(player.player_id()), memoize.v3(0, 90, 0), memoize.v3(0, 90, 0), memoize.v3(radius, radius, radius), 255, 0, 0, 85, false, false, 2, false, nil, "MarkerTypeDebugSphere", false)
@@ -7541,7 +7429,7 @@ end):set_str_data({
 	lang["Cops"]
 })
 
-settings.toggle["Show red sphere clear entities"] = menu.add_feature(lang["Show sphere"], "toggle", u.kek_utilities.id)
+settings.toggle["Show red sphere clear entities"] = essentials.add_feature(lang["Show sphere"], "toggle", u.kek_utilities.id)
 
 for _, setting_name in pairs({
 	"Vehicle clear distance", 
@@ -7551,32 +7439,32 @@ for _, setting_name in pairs({
 	"Ptfx clear distance", 
 	"Cops clear distance"
 }) do
-	settings.valuei[setting_name] = menu.add_feature(lang[setting_name], "action_value_i", u.kek_utilities.id, function(f)
+	settings.valuei[setting_name] = essentials.add_feature(lang[setting_name], "action_value_i", u.kek_utilities.id, function(f)
 		keys_and_input.input_number_for_feat(f, lang["Type in clear distance limit."])
 	end)
 	settings.valuei[setting_name].max, settings.valuei[setting_name].min, settings.valuei[setting_name].mod = 25000, 1, 10
 end
 
-u.clear_owned_entities = menu.add_feature(lang["Clear all owned entities"], "action", u.kek_utilities.id, function()
+u.clear_owned_entities = essentials.add_feature(lang["Clear all owned entities"], "action", u.kek_utilities.id, function()
 	kek_entity.entity_manager:clear()
 	essentials.msg(lang["Cleared owned entities."], "green", true)
 end)
 
-menu.add_feature(lang["Disable ped spawning"], "toggle", u.kek_utilities.id, function(f)
+essentials.add_feature(lang["Disable ped spawning"], "toggle", u.kek_utilities.id, function(f)
 	while f.on do
 		ped.set_ped_density_multiplier_this_frame(0)
 		system.yield(0)
 	end
 end)
 
-menu.add_feature(lang["Disable vehicle spawning"], "toggle", u.kek_utilities.id, function(f)
+essentials.add_feature(lang["Disable vehicle spawning"], "toggle", u.kek_utilities.id, function(f)
 	while f.on do
 		vehicle.set_vehicle_density_multipliers_this_frame(0)
 		system.yield(0)
 	end
 end)
 
-menu.add_feature(lang["Shoot entity| get model name of entity"], "toggle", u.kek_utilities.id, function(f)
+essentials.add_feature(lang["Shoot entity| get model name of entity"], "toggle", u.kek_utilities.id, function(f)
 	while f.on do
 		local model_name = ""
 		local Entity = player.get_entity_player_is_aiming_at(player.player_id())
@@ -7619,16 +7507,16 @@ menu.add_feature(lang["Shoot entity| get model name of entity"], "toggle", u.kek
 end)
 
 do
-	u.entity_manager = menu.add_feature(lang["Entity manager"], "parent", u.kek_utilities.id)
+	u.entity_manager = essentials.add_feature(lang["Entity manager"], "parent", u.kek_utilities.id)
 	local parent_i = 0
 	local entity_manager_parents <const> = essentials.const({
-		menu.add_feature(lang["Vehicles"], "parent", u.entity_manager.id, function()
+		essentials.add_feature(lang["Vehicles"], "parent", u.entity_manager.id, function()
 			parent_i = 1
 		end),
-		menu.add_feature(lang["Peds"], "parent", u.entity_manager.id, function()
+		essentials.add_feature(lang["Peds"], "parent", u.entity_manager.id, function()
 			parent_i = 2
 		end),
-		menu.add_feature(lang["Objects"], "parent", u.entity_manager.id, function()
+		essentials.add_feature(lang["Objects"], "parent", u.entity_manager.id, function()
 			parent_i = 3
 		end)
 	})
@@ -7723,9 +7611,9 @@ do
 	end
 
 	for i = 1, 3 do
-		menu.add_feature(lang["All entities of this type"], "parent", entity_manager_parents[i].id, function(parent)
+		essentials.add_feature(lang["All entities of this type"], "parent", entity_manager_parents[i].id, function(parent)
 			if parent.child_count == 0 then
-				menu.add_feature(lang["Delete"], "action", parent.id, function(f)
+				essentials.add_feature(lang["Delete"], "action", parent.id, function(f)
 					if i == 3 and player.player_count() == 0 then
 						essentials.msg(lang["This can't be used in singleplayer."], "red", true, 6)
 						return
@@ -7734,7 +7622,7 @@ do
 						kek_entity.hard_remove_entity_and_its_attachments(Entity)
 					end
 				end)
-				local exp_type <const> = menu.add_feature(lang["Explode"], "action_value_str", parent.id, function(f)
+				local exp_type <const> = essentials.add_feature(lang["Explode"], "action_value_str", parent.id, function(f)
 					for Entity in entities_ite(i) do
 						essentials.use_ptfx_function(fire.add_explosion, entity.get_entity_coords(Entity), f.value, true, false, 0, player.get_player_ped(player.player_id()))
 					end								
@@ -7742,12 +7630,12 @@ do
 				exp_type:set_str_data(explosion_names)
 				exp_type.value = enums.explosion_types.BLIMP
 				if i == 1 then
-					local speed_set = menu.add_feature(lang["Set speed"], "action_value_i", parent.id, function(f)
+					local speed_set = essentials.add_feature(lang["Set speed"], "action_value_i", parent.id, function(f)
 						for Vehicle in entities_ite(i) do
 							vehicle.set_vehicle_forward_speed(Vehicle, f.value)
 						end
 					end)
-					local gravity <const> = menu.add_feature(lang["Gravity"], "action_value_f", parent.id, function(f)
+					local gravity <const> = essentials.add_feature(lang["Gravity"], "action_value_f", parent.id, function(f)
 						for Vehicle in entities_ite(i) do
 							vehicle.set_vehicle_gravity_amount(Vehicle, f.value)
 						end
@@ -7759,7 +7647,7 @@ do
 
 					speed_set.max, speed_set.min, speed_set.mod = 1000, -1000, 25
 					speed_set.value = 100
-					menu.add_feature(lang["Toggle engine"], "action_value_str", parent.id, function(f)
+					essentials.add_feature(lang["Toggle engine"], "action_value_str", parent.id, function(f)
 						for Vehicle in entities_ite(i) do
 							if essentials.is_str(f, "Kill engine") then
 								vehicle.set_vehicle_engine_health(Vehicle, -4000)
@@ -7776,13 +7664,13 @@ do
 					})
 				end
 				if i == 2 then
-					menu.add_feature(lang["Clear ped tasks"], "action", parent.id, function()
+					essentials.add_feature(lang["Clear ped tasks"], "action", parent.id, function()
 						for Ped in entities_ite(i) do
 							ped.clear_ped_tasks_immediately(Ped)
 						end
 					end)
 				end
-				teleport_all_in_front_of_player[i] = menu.add_feature(lang["Teleport in front of player"], "action_value_str", parent.id, function(f)
+				teleport_all_in_front_of_player[i] = essentials.add_feature(lang["Teleport in front of player"], "action_value_str", parent.id, function(f)
 					if player.is_player_valid(f.data[f.value + 1]) then
 						for Entity, count in entities_ite(i) do
 							entity.set_entity_coords_no_offset(Entity, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(f.data[f.value + 1]), 10)))
@@ -7793,7 +7681,7 @@ do
 					end
 				end)
 				if i == 1 or i == 2 then
-					menu.add_feature(lang["Godmode"], "value_str", parent.id, function(f)
+					essentials.add_feature(lang["Godmode"], "value_str", parent.id, function(f)
 						while f.on do
 							for Entity in entities_ite(i) do
 								if entity.get_entity_god_mode(Entity) ~= (essentials.is_str(f, "Give")) then
@@ -7811,7 +7699,7 @@ do
 						lang["Give"],
 						lang["Remove"]
 					})
-					menu.add_feature(lang["Resurrect"], "action", parent.id, function()
+					essentials.add_feature(lang["Resurrect"], "action", parent.id, function()
 						for Entity in entities_ite(i) do
 							if entity.is_entity_dead(Entity) then
 								if entity.is_entity_a_vehicle(Entity) then
@@ -7834,7 +7722,7 @@ do
 			teleport_all_in_front_of_player[i]:set_str_data(player_names)
 		end)
 
-		menu.add_feature(lang["Filter"].." < >", "action", entity_manager_parents[i].id, function(f)
+		essentials.add_feature(lang["Filter"].." < >", "action", entity_manager_parents[i].id, function(f)
 			local input <const>, status <const> = keys_and_input.get_input(lang["Type in name of entity."], "", 128, 0)
 			if status == 2 then
 				return
@@ -7848,19 +7736,19 @@ do
 		end)
 
 		for i2 = 1, number_of_features[i] do
-			free_parents[i][#free_parents[i] + 1] = menu.add_feature("", "parent", entity_manager_parents[i].id, function(parent)
+			free_parents[i][#free_parents[i] + 1] = essentials.add_feature("", "parent", entity_manager_parents[i].id, function(parent)
 				if parent.child_count == 0 then
-					local exp_type <const> = menu.add_feature(lang["Explode"], "action_value_str", parent.id, function(f)
+					local exp_type <const> = essentials.add_feature(lang["Explode"], "action_value_str", parent.id, function(f)
 						essentials.use_ptfx_function(fire.add_explosion, entity.get_entity_coords(parent.data.entity), f.value, true, false, 0, player.get_player_ped(player.player_id()))
 					end)
 					exp_type:set_str_data(explosion_names)
 					exp_type.value = enums.explosion_types.BLIMP
 
 					do
-						local attach_parent <const> = menu.add_feature(lang["Attach players"], "parent", parent.id)
+						local attach_parent <const> = essentials.add_feature(lang["Attach players"], "parent", parent.id)
 						local rot_x, rot_y, rot_z, offset_x, offset_y, offset_z, collision
 
-						attach_player_vehicle[i] = menu.add_feature(lang["Attach player vehicle to entity"], "action_value_str", attach_parent.id, function(f)
+						attach_player_vehicle[i] = essentials.add_feature(lang["Attach player vehicle to entity"], "action_value_str", attach_parent.id, function(f)
 							local initial_pos <const> = essentials.get_player_coords(player.player_id())
 							local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(f.data[f.value + 1])
 							if not status or parent.data.entity == player.get_player_vehicle(f.data[f.value + 1]) then
@@ -7879,7 +7767,7 @@ do
 							end
 						end)
 
-						detach_player_vehicle[i] = menu.add_feature(lang["Detach"], "action_value_str", attach_parent.id, function(f)
+						detach_player_vehicle[i] = essentials.add_feature(lang["Detach"], "action_value_str", attach_parent.id, function(f)
 							local initial_pos <const> = essentials.get_player_coords(player.player_id())
 							local status <const>, had_to_teleport <const> = kek_entity.check_player_vehicle_and_teleport_if_necessary(f.data[f.value + 1])
 							if status and entity.is_entity_attached(player.get_player_vehicle(f.data[f.value + 1])) and kek_entity.get_control_of_entity(player.get_player_vehicle(f.data[f.value + 1]), nil, nil, true) then
@@ -7903,43 +7791,43 @@ do
 							end
 						end
 
-						rot_x = menu.add_feature(lang["Rotation x"], "autoaction_value_i", attach_parent.id, attach_callback)
+						rot_x = essentials.add_feature(lang["Rotation x"], "autoaction_value_i", attach_parent.id, attach_callback)
 						rot_x.min, rot_x.max, rot_x.mod = -180, 180, 10
 
-						rot_y = menu.add_feature(lang["Rotation y"], "autoaction_value_i", attach_parent.id, attach_callback)
+						rot_y = essentials.add_feature(lang["Rotation y"], "autoaction_value_i", attach_parent.id, attach_callback)
 						rot_y.min, rot_y.max, rot_y.mod = -180, 180, 10
 
-						rot_z = menu.add_feature(lang["Rotation z"], "autoaction_value_i", attach_parent.id, attach_callback)
+						rot_z = essentials.add_feature(lang["Rotation z"], "autoaction_value_i", attach_parent.id, attach_callback)
 						rot_z.min, rot_z.max, rot_z.mod = -180, 180, 10
 
-						offset_x = menu.add_feature(lang["Offset x"], "autoaction_value_i", attach_parent.id, attach_callback)
+						offset_x = essentials.add_feature(lang["Offset x"], "autoaction_value_i", attach_parent.id, attach_callback)
 						offset_x.min, offset_x.max, offset_x.mod = -100, 100, 1
 
-						offset_y = menu.add_feature(lang["Offset y"], "autoaction_value_i", attach_parent.id, attach_callback)
+						offset_y = essentials.add_feature(lang["Offset y"], "autoaction_value_i", attach_parent.id, attach_callback)
 						offset_y.min, offset_y.max, offset_y.mod = -100, 100, 1
 
-						offset_z = menu.add_feature(lang["Offset z"], "autoaction_value_i", attach_parent.id, attach_callback)
+						offset_z = essentials.add_feature(lang["Offset z"], "autoaction_value_i", attach_parent.id, attach_callback)
 						offset_z.min, offset_z.max, offset_z.mod = -100, 100, 1
 						offset_z.value = 3
 
-						collision = menu.add_feature(lang["Collision"], "toggle", attach_parent.id, attach_callback)
+						collision = essentials.add_feature(lang["Collision"], "toggle", attach_parent.id, attach_callback)
 						collision.on = true
 
-						menu.add_feature(lang["Reset rot"], "action", attach_parent.id, function(f)
+						essentials.add_feature(lang["Reset rot"], "action", attach_parent.id, function(f)
 							rot_x.value, rot_y.value, rot_z.value = 0, 0, 0
 							rot_x.on = true -- Update the entity's rot and offset
 						end)
-						menu.add_feature(lang["Reset offset"], "action", attach_parent.id, function(f)
+						essentials.add_feature(lang["Reset offset"], "action", attach_parent.id, function(f)
 							offset_x.value, offset_y.value, offset_z.value = 0, 0, 3
 							offset_x.on = true -- Update the entity's rot and offset
 						end)
-						menu.add_feature(lang["Clear attachments"], "action", attach_parent.id, function(f)
+						essentials.add_feature(lang["Clear attachments"], "action", attach_parent.id, function(f)
 							kek_entity.clear_entities(kek_entity.get_all_attached_entities(parent.data.entity))
 						end)
 					end
 
 					if i == 1 then
-						local speed_set = menu.add_feature(lang["Set speed"], "action_value_i", parent.id, function(f)
+						local speed_set = essentials.add_feature(lang["Set speed"], "action_value_i", parent.id, function(f)
 							if kek_entity.get_control_of_entity(parent.data.entity, nil, nil, true) then
 								entity.set_entity_max_speed(parent.data.entity, 45000)
 								vehicle.set_vehicle_forward_speed(parent.data.entity, f.value)
@@ -7947,7 +7835,7 @@ do
 						end)
 						speed_set.max, speed_set.min, speed_set.mod = 1000, -1000, 25
 						speed_set.value = 100
-						local gravity <const> = menu.add_feature(lang["Gravity"], "action_value_f", parent.id, function(f)
+						local gravity <const> = essentials.add_feature(lang["Gravity"], "action_value_f", parent.id, function(f)
 							if kek_entity.get_control_of_entity(parent.data.entity, nil, nil, true) then
 								vehicle.set_vehicle_gravity_amount(parent.data.entity, f.value)
 							end
@@ -7956,13 +7844,13 @@ do
 						gravity.max = 980.0
 						gravity.mod = 9.8
 						gravity.value = 9.8
-						set_yourself_in_seat[i] = menu.add_feature(lang["Set yourself in seat"], "action_value_str", parent.id, function(f)
+						set_yourself_in_seat[i] = essentials.add_feature(lang["Set yourself in seat"], "action_value_str", parent.id, function(f)
 							local velocity <const> = entity.get_entity_velocity(parent.data.entity)
 							ped.clear_ped_tasks_immediately(vehicle.get_ped_in_vehicle_seat(parent.data.entity, f.value - 1))
 							ped.set_ped_into_vehicle(player.get_player_ped(player.player_id()), parent.data.entity, f.value - 1)
 							entity.set_entity_velocity(parent.data.entity, velocity)
 						end)
-						menu.add_feature(lang["Toggle engine"], "action_value_str", parent.id, function(f)
+						essentials.add_feature(lang["Toggle engine"], "action_value_str", parent.id, function(f)
 							if kek_entity.get_control_of_entity(parent.data.entity, nil, nil, true) then
 								if essentials.is_str(f, "Kill engine") then
 									vehicle.set_vehicle_engine_health(parent.data.entity, -4000)
@@ -7979,12 +7867,12 @@ do
 						})
 					end
 					if i == 2 then
-						menu.add_feature(lang["Clear ped tasks"], "action", parent.id, function(f)
+						essentials.add_feature(lang["Clear ped tasks"], "action", parent.id, function(f)
 							ped.clear_ped_tasks_immediately(parent.data.entity)
 						end)
 					end
 					if i == 1 or i == 2 then
-						menu.add_feature(lang["Clone"], "action", parent.id, function(f)
+						essentials.add_feature(lang["Clone"], "action", parent.id, function(f)
 							if entity.is_entity_a_vehicle(parent.data.entity) then
 								local pos <const> = kek_entity.vehicle_get_vec_rel_to_dims(entity.get_entity_model_hash(parent.data.entity), player.get_player_ped(player.player_id()))
 								local Vehicle <const> = menyoo.clone_vehicle(parent.data.entity, pos)
@@ -7994,7 +7882,7 @@ do
 								kek_entity.teleport(Ped, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)))
 							end
 						end)
-						menu.add_feature(lang["Resurrect"], "action", parent.id, function(f)
+						essentials.add_feature(lang["Resurrect"], "action", parent.id, function(f)
 							if entity.is_entity_dead(parent.data.entity) and kek_entity.get_control_of_entity(parent.data.entity, nil, nil, true) then
 								if entity.is_entity_a_vehicle(parent.data.entity) then
 									kek_entity.repair_car(parent.data.entity)
@@ -8004,7 +7892,7 @@ do
 								end
 							end
 						end)
-						menu.add_feature(lang["Godmode"], "value_str", parent.id, function(f)
+						essentials.add_feature(lang["Godmode"], "value_str", parent.id, function(f)
 							while f.on and parent.on and entity.is_an_entity(parent.data.entity) do
 								kek_entity.modify_entity_godmode(parent.data.entity, essentials.is_str(f, "Give"))
 								system.yield(0)
@@ -8015,7 +7903,7 @@ do
 							lang["Remove"]
 						})
 					end
-					menu.add_feature(lang["Delete"], "action", parent.id, function(f)
+					essentials.add_feature(lang["Delete"], "action", parent.id, function(f)
 						for pid in essentials.players(true) do
 							if player.get_player_vehicle(pid) == parent.data.entity then
 								kek_entity.remove_player_vehicle(pid)
@@ -8024,10 +7912,10 @@ do
 						end
 						kek_entity.hard_remove_entity_and_its_attachments(parent.data.entity)
 					end)
-					menu.add_feature(lang["Teleport to entity"], "action", parent.id, function(f)
+					essentials.add_feature(lang["Teleport to entity"], "action", parent.id, function(f)
 						kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), kek_entity.get_vector_relative_to_entity(parent.data.entity, 1))
 					end)
-					teleport_in_front_of_player[i] = menu.add_feature(lang["Teleport in front of player"], "action_value_str", parent.id, function(f)
+					teleport_in_front_of_player[i] = essentials.add_feature(lang["Teleport in front of player"], "action_value_str", parent.id, function(f)
 						if player.is_player_valid(f.data[f.value + 1]) then
 							kek_entity.teleport(
 								parent.data.entity, 
@@ -8037,7 +7925,7 @@ do
 							kek_entity.set_entity_heading(parent.data.entity, player.get_player_heading(f.data[f.value + 1]))
 						end
 					end)
-					menu.add_feature(lang["Copy to clipboard"], "action_value_str", parent.id, function(f)
+					essentials.add_feature(lang["Copy to clipboard"], "action_value_str", parent.id, function(f)
 						if essentials.is_str(f, "position") then
 							utils.to_clipboard(tostring(entity.get_entity_coords(parent.data.entity)))
 						elseif essentials.is_str(f, "pos without dec") then
@@ -8083,7 +7971,7 @@ do
 		end
 	end
 
-	u.entity_manager_toggle = menu.add_feature(lang["Entity manager"], "toggle", u.entity_manager.id, function(f)
+	u.entity_manager_toggle = essentials.add_feature(lang["Entity manager"], "toggle", u.entity_manager.id, function(f)
 		
 		local format <const> = string.format
 		local find <const> = string.find
@@ -8169,7 +8057,7 @@ do
 	end)
 end
 
-menu.add_player_feature(lang["Copy to clipboard"], "action_value_str", u.player_misc_features, function(f, pid)
+essentials.add_player_feature(lang["Copy to clipboard"], "action_value_str", u.player_misc_features, function(f, pid)
 	if essentials.is_str(f, "Rid") then
 		utils.to_clipboard(tostring(player.get_player_scid(pid)))
 	elseif essentials.is_str(f, "IP") then
@@ -8210,7 +8098,7 @@ do
 		if file_name ~= essentials.get_safe_feat_name(file_name) then
 			return
 		end
-		menu.add_feature(essentials.get_safe_feat_name(file_name):gsub("%.ini$", ""), "action_value_str", u.profiles.id, function(f)
+		essentials.add_feature(essentials.get_safe_feat_name(file_name):gsub("%.ini$", ""), "action_value_str", u.profiles.id, function(f)
 			if essentials.is_str(f, "Load") then
 				if utils.file_exists(paths.kek_menu_stuff.."profiles\\"..f.name..".ini") then
 					settings:initialize(paths.home.."scripts\\kek_menu_stuff\\profiles\\"..f.name..".ini")
@@ -8249,7 +8137,7 @@ do
 		})
 	end
 
-	 menu.add_feature(lang["Settings"], "action_value_str", u.profiles.id, function(f)
+	 essentials.add_feature(lang["Settings"], "action_value_str", u.profiles.id, function(f)
 	 	if essentials.is_str(f, "save to default") then
 			settings:save(paths.home.."scripts\\kek_menu_stuff\\keksettings.ini")
 			essentials.msg(lang["Settings saved!"], "green", true)
@@ -8320,14 +8208,14 @@ do
 					if not essentials.is_str(u.search_features, "Local Lua features") or feat.id ~= u.search_menu_features.id then
 						create_sorted_search_features(
 							feat, 
-							menu.add_feature(feat.name, "parent", script_parent.id),
+							essentials.add_feature(feat.name, "parent", script_parent.id),
 							search_string,
 							parent_matches_search_string or find(lower(feat.name), search_string, 1, true) ~= nil,
 							tab
 						)
 					end
 				elseif parent_matches_search_string or find(lower(feat.name), search_string, 1, true) then
-					menu.add_feature(feat.name, "action_value_str", script_parent.id, function(f)
+					essentials.add_feature(feat.name, "action_value_str", script_parent.id, function(f)
 						local hierarchy_string <const> = essentials.get_feat_hierarchy(feat, tab)
 						local menu_feat = feat
 						if essentials.is_str(f, "Go to") then
@@ -8360,7 +8248,7 @@ do
 		end
 	end
 
-	u.search_features = menu.add_feature(lang["Search"], "action_value_str", u.search_menu_features.id, function(f)
+	u.search_features = essentials.add_feature(lang["Search"], "action_value_str", u.search_menu_features.id, function(f)
 		local input, status <const> = keys_and_input.get_input(lang["Type in name of feature."], "", 128, 0)
 		if status == 2 then
 			return
@@ -8392,7 +8280,7 @@ do
 
 			for i = 1, #player_parents do
 				if player_parents[i].name ~= "!EMPTY!" and not find(player_parents[i].name, "^player %d+$") then
-					local script_parent <const> = menu.add_feature(player_parents[i].name, "parent", u.search_menu_features.id, function(f)
+					local script_parent <const> = essentials.add_feature(player_parents[i].name, "parent", u.search_menu_features.id, function(f)
 						if not player.is_player_valid(essentials.name_to_pid_strict(player_parents[i].name:gsub(" %[%a+%]$", ""))) then
 							essentials.msg(lang["This player is no longer here."], "yellow", true, 8)
 							f.on = false
@@ -8409,9 +8297,9 @@ do
 		elseif essentials.is_str(f, "Menu features") then
 			for tab, parents in pairs(enums.menu_feature_hierarchy) do
 				for i = 1, #parents do
-					if parents[i] ~= "script_features" then
-						local menu_feat <const> = menu.get_feature_by_hierarchy_key(tab.."."..parents[i])
-						local script_parent <const> = menu.add_feature(menu_feat.name, "parent", u.search_menu_features.id)
+					local menu_feat <const> = menu.get_feature_by_hierarchy_key(tab.."."..parents[i])
+					if menu_feat and parents[i] ~= "script_features" then -- Checks if menu_feat isn't nil, in case they're a standard user
+						local script_parent <const> = essentials.add_feature(menu_feat.name, "parent", u.search_menu_features.id)
 						create_sorted_search_features(menu_feat, script_parent, input, find(lower(menu_feat.name), input, 1, true) ~= nil, tab)
 					end
 				end
@@ -8426,7 +8314,7 @@ do
 	u.search_features.data = "dont_delete"
 end
 
-u.hotkey_feat_for_search = menu.add_feature(lang["Set hotkey on this to go here"], "action", u.search_menu_features.id, function(f)
+u.hotkey_feat_for_search = essentials.add_feature(lang["Set hotkey on this to go here"], "action", u.search_menu_features.id, function(f)
 	u.search_menu_features:toggle()
 	u.search_features:select()
 end)
@@ -8467,4 +8355,4 @@ end)
 
 essentials.msg(lang["Successfully loaded Kek's menu."], "green", true)
 
-end, nil)
+end, nil) -- End of thread that covers entire script.
