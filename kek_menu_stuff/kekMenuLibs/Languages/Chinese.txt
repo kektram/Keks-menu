@@ -769,7 +769,7 @@ Zulu §祖鲁语
 Forcing player into vehicle. This can take up to 15 seconds. §强制玩家进入载具中...最多可能需要15秒.
 Failed to teleport player. §传送玩家失败.
 Translate your messages into §翻译你的聊天信息
-This message will disappear in %i seconds and will assume you don't want the update. §此信息将在%i秒后消失,并假设你不想更新.
+This message will disappear in %s seconds and will assume you don't want the update. §此信息将在%s秒后消失,并假设你不想更新.
 Check for updates §自动检查更新
 You must turn on trusted mode->Http to use this script. §你必须打开 信任模式 -> Http 才能使用此脚本.
 The map/vehicle won't be visible to other players, it has too many entities. Networked maps/vehicles supports max:\n%i objects\n%i vehicles\n%i peds. §这个 地图/载具 其他玩家看不到,它有太多实体. 联网地图/载具最多支持: \n%i 个物体\n%i 辆载具\n%i 个NPC.
@@ -807,7 +807,7 @@ Type in number of notifications to display. §输入要显示的通知数量.
 They were spoofing as §他正在伪装为
 The green line is where it will align itself to if there's enough space. §如果有足够的屏幕空间,绿线就是对齐的位置.
 The text is auto aligned to never be off-screen. §文字是自动对齐的,永远不会超过屏幕.
-Attempt %i / %i to fetch %s. §尝试获取 %i / %i,%s.
+Attempt %s / %s to fetch %s. §尝试获取 %s / %s,%s.
 Failed to fetch %s with error: %s §获取 %s 失败,错误: %s
 Successfully fetched %s. §成功获取了 %s.
 Unknown vehicle name §未知载具名称
