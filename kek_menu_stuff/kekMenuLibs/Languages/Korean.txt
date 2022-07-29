@@ -1,4 +1,4 @@
-Kek's menu §Kek's menu
+﻿Kek's menu §Kek's menu
 Vehicle §차량
 Self §플레이어 옵션
 Vehicle peaceful §차량 설정 옵션
@@ -676,7 +676,7 @@ Failed to teleport player. §플레이어에게 순간 이동하는 것을 실�
 Translate your messages into §내 메시지를 번역할 언어
 Obtaining update information... §업데이트 정보를 수집 중입니다...
 There's a new update for Kek's menu available. Press enter to install it, space to not. §새로운 버전의 Kek's menu 설치가 가능합니다. Enter 키를 눌러 설치하거나 Space 키를 눌러 취소하세요.
-This message will disappear in %i seconds and will assume you don't want the update. §업데이트를 하길 원하지 않는다면 이 메시지가 %i초 이내에 사라질 것입니다.
+This message will disappear in %s seconds and will assume you don't want the update. §업데이트를 하길 원하지 않는다면 이 메시지가 %s초 이내에 사라질 것입니다.
 Check for updates §업데이트 확인
 Russian §러시아어
 You must turn on trusted mode->Http to use this script. §스크립트를 사용하기 위해 Trusted Mode에서 Http를 활성화하세요.
@@ -716,7 +716,7 @@ Type in number of notifications to display. §표시할 알림 수를 입력하�
 They were spoofing as §해당 플레이어는 이렇게 스푸핑하고 있었습니다:
 The green line is where it will align itself to if there's enough space. §초록색 줄에 충분한 공간이 없다면 스스로 조정할 것입니다.
 The text is auto aligned to never be off-screen. §글자가 화면이 아닌 곳에 있게 하지 않기 위해 자동으로 조정되었습니다.
-Attempt %i / %i to fetch %s. §
+Attempt %s / %s to fetch %s. §%s 을/를 가지고 오기 위해 %s / %s 에 시도합니다.
 Failed to fetch %s with error: %s §%s 을/를 가지고 오는 것을 실패했으며 오류가 발생했습니다:
 Successfully fetched %s. §성공적으로 가져왔습니다.
 Unknown vehicle name §알려지지 않은 차량 이름
