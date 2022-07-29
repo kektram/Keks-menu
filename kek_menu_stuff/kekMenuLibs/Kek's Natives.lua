@@ -2695,7 +2695,7 @@ local ids <const> = {
 		net_gameserver_set_telemetry_nonce_seed = {type = "bool", id = 0x9507d4271988e1ae, pars = "int p0"},
 	},
 	network = {
-	--	_get_online_version = {type = "const char*", id = 0xfca9373ef340ac0a, pars = ""},
+		_get_online_version = {type = "const char*", id = 0xfca9373ef340ac0a, pars = ""},
 		network_is_signed_in = {type = "bool", id = 0x054354a99211eb96, pars = ""},
 		network_is_signed_online = {type = "bool", id = 0x1077788e268557c2, pars = ""},
 		_0xbd545d44cce70597 = {type = "bool", id = 0xbd545d44cce70597, pars = ""},
