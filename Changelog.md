@@ -1,22 +1,21 @@
-# **Kek's menu 0.4.8.1 bug fix update**
+# Kek菜单 0.4.8.1 bug 修复更新
 
-## **Bug fixes**```md
-### Fixed error on start-up in ped mapper, if you're co-loading
-### Auto adjusting text now scales down if text is too big for the screen
-### The script no longer wraps menu.add_feature & menu.add_player_feature globally
-### Fixed error on startup for people using the Korean translation
-### Fixed searching menu features, raising error for 2take1 standard users
+## Bug 修复
+### 修复了在多开时启动NPC管理器时的错误
+### 如果文本信息超出了屏幕,现在将自动按比例缩小.
+### 脚本将不再包裹 menu.add_feature & menu.add_player_feature 全局
+### 修复了使用韩语翻译时启动脚本报错的问题
+### 修复了搜索菜单功能,会导致2take1标准用户引发错误
+### 添加了一个中文分支,包含中文的README和更新日志
 
-### "Move mini map to people you spectate" Now toggles on "Disable out of bounds death"
-> A 2take1 feature which prevents you from dying while you spectate people
+### "观看别人时同步小地图" 现在会自动启用 "禁用地图杀"
+> 一个2take1功能,可以防止你在观看别人时死亡
 
-### Fixed everything that draws stuff on screen, not adapting to resolutions
-> If you play the game in 1440p, you were not affected
+### 修复了在屏幕上绘制的所有东西,导致不适应分辨率的问题
+> 如果你的游戏是1440p, 将不受影响
 
-### Fixed error that would sometimes occur while clearing your personal vehicles
-> "Expected only vehicles in user_vehicles table."
+### 修复了清除个人载具时有时会出现的错误
+> "预计只有 user_vehicles 表中的车辆."
 
-### Fixed menyoo / ini vehicle error when the file tries to set an invalid wheel type.
-> The game handles invalid wheel types gracefully, so there wasn't a need to raise an error for it.
-
-```
+### 修正了menyoo / ini文件试图设置一个无效的车轮类型时的载具错误.
+> 游戏优雅地处理了无效的车轮类型,所以没有必要为它引发错误.
