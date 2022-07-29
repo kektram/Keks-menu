@@ -17593,7 +17593,7 @@ for hash, _ in pairs(model_names) do
 end
 
 function object_mapper.GetModelFromHash(hash)
-	essentials.assert(streaming.is_model_valid(hash), "Expected a valid object hash:", hash) -- streaming.is_model_an_object and streaming.is_model_a_world_object fails to recognize all objects
+	essentials.assert(hash == 0 or streaming.is_model_valid(hash), "Expected a valid object hash:", hash) -- streaming.is_model_an_object and streaming.is_model_a_world_object fails to recognize all objects
 	return model_names[hash] or "unknown_object_name" -- All object names haven't been discovered yet
 end
 

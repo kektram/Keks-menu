@@ -86,7 +86,7 @@ function troll_entity.setup_peds_and_put_in_seats(...)
 	local peds <const> = entity_table or {}
 	for i = 1, #seats do
 		if entity.is_entity_a_vehicle(Vehicle) and seats[i] <= vehicle.get_vehicle_model_number_of_seats(entity.get_entity_model_hash(Vehicle)) - 2 and not entity.is_entity_a_ped(vehicle.get_ped_in_vehicle_seat(Vehicle, seats[i])) then
-			menu.create_thread(function(Ped)
+			essentials.create_thread(function(Ped)
 				peds[#peds + 1] = Ped
 				local weapon_hash <const> = weapons[math.random(1, #weapons)]
 				weapon.give_delayed_weapon_to_ped(Ped, weapon_hash, 0, 1)
@@ -261,7 +261,7 @@ function troll_entity.send_attack_chopper(...)
 		false, 
 		combat_attributes_attack_chopper
 	)
-	menu.create_thread(function()
+	essentials.create_thread(function()
 		local timer = 0
 		while kek_entity.is_entity_valid(pilot) 
 		and kek_entity.is_entity_valid(chopper) 
@@ -331,7 +331,7 @@ function troll_entity.send_kek_chopper(...)
 		kek_entity.clear_entities({pilot, chopper})
 		return -2
 	end
-	local pilot_thread <const> = menu.create_thread(function()
+	local pilot_thread <const> = essentials.create_thread(function()
 		while player.is_player_valid(pid) 
 		and kek_entity.is_entity_valid(pilot) 
 		and kek_entity.is_entity_valid(chopper) 
@@ -346,7 +346,7 @@ function troll_entity.send_kek_chopper(...)
 		kek_entity.clear_entities({pilot, chopper})
 	end, nil)
 
-	menu.create_thread(function()
+	essentials.create_thread(function()
 		local vehicles = {}
 		while not menu.has_thread_finished(pilot_thread) do
 			system.yield(0)
@@ -484,7 +484,7 @@ function troll_entity.send_clown_van(...)
 	ped.set_ped_relationship_group_hash(driver, clown_relationship_group)
 	ped.set_can_attack_friendly(driver, false, false)
 	local ai_follow_tracker = 0
-	local driver_thread <const> = menu.create_thread(function()
+	local driver_thread <const> = essentials.create_thread(function()
 		while player.is_player_valid(pid) 
 		and kek_entity.is_entity_valid(clown_van) 
 		and not entity.is_entity_dead(clown_van) 
@@ -530,7 +530,7 @@ function troll_entity.send_clown_van(...)
 	end, nil)
 
 	for i = 1, math.random(1, 3) do
-		menu.create_thread(function(clown)
+		essentials.create_thread(function(clown)
 			local clown_weapon = clown_spawn_weapons[i]
 			weapon.give_delayed_weapon_to_ped(clown, clown_weapon, 0, 1)
 			weapon_mapper.set_ped_weapon_attachments(clown, true, clown_weapon)
@@ -626,7 +626,7 @@ function troll_entity.send_jet(...)
 	ped.set_ped_into_vehicle(pilot, jet, enums.vehicle_seats.driver)
 	vehicle.set_vehicle_forward_speed(jet, 40)
 
-	menu.create_thread(function()
+	essentials.create_thread(function()
 		while kek_entity.is_entity_valid(jet) 
 		and kek_entity.is_entity_valid(pilot)
 		and not entity.is_entity_dead(pilot)

@@ -2,8 +2,7 @@
 
 local kek_entity <const> = {version = "1.2.7"}
 
-local language <const> = require("Kek's Language")
-local lang <const> = language.lang
+local lang <const> = require("Kek's Language").lang
 local memoize <const> = require("Kek's Memoize")
 local location_mapper <const> = require("Kek's Location mapper")
 local vehicle_mapper <const> = require("Kek's Vehicle mapper")
@@ -168,7 +167,6 @@ function kek_entity.get_control_of_entity(...)
 end
 
 function kek_entity.set_wheel_type(Vehicle, wheel_type)
-	essentials.assert(wheel_type >= -1 and wheel_type <= enums.wheel_types.track, "Invalid wheel type.", wheel_type)
 	if entity.is_an_entity(Vehicle) then
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		if kek_entity.get_control_of_entity(Vehicle) then
@@ -1259,7 +1257,7 @@ function kek_entity.create_cage(...)
 		entity.set_entity_visible(temp_ped, false)
 
 		kek_entity.teleport(temp_ped, select(2, ped.get_ped_bone_coords(player.get_player_ped(pid), 0x3779, memoize.v3())))
-		menu.create_thread(function()
+		essentials.create_thread(function()
 			while player.is_player_valid(pid)
 			and entity.is_entity_a_ped(temp_ped)
 			and entity.is_entity_an_object(cage)
@@ -1293,10 +1291,12 @@ local function get_prefered_vehicle_pos(...)
 end
 
 function kek_entity.clear_owned_vehicles()
-	for Vehicle in essentials.entities(essentials.deep_copy(kek_entity.user_vehicles)) do
+	for Vehicle in pairs(essentials.deep_copy(kek_entity.user_vehicles)) do -- MUST BE IN PAIRS. If using essentials.entities, it won't nil out invalid vehicle handles, which sooner or later is reused by new entities.
 		kek_entity.user_vehicles[Vehicle] = nil
-		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected only vehicles in user_vehicles table.")
-		kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
+		if entity.is_an_entity(Vehicle) then
+			essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected only vehicles in user_vehicles table.")
+			kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
+		end
 	end
 end
 
@@ -1306,7 +1306,7 @@ function kek_entity.vehicle_preferences(...)
 		essentials.assert(entity.is_entity_a_vehicle(Vehicle), "Expected a vehicle from argument \"Vehicle\".")
 		kek_entity.user_vehicles[player.get_player_vehicle(player.player_id())] = player.get_player_vehicle(player.player_id())
 		if settings.toggle["Delete old #vehicle#"].on then
-			menu.create_thread(kek_entity.clear_owned_vehicles, nil)
+			essentials.create_thread(kek_entity.clear_owned_vehicles)
 			system.yield(0)
 		end
 		if entity.is_entity_a_vehicle(Vehicle) then
@@ -1357,7 +1357,7 @@ function kek_entity.spawn_car()
 		end
 		kek_entity.user_vehicles[player.get_player_vehicle(player.player_id())] = player.get_player_vehicle(player.player_id())
 		if settings.toggle["Delete old #vehicle#"].on then
-			menu.create_thread(kek_entity.clear_owned_vehicles, nil)
+			essentials.create_thread(kek_entity.clear_owned_vehicles)
 			system.yield(0)
 		end
 		local velocity <const> = entity.get_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()))
@@ -1476,7 +1476,7 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 		if player.player_id() ~= pid and (not player.is_player_in_any_vehicle(player.player_id()) 
 		or not player.is_player_in_any_vehicle(pid) 
 		or player.get_player_vehicle(player.player_id()) ~= player.get_player_vehicle(pid)) then
-			thread = menu.create_thread(function()
+			thread = essentials.create_thread(function()
 				while true do
 					local my_entity <const> = kek_entity.get_most_relevant_entity(player.player_id())
 					entity.set_entity_coords_no_offset(my_entity, essentials.get_player_coords(pid) + memoize.v3(0, 0, 6))
@@ -1538,7 +1538,7 @@ do
 			end)
 			if not essentials.is_in_vehicle(pids[1]) and (menu.has_thread_finished(threads[pids[1]] or -1)) then
 				local pid <const> = pids[1]
-				threads[pid] = menu.create_thread(function()
+				threads[pid] = essentials.create_thread(function()
 					globals.force_player_into_vehicle(pid)
 				end, nil)
 			end
@@ -1558,12 +1558,12 @@ function kek_entity.generate_vehicle_list(...)
 	func <const>,
 	add_to_vehicle_blacklist <const> = ...
 	for id, name in pairs(enums.vehicle_class_ids_to_name) do
-		local parent <const> = menu.add_feature(lang[name], "parent", parent.id, function(f)
+		local parent <const> = essentials.add_feature(lang[name], "parent", parent.id, function(f)
 			if f.child_count == 0 then
 				local hashes <const> = vehicle.get_all_vehicle_model_hashes()
 				for i = 1, #hashes do
 					if vehicle.get_vehicle_class_from_name(hashes[i]) == id then
-						local feature <const> = menu.add_feature(vehicle_mapper.get_vehicle_name(hashes[i]), feat_type, f.id, func)
+						local feature <const> = essentials.add_feature(vehicle_mapper.get_vehicle_name(hashes[i]), feat_type, f.id, func)
 						feature.data = hashes[i]
 						feature:set_str_data(feat_str)
 						feature.value = value_i_func(hashes[i])
@@ -1584,12 +1584,12 @@ function kek_entity.generate_player_vehicle_list(...)
 	func <const>,
 	initial_name <const> = ...
 	for id, name in pairs(enums.vehicle_class_ids_to_name) do
-		local parent <const> = menu.add_player_feature(lang[name], "parent", parent, function(f, pid)
+		local parent <const> = essentials.add_player_feature(lang[name], "parent", parent, function(f, pid)
 			if f.child_count == 0 then
 				local hashes <const> = vehicle.get_all_vehicle_model_hashes()
 				for i = 1, #hashes do
 					if vehicle.get_vehicle_class_from_name(hashes[i]) == id then
-						local feature_id <const> = menu.add_player_feature(vehicle_mapper.get_vehicle_name(hashes[i])..initial_name, feature_info.type, f.id, func).id
+						local feature_id <const> = essentials.add_player_feature(vehicle_mapper.get_vehicle_name(hashes[i])..initial_name, feature_info.type, f.id, func).id
 						local player_feat <const> = menu.get_player_feature(feature_id)
 						if feature_info.type:find("value_i", 1, true) then
 							player_feat.max = feature_info.max

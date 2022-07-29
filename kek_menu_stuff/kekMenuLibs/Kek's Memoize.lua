@@ -35,16 +35,16 @@ do
 	local sign_bit_x <const> = 1 << 62
 	local sign_bit_y <const> = 1 << 61
 	local sign_bit_z <const> = 1 << 60
-	local max_20_bit_num <const> = 1048475 
-	local v3 <const> = v3
+	local max_20_bit_num <const> = 1048475 -- 10484 is the max number a coord can be
+	local v3 <const> = v3 -- If it's bigger than max, it won't memoize.
 	local memoized <const> = {}
-	function memoize.v3(x, y, z)
+	function memoize.v3(x, y, z) -- smallest to differentiate between: 0.1 {v3(0.1, 0.1, 0.1)}
 		x = x or 0
 		y = y or 0
 		z = z or 0
-		local xi = x * 100 // 1
-		local yi = y * 100 // 1
-		local zi = z * 100 // 1
+		local xi = x * 10^2 // 1 -- Can differentiate between numbers this small: 10^-(exponent - 1)
+		local yi = y * 10^2 // 1 -- Biggest number you can store becomes smaller the more fractional precision you desire.
+		local zi = z * 10^2 // 1
 		if xi >= -max_20_bit_num 
 		and xi <= max_20_bit_num 
 		and yi >= -max_20_bit_num 
@@ -76,14 +76,14 @@ end
 do
 	local sign_bit_x <const> = 1 << 62
 	local sign_bit_y <const> = 1 << 61
-	local max_30_bit_num <const> = 1073740823
-	local v2 <const> = v2
+	local max_30_bit_num <const> = 1073740823 -- 10737 is the max number a coord can be
+	local v2 <const> = v2 -- If it's bigger than max, it won't memoize.
 	local memoized <const> = {}
-	function memoize.v2(x, y)
+	function memoize.v2(x, y) -- smallest to differentiate between: 0.0001 {v2(0.0001, 0.0001)}
 		x = x or 0
 		y = y or 0
-		local xi = x * 1000 // 1
-		local yi = y * 1000 // 1
+		local xi = x * 10^5 // 1 -- Can differentiate between numbers this small: 10^-(exponent - 1)
+		local yi = y * 10^5 // 1 -- Biggest number you can store becomes smaller the more fractional precision you desire.
 		if xi >= -max_30_bit_num 
 		and xi <= max_30_bit_num 
 		and yi >= -max_30_bit_num 

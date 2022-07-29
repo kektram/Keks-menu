@@ -144,6 +144,7 @@ location_mapper.GENERAL_POSITIONS = essentials.const({
 	["paleto bay"] = v3(-301, 6231, 32),
 	["city center"] = v3(-258, -659, 34),
 	["zancudo"] = v3(-2465, 3142, 32),
+	["fort zancudo"] = v3(-2465, 3142, 32),
 	["military base"] = v3(-2465, 3142, 32),
 	["highway"] = v3(-2177, -345, 14),
 	["Maze bank"] = v3(30, -773, 46),

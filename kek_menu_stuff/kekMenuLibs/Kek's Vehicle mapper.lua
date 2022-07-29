@@ -3,8 +3,7 @@
 local vehicle_mapper <const> = {version = "1.3.9"}
 local essentials <const> = require("Kek's Essentials")
 local enums <const> = require("Kek's Enums")
-local language <const> = require("Kek's Language")
-local lang <const> = language.lang
+local lang <const> = require("Kek's Language").lang
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
@@ -3832,7 +3831,13 @@ local vehicle_properties <const> = essentials.const_all({
 		common_misspellings = {
 			"pegassi opressor",
 			"pegassi oppresor",
-			"pegassi opresor"
+			"pegassi opresor",
+			"pegassi opressor mk i",
+			"pegassi oppresor mk i",
+			"pegassi opresor mk i",
+			"pegassi opressor mk 1",
+			"pegassi oppresor mk 1",
+			"pegassi opresor mk 1"
 		},
 		min_dim = v3(-0.63239389657974, -0.92472732067108, -0.50334012508392),
 		max_dim = v3(0.63239389657974, 1.0978722572327, 1.2246346473694)
@@ -4703,21 +4708,21 @@ end
 
 function vehicle_mapper.GetModelFromHash(...)
 	local hash <const> = ...
-	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
-	essentials.assert(vehicle_properties[hash], MISSING_INFO_ERR, hash)
-	return vehicle_properties[hash].model
+	essentials.assert(hash == 0 or streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
+	essentials.assert(hash == 0 or vehicle_properties[hash], MISSING_INFO_ERR, hash)
+	return vehicle_properties[hash] and vehicle_properties[hash].model or lang["Unknown vehicle name"]
 end
 
 function vehicle_mapper.get_english_name_regardless_of_game_language(...)
 	local hash <const> = ...
-	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
-	essentials.assert(vehicle_properties[hash], MISSING_INFO_ERR, hash)
-	return vehicle_properties[hash].name
+	essentials.assert(hash == 0 or streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
+	essentials.assert(hash == 0 or vehicle_properties[hash], MISSING_INFO_ERR, hash)
+	return vehicle_properties[hash] and vehicle_properties[hash].name or lang["Unknown vehicle name"]
 end
 
 function vehicle_mapper.get_vehicle_name(...)
 	local hash <const> = ...
-	essentials.assert(streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
+	essentials.assert(hash == 0 or streaming.is_model_a_vehicle(hash), INVALID_HASH_ERR, hash)
 	return streaming.get_vehicle_model_name(hash) or lang["Unknown vehicle name"]
 end
 
