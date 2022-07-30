@@ -1,7 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
 local essentials <const> = require("Kek's Essentials")
-local enums <const> = require("Kek's Enums")
 local weapon_mapper <const> = {version = "1.0.5"}
 local weapon_attachments <const> = essentials.const_all({
 	[gameplay.get_hash_key("weapon_stungun")] = {},

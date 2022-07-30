@@ -3,7 +3,6 @@
 local globals <const> = {version = "1.3.8"}
 
 local essentials <const> = require("Kek's Essentials")
-local enums <const> = require("Kek's Enums")
 local settings <const> = require("Kek's Settings")
 local memoize <const> = require("Kek's Memoize")
 

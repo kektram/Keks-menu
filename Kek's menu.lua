@@ -131,7 +131,7 @@ local player_feat_ids <const> = {}
 
 require = __kek_menu.require
 for name, version in pairs({
-	["Kek's Vehicle mapper"] = "1.3.9", 
+	["Kek's Vehicle mapper"] = "1.4.0", 
 	["Kek's Ped mapper"] = "1.2.7",
 	["Kek's Object mapper"] = "1.2.7", 
 	["Kek's Globals"] = "1.3.8",
@@ -175,23 +175,6 @@ local menyoo_saver <const> = package.loaded["Kek's Menyoo saver"]
 local natives <const> = package.loaded["Kek's Natives"]
 
 do -- What kek's menu modifies in the global space. The natives library adds to the global space, but never modifies anything.
-	do -- Reports some very common errors to me
-		debug.setmetatable(nil, {
-			__index = function()
-				local msg <const> = "attempt to index a nil value"
-				local path <const> = debug.traceback(msg, 2)
-				if path:find("\\kekMenuLibs\\", 1,  true) or path:find("Kek's menu.lua:", 1, true) and __kek_menu.version:match("^%d%.%d%.%d%.%d%.?b?%d?%d?$") then
-					essentials.create_thread(
-						essentials.post_to_keks_menu_site, 
-						"https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="
-						..web.urlencode("Version: "..__kek_menu.version
-						.." gta "..tostring(network._get_online_version()) -- tostring in case native is outdated. __tostring would return a nil.
-						.."\n"..debug.traceback(msg, 2)))
-				end
-				error(msg, 2)
-			end
-		})
-	end
 	do
 		local function check_msg_valid(message) 
 		--[[
@@ -217,7 +200,7 @@ do -- What kek's menu modifies in the global space. The natives library adds to 
 			if type(message) ~= "number" and type(message) ~= "string" then
 				original("Error message must be a number or a string.", (level and level + 1 or 2))
 			end
-			original(check_msg_valid(message).."\nIf you see this error, check the full traceback. Kek's menu wraps the error, assert and notify function to fix certain crashes.", (level and level + 1 or 2))
+			original(check_msg_valid(message), (level and level + 1 or 2))
 		end
 
 		local original <const> = assert
@@ -1192,8 +1175,6 @@ settings.toggle["Log modders"] = essentials.add_feature(lang["Log flags below to
 				if found_str then
 					flags_from_file = essentials.modder_text_to_flags(found_str:match("<(.+)>"))
 					f.data[scid] = f.data[scid] | flags_from_file
-				else
-					f.data.recently_logged[pid] = utils.time_ms() + 2000
 				end
 				str_to_log = string.format("§%s§ /%s/ &%s& <%s>", name, scid, ip, essentials.modder_flags_to_text(f.data[scid]))
 				f.data.not_modder_flag_tracker[scid] = not found_str or flags_from_file ~= 0
@@ -1209,8 +1190,7 @@ settings.toggle["Log modders"] = essentials.add_feature(lang["Log flags below to
 	end
 end)
 settings.toggle["Log modders"].data = {
-	not_modder_flag_tracker = {}, -- Is accessed in remove_from_blacklist
-	recently_logged = {} -- Accessed by blacklist feat
+	not_modder_flag_tracker = {} -- Is accessed in remove_from_blacklist
 } -- settings.toggle["Log modders"].data is accessed by the auto kicker
 
 settings.toggle["Auto kicker"] = essentials.add_feature(lang["Auto kicker"], "value_str", u.flagsToKick.id, function(f)
@@ -1481,26 +1461,16 @@ settings.toggle["Blacklist"] = essentials.add_feature(lang["Blacklist"], "value_
 		end
 		essentials.listeners["player_join"]["blacklist"] = event.add_event_listener("player_join", function(event)
 			local pid <const> = event.player
-			if player.is_player_valid(pid)
-			and player.can_player_be_modder(pid)
-			and player.player_id() ~= pid 
-			and essentials.is_not_friend(pid)
-			and essentials.how_many_people_named(pid) == 1
-			and utils.time_ms() > (settings.toggle["Log modders"].data.recently_logged[pid] or 0) 
-			and not player.is_player_modder(pid, keks_custom_modder_flags["Blacklist"]) then
-				local rid <const> = player.get_player_scid(pid)
-				local name = player.get_player_name(pid)
-				local ip <const> = player.get_player_ip(pid)
-				if #name < 1 then
-					name = math.random(-2^61, 2^62)
-				end
-				local tags, what_was_detected = essentials.search_for_match_and_get_line(paths.blacklist, {
-					string.format("/%i/", rid),
-					string.format("&%i&", ip),
-					string.format("§%s§", name)
+			if player.is_player_valid(pid) and player.player_id() ~= pid and essentials.is_not_friend(pid) and essentials.how_many_people_named(pid) == 1 then
+				
+				local line_from_file, what_was_detected = essentials.search_for_match_and_get_line(paths.blacklist, {
+					string.format("/%i/", player.get_player_scid(pid)),
+					string.format("&%i&", player.get_player_ip(pid)),
+					string.format("§%s§", player.get_player_name(pid))
 				})
-				if tags and what_was_detected then
-					what_was_detected = what_was_detected:gsub("[/&§]", "")
+
+				local blacklist_reason
+				if line_from_file then
 					if what_was_detected:find("/", 1, true) then
 						what_was_detected = string.format("%s: %s", lang["Rid"], what_was_detected)
 					elseif what_was_detected:find("&", 1, true) then 
@@ -1508,18 +1478,20 @@ settings.toggle["Blacklist"] = essentials.add_feature(lang["Blacklist"], "value_
 					elseif what_was_detected:find("§", 1, true) then
 						what_was_detected = string.format("%s: %s", lang["Name"], what_was_detected)
 					end
-					tags = tags:match("<(.+)>") or ""
-					local flags <const> = essentials.modder_text_to_flags(tags)
+					blacklist_reason = line_from_file:match("<(.+)>") or "Unknown reason"
+
 					essentials.msg(
-						string.format("%s %s%s %s %s%s", lang["Recognized"], name, lang["\nDetected:"], what_was_detected, lang["\nTags:\n"], tags), 
+						string.format("%s %s%s %s %s%s", lang["Recognized"], player.get_player_name(pid), lang["\nDetected:"], what_was_detected:gsub("[/&§]", ""), lang["\nTags:\n"], blacklist_reason), 
 						"orange", 
-						settings.in_use["Blacklist notifications #notifications#"]
+						settings.in_use["Blacklist notifications #notifications#"],
+						8
 					)
-					if essentials.is_str(f, "Reapply marks") then
-						player.set_player_as_modder(pid, flags)
-					end
-					if player.is_player_valid(pid) then
-						player.mark_as_modder(pid, keks_custom_modder_flags["Blacklist"])
+
+					if essentials.is_str(f, "Kick") then
+						essentials.kick_player(pid)
+					elseif essentials.is_str(f, "Reapply marks") then
+						local flags <const> = essentials.modder_text_to_flags(blacklist_reason)
+						player.set_player_as_modder(pid, flags | keks_custom_modder_flags["Blacklist"])
 					end
 				end
 			end
@@ -1531,7 +1503,7 @@ settings.toggle["Blacklist"] = essentials.add_feature(lang["Blacklist"], "value_
 end)
 settings.valuei["Blacklist option"] = settings.toggle["Blacklist"]
 settings.valuei["Blacklist option"]:set_str_data({
-	lang["Don't reapply marks"],
+	lang["Kick"],
 	lang["Reapply marks"]
 })
 
@@ -2384,7 +2356,7 @@ essentials.add_feature(lang["Vehicle fly nearby vehicles"], "toggle", u.vehicle_
 end)
 
 settings.user_entity_features.vehicle.feats["Ram everyone"] = essentials.add_feature(lang["Ram everyone"], "value_str", u.session_trolling.id, function(f)
-	local hash, vehicle_name
+	local hash, vehicle_name = 0
 	while f.on do
 		if vehicle_name ~= settings.in_use["User vehicle"] then
 			hash = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
@@ -2393,14 +2365,8 @@ settings.user_entity_features.vehicle.feats["Ram everyone"] = essentials.add_fea
 		if streaming.is_model_a_vehicle(hash) then
 			local entities <const> = {}
 			for pid in essentials.players() do
-				if f.on
-				and essentials.is_not_friend(pid) 
-				and not player.is_player_god(pid)
-				and not player.is_player_dead(pid) then
+				if essentials.is_not_friend(pid) and not player.is_player_dead(pid) then
 					entities[#entities + 1] = essentials.use_ptfx_function(kek_entity.spawn_and_push_a_vehicle_in_direction, pid, false, 8, hash)
-				end
-				if #entities > 0 then
-					entity.set_entity_as_no_longer_needed(entities[#entities])
 				end
 				if not f.on then
 					break
@@ -3396,62 +3362,33 @@ essentials.add_feature(lang["Teleport session"], "value_str", u.session_trolling
 			system.yield(0)
 		end
 	end, nil)
+	local threads = {}
 	while f.on do
 		if essentials.is_str(f, "Current position") then
 			local pos <const> = essentials.get_player_coords(player.player_id())
 			while essentials.is_str(f, "Current position") and f.on do
-				kek_entity.teleport_session(pos, f)
+				threads = kek_entity.teleport_session(pos, f)
 				system.yield(0)
 			end
 		elseif essentials.is_str(f, "Waypoint") and hud.is_waypoint_active() then
 			local pos <const> = location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50))
 			while essentials.is_str(f, "Waypoint") and f.on do
-				kek_entity.teleport_session(pos, f)
+				threads = kek_entity.teleport_session(pos, f)
 				system.yield(0)
 			end
-		elseif essentials.is_str(f, "Mount Chiliad & kill") then
-			local players <const> = {}
-			for pid in essentials.players() do
-				if not essentials.is_str(f, "Mount Chiliad & kill") or not f.on then
-					break
-				end
-				if essentials.is_not_friend(pid) then
-					if not essentials.is_in_vehicle(pid) and menu.has_thread_finished(threads[pid] or -1) then
-						threads[pid] = essentials.create_thread(function()
-							globals.force_player_into_vehicle(pid)
-						end, nil)
-					end
-					if menu.has_thread_finished(threads[pid] or -1) then
-						local status <const> = kek_entity.teleport_player_and_vehicle_to_position(pid, memoize.v3(492, 5587, 795))
-						if status then
-							globals.disable_vehicle(pid)
-							players[#players + 1] = pid
-						end
-					end
-				end
-			end
-			essentials.wait_conditional(1500, function()
-				return f.on and essentials.is_str(f, "Mount Chiliad & kill")
-			end)
-			for i = 1, #players do
-				if not player.is_player_dead(players[i]) then
-					for i2 = 1, 10 do
-						system.yield(0)
-						essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(players[i]), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(players[i]))
-					end
-				end
-			end
-		elseif essentials.is_str(f, "far away") then
-			kek_entity.teleport_session(v3(24000, -24000, 2300), f)
 		end
 		system.yield(0)
+	end
+	for pid, thread in pairs(threads) do
+		threads[pid] = nil -- The table is a reference to a local table used in essentials lib.
+		if not menu.has_thread_finished(thread) then
+			essentials.delete_thread(thread)
+		end
 	end
 	kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 end):set_str_data({
 	lang["Current position"],
-	lang["Waypoint"],
-	lang["Mount Chiliad & kill"],
-	lang["far away"]
+	lang["Waypoint"]
 })
 
 do
@@ -3709,13 +3646,15 @@ settings.user_entity_features.vehicle.feats["Respawn vehicle"] = essentials.add_
 				kek_entity.clear_entities({f.data[scid]})
 				system.yield(500) -- It gets the heading player had when their ped was dead if this isn't here
 				local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
-				f.data[scid] = kek_entity.spawn_networked_vehicle(hash, function()
-					return location_mapper.get_most_accurate_position(kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))), player.get_player_heading(pid)
-				end, {
-					godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
-					max = settings.toggle["Spawn #vehicle# maxed"].on,
-					persistent = false
-				})
+				if streaming.is_model_a_vehicle(hash) then
+					f.data[scid] = kek_entity.spawn_networked_vehicle(hash, function()
+						return location_mapper.get_most_accurate_position(kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid))), player.get_player_heading(pid)
+					end, {
+						godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
+						max = settings.toggle["Spawn #vehicle# maxed"].on,
+						persistent = false
+					})
+				end
 			end
 		end
 	end
@@ -6906,13 +6845,15 @@ settings.user_entity_features.vehicle.player_feats["Respawn vehicle"] = essentia
 			kek_entity.clear_entities({f.data})
 			system.yield(500) -- It gets the heading player had when their ped was dead if this isn't here
 			local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
-			f.data = kek_entity.spawn_networked_vehicle(hash, function()
-				return kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid)), player.get_player_heading(pid)
-			end, {
-				godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
-				max = settings.toggle["Spawn #vehicle# maxed"].on,
-				persistent = false
-			})
+			if streaming.is_model_a_vehicle(hash) then
+				f.data = kek_entity.spawn_networked_vehicle(hash, function()
+					return kek_entity.vehicle_get_vec_rel_to_dims(hash, player.get_player_ped(pid)), player.get_player_heading(pid)
+				end, {
+					godmode = settings.toggle["Spawn #vehicle# in godmode"].on, 
+					max = settings.toggle["Spawn #vehicle# maxed"].on,
+					persistent = false
+				})
+			end
 		end
 	end
 end).id
@@ -7052,7 +6993,8 @@ essentials.add_feature(lang["Send to session"], "value_str", u.session_trolling.
 		f.on = false
 		return
 	end
-	local entities <const> = {}
+	local entities = {}
+	local value = f.value
 	while f.on do
 		system.yield(0)
 		local temp
@@ -7067,6 +7009,15 @@ essentials.add_feature(lang["Send to session"], "value_str", u.session_trolling.
 		end
 		if temp and #temp > 0 then
 			entities[#entities + 1] = temp
+		end
+		if value ~= f.value then
+			value = f.value
+			for _, entities in pairs(entities) do
+				for _, entities in pairs(entities) do
+					kek_entity.clear_entities(type(entities) == "table" and entities or {entities})
+				end
+			end
+			entities = {}
 		end
 	end
 	for _, entities in pairs(entities) do

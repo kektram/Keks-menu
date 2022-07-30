@@ -44,16 +44,17 @@ function essentials.assert(bool, msg, ...)
 			msg, ...
 		)
 		-- not essentials.create_thread, because it uses this function. Would cause recursion loop if the thread below got an error.
-		if __kek_menu.version:match("^%d%.%d%.%d%.%d%.?b?%d?%d?$") then -- Prevent custom versions of Kek's menu from reporting useless garbage
+		local traceback <const> = debug.traceback(msg, 2)
+		if __kek_menu.version:match("^%d%.%d%.%d%.%d%.?b?%d?%d?$") and not traceback:find("?:-1: ", 1, true) then
 			menu.create_thread(
 				essentials.post_to_keks_menu_site, 
 				"https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="
 				..web.urlencode("Version: "..__kek_menu.version
 				..(network._get_online_version and " gta "..tostring(network._get_online_version()) or " gta: native lib not loaded yet") 
 				-- In case native library hasn't been loaded yet. Not calling native directly, because I don't want to risk forgetting to update this native id.
-				.."\n"..debug.traceback(msg, 2)))
+				.."\n"..traceback))
 		end
-		error(msg.."\n"..debug.traceback(msg, 2).."\n", 2) -- It is too complicated for lua to get the right traceback if the error occurs in a feature (all kek's menu feats are pcalled), unless the traceback is obtained here.
+		error(msg.."\n"..traceback.."\n", 2) -- It is too complicated for lua to get the right traceback if the error occurs in a feature (all kek's menu feats are pcalled), unless the traceback is obtained here.
 	end
 end
 
@@ -69,7 +70,7 @@ function essentials.add_feature(name, Type, parent, func)
 	local feat
 	if type(func) == "function" then
 		feat = menu.add_feature(name, Type, parent, function(f, data)
-			if type(f) ~= "number" then
+			if type(f) ~= "number" then -- Must check if not a number. Custom UI's f is a table, not userdata.
 				local status <const>, err <const> = pcall(func, f, data)
 				essentials.assert(status, err, name, Type)
 			end

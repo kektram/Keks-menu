@@ -1154,10 +1154,12 @@ local function spawn_type_1_ini(info, network_status)
 			vehicle.set_vehicle_neon_light_enabled(Vehicle, 3, info.neonsBack == 1 or info.neonBack == 1)
 			vehicle.set_vehicle_neon_lights_color(Vehicle, essentials.get_rgb(info.neon_r, info.neon_g, info.neon_b))
 			vehicle.set_vehicle_headlight_color(Vehicle, info.headlightColor)
-			local i = 1
-			for _, value in pairs(extras) do
-				vehicle.set_vehicle_extra(Vehicle, i, value == 0)
-				i = i + 1
+			if type(extras) == "table" then -- 2take1 inis does not have extras
+				local i = 1
+				for _, value in pairs(extras) do
+					vehicle.set_vehicle_extra(Vehicle, i, value == 0)
+					i = i + 1
+				end
 			end
 		else
 			local info <const> = info["Vehicle"]

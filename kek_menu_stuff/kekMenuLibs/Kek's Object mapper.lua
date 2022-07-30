@@ -2,7 +2,6 @@
 
 local object_mapper <const> = {version = "1.2.7"}
 local essentials <const> = require("Kek's Essentials")
-local enums <const> = require("Kek's Enums")
 
 local model_names <const> = essentials.const({
 	[446398] = "ba_prop_glass_garage_opaque",
@@ -17593,13 +17592,7 @@ for hash, _ in pairs(model_names) do
 end
 
 function object_mapper.GetModelFromHash(hash)
-	essentials.assert(hash == 0 or streaming.is_model_valid(hash), "Expected a valid object hash:", hash) -- streaming.is_model_an_object and streaming.is_model_a_world_object fails to recognize all objects
 	return model_names[hash] or "unknown_object_name" -- All object names haven't been discovered yet
-end
-
-function object_mapper.GetHashFromModel(model)
-	essentials.assert(streaming.is_model_valid(gameplay.get_hash_key(model)), "Expected a valid object model name:", model)
-	return gameplay.get_hash_key(model)
 end
 
 function object_mapper.get_random_object()
