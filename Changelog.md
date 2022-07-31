@@ -1,4 +1,4 @@
-# **Kek's menu 0.4.8.2 bug fix update**
+# **Kek's menu 0.4.8.3 bug fix update**
 
 ## Removed teleport session to "far away" & "mount chiliad & kill"
 
