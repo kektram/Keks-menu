@@ -75,6 +75,7 @@ do
 		local translation = table.concat(sentences)
 		translation = translation:gsub("\\u(%x%x%x%x)", unicode_escape) -- THIS MUST BE DONE BEFORE BACKSLASH ESCAPE.
 		translation = translation:gsub(" <code> 0 </code> ", "\n")
+		translation = translation:gsub("<code>0</code>", "\n")
 		translation = translation:gsub("\\(.)", "%1")
 		return translation, detected_language
 	end

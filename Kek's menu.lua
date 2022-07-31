@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.2",
+	version = "0.4.8.3.b1",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -139,12 +139,12 @@ for name, version in pairs({
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
 	["Kek's Drive style mapper"] = "1.0.4",
-	["Kek's Menyoo spawner"] = "2.2.6",
+	["Kek's Menyoo spawner"] = "2.2.7",
 	["Kek's Entity functions"] = "1.2.7",
 	["Kek's Trolling entities"] = "1.0.7",
 	["Kek's Custom upgrades"] = "1.0.2",
 	["Kek's Menyoo saver"] = "1.0.9",
-	["Kek's Natives"] = "1.0.2"
+	["Kek's Natives"] = "1.0.3"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 6, 0xff0000ff)
@@ -1470,13 +1470,14 @@ settings.toggle["Blacklist"] = essentials.add_feature(lang["Blacklist"], "value_
 				})
 
 				local blacklist_reason
-				if line_from_file then
+				local detected <const> = what_was_detected and what_was_detected:match("[/&§](.+)[/&§]") or nil
+				if line_from_file and detected then
 					if what_was_detected:find("/", 1, true) then
-						what_was_detected = string.format("%s: %s", lang["Rid"], what_was_detected)
+						what_was_detected = string.format("%s: %s", lang["Rid"], detected)
 					elseif what_was_detected:find("&", 1, true) then 
-						what_was_detected = string.format("%s: %s", lang["IP"], essentials.dec_to_ipv4(tonumber(what_was_detected)))
+						what_was_detected = string.format("%s: %s", lang["IP"], essentials.dec_to_ipv4(tonumber(detected)))
 					elseif what_was_detected:find("§", 1, true) then
-						what_was_detected = string.format("%s: %s", lang["Name"], what_was_detected)
+						what_was_detected = string.format("%s: %s", lang["Name"], detected)
 					end
 					blacklist_reason = line_from_file:match("<(.+)>") or "Unknown reason"
 
@@ -1489,7 +1490,9 @@ settings.toggle["Blacklist"] = essentials.add_feature(lang["Blacklist"], "value_
 
 					if essentials.is_str(f, "Kick") then
 						essentials.kick_player(pid)
-					elseif essentials.is_str(f, "Reapply marks") then
+					elseif essentials.is_str(f, "Mark as blacklisted") then
+						player.set_player_as_modder(pid, keks_custom_modder_flags["Blacklist"])
+					elseif essentials.is_str(f, "Reapply logged marks") then
 						local flags <const> = essentials.modder_text_to_flags(blacklist_reason)
 						player.set_player_as_modder(pid, flags | keks_custom_modder_flags["Blacklist"])
 					end
@@ -1504,7 +1507,8 @@ end)
 settings.valuei["Blacklist option"] = settings.toggle["Blacklist"]
 settings.valuei["Blacklist option"]:set_str_data({
 	lang["Kick"],
-	lang["Reapply marks"]
+	lang["Mark as blacklisted"],
+	lang["Reapply logged marks"]
 })
 
 do

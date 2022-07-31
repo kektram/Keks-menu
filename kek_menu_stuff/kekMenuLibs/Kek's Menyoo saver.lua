@@ -89,9 +89,9 @@ local function get_properties(...)
 			info.PedProperties.PedComps["_"..i] = string.format("%i,%i", ped.get_ped_texture_variation(Entity, i), ped.get_ped_drawable_variation(Entity, i))
 		end
 	elseif entity.is_entity_a_vehicle(Entity) then
-		local Cust1_R <const>, Cust1_G <const>, Cust1_B <const> = essentials.rgb_to_bytes(vehicle.get_vehicle_custom_primary_colour(Entity))
-		local Cust2_R <const>, Cust2_G <const>, Cust2_B <const> = essentials.rgb_to_bytes(vehicle.get_vehicle_custom_secondary_colour(Entity))
-		local neon_r <const>, neon_g <const>, neon_b <const> = essentials.rgb_to_bytes(vehicle.get_vehicle_neon_lights_color(Entity))
+		local Cust1_R <const>, Cust1_G <const>, Cust1_B <const> = vehicle.get_vehicle_custom_primary_colour__native(Entity)
+		local Cust2_R <const>, Cust2_G <const>, Cust2_B <const> = vehicle.get_vehicle_custom_secondary_colour__native(Entity)
+		local neon_r <const>, neon_g <const>, neon_b <const> = vehicle._get_vehicle_neon_lights_colour(Entity)
 		local smoke_r <const>, smoke_g <const>, smoke_b <const> = vehicle.get_vehicle_tyre_smoke_color(Entity)
 		info.VehicleProperties = {
 			Colours = {
@@ -146,6 +146,14 @@ local function get_properties(...)
 			}),
 			Mods = {}
 		}
+
+		info.VehicleProperties.Colours.Mod1_a, 
+		info.VehicleProperties.Colours.Mod1_b, 
+		info.VehicleProperties.Colours.Mod1_c = vehicle.get_vehicle_mod_color_1(Entity)
+
+		info.VehicleProperties.Colours.Mod2_a, 
+		info.VehicleProperties.Colours.Mod2_b = vehicle.get_vehicle_mod_color_2(Entity)
+
 		for i = 1, 20 do
 			if vehicle.does_extra_exist(Entity, i) then 
 				info.VehicleProperties.ModExtras["_"..i] = vehicle.is_vehicle_extra_turned_on(Entity, i)

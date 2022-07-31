@@ -1008,13 +1008,17 @@ do
 			vehicle.set_vehicle_number_plate_index(Vehicle, math.random(0, 3))
 			vehicle.set_vehicle_fullbeam(Vehicle, true)
 			vehicle.set_vehicle_custom_wheel_colour(Vehicle, random_rgb())
-			vehicle.set_vehicle_neon_lights_color(Vehicle, random_rgb())
+			vehicle.set_vehicle_neon_lights_color(Vehicle, random_rgb()) -- Is BGR, but it's fine since it's just random colour
+
+			vehicle.clear_vehicle_custom_primary_colour(Vehicle)
+			vehicle.clear_vehicle_custom_secondary_colour(Vehicle)
+
 			vehicle.set_vehicle_extra_colors(Vehicle, math.random(0, 159), math.random(0, 159))
+			vehicle.set_vehicle_custom_primary_colour(Vehicle, random_rgb())
+			vehicle.set_vehicle_custom_secondary_colour(Vehicle, random_rgb())
 			if math.random(1, 3) == 1 then
 				vehicle.set_vehicle_custom_pearlescent_colour(Vehicle, random_rgb())
 			end
-			vehicle.set_vehicle_custom_primary_colour(Vehicle, random_rgb())
-			vehicle.set_vehicle_custom_secondary_colour(Vehicle, random_rgb())
 			vehicle.set_vehicle_enveff_scale(Vehicle, essentials.random_real(0, 1))
 			if not streaming.is_model_a_heli(entity.get_entity_model_hash(Vehicle)) then -- Prevent removal of heli rotors
 				for i = 2, 9 do -- Extra 1 causes vehicles to get teleported around

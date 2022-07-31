@@ -339,7 +339,7 @@ function troll_entity.send_kek_chopper(...)
 		and not entity.is_entity_dead(chopper)
 		and not vehicle.is_vehicle_stopped(chopper) do
 			if kek_entity.get_control_of_entity(pilot) then
-				ai.task_vehicle_follow(pilot, chopper, player.get_player_ped(pid), 300, drive_style_kek_chopper, 50)
+				ai.task_vehicle_follow(pilot, chopper, player.get_player_ped(pid), 300, drive_style_kek_chopper, 100)
 			end
 			system.yield(1000)
 		end
