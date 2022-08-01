@@ -572,8 +572,6 @@ The 30k loop for session is already toggled on. §.ﻞﺒﻗ ﻦﻣ ﺔﻠﻌﻔ
 Scroll through messages §ﻞﺋﺎﺳﺮﻟﺍ ﺢﻔﺼﺗ
 Chat log §ﺕﺎﺸﻟﺍ ﻞﺠﺳ
 Mark as modder §ﺭﺩﻮﻣ ﺎﻛ ﺪﻳﺪﺤﺗ
-Don't reapply marks §ﺪﻳﺪﺤﺘﻟﺍ ﻊﺿﻭ ﺪﻴﻌﺗ ﻻ
-Reapply marks §ﺪﻳﺪﺤﺘﻟﺍ ﻊﺿﻭ ﺓﺩﺎﻋﺍ
 Copied to clipboard. §.ﺦﺴﻨﻟﺍ ﻢﺗ
 Ini vehicles §iniﻟﺍ ﺕﺎﺒﻛﺮﻣ
 This can't be used in singleplayer. §.ﻦﻳﻼﻓﻭﻻﺍ ﻲﻓ ﺍﺬﻫ ﻡﺍﺪﺨﺘﺳﺍ ﻦﻜﻤﻳ ﻻ
@@ -645,7 +643,7 @@ You have the latest version of Kek's menu. §.Kek's menu ﻦﻣ ﺩﺪﺟﻻﺍ 
 Update successfully installed. §.ﺡﺎﺠﻨﺑ ﻞﺠﺴﺗ ﺚﻳﺪﺤﺘﻟﺍ
 Update failed. No files are changed. §.ﺮﻴﻐﺘﺗ ﻢﻟ ﺕﺎﻔﻠﻤﻟﺍ .ﻞﺸﻓ ﺚﻳﺪﺤﺘﻟﺍ
 Failed to check what the latest version of the script is. §.ﺖﺑﺮﻜﺴﻟﺍ ﻦﻣ ﺔﺨﺴﻧ ﺮﺧﺍ ﺪﻳﺪﺤﺗ ﻲﻓ ﻞﺸﻓ
-files downloaded §ﺖﻠﻤﺤﺗ ﺕﺎﻔﻠﻤﻟﺍ
+files downloaded §ﺖﻠﻤﺤﺗ ﻲﻠﻟﺍ ﺕﺎﻔﻠﻤﻟﺍ
 Turn off debug mode to use auto-updater. §.ﺔﻴﺋﺎﻘﻠﺘﻟﺍ ﺕﺎﺜﻳﺪﺤﺘﻟﺍ ﻡﺍﺪﺨﺘﺳﺍ ﻞﺟﻻ debug mode ﺀﺎﻔﻃﺍ ﺐﺠﻳ
 Show latest update changelog §ﺚﻳﺪﺤﺗ ﺮﺧﺍ ﺕﺎﻣﻮﻠﻌﻣ ﺮﻬﺿﺍ
 Participate in betas §ﺎﺘﻴﺒﻟﺍ ﻲﻓ ﻙﺭﺎﺷ
@@ -663,7 +661,7 @@ Swedish §ﻱﺪﻳﻮﺴﻟﺍ
 Forcing player into vehicle. This can take up to 15 seconds. §.ﺔﻴﻧﺎﺛ 51 ﻰﻟﺍ ﺬﺧﺎﻳ ﻥﺍ ﻦﻜﻤﻳ ﺍﺬﻫ .ﺓﺭﺎﻴﺴﻟﺍ ﺏﻮﻛﺭ ﻰﻠﻋ ﺐﻋﻼﻟﺍ ﺭﺎﺒﺟﺍ
 Failed to teleport player. §.ﺐﻋﻼﻟﺍ ﻞﻘﻧ ﻲﻓ ﻞﺸﻓ
 Translate your messages into §ﻰﻟﺍ ﻚﺘﻟﺎﺳﺭ ﺔﻤﺟﺮﺗ
-This message will disappear in %i seconds and will assume you don't want the update. §.ﺚﻳﺪﺤﺘﻟﺍ ﺪﻳﺮﺗﻻ ﻚﻧﺍ ﺽﺮﺘﻔﻳ ﻑﻮﺳﻭ ﻲﻧﺍﻮﺛ %i ﻲﻓ ﻲﻔﺘﺨﺗ ﻑﻮﺳ ﺔﻟﺎﺳﺮﻟﺍ ﻱﺫﺎﻫ
+This message will disappear in %s seconds and will assume you don't want the update. §.ﺚﻳﺪﺤﺘﻟﺍ ﺪﻳﺮﺗﻻ ﻚﻧﺍ ﺽﺮﺘﻔﻳ ﻑﻮﺳﻭ ﻲﻧﺍﻮﺛ %s ﻲﻓ ﻲﻔﺘﺨﺗ ﻑﻮﺳ ﺔﻟﺎﺳﺮﻟﺍ ﻱﺫﺎﻫ
 Check for updates §ﺕﺎﺜﻳﺪﺤﺘﻟﺍ ﻦﻋ ﺚﺤﺑﺍ
 Russian §ﻲﺳﻭﺮﻟﺍ
 You must turn on trusted mode->Http to use this script. §.ﺖﺑﺮﻜﺴﻟﺍ ﺍﺬﻫ ﻡﺍﺪﺨﺘﺳﺍ ﻞﺟﺍ ﻦﻣ trusted mode->Http ﻞﻌﻔﺗ ﻡﺯﻻ
@@ -687,7 +685,7 @@ Search features §ﺕﺍﺭﺎﻴﺨﻟﺍ ﻲﻓ ﺚﺤﺑ
 Missing write permissions for "%s". Update cancelled, no files changed. §.ﻒﻠﻣ ﻱﺍ ﺮﻴﻐﺘﻳ ﻢﻟ ,ﻲﻐﻟﺍ ﺚﻳﺪﺤﺘﻟﺍ ."%s"ﻝ ﺔﺑﺎﺘﻜﻟﺍ ﺔﻴﺣﻼﺻ ﺪﺟﻮﻳﻻ
 Kektram messed up the version strings! You have the latest version. §.ﺔﺨﺴﻧ ﺮﺧﺍ ﻙﺪﻨﻋ !ﺚﻳﺪﺤﺘﻟﺍ ﻢﻗﺭ ﻂﺒﺨﻟ Kektram
 A new update for Kek's menu is available. Press alt or enter to install it, space or ctrl to not. §.ﺙﺪﺤﺗ ﺎﻣ ﻥﺎﺸﻋ ctrl ﻭﺍ ﺔﻓﺎﺴﻣ ,ﺙﺪﺤﺗ ﻥﺎﺸﻋ enter ﻭﺍ alt ﻂﻐﺿﺍ .ﺪﻳﺪﺟ ﺚﻳﺪﺤﺗ ﺪﺟﻮﻳ
-Press space or ctrl to remove this message. §.ﺔﻟﺎﺳﺮﻟﺍ ﻱﺫﺎﻫ ﺮﺧﻮﺗ ﻥﺎﺸﻋ lrtc ﻭﺍ ﺔﻓﺎﺴﻣ ﻂﻐﺿﺍ
+Press space or ctrl to remove this message. §.ﺔﻟﺎﺳﺮﻟﺍ ﻱﺫﺎﻫ ﺮﺧﻮﺗ ﻥﺎﺸﻋ ctrl ﻭﺍ ﺔﻓﺎﺴﻣ ﻂﻐﺿﺍ
 Obtaining Kek's menu version info... §...Kek's menu ﺚﻳﺪﺤﺗ ﻢﻗﺭ ﻦﻋ ﺚﺤﺒﻟﺍ
 Press shift or tab to show changelog. §.ﺚﻳﺪﺤﺘﻟﺍ ﺕﺍﺮﻴﻴﻐﺗ ﻊﻠﻄﺗ ﻥﺎﺸﻋ tab ﻭﺍ shift ﻂﻐﺿﺍ
 Local Lua features §Localﻝﺍ ﺕﺎﺘﺑﺮﻜﺴﻟﺍ ﺕﺍﺭﺎﻴﺧ
@@ -700,7 +698,7 @@ Type in number of notifications to display. §.ﺔﺷﺎﺸﻟﺍ ﻰﻠﻋ ﺮ�
 They were spoofing as §ﻢﻬﻧﺍ ﻢﻬﺴﻔﻧ ﻦﻳﻮﺴﻣ ﻮﻧﺎﻛ
 The green line is where it will align itself to if there's enough space. §.ﺔﺣﺎﺴﻣ ﻪﻴﻓ ﻥﺎﻛ ﺍﺫﺍ ﻪﻟ ﺡﻭﺮﻴﺑ ﻲﻠﻟﺍ ﻥﺎﻜﻤﻟﺍ ﻮﻫ ﺮﻀﺧﻻﺍ ﻂﺨﻟﺍ
 The text is auto aligned to never be off-screen. §.ﺔﺷﺎﺸﻟﺍ ﻦﻋ ﻊﻠﻄﻳﺎﻣ ﻪﻧﺍ ﻂﺑﺰﻣ ﻢﻳﺍﺩ ﻡﻼﻜﻟﺍ
-Attempt %i / %i to fetch %s. §.%i ﺔﻴﻟﺎﺤﻟﺍ ﺔﻟﻭﺎﺤﻤﻟﺍ %i ﺕﻻﻭﺎﺤﻤﻟﺍ ﺩﺪﻋ %s ﻞﻴﻤﺤﺗ
+Attempt %s / %s to fetch %s. §.%s ﺔﻴﻟﺎﺤﻟﺍ ﺔﻟﻭﺎﺤﻤﻟﺍ %s ﺕﻻﻭﺎﺤﻤﻟﺍ ﺩﺪﻋ %s ﻞﻴﻤﺤﺗ
 Failed to fetch %s with error: %s §%s ﻞﻴﻤﺤﺘﻟ %s :ﺎﻄﺨﻟﺍ
 Successfully fetched %s. §.ﺡﺎﺠﻨﺑ %s ﻞﻴﻤﺤﺗ ﻢﺗ
 Unknown vehicle name §ﻑﻭﺮﻌﻣ ﺮﻴﻏ ﺔﺒﻛﺮﻣ ﻢﺳﺍ
@@ -732,3 +730,5 @@ Requires %i more vehicles than can be spawned. Try deleting all vehicles, then t
 Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again. §.ﺔﻴﻧﺎﺛ ﻩﺮﻣ ﺏﺮﺟ ﻦﻳﺪﻌﺑ objectsﻝﺍ ﻞﻛ ﻑﺬﺣﺍ .ﻢﻬﻌﺿﻭ ﻦﻜﻤﻤﻟﺍ ﻦﻣ ﺮﺜﻛﺍ objects %i ﺝﺎﺘﺤﻳ
 Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again. §.ﺔﻴﻧﺎﺛ ﺓﺮﻣ ﺏﺮﺟ ﻦﻳﺪﻌﺑ ﺕﺎﺒﻛﺮﻤﻟﺍ ﻞﻛ ﻑﺬﺣﺍ .ﺔﻧﺎﻴﻠﻣ ﻥﻮﻜﺗ ﻥﺍ ﻦﻜﻤﻣ ﺕﺎﺒﻛﺮﻤﻟﺍ ﺔﺣﺎﺴﻣ .ﻞﺸﻓ ﻥﻭﺎﺒﺴﻟﺍ
 Failed to create folder. §.ﻒﻠﻤﻟﺍ ﻊﻨﺻ ﻲﻓ ﻞﺸﻓ
+Mark as blacklisted §ﺖﺴﻠﻛﻼﺒﻟﺍ ﻲﻓ ﻞﺠﺳ
+Reapply logged marks §ﺔﻠﺠﺴﻤﻟﺍ ﺕﺎﻣﻼﻌﻟﺍ ﻊﺿﻭ ﻩﺩﺎﻋﺍ
