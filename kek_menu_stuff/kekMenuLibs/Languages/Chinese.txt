@@ -575,8 +575,6 @@ The 30k loop for session is already toggled on. §战局3万奖励金循环已�
 Scroll through messages §滚动信息
 Chat log §聊天日志
 Mark as modder §标记为作弊者
-Don't reapply marks §不要重复标记
-Reapply marks §重复标记
 Copied to clipboard. §已复制到剪贴板.
 Ini vehicles §Ini载具
 This can't be used in singleplayer. §这不能在故事模式中中使用.
@@ -840,3 +838,5 @@ Requires %i more vehicles than can be spawned. Try deleting all vehicles, then t
 Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again. §需要多于 %i 个物体才能生成. 尝试删除所有NPC,然后尝试再次生成它.
 Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again. §生成失败. 载具池可能已满. 我建议删除所有车辆,然后重试.
 Failed to create folder. §创建文件夹失败.
+Mark as blacklisted §标记为黑名单
+Reapply logged marks §重新应用记录的标记
