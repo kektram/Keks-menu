@@ -1766,6 +1766,14 @@ return {
 		BLOCK_WEAPON_SELECTION = 86,
 		NETWORK_CHECK_CATALOG_CRC = 87
 	},
+	paint_types = {
+		normal = 0,
+		metallic = 1,
+		pearl = 2,
+		matte = 3,
+		metal = 4,
+		chrome = 5
+	},
 	vehicle_colors = {
 		[0] = "Metallic Black",
 		[1] = "Metallic Graphite Black",

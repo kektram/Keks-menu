@@ -44,16 +44,17 @@ function essentials.assert(bool, msg, ...)
 			msg, ...
 		)
 		-- not essentials.create_thread, because it uses this function. Would cause recursion loop if the thread below got an error.
-		if __kek_menu.version:match("^%d%.%d%.%d%.%d%.?b?%d?%d?$") then -- Prevent custom versions of Kek's menu from reporting useless garbage
+		local traceback <const> = debug.traceback(msg, 2)
+		if __kek_menu.version:match("^%d%.%d%.%d%.%d%.?b?%d?%d?$") and not traceback:find("?:-1: ", 1, true) then
 			menu.create_thread(
 				essentials.post_to_keks_menu_site, 
 				"https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="
 				..web.urlencode("Version: "..__kek_menu.version
 				..(network._get_online_version and " gta "..tostring(network._get_online_version()) or " gta: native lib not loaded yet") 
 				-- In case native library hasn't been loaded yet. Not calling native directly, because I don't want to risk forgetting to update this native id.
-				.."\n"..debug.traceback(msg, 2)))
+				.."\n"..traceback))
 		end
-		error(msg.."\n"..debug.traceback(msg, 2).."\n", 2) -- It is too complicated for lua to get the right traceback if the error occurs in a feature (all kek's menu feats are pcalled), unless the traceback is obtained here.
+		error(msg.."\n"..traceback.."\n", 2) -- It is too complicated for lua to get the right traceback if the error occurs in a feature (all kek's menu feats are pcalled), unless the traceback is obtained here.
 	end
 end
 
@@ -69,7 +70,7 @@ function essentials.add_feature(name, Type, parent, func)
 	local feat
 	if type(func) == "function" then
 		feat = menu.add_feature(name, Type, parent, function(f, data)
-			if type(f) ~= "number" then
+			if type(f) ~= "number" then -- Must check if not a number. Custom UI's f is a table, not userdata.
 				local status <const>, err <const> = pcall(func, f, data)
 				essentials.assert(status, err, name, Type)
 			end
@@ -209,10 +210,10 @@ end
 
 function essentials.get_rgb(r, g, b, a)
 	return 
-		((a or 0) << 24) 
-		| (b << 16) 
+		r
 		| (g << 8) 
-		| r
+		| (b << 16) 
+		| ((a or 0) << 24) 
 end
 
 function essentials.rgb_to_bytes(uint32_rgba)
@@ -335,7 +336,6 @@ function essentials.split_string(str, size)
 	This happens if it finds a unicode character that needs more space than requested size. (at the end of the string)
 	Performance: split a 46k byte string (with chinese and ascii characters) by size 255 9,000 times in one second. (110 micro seconds per iteration).
 	Returns a table with 1 empty string if str is empty.
-	Have applied every micro-optimization in the book. They yield 15% improved performance.
 --]]
 	essentials.assert(size >= 4, "Failed to split string. Split size must be 4 or more.", str, size) -- Infinite loop (only if unicode is present). For consistency, 4 or more is required.
 	local strings <const> = {}
@@ -631,15 +631,34 @@ function essentials.write_table_recursively_to_file(Table, tracker, file, level)
 	end
 end
 
-function essentials.get_all_files_recursively(path, file_extension, obtained_folders)
-	obtained_folders = obtained_folders or {}
-	obtained_folders[path] = utils.get_all_files_in_directory(path, file_extension)
-	local folders <const> = utils.get_all_sub_directories_in_directory(path)
-	for i = 1, #folders do
-		obtained_folders[path] = essentials.get_all_files_recursively(path.."\\"..folders[i], file_extension, obtained_folders)
+do
+	local files_extensions <const> = {
+		"txt",
+		"log",
+		"xml",
+		"ini",
+		"cfg",
+		"csv",
+		"json",
+		"lua",
+		"2t1"
+	}
+	function essentials.get_all_files_recursively(path, obtained_folders)
+		obtained_folders = obtained_folders or {}
+		
+		local folders <const> = utils.get_all_sub_directories_in_directory(path)
+		for i = 1, #folders do
+			obtained_folders[path] = essentials.get_all_files_recursively(path.."\\"..folders[i], obtained_folders[path])
+		end
+		obtained_folders[path] = obtained_folders[path] or {}
+		
+		for i = 1, #files_extensions do
+			local files <const> = utils.get_all_files_in_directory(path, files_extensions[i])
+			table.move(files, 1, #files, #obtained_folders[path] + 1, obtained_folders[path])
+		end
+
+		return obtained_folders
 	end
-	obtained_folders[path] = #obtained_folders[path] > 0 and obtained_folders[path] or nil
-	return obtained_folders
 end
 
 function essentials.is_file_name_change_is_invalid(folder_path, input, extension)
@@ -1666,14 +1685,6 @@ function essentials.random_real(...)
 	local power <const> = math.min(18 - #tostring(a), 17 - #tostring(b))
 	a = math.random(a * 10^power, b * 10^power)
 	return a / 10^power
-end
-
-function essentials.random_wait(...)
-	local range <const> = ...
-	essentials.assert(math.type(range) == "integer" and range > 0, "Random wait range must be bigger than 0.", range)
-	if math.random(1, range) == 1 then
-		system.yield(0)
-	end
 end
 
 function essentials.set_all_player_feats_except(...)

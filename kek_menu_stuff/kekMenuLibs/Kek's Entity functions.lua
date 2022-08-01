@@ -1008,13 +1008,17 @@ do
 			vehicle.set_vehicle_number_plate_index(Vehicle, math.random(0, 3))
 			vehicle.set_vehicle_fullbeam(Vehicle, true)
 			vehicle.set_vehicle_custom_wheel_colour(Vehicle, random_rgb())
-			vehicle.set_vehicle_neon_lights_color(Vehicle, random_rgb())
+			vehicle.set_vehicle_neon_lights_color(Vehicle, random_rgb()) -- Is BGR, but it's fine since it's just random colour
+
+			vehicle.clear_vehicle_custom_primary_colour(Vehicle)
+			vehicle.clear_vehicle_custom_secondary_colour(Vehicle)
+
 			vehicle.set_vehicle_extra_colors(Vehicle, math.random(0, 159), math.random(0, 159))
+			vehicle.set_vehicle_custom_primary_colour(Vehicle, random_rgb())
+			vehicle.set_vehicle_custom_secondary_colour(Vehicle, random_rgb())
 			if math.random(1, 3) == 1 then
 				vehicle.set_vehicle_custom_pearlescent_colour(Vehicle, random_rgb())
 			end
-			vehicle.set_vehicle_custom_primary_colour(Vehicle, random_rgb())
-			vehicle.set_vehicle_custom_secondary_colour(Vehicle, random_rgb())
 			vehicle.set_vehicle_enveff_scale(Vehicle, essentials.random_real(0, 1))
 			if not streaming.is_model_a_heli(entity.get_entity_model_hash(Vehicle)) then -- Prevent removal of heli rotors
 				for i = 2, 9 do -- Extra 1 causes vehicles to get teleported around
@@ -1451,7 +1455,8 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 	local pid <const>,
 	pos <const>,
 	show_message <const>,
-	f <const> = ...
+	f <const>,
+	dont_teleport_back <const> = ...
 
 	local teleport_you_back_to_original_pos = false
 	if pid ~= player.player_id() then
@@ -1493,7 +1498,7 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 		repeat
 			kek_entity.get_control_of_entity(player.get_player_vehicle(pid), 25)
 			system.yield(0)
-		until utils.time_ms() > time 
+		until utils.time_ms() > time
 		or (f and not f.on)
 		or (f and f.value ~= value)
 		or not essentials.is_in_vehicle(pid)
@@ -1514,7 +1519,7 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 	elseif show_message then
 		essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is not in a vehicle."]), "red", true)
 	end
-	if teleport_you_back_to_original_pos then
+	if not dont_teleport_back and teleport_you_back_to_original_pos then
 		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
 	return is_player_in_vehicle
@@ -1526,27 +1531,40 @@ do
 		local pos <const>, f <const> = ...
 		local pids <const> = {}
 		for pid in essentials.players() do
-			if memoize.get_player_coords(pid):magnitude(pos) > 50 and essentials.is_not_friend(pid) then
+			if not threads[pid] and pos:magnitude(essentials.get_player_coords(pid)) > 150 and not player.is_player_dead(pid) and essentials.is_not_friend(pid) then
 				pids[#pids + 1] = pid
 			end
 		end
 		local value <const> = f.value
 		while #pids > 0 and f.on and f.value == value do
-			local my_ped <const> = player.get_player_ped(player.player_id())
+			local my_pos <const> = player.get_player_coords(player.player_id())
 			table.sort(pids, function(a, b) -- Makes sure closest player is teleported at all times. Needs to be updated on each iteration.
-				return (memoize.get_distance_between(player.get_player_ped(a), my_ped) < memoize.get_distance_between(player.get_player_ped(b), my_ped)) 
+				local score_a, score_b = my_pos:magnitude(essentials.get_player_coords(a)), my_pos:magnitude(essentials.get_player_coords(b))
+				
+				-- Makes those in a vehicle come last in the list.
+				if essentials.is_in_vehicle(a) then
+					score_a = score_a + 10^8
+				end
+				if essentials.is_in_vehicle(b) then
+					score_b = score_b + 10^8
+				end
+
+				return score_a < score_b
 			end)
-			if not essentials.is_in_vehicle(pids[1]) and (menu.has_thread_finished(threads[pids[1]] or -1)) then
-				local pid <const> = pids[1]
+
+			local pid <const> = pids[1]
+			table.remove(pids, 1)
+
+			if not essentials.is_in_vehicle(pid) then
 				threads[pid] = essentials.create_thread(function()
 					globals.force_player_into_vehicle(pid)
-				end, nil)
+					threads[pid] = nil
+				end)
+			else
+				kek_entity.teleport_player_and_vehicle_to_position(pid, pos, nil, f, true)
 			end
-			if menu.has_thread_finished(threads[pids[1]] or -1) then
-				kek_entity.teleport_player_and_vehicle_to_position(pids[1], pos, nil, f)
-			end
-			table.remove(pids, 1)
 		end
+		return threads
 	end
 end
 

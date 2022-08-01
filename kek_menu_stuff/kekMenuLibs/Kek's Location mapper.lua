@@ -2,7 +2,6 @@
 
 local essentials <const> = require("Kek's Essentials")
 local memoize <const> = require("Kek's Memoize")
-local enums <const> = require("Kek's Enums")
 
 local location_mapper <const> = {version = "1.0.2"}
 

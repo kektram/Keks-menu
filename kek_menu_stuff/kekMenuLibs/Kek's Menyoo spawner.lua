@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local menyoo <const> = {version = "2.2.6"}
+local menyoo <const> = {version = "2.2.7"}
 
 local lang <const> = require("Kek's Language").lang
 local essentials <const> = require("Kek's Essentials")
@@ -113,6 +113,10 @@ local function apply_vehicle_modifications(...)
 		vehicle.modify_vehicle_top_speed(Entity, info.RpmMultiplier * 100)
 		entity.set_entity_max_speed(Entity, 540 * info.RpmMultiplier)
 	end
+
+	vehicle.set_vehicle_mod_color_1(Entity, colours.Mod1_a, colours.Mod1_b, colours.Mod1_c)
+	vehicle.set_vehicle_mod_color_2(Entity, colours.Mod2_a, colours.Mod2_b)
+
 	vehicle.set_vehicle_colors(Entity, colours.Primary, colours.Secondary)
 	vehicle.set_vehicle_extra_colors(Entity, colours.Pearl, colours.Rim)
 	if colours.tyreSmoke_R then
@@ -123,10 +127,10 @@ local function apply_vehicle_modifications(...)
 		vehicle.set_vehicle_headlight_color(Entity, colours.LrXenonHeadlights)
 	end
 	if colours.IsPrimaryColourCustom then
-		vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(colours.Cust1_R, colours.Cust1_G, colours.Cust1_B))
+		vehicle.set_vehicle_custom_primary_colour__native(Entity, colours.Cust1_R, colours.Cust1_G, colours.Cust1_B)
 	end
 	if colours.IsSecondaryColourCustom then
-		vehicle.set_vehicle_custom_secondary_colour(Entity, essentials.get_rgb(colours.Cust2_R, colours.Cust2_G, colours.Cust2_B))
+		vehicle.set_vehicle_custom_secondary_colour__native(Entity, colours.Cust2_R, colours.Cust2_G, colours.Cust2_B)
 	end
 	if colours.IsPearlColourCustom then
 		vehicle.set_vehicle_custom_pearlescent_colour(Entity, colours.PearlCustom)
@@ -156,7 +160,7 @@ local function apply_vehicle_modifications(...)
 	vehicle.set_vehicle_neon_light_enabled(Entity, 1, info.Neons.Right == true)
 	vehicle.set_vehicle_neon_light_enabled(Entity, 2, info.Neons.Front == true)
 	vehicle.set_vehicle_neon_light_enabled(Entity, 3, info.Neons.Back == true)
-	vehicle.set_vehicle_neon_lights_color(Entity, essentials.get_rgb(info.Neons.R, info.Neons.G, info.Neons.B))
+	vehicle._set_vehicle_neon_lights_colour(Entity, info.Neons.R, info.Neons.G, info.Neons.B)
 	if info.LandingGearState and (streaming.is_model_a_plane(hash) or streaming.is_model_a_heli(hash)) then
 		vehicle.control_landing_gear(Entity, info.LandingGearState)
 	end
@@ -253,7 +257,9 @@ local function apply_ped_modifications(...)
 		ped.set_ped_prop_index(Entity, i, info.PedProperties["PedProps"]["_"..i][1], info.PedProperties["PedProps"]["_"..i][2], 0)
 	end
 	for i = 0, 11 do
-		ped.set_ped_component_variation(Entity, i, info.PedProperties["PedComps"]["_"..i][1], info.PedProperties["PedComps"]["_"..i][2], 0)
+		if ped.is_ped_component_variation_valid(Entity, i, info.PedProperties["PedComps"]["_"..i][1], info.PedProperties["PedComps"]["_"..i][2]) then
+			ped.set_ped_component_variation(Entity, i, info.PedProperties["PedComps"]["_"..i][1], info.PedProperties["PedComps"]["_"..i][2], 0)
+		end
 	end
 	if info.PedProperties.HairColor then
 		ped.set_ped_hair_colors(Entity, info.PedProperties.HairColor, info.PedProperties.HairHighlightColor)
@@ -707,7 +713,7 @@ local function spawn_xml_map_type_1(info, entities, network_status) -- Most meny
 				attach(Entity, info, entities)
 			else
 				entity.set_entity_rotation__native(Entity, v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw), 2, true)
-				entity.set_entity_coords(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z), false, false, false, false)
+				entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z))
 				entity.freeze_entity(Entity, is_frozen)
 				if not is_frozen then
 					rope.activate_physics(Entity)
@@ -736,7 +742,7 @@ local function spawn_xml_map_type_2(info, entities, network_status) -- Same as t
 				attach(Entity, info, entities)
 			else
 				entity.set_entity_rotation__native(Entity, v3(info.PositionRotation.Pitch, info.PositionRotation.Roll, info.PositionRotation.Yaw), 2, true)
-				entity.set_entity_coords(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z), false, false, false, false)
+				entity.set_entity_coords_no_offset(Entity, v3(info.PositionRotation.X, info.PositionRotation.Y, info.PositionRotation.Z))
 				entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
 				if not entity.is_entity_an_object(Entity) then
 					rope.activate_physics(Entity)
@@ -755,7 +761,7 @@ local function spawn_xml_map_type_3(info, entities, network_status) -- LSCdamwit
 			local rot <const> = info.Rotation
 			local pos <const> = info.Position
 			entity.set_entity_rotation__native(Entity, v3(rot.X, rot.Y, rot.Z), 2, true)
-			entity.set_entity_coords(Entity, v3(pos.X, pos.Y, pos.Z), false, false, false, false)
+			entity.set_entity_coords_no_offset(Entity, v3(pos.X, pos.Y, pos.Z))
 			entity.freeze_entity(Entity, entity.is_entity_an_object(Entity))
 			if not entity.is_entity_an_object(Entity) then
 				rope.activate_physics(Entity)
@@ -1143,29 +1149,31 @@ local function spawn_type_1_ini(info, network_status)
 			end
 			vehicle.set_vehicle_colors(Vehicle, info.primaryIndex, info.secondaryIndex)
 			if info.isPrimaryColorCostum then
-				vehicle.set_vehicle_custom_primary_colour(Vehicle, essentials.get_rgb(info.primary_r, info.primary_g, info.primary_b))
+				vehicle.set_vehicle_custom_primary_colour__native(Vehicle, info.primary_b, info.primary_g, info.primary_r) -- 2take1 inis use bgr
 			end
 			if info.isSecondaryColorCostum then
-				vehicle.set_vehicle_custom_secondary_colour(Vehicle, essentials.get_rgb(info.secondary_r, info.secondary_g, info.secondary_b))
+				vehicle.set_vehicle_custom_secondary_colour__native(Vehicle, info.secondary_b, info.secondary_g, info.secondary_r) -- 2take1 inis use bgr
 			end
 			vehicle.set_vehicle_neon_light_enabled(Vehicle, 0, info.neonsLeft == 1 or info.neonLeft == 1)
 			vehicle.set_vehicle_neon_light_enabled(Vehicle, 1, info.neonsRight == 1 or info.neonRight == 1)
 			vehicle.set_vehicle_neon_light_enabled(Vehicle, 2, info.neonsFront == 1 or info.neonFront == 1)
 			vehicle.set_vehicle_neon_light_enabled(Vehicle, 3, info.neonsBack == 1 or info.neonBack == 1)
-			vehicle.set_vehicle_neon_lights_color(Vehicle, essentials.get_rgb(info.neon_r, info.neon_g, info.neon_b))
+			vehicle._set_vehicle_neon_lights_colour(Vehicle, info.neon_b, info.neon_g, info.neon_r) -- 2take1 inis use bgr / misinterprets r as b and vice versa
 			vehicle.set_vehicle_headlight_color(Vehicle, info.headlightColor)
-			local i = 1
-			for _, value in pairs(extras) do
-				vehicle.set_vehicle_extra(Vehicle, i, value == 0)
-				i = i + 1
+			if type(extras) == "table" then -- Not all inis of this type have extras
+				local i = 1
+				for _, value in pairs(extras) do
+					vehicle.set_vehicle_extra(Vehicle, i, value == 0)
+					i = i + 1
+				end
 			end
 		else
 			local info <const> = info["Vehicle"]
 			if info["Primary Red"] ~= 0 or info["Primary Green"] ~= 0 or info["Primary Blue"] ~= 0 then
-				vehicle.set_vehicle_custom_primary_colour(Vehicle, essentials.get_rgb(info["Primary Red"], info["Primary Green"], info["Primary Blue"]))
+				vehicle.set_vehicle_custom_primary_colour__native(Vehicle, info["Primary Red"], info["Primary Green"], info["Primary Blue"])
 			end
 			if info["Secondary Red"] ~= 0 or info["Secondary Green"] ~= 0 or info["Secondary Blue"] ~= 0 then
-				vehicle.set_vehicle_custom_secondary_colour(Vehicle, essentials.get_rgb(info["Secondary Red"], info["Secondary Green"], info["Secondary Blue"]))
+				vehicle.set_vehicle_custom_secondary_colour__native(Vehicle, info["Secondary Red"], info["Secondary Green"], info["Secondary Blue"])
 			end
 		end
 	end
@@ -1211,7 +1219,7 @@ local function spawn_type_2_ini(...)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 2, info.Neon.Enabled2)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 3, info.Neon.Enabled3)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 4, info.Neon.Enabled4)
-				vehicle.set_vehicle_neon_lights_color(Entity, essentials.get_rgb(info.NeonColor.R, info.NeonColor.G, info.NeonColor.B))
+				vehicle._set_vehicle_neon_lights_colour(Entity, info.NeonColor.R, info.NeonColor.G, info.NeonColor.B)
 				vehicle.set_vehicle_colors(Entity, info.VehicleColors.Primary, info.VehicleColors.Secondary)
 				vehicle.set_vehicle_extra_colors(Entity, info.ExtraColors.Pearl, info.ExtraColors.Wheel)
 				vehicle.set_vehicle_brake_lights(Entity, info.BrakeLights)
@@ -1223,10 +1231,10 @@ local function spawn_type_2_ini(...)
 				entity.set_entity_render_scorched(Entity, info.ScorchedRender == true)
 				vehicle.set_vehicle_siren(Entity, info.Siren == true)
 				if info.IsCustomPrimary.bool then
-					vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(info.CustomPrimaryColor.R, info.CustomPrimaryColor.G, info.CustomPrimaryColor.B))
+					vehicle.set_vehicle_custom_primary_colour__native(Entity, info.CustomPrimaryColor.R, info.CustomPrimaryColor.G, info.CustomPrimaryColor.B)
 				end
 				if info.IsCustomSecondary.bool then
-					vehicle.set_vehicle_custom_secondary_colour(Entity, essentials.get_rgb(info.CustomSecondaryColor.R, info.CustomSecondaryColor.G, info.CustomSecondaryColor.B))
+					vehicle.set_vehicle_custom_secondary_colour__native(Entity, info.CustomSecondaryColor.R, info.CustomSecondaryColor.G, info.CustomSecondaryColor.B)
 				end
 				if info.IsEngineOn then
 					vehicle.set_vehicle_engine_on(Entity, true, true, false)
@@ -1275,7 +1283,9 @@ local function spawn_type_2_ini(...)
 					ai.task_start_scenario_in_place(Entity, info.ScenarioName, 0, true)
 				end
 				for i = 0, 11 do
-					ped.set_ped_component_variation(Entity, i, info["Component"..i], info["Texture"..i], 0)
+					if ped.is_ped_component_variation_valid(Entity, i, info["Component"..i], info["Texture"..i]) then
+						ped.set_ped_component_variation(Entity, i, info["Component"..i], info["Texture"..i], 0)
+					end
 				end
 				if info.BlockFleeing then
 					ped.set_ped_combat_attributes(Entity, enums.combat_attributes.CanFightArmedPedsWhenNotArmed, true)
@@ -1376,7 +1386,7 @@ local function spawn_type_3_ini(...)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 1, info["neon 1"] == 1)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 2, info["neon 2"] == 1)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 3, info["neon 3"] == 1)
-				vehicle.set_vehicle_neon_lights_color(Entity, essentials.get_rgb(info["neon red"], info["neon green"], info["neon blue"]))
+				vehicle._set_vehicle_neon_lights_colour(Entity, info["neon red"], info["neon green"], info["neon blue"])
 				vehicle.set_vehicle_colors(Entity, info["primary paint"], info["secondary paint"])
 				vehicle.set_vehicle_extra_colors(Entity, info["pearlescent colour"], info["wheel colour"])
 				vehicle.set_vehicle_number_plate_index(Entity, info["plate index"])
@@ -1387,13 +1397,13 @@ local function spawn_type_3_ini(...)
 				if info["custom primary colour"] and info["custom primary colour"] ~= 0 then
 					vehicle.set_vehicle_custom_primary_colour(Entity, info["custom primary colour"])
 				elseif info["primary red"] and (info["primary red"] ~= 0 or info["primary green"] ~= 0 or  info["primary blue"] ~= 0) then
-					vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(info["primary red"], info["primary green"], info["primary blue"]))
+					vehicle.set_vehicle_custom_primary_colour__native(Entity, info["primary red"], info["primary green"], info["primary blue"])
 				end
 
 				if info["custom secondary colour"] and info["custom secondary colour"] ~= 0 then
 					vehicle.set_vehicle_custom_secondary_colour(Entity, info["custom secondary colour"])
 				elseif info["secondary red"] and (info["secondary red"] ~= 0 or info["secondary green"] ~= 0 or info["secondary blue"] ~= 0) then
-					vehicle.set_vehicle_custom_secondary_colour(Entity, essentials.get_rgb(info["secondary red"], info["secondary green"], info["secondary blue"]))
+					vehicle.set_vehicle_custom_secondary_colour__native(Entity, info["secondary red"], info["secondary green"], info["secondary blue"])
 				end
 
 			end
@@ -1468,7 +1478,7 @@ local function spawn_type_4_ini(...)
 							vehicle.set_vehicle_neon_light_enabled(Entity, i - 1, info["Neon"..i] == 1)
 						end
 					end
-					vehicle.set_vehicle_neon_lights_color(Entity, essentials.get_rgb(info.NeonR, info.NeonG, info.NeonB))
+					vehicle._set_vehicle_neon_lights_colour(Entity, info.NeonR, info.NeonG, info.NeonB)
 					vehicle.set_vehicle_colors(Entity, info.PrimaryPaint or info.Primary, info.SecondaryPaint or info.Secondary)
 					vehicle.set_vehicle_extra_colors(Entity, info.Pearlescent or info.Pearl, info.WheelsColor or info.WheelColor)
 					vehicle.set_vehicle_number_plate_index(Entity, info.PlateIndex or info.Plate or 0) -- Some files don't have this for some reason [or 0]
@@ -1482,10 +1492,10 @@ local function spawn_type_4_ini(...)
 						vehicle.set_vehicle_dirt_level(Entity, info.Dirt)
 					end
 					if info.PrimaryPaintT == 1 then
-						vehicle.set_vehicle_custom_primary_colour(Entity, essentials.get_rgb(info.PrimaryR, info.PrimaryG, info.PrimaryB))
+						vehicle.set_vehicle_custom_primary_colour__native(Entity, info.PrimaryR, info.PrimaryG, info.PrimaryB)
 					end
 					if info.SecondaryPaintT == 1 then
-						vehicle.set_vehicle_custom_secondary_colour(Entity, essentials.get_rgb(info.SecondaryR, info.SecondaryG, info.SecondaryB))
+						vehicle.set_vehicle_custom_secondary_colour__native(Entity, info.SecondaryR, info.SecondaryG, info.SecondaryB)
 					end
 				end
 			end
