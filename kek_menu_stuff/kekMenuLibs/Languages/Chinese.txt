@@ -17,17 +17,13 @@ Protections §保护功能
 Modder logging settings §作弊者记录设置
 Weapons §武器选项
 Kek's utilities §实体功能
-Script loader §脚本加载器
-Language configuration §语言切换
+Language settings §语言设置
 Vehicle §载具选项
 Weapons §武器
 Trolling §恶搞
 Malicious §恶意
 Set §设置
 as default language. §作为默认语言
-Empty script loader file §清空脚本加载器
-Add script to auto loader §设置自动加载某个脚本(点击输入脚本名称)
-Remove script from auto loader §取消自动加载某个脚本(点击输入脚本名称)
 Entity crash protection §检测尝试使用实体崩溃的作弊者
 Blacklist §黑名单
 Kick any vote kickers §自动踢战局内使用投票踢的玩家
@@ -59,16 +55,16 @@ Dismiss §解散
 Terminate §踢出
 Transaction error §交易错误弹屏
 Custom chat judge §聊天审判
-Spam speed, click to type §轰炸速度,点击可输入自定义数值
+Chat spam speed §聊天轰炸速度
 Text to spam, type it in §输入轰炸文本
 Random text from file §从文件中获取随机文本
-Echo delay, click to type §复读机延迟
+Echo delay §复读机延迟
 Echo chat §启用复读机
 Chat bot §聊天机器人
 Max car §载具最大化升级
 Change backplate text §更改车牌文本
 Spawn vehicle §生成载具
-Vehicle fly speed, click to type §载具飞行速度
+Vehicle fly speed §载具飞行速度
 Vehicle fly §载具飞行模式
 Object gun §物体枪
 Airstrike gun §空袭枪
@@ -97,15 +93,9 @@ Missing default language file, please reinstall kek's menu. §缺少默认语言
 You're missing a file in kekMenuLibs. Please reinstall Kek's menu. §你在kekMenuLibs文件夹中丢失了一个文件.请重新安装Kek菜单
 There's a library file which is the wrong version, please reinstall kek's menu. §有一个库文件版本不对,请重新安装Kek菜单
 Kek's menu §Kek菜单
-Turned off script loader §已关闭脚本加载器
-Turned on script loader §已启用脚本加载器
-Emptied script loader §已清空脚本加载器
 Added §已添加
-to script loader §脚本自动加载
-is already in the script loader §已在脚本加载器中
 Couldn't find file §找不到文件
 Removed §已取消.
-from script loader §脚本自动加载
 Chat judge:\nBounty set on §聊天审判: 启动
 Chat judge:\nRamming §聊天审判:\n载具撞击
 with explosive tankers §用油罐车
@@ -123,7 +113,6 @@ Changed the reason this person was added to the blacklist. §更改了此玩家�
 Added to blacklist. §已添加到黑名单.
 Removed rid. §已黑名单中删除
 Couldn't find player. §列表中找不到该玩家.
-Blacklist file doesn't exist. §黑名单文件不存在.
 You can't add yourself to the blacklist... §你不能将自己加入黑名单.
 Kicking §正在踢出
 , flags:\n §, 原因:\n
@@ -154,8 +143,6 @@ Successfully loaded §已成功加载
 Saved §已保存
 Saved profile name. §已保存配置名称.
 Successfully loaded Kek's menu. §成功加载Kek菜单.
-Type in the name of the lua script to add. §请输入你要添加的LUA脚本名称.
-Type in the lua script you want to remove. §请输入你要删除的LUA脚本名称.
 Type in why you're adding this person. §请输入添加原因.
 Type in social club ID, also known as: rid / scid. §请输入RID.
 Type in ip. §请输入IP.
@@ -185,7 +172,7 @@ Vehicle blacklist:\nGlitching §载具黑名单:\n故障载具
 Taze player §电击玩家
 Perma-cage §套隐形笼子
 Finished crash. §崩溃已发送完毕
-Exclude friends from attacks §攻击排除好友
+Exclude friends from all disruptive features §所有攻击功能排除好友
 Self options §自我选项
 Max all weapons §最大化升级所有武器
 Randomize all weapons §随机升级所有武器
@@ -220,7 +207,7 @@ Notification spam §通知轰炸
 Spawn vehicles maxed §生成满改载具
 Delete old vehicle §删除上一辆载具
 Spawn inside of spawned vehicle §生成时在车内
-Always spawn with f1 wheels §生成的车带F1车轮
+Always f1 wheels §生成的车带F1车轮
 Always ask what vehicle §生成时询问要生成的载具
 Spawn air vehicle mid-air §飞机等载具在空中生成
 Spawn vehicles in godmode §生成无敌载具
@@ -233,8 +220,8 @@ Avoid peds §避开NPC
 Avoid objects §避开物体
 Unknown §未知
 Stop at traffic lights §等红绿灯
-Use blinkers §使用信号灯
-Allow going wrong way §允许走错的路
+Allow offroad when avoiding §避让时允许越野
+Allow going wrong way §允许驾驶到车流中
 Drive in reverse §逆向行驶
 Take shortest path §走最短的路
 Allow overtaking vehicles §允许超车
@@ -343,8 +330,6 @@ Friends can't be targeted §排除好友
 You can't be targeted §排除自己
 Clear entities §清除实体
 Auto tp to waypoint §自动传送到标记点
-Turn on script loader §开启脚本加载器
-Turn off script loader §关闭脚本加载器
 With your name §以你的名义
 Anonymous §匿名
 Change amount §更改金额
@@ -386,7 +371,7 @@ host token §主机令牌
 Add §添加
 Exclude §排除
 players §玩家
-friends §朋友
+friends §好友
 no one §无
 Offset §偏移
 Strength towards you §朝你的力量强度
@@ -507,7 +492,6 @@ has finished lap §已完成一圈
 Failed to load file. §加载文件失败.
 Cleared old race & recording a new one. §已清除旧比赛记录并开始记录新的比赛
 Save recorded race §保存记录的比赛轨迹
-Move mini map to people you spectate §观看别人时同步小地图
 Flamethrower §火焰喷射器
 Display notifications §显示通知
 Number of notifications §通知数量
@@ -779,7 +763,6 @@ Type in what to translate. §输入要翻译的内容.
 Translate input §翻译输入
 Send to team chat §发送到团队聊天
 Send to all chat §发送到全部聊天
-Tip: set hotkeys for the translate inputs below §提示: 为下面的翻译输入设置快捷键
 Translate your messages §翻译你的信息
 Menu features §菜单功能
 Type in name of feature. §输入功能名称.
@@ -789,7 +772,7 @@ Where §在哪
 Set hotkey on this to go here §可在此设置快捷键以跳转到这里.
 Search features §搜索功能
 Missing write permissions for "%s". Update cancelled, no files changed. §缺少 "%s" 的写入权限. 更新已取消,没有文件被更改.
-Kektram messed up the version strings! You have the latest version. §Kektram 把版本号搞错了！ 你已经是最新版本.
+Kektram messed up the version strings! You have the latest version. §Kektram 把版本号搞错了! 你已经是最新版本.
 A new update for Kek's menu is available. Press alt or enter to install it, space or ctrl to not. §Kek菜单有新的更新. 按 alt或回车 安装, 按 空格或ctrl 不安装.
 Press space or ctrl to remove this message. §按 空格 或 ctrl 移除此信息.
 Obtaining Kek's menu version info... §获取Kek菜单的版本信息中...
@@ -812,9 +795,9 @@ Unknown vehicle name §未知载具名称
 Where to send inputs §在哪里发送输入的内容
 Translate chat into §翻译聊天信息为
 Display session location info §显示战局玩家的IP位置信息
-Obtaining location info. This usually takes between 5-10 seconds. Max 45 api requests per minute.\nIf the list is smaller than expected, it means you hit the limit. The limit will reset in one minute. §获取IP位置信息. 通常需要 5-10 秒. 每分钟最多 45 个 api 请求.\n如果有些玩家没有显示,则说明你达到了限制. 限制将在一分钟内重置.
+Obtaining location info. This usually takes between 5-10 seconds. Max 45 api requests per minute.\nIf the list is smaller than expected, it means you hit the limit. The limit will reset in one minute. §获取IP位置信息中. 通常需要 5-10 秒. 每分钟最多 45 个 api 请求.\n如果有些玩家没有显示,则说明你达到了限制. 限制将在一分钟内重置.
 private range §私人范围
-reserved range §保留范围
+reserved range §保留地址
 invalid query §无效查询
 Unknown error §未知错误
 Answer delay §回复延迟
@@ -840,3 +823,69 @@ Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicl
 Failed to create folder. §创建文件夹失败.
 Mark as blacklisted §标记为黑名单
 Reapply logged marks §重新应用记录的标记
+Patreon supporters §Patreon 支持者
+Display name above entities §在实体上方显示名称
+Modded name detection §名称修改检测
+has a modded name. §修改了名称
+You must turn on trusted mode->memory to use this script. §你必须打开 信任模式->内存 才能使用此脚本.
+Recommended to set a hotkey on this. Press %s to set a hotkey. §建议在此处设置快捷键. 按 %s 设置一个快捷键.
+This only applies to %s. §这只适用于 %s. 
+Go to "%s" >> "%s" >> "%s" to change what vehicle is used for this feature.\n\nIt's recommended you set a hotkey on "%s". §转到 "%s" >> "%s" >> "%s" 以更改要用于此功能的载具.\n\n建议在 "%s" 上设置一个快捷键.
+Go to "%s" >> "%s" >> "%s" to change what ped is used for this feature.\n\nIt's recommended you set a hotkey on "%s". §转到 "%s" >> "%s" >> "%s" 以更改要用于此功能的NPC.\n\n建议在 "%s" 上设置一个快捷键.
+Go to "%s" >> "%s" >> "%s" to change what object is used for this feature.\n\nIt's recommended you set a hotkey on "%s". §转到 "%s" >> "%s" >> "%s" 以更改要用于此功能的物体.\n\n建议在 "%s" 上设置一个快捷键.
+After someone killed you, they get punished. §当有人杀了你之后,TA会受到惩罚.
+When a player aims at you, they get punished. §当一个玩家瞄准你时,TA会受到惩罚.
+If anyone vote kicks anyone (not just you), they are kicked. There's no way to know who they targeted with the vote kick. §如果有人投票踢任何人(不只是你),则将他们踢出战局. 没有办法知道他们的投票对象是谁.
+For example, if there are 50 "n" letters on a line and max characters is set to 45, it will be ignored.\n\nThis setting is here to prevent your screen from being blocked by text.\nBest left on default. §例如:如果一行有50个 "n" 字母,而最大字符数被设置为45,这行就会被隐藏.\n\n这个设置是为了防止文字显示超出屏幕范围.
+This setting affects all spawned vehicles that are to be used by you or other players. §此设置会影响你或其他玩家使用Kek生成的所有车辆.
+This affects maxing vehicles and all networked vehicle spawns. §这会最大化升级载具并影响所有联网载具的生成.
+This will ask you what vehicle to spawn for:\n"%s" >> "%s" >> "%s". §这会问你要为:\n "%s" >> "%s" >> "%s" 生成什么载具.
+This will make air ini/menyoo vehicles and regular vehicles spawned for yourself, spawn mid-air.\n[100 meters above ground]. §这将使所有ini/menyoo和普通的飞行载具在空中生成,
+This will delete your previously used vehicle and previously spawned regular, ini and menyoo vehicle. §这将在生成之前删除你使用过的普通载具或ini/menyoo载具.
+This will make you spawn inside of ini/menyoo vehicles and regular vehicles spawned for yourself. §这将在生成ini/menyoo载具或普通载具后立刻进入载具内.
+Prevents your vehicle from being upside down, teleports you out of water and some measures to prevent AI from getting stuck driving into walls, tight spaces and other stuff. §防止你的载具翻车,把你从水中传送出来,还有一些措施防止AI被卡在墙壁,狭小的空间和其他东西中.
+Godmode is removed when the feature is toggled off. §关闭该功能时将移除无敌.
+Collision is enabled again when the feature is toggled off. §关闭该功能时将再次启用碰撞.
+Gravity is reverted back to default when the feature is toggled off. §关闭该功能后,重力将恢复为默认值.
+Click on this feature to input a value. §点击此功能以输入一个数值.
+Detects illegal characters.\nDetects names under 6 and over 16 characters long. §检测非法字符.\n检测长度小于6个和大于16个字符的名称.
+When a blacklisted person joins, or when you join a session with a blacklisted person, action is taken. §当被列入黑名单的人加入时,或者当你加入与被列入黑名单的人的战局时,将采取行动.
+Marks people as modder if multiple stats are suspicious. Looks for kd, rank, money and modded weapons. Negative kd/rank is enough to mark people by itself. Other detections need 3 suspicious stats at once to mark someone. §如果多个统计数据可疑,则将玩家记为作弊者.查询kd,等级,金钱和非法武器.负kd/等级会直接标记.其他的检测需要3个同时触发才会标记.
+Very strict. You may not detect every godmodder, but the detections it get are reliable. Ignores people if they are in a vehicle. §非常严格. 你可能无法检测到每个无敌者,但它获得的检测结果是可靠的. 将忽略在载具里的玩家.
+Kicks people if they are marked by a flag enabled below. §踢出玩家,如果他们被下面已启用的标志标记.
+The blacklist file is located at:\n%s §黑名单文件位于:\n%s
+The chat log file is located at:\n%s §聊天记录文件位于:\n%s
+Detects multiple of the same message in a row.\nEither 12 messages in a row with 9 or less characters or 3 with 10 or more.\n\nDetects spam where the letters used doesn't matter, based on spam speed and message size. §检测多个连续相同的信息.\n连续12条不超过9个字符的信息或3条包含10个或更多字符的信息\n\n根据轰炸速度和信息大小,检测出所用字母不重要的垃圾信息.
+Repeats what people say. §重复发送其他玩家说的话.
+Click on this to copy this whole page of messages to the clipboard. §点击此处可将整页消息复制到剪贴板.
+Click on this to copy this message to the clipboard. §点击此处将此消息复制到剪贴板.
+Takes the chat log from the chat logger feature. §从聊天记录器功能中获取聊天记录.
+This will only give to people who are an associate or member of a securoserv organization or biker club. §这只会对那些是摩托帮或CEO成员的人生效.
+This crash doesn't affect anyone but the target. §这个崩溃不会影响除了目标之外的其他人.
+This might crash anyone within 900 meters of the target, and may crash more people later if the clean-up fails. §这可能会使目标900米内的任何人崩溃,如果清理失败,之后可能会崩溃更多人.
+Spawns an invisible cage, then continuously spawns a new one after the target escaped the old one.\nThe old cage is deleted.\nThe current cage is deleted if you turn off the feature. §生成一个隐形笼子到玩家身上,当目标逃离后再重新生成,不断循环.\n旧的笼子将被删除.\n如果关闭该功能,当前笼子将被删除.
+Automatically kicks everyone in front of you in the host queue when you're not host. §当你不是主机时,自动将你队列前的任何人踢出主机队列.
+Kicks everyone in front of you in the host queue. §踢掉主机队列在你前面的所有人.
+Max number of people that "%s", can kick. If you set this to 5 and it requires to 6 people to get host, it won't trigger and will instead wait until there are 5 or less people. §可以踢的最大人数 "%s". 例如你将此设置为5,但需要踢掉6个人你才能成为主机,它将不会触发,而是等到只有5个或更少人的时候才生效.
+Prevents friends from being affected by features such as "%s", "%s" or "%s".\nAnything that ruins gameplay. §防止好友受到例如"%s", "%s" 或 "%s"功能的影响.\n任何破坏游戏玩法的东西.
+If they try to use a blacklisted weapon, it's removed from their inventory.\n\nThey will get the weapon back if they join a new session. §如果他们试图使用被列入黑名单的武器,将会临时从他们的武器库中删除.\n\n武器将会在他们重新急啊如一个战局后恢复.
+This only works for players that are within 900 meters of you. §这只适用于距离你900米以内的玩家.
+Successfully loaded Kek's menu.\n\nIt's recommended that you enable hints.\n[Local tab]: Settings->Hints §已成功加载Kek菜单.\n\n建议你启用提示.\n[本地 标签]: 设置 -> 提示
+Profiles §配置文件
+Removes the Kek's menu parent.\n\nTurns:\nKek's menu >> Vehicle >> Menyoo vehicles\nINTO\nVehicle >> Menyoo vehicles\n\nSave the settings and reset lua state to see the change. §已移除Kek菜单的父项.\n\n已从:\nKek菜单 >> 载具选项 >> Menyoo载具\n变为\n载具选项 >> Menyoo载具\n\n保存设置并重置lua状态以查看更改.
+The auto updater will download beta versions of the script.\nBeware, you are likely to experience bugs in beta versions.\n\nPlease report any bugs you find to the bug-reports channel in the Kek's menu Discord. §自动更新器将会下载脚本的测试版本.\n注意: 你可能会在测试版本中遇到bug.\n\n请将你发现的任何bug报告到Kek菜单discord服务器中的"bug-reports"频道.
+Save your Kek's menu settings here. §在此处保存你的Kek菜单的设置.
+Deletes objects/peds/vehicles the player shoots at.\nYou must be within 200 meters of the player for it to work.\n\nBe aware, most objects are local. That means deleting objects will work perfectly for you, but rarely for others. §删除该玩家射击的物体/NPC/载具.\n你必须在玩家的200米范围内它才能正常工作.\n\n请注意,大多数对象都是本地的.这意味着删除物体对你来说是完美的,但其他人并非如此.
+Turns yourself into an ai driver that follows the player. §将自己变成跟随玩家的AI司机.
+If the player already has the flag, it will unmark that flag instead. §如果玩家已经拥有该标志,将取消标记选中的标志.
+Spawns a random entity from a set of objects, peds & vehicles. Each of them break physics in their own way.\n\nThere must be a free seat in their vehicle for it to work. §随机生成一个实体到物体,人物和载具上.他们每个人都以自己的方式打破物理学.\n\n他们的载具上必须有一个空座位才会生效.
+If a player shoot another player, they are kicked.\nThey can't use it on you. §如果一名玩家射击另一名玩家,他们将被踢出战局.\n他们不能对你使用它.
+Gives them a black screen and stops their current movement immediately.\nToggling this off stops the black screens. §让TA黑屏并立即停止TA当前的动作.\n关闭此选项可停止黑屏
+Prevents people from moving, use weapons and drive vehicles.\nEveryone is kicked out of their vehicle immediately. §防止人们走动,使用武器和驾驶载具.\n所有人都会被瞬间踢出载具.
+Prevents the game engine from spawning peds & removes peds already spawned by the game engine.\nDoesn't work well if there are other players within 500 meters of you. §防止游戏引擎生成NPC并删除游戏引擎已经生成的NPC.\n如果你周围500米内有其他玩家,则效果不佳.
+Prevents the game engine from spawning vehicles & removes vehicles already spawned by the game engine.\nDoesn't work well if there are other players within 500 meters of you. §防止游戏引擎生成载具并删除游戏引擎已经生成的载具.\n如果你周围500米内有其他玩家,则效果不佳.
+Avoid player peds §避开玩家人物
+Wander randomly if pathing fails §如果寻路失败则随机闲逛
+Avoid restricted areas §避开禁区
+Use string pulling at junctions §在交界处使用拉绳
+Force join in road direction §强制加入道路方向
