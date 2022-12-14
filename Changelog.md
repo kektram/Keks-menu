@@ -1,13 +1,24 @@
-# **Kek's menu 0.4.8.3 bug fix update**
+# **Kek's menu 0.4.9.0**
 
-## Removed teleport session to "far away" & "mount chiliad & kill"
+## **Improvements**```md
+### Updated objects list
+### Fixed xml parser failing to handle BOM files
+### Fixed blacklist marking people for detections when joining a new session
+### Fixed bad feedback when missing all library files
+### Fixed ipv4 to decimal conversations
+### Menyoo saver now correctly saves whether entities were frozen or not
+### Removed script loader
+### Renamed some old and added new driving style settings
 
-## **Bug fixes**```md
-### Fixed error when trying to load 2take1 ini vehicles
-### Fixed error in respawn vehicle / respawn vehicle for session, if inputted vehicle is invalid
-### Fixed errors that co-loaders get due to some unnecessary assertions
-### Fixed menyoo maps spawning entities in wrong positions
-### Fixed wrong rgb colors in ini/menyoo vehicle spawner
-### Reworked teleport session
-### Reworked blacklist
+### Anti-chat spam's "same messages in a row", now requires 12 messages in a row if message is under 10 characters
+> Previously 4 messages in a row
 ```
+
+## **New features**```md
+### Added hints to features that needs extra explanation
+### Readded modded name detection
+### Display model names above entities
+> Recommended that you increase max script entities to 1600. You will crash if you enter the Casino or other high object areas, without this change.
+```
+
+I've started a patreon: patreon.com/keks_menu
