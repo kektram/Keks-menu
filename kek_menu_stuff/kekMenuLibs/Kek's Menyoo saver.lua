@@ -189,7 +189,7 @@ local function get_properties(...)
 		end
 	elseif entity.is_entity_an_object(Entity) then
 		info.ObjectProperties = {
-			TextureVariation = object._get_object_texture_variation(Entity)
+			TextureVariation = object.get_object_tint_index(Entity)
 		}
 	end
 	return info

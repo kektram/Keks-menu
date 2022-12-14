@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.4b1",
+	version = "0.4.8.4b2",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -152,7 +152,7 @@ for name, version in pairs({
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
 	["Kek's Drive style mapper"] = "1.0.5",
-	["Kek's Menyoo spawner"] = "2.2.7",
+	["Kek's Menyoo spawner"] = "2.2.8",
 	["Kek's Entity functions"] = "1.2.7",
 	["Kek's Trolling entities"] = "1.0.7",
 	["Kek's Custom upgrades"] = "1.0.2",

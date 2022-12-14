@@ -546,7 +546,7 @@ function kek_entity.hard_remove_entity_and_its_attachments(...)
 end
 
 function kek_entity.get_entity_proofs(Entity)
-	local status, bullet, fire, explosion, collision, melee, steam, unknown, drown = entity._get_entity_proofs(Entity)
+	local status, bullet, fire, explosion, collision, melee, steam, unknown, drown = entity.get_entity_proofs(Entity)
 	return {
 		status = status,
 		bullet = bullet,

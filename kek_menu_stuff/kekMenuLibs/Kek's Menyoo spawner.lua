@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local menyoo <const> = {version = "2.2.7"}
+local menyoo <const> = {version = "2.2.8"}
 
 local lang <const> = require("Kek's Language").lang
 local essentials <const> = require("Kek's Essentials")
@@ -160,7 +160,7 @@ local function apply_vehicle_modifications(...)
 	vehicle.set_vehicle_neon_light_enabled(Entity, 1, info.Neons.Right == true)
 	vehicle.set_vehicle_neon_light_enabled(Entity, 2, info.Neons.Front == true)
 	vehicle.set_vehicle_neon_light_enabled(Entity, 3, info.Neons.Back == true)
-	vehicle._set_vehicle_neon_lights_colour(Entity, info.Neons.R, info.Neons.G, info.Neons.B)
+	vehicle.set_vehicle_neon_colour(Entity, info.Neons.R, info.Neons.G, info.Neons.B)
 	if info.LandingGearState and (streaming.is_model_a_plane(hash) or streaming.is_model_a_heli(hash)) then
 		vehicle.control_landing_gear(Entity, info.LandingGearState)
 	end
@@ -313,7 +313,7 @@ local function apply_entity_modifications(...)
 		elseif entity.is_entity_a_ped(Entity) and info.PedProperties then
 			apply_ped_modifications(Entity, info, entities)
 		elseif entity.is_entity_an_object(Entity) and info.ObjectProperties and info.ObjectProperties.TextureVariation then
-			object._set_object_texture_variation(Entity, info.ObjectProperties.TextureVariation)
+			object.set_object_tint_index(Entity, info.ObjectProperties.TextureVariation)
 		end
 		if info.OpacityLevel then
 			entity.set_entity_alpha(Entity, info.OpacityLevel, 1)
@@ -1145,7 +1145,7 @@ local function spawn_type_1_ini(info, network_status)
 			vehicle.set_vehicle_neon_light_enabled(Vehicle, 1, info.neonsRight == 1 or info.neonRight == 1)
 			vehicle.set_vehicle_neon_light_enabled(Vehicle, 2, info.neonsFront == 1 or info.neonFront == 1)
 			vehicle.set_vehicle_neon_light_enabled(Vehicle, 3, info.neonsBack == 1 or info.neonBack == 1)
-			vehicle._set_vehicle_neon_lights_colour(Vehicle, info.neon_b, info.neon_g, info.neon_r) -- 2take1 inis use bgr / misinterprets r as b and vice versa
+			vehicle.set_vehicle_neon_colour(Vehicle, info.neon_b, info.neon_g, info.neon_r) -- 2take1 inis use bgr / misinterprets r as b and vice versa
 			vehicle.set_vehicle_headlight_color(Vehicle, info.headlightColor)
 			if type(extras) == "table" then -- Not all inis of this type have extras
 				local i = 1
@@ -1206,7 +1206,7 @@ local function spawn_type_2_ini(...)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 2, info.Neon.Enabled2)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 3, info.Neon.Enabled3)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 4, info.Neon.Enabled4)
-				vehicle._set_vehicle_neon_lights_colour(Entity, info.NeonColor.R, info.NeonColor.G, info.NeonColor.B)
+				vehicle.set_vehicle_neon_colour(Entity, info.NeonColor.R, info.NeonColor.G, info.NeonColor.B)
 				vehicle.set_vehicle_colors(Entity, info.VehicleColors.Primary, info.VehicleColors.Secondary)
 				vehicle.set_vehicle_extra_colors(Entity, info.ExtraColors.Pearl, info.ExtraColors.Wheel)
 				vehicle.set_vehicle_brake_lights(Entity, info.BrakeLights)
@@ -1373,7 +1373,7 @@ local function spawn_type_3_ini(...)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 1, info["neon 1"] == 1)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 2, info["neon 2"] == 1)
 				vehicle.set_vehicle_neon_light_enabled(Entity, 3, info["neon 3"] == 1)
-				vehicle._set_vehicle_neon_lights_colour(Entity, info["neon red"], info["neon green"], info["neon blue"])
+				vehicle.set_vehicle_neon_colour(Entity, info["neon red"], info["neon green"], info["neon blue"])
 				vehicle.set_vehicle_colors(Entity, info["primary paint"], info["secondary paint"])
 				vehicle.set_vehicle_extra_colors(Entity, info["pearlescent colour"], info["wheel colour"])
 				vehicle.set_vehicle_number_plate_index(Entity, info["plate index"])
@@ -1465,7 +1465,7 @@ local function spawn_type_4_ini(...)
 							vehicle.set_vehicle_neon_light_enabled(Entity, i - 1, info["Neon"..i] == 1)
 						end
 					end
-					vehicle._set_vehicle_neon_lights_colour(Entity, info.NeonR, info.NeonG, info.NeonB)
+					vehicle.set_vehicle_neon_colour(Entity, info.NeonR, info.NeonG, info.NeonB)
 					vehicle.set_vehicle_colors(Entity, info.PrimaryPaint or info.Primary, info.SecondaryPaint or info.Secondary)
 					vehicle.set_vehicle_extra_colors(Entity, info.Pearlescent or info.Pearl, info.WheelsColor or info.WheelColor)
 					vehicle.set_vehicle_number_plate_index(Entity, info.PlateIndex or info.Plate or 0) -- Some files don't have this for some reason [or 0]
