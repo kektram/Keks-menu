@@ -1,4 +1,4 @@
-# **Kek's menu 0.4.8.4b2**
+# **Kek's menu 0.4.8.4**
 
 ## **Improvements**```md
 ### Updated objects list
