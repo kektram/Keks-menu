@@ -161,7 +161,7 @@ function kek_entity.get_control_of_entity(...)
 		end
 	end
 	if send_msg and not network.has_control_of_entity(Entity) then
-		essentials.msg(lang["Failed to get control. If you're blocking \"give control\" in net event hooks, disable it. Even if it's disabled, it can fail to get control for a variety of reasons."], "blue", true, 8)
+		essentials.msg(lang["Failed to get control. If you're blocking \"give control\" in net event hooks, disable it. Even if it's disabled, it can fail to get control for a variety of reasons."], "blue", 8)
 	end
 	return network.has_control_of_entity(Entity)
 end
@@ -212,7 +212,7 @@ function kek_entity.spawn_networked_vehicle(...)
 			decorator.decor_set_int(Vehicle, "MPBitset", 1 << 10) -- Stops the game from kicking people out of the vehicle
 			if properties.persistent then -- They will never leave memory automatically, only when removed by you or someone.
 				entity.set_entity_as_mission_entity(Vehicle, true, true)
-				entity._set_entity_cleanup_by_engine(Vehicle, false)
+				entity.set_entity_should_freeze_waiting_on_collision(Vehicle, false)
 				kek_entity.constantize_network_id(Vehicle)
 			end
 			if properties.godmode then
@@ -237,7 +237,7 @@ function kek_entity.spawn_networked_mission_vehicle(...) -- Players won't be abl
 			Vehicle = vehicle.create_vehicle(hash, coords, dir, true, false, 10)
 			kek_entity.max_car(Vehicle)
 			entity.set_entity_as_mission_entity(Vehicle, true, true)
-			entity._set_entity_cleanup_by_engine(Vehicle, false)
+			entity.set_entity_should_freeze_waiting_on_collision(Vehicle, false)
 			kek_entity.constantize_network_id(Vehicle)
 			network.set_network_id_can_migrate(network.veh_to_net(Vehicle), false)
 		end
@@ -286,7 +286,7 @@ function kek_entity.spawn_networked_ped(...)
 			)
 			system.yield(0)
 			ped.clear_ped_tasks_immediately(Ped) -- Peds won't start animation & possibly other problems if not clearing tasks.
-			entity._set_entity_cleanup_by_engine(Ped, false)
+			entity.set_entity_should_freeze_waiting_on_collision(Ped, false)
 			entity.set_entity_as_mission_entity(Ped, false, false)
 			kek_entity.constantize_network_id(Ped)
 			network.set_network_id_can_migrate(network.ped_to_net(Ped), false)
@@ -341,7 +341,7 @@ function kek_entity.spawn_networked_object(...)
 				Object = object.create_object(hash, coords, true, not not_dynamic_object, 10)
 			end
 			entity.set_entity_as_mission_entity(Object, false, true)
-			entity._set_entity_cleanup_by_engine(Object, false)
+			entity.set_entity_should_freeze_waiting_on_collision(Object, false)
 			kek_entity.constantize_network_id(Object)
 			network.set_network_id_can_migrate(network.obj_to_net(Object), false)
 		end
@@ -1150,6 +1150,17 @@ function kek_entity.remove_player_vehicle(...)
 	return was_succesful
 end
 
+do
+	local offset <const> = {0x2E}
+	function kek_entity.is_entity_frozen(Entity)
+		if entity.is_an_entity(Entity) then -- read_u8 crashes the game if nil is passed. get_entity returns nil if entity doesn't exist.
+			return memory.read_u8(memory.get_entity(Entity), offset) & 1 << 1 ~= 0
+		else
+			return false
+		end
+	end
+end
+
 function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
 	local pid <const>,
 	clear_vehicle_after_ram <const>,
@@ -1356,7 +1367,7 @@ function kek_entity.spawn_car()
 	local hash <const> = vehicle_mapper.get_hash_from_user_input(settings.in_use["User vehicle"])
 	if streaming.is_model_a_vehicle(hash) then
 		if not kek_entity.entity_manager:update().is_vehicle_limit_not_breached then
-			essentials.msg(lang["Failed to spawn vehicle. Vehicle limit was reached"], "red", true, 6)
+			essentials.msg(lang["Failed to spawn vehicle. Vehicle limit was reached"], "red", 6)
 			return -1
 		end
 		kek_entity.user_vehicles[player.get_player_vehicle(player.player_id())] = player.get_player_vehicle(player.player_id())
@@ -1379,7 +1390,7 @@ function kek_entity.spawn_car()
 		vehicle.set_vehicle_engine_on(Vehicle, true, true, false)
 		kek_entity.user_vehicles[Vehicle] = Vehicle
 	else
-		essentials.msg(lang["Failed to spawn vehicle. Invalid vehicle hash."], "red", true, 6)
+		essentials.msg(lang["Failed to spawn vehicle. Invalid vehicle hash."], "red", 6)
 		return -1
 	end
 end
@@ -1517,7 +1528,7 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 			network.network_set_in_spectator_mode(true, player.get_player_ped(pid))
 		end
 	elseif show_message then
-		essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is not in a vehicle."]), "red", true)
+		essentials.msg(string.format("%s %s", player.get_player_name(pid), lang["is not in a vehicle."]), "red")
 	end
 	if not dont_teleport_back and teleport_you_back_to_original_pos then
 		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)

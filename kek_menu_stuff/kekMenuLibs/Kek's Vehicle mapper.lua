@@ -1,13 +1,13 @@
 -- Copyright © 2020-2022 Kektram
 
-local vehicle_mapper <const> = {version = "1.4.0"}
+local vehicle_mapper <const> = {version = "1.4.1"}
 local essentials <const> = require("Kek's Essentials")
 local lang <const> = require("Kek's Language").lang
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
 
-local vehicle_properties <const> = essentials.const_all({
+local vehicle_properties <const> = {
 	[3296789504] = {
 		model = "visione",
 		name = "Grotti Visione",
@@ -4686,8 +4686,110 @@ local vehicle_properties <const> = essentials.const_all({
         name = "Grotti Brioso 300 Widebody",
         min_dim = v3(-1.088618516922, -2.0193288326263, -0.32603812217712),
         max_dim = v3(1.0886173248291, 1.7818125486374, 1.469799041748)
+	},
+	[3833117047] = {
+		model = "tahoma",
+		name = "Declasse Tahoma Coupe",
+		min_dim = v3(-0.95464086532593, -2.7175714969635, -0.32150900363922),
+		max_dim = v3(0.95464062690735, 2.4864115715027, 1.3172544240952)
+	},
+	[2361724968] = {
+		model = "broadway",
+		name = "Classique Broadway",
+		min_dim = v3(-0.90822893381119, -2.6206133365631, -0.32947200536728),
+		max_dim = v3(0.90822786092758, 2.2124922275543, 1.2434687614441)
+	},
+	[1550581940] = {
+		model = "issi8",
+		name = "Weeny Issi Rally",
+		min_dim = v3(-0.96927154064178, -2.2074475288391, -0.70423316955566),
+		max_dim = v3(0.97566628456116, 2.0970420837402, 1.1839833259583)
+	},
+	[268758436] = {
+		model = "tulip2",
+		name = "Declasse Tulip M-100",
+		min_dim = v3(-0.94315713644028, -3.0299656391144, -0.47369801998138),
+		max_dim = v3(0.94315731525421, 2.323634147644, 0.93201434612274)
+	},
+	[4163619118] = {
+		model = "everon2",
+		name = "Karin Hotring Everon",
+		min_dim = v3(-1.0607342720032, -2.8425064086914, -0.3107635974884),
+		max_dim = v3(1.0607504844666, 2.3676872253418, 1.2874945402145)
+	},
+	[669204833] = {
+		model = "virtue",
+		name = "Ocelot Virtue",
+		min_dim = v3(-1.8878792524338, -2.3519034385681, -0.85521972179413),
+		max_dim = v3(1.8930497169495, 2.4950397014618, 1.260134100914)
+	},
+	[996383885] = {
+		model = "boor",
+		name = "Karin Boor",
+		min_dim = v3(-0.81890964508057, -2.2354328632355, -0.31294399499893),
+		max_dim = v3(0.81890916824341, 2.1718904972076, 1.2588065862656)
+	},
+	[2100457220] = {
+		model = "panthere",
+		name = "Toundra Panthere",
+		min_dim = v3(-1.0983061790466, -2.4132208824158, -0.36412999033928),
+		max_dim = v3(1.0983061790466, 2.1910541057587, 0.94827437400818)
+	},
+	[1076201208] = {
+		model = "r300",
+		name = "Annis 300R",
+		min_dim = v3(-1.0046004056931, -2.3234944343567, -0.35703417658806),
+		max_dim = v3(1.0046004056931, 2.2941222190857, 0.97533583641052)
+	},
+	[1748565021] = {
+		model = "entity3",
+		name = "Overflod Entity MT",
+		min_dim = v3(-1.1008496284485, -2.4225687980652, -0.38580498099327),
+		max_dim = v3(1.1008486747742, 2.4248876571655, 0.85991597175598)
+	},
+	[3045179290] = {
+		model = "eudora",
+		name = "Willard Eudora",
+		min_dim = v3(-1.1589443683624, -3.3049719333649, -0.50625312328339),
+		max_dim = v3(1.1589453220367, 2.8047111034393, 1.2555131912231)
+	},
+	[2908631255] = {
+		model = "powersurge",
+		name = "Western Powersurge",
+		min_dim = v3(-0.36835172772408, -1.0155522823334, -0.53212112188339),
+		max_dim = v3(0.37961974740028, 1.0625289678574, 0.84450322389603)
+	},
+	[2667889793] = {
+		model = "journey2",
+		name = "Zirconium Journey II",
+		min_dim = v3(-1.2672235965729, -3.5779194831848, -0.49585050344467),
+		max_dim = v3(1.220104932785, 2.6310346126556, 2.0184273719788)
+	},
+	[2718380883] = {
+		model = "brickade2",
+		name = "MTL Brickade 6x6",
+		min_dim = v3(-1.8857610225677, -7.5807900428772, -1.3835487365723),
+		max_dim = v3(1.8831160068512, 5.5079102516174, 2.5903391838074)
+	},
+	[1384502824] = {
+		model = "manchez3",
+		name = "Maibatsu Manchez Scout C",
+		min_dim = v3(-0.46560284495354, -0.97048324346542, -0.49983990192413),
+		max_dim = v3(0.46560284495354, 1.0826325416565, 1.0917236804962)
+	},
+	[3259477733] = {
+		model = "surfer3",
+		name = "BF Surfer Custom",
+		min_dim = v3(-1.070241689682, -2.1861701011658, -0.67909002304077),
+		max_dim = v3(1.0702421665192, 2.3459188938141, 1.5368129014969)
+	},
+	[2336777441] = {
+		model = "cargoplane2",
+		name = "Cargo Plane",
+		min_dim = v3(-48.837677001953, -53.749801635742, -6.5814919471741),
+		max_dim = v3(48.837677001953, 37.035385131836, 15.110445022583)
 	}
-})
+}
 
 vehicle_mapper.HELICOPTERS = {}
 for hash in pairs(vehicle_properties) do

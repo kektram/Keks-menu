@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local ped_mapper <const> = {version = "1.2.7"}
+local ped_mapper <const> = {version = "1.2.8"}
 local essentials <const> = require("Kek's Essentials")
 
 local ped_models <const> = essentials.const({
@@ -959,6 +959,31 @@ local ped_models <const> = essentials.const({
 	[gameplay.get_hash_key("a_m_y_studioparty_01")] = "a_m_y_studioparty_01",
 	[gameplay.get_hash_key("g_m_m_goons_01")] = "g_m_m_goons_01",
 	[gameplay.get_hash_key("a_m_m_studioparty_01")] = "a_m_m_studioparty_01",
+	[3177620756] = "cs_drfriedlander_02",
+	[2692738449] = "ig_drfriedlander_02",
+	[731167118] = "cs_nervousron_02",
+	[74809322] = "ig_nervousron_02",
+	[2229008065] = "csb_chef_03",
+	[4138965971] = "ig_chef_03",
+	[1117614067] = "csb_dax",
+	[4050142444] = "ig_dax",
+	[1373135346] = "csb_luchadora",
+	[4163779209] = "ig_luchadora",
+	[2017183759] = "ig_hippyleader",
+	[1491358515] = "csb_labrat",
+	[2682084818] = "ig_labrat",
+	[1344679353] = "ig_furry",
+	[3809717386] = "ig_fooliganz_01",
+	[944592636] = "ig_fooliganz_02",
+	[4185372713] = "ig_acidlabcook",
+	[1520835918] = "ig_gunvanseller",
+	[2705574861] = "g_f_m_fooliganz_01",
+	[1261149561] = "a_f_m_genstreet_01",
+	[3543068589] = "u_m_m_yulemonster",
+	[3688051673] = "s_m_m_hazmatworker_01",
+	[80921836] = "g_m_m_friedlandergoons_01",
+	[620276966] = "g_m_m_fooliganz_01",
+	[3645767658] = "a_m_m_bankrobber_01",
 	-- Animals --
 	[gameplay.get_hash_key("a_c_chop_02")] = "a_c_chop_02",
 	[3462393972] = "a_c_boar",
@@ -993,10 +1018,11 @@ local ped_models <const> = essentials.const({
 	[113504370] = "a_c_sharktiger",
 	[1126154828] = "a_c_shepherd",
 	[2705875277] = "a_c_stingray",
-	[2910340283] = "a_c_westy"
+	[2910340283] = "a_c_westy",
+	[2114741418] = "a_c_chimp_02",
+	[1553815115] = "a_c_rabbit_02"
 	-- Animals --
 })
-
 ped_mapper.BLACKLISTED_PEDS = essentials.const({ -- These will crash yours or other's game
 	[762327283] = "slod_small_quadped",
 	[1057201338] = "slod_human",
@@ -1038,16 +1064,17 @@ ped_mapper.ANIMAL_HASHES = essentials.const({
 	1126154828,
 	2705875277,
 	2910340283,
-	[gameplay.get_hash_key("a_c_chop_02")] = "a_c_chop_02"
+	1039404993,
+	2114741418, 
+	1553815115
 })
-
 ped_mapper.PED_HASHES = {}
 for hash, model in pairs(ped_models) do
-	if not model:find("a_c", 1, true) then -- To make sure animal hashes are the 34 last in the array.
+	if not model:find("a_c", 1, true) then -- To make sure animal hashes are the 36 last in the array.
 		ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = hash
 	end
 end
-for i = 1, #ped_mapper.ANIMAL_HASHES do -- Makes sure animal hashes are the 34 last in the array.
+for i = 1, #ped_mapper.ANIMAL_HASHES do -- Makes sure animal hashes are the 36 last in the array. WHEN UPDATING, THERE IS NOTHING ELSE YOU NEED TO CHANGE. 36 LAST IS RELEVANT FOR GETTING RANDOM "all peds except animals"
 	ped_mapper.PED_HASHES[#ped_mapper.PED_HASHES + 1] = ped_mapper.ANIMAL_HASHES[i]
 end
 
@@ -1059,7 +1086,7 @@ end
 
 model_to_hash = essentials.const(model_to_hash)
 
-ped_mapper.LIST_OF_SPECIAL_PEDS = essentials.const({
+ped_mapper.special_peds = essentials.const({
 	"a_m_m_tranvest_01",
 	"a_f_m_fatcult_01",
 	"a_m_m_acult_01",

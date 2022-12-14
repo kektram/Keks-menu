@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.6.2"}
+local essentials <const> = {version = "1.6.4"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -15,8 +15,9 @@ essentials.listeners = {
 	exit = {}
 }
 essentials.nethooks = {}
-essentials.number_of_explosion_types = 82
-essentials.init_delay = utils.time_ms() + 1000 -- For notifications that should only display if user toggles on the feature (toggles being turned on due to settings and such)
+
+essentials.number_of_explosion_types = 84 -- This must be updated sometimes after major gta update.
+essentials.init_delay = utils.time_ms() + 1000 -- if utils.time_ms() > essentials.init_delay then < STUFF > end, makes sure < STUFF > won't run during script init.
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}
 paths.kek_menu_stuff = paths.home.."scripts\\kek_menu_stuff\\"
@@ -30,13 +31,13 @@ function essentials.is_str(f, str) -- Greatly improves readability
 			break
 		end
 	end
-	if not status then -- Done like this for minimal performance loss
+	if not status then -- An if statement is faster than a function call.
 		essentials.assert(false, str.." doesn't match anything in str_data. feature name:", f.name)
 	end
 	return f.str_data[f.value + 1] == lang[str]
 end
 
-function essentials.assert(bool, msg, ...)
+function essentials.assert(bool, msg, ...) -- Does the same as regular assert, but sends the error to me.
 	if not bool then
 		local n_args <const> = select("#", ...)
 		msg = string.format(
@@ -51,10 +52,10 @@ function essentials.assert(bool, msg, ...)
 				"https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="
 				..web.urlencode("Version: "..__kek_menu.version
 				..(network._get_online_version and " gta "..tostring(network._get_online_version()) or " gta: native lib not loaded yet") 
-				-- In case native library hasn't been loaded yet. Not calling native directly, because I don't want to risk forgetting to update this native id.
+				-- Not calling the native directly because I don't want to risk forgetting to update the native id.
 				.."\n"..traceback))
 		end
-		error(msg.."\n"..traceback.."\n", 2) -- It is too complicated for lua to get the right traceback if the error occurs in a feature (all kek's menu feats are pcalled), unless the traceback is obtained here.
+		error(msg.."\n"..traceback.."\n", 2)
 	end
 end
 
@@ -118,22 +119,9 @@ do
 		if number_of_requests_in_last_10_minutes < 5 then
 			id = id + 1
 			requests_in_last_10_minutes[id] = utils.time_ms() + (1000 * 60 * 10)
-			web.post(...)
+			return web.post(...)
 		end
 	end
-end
-
-function essentials.must_yield_for_specified_time(timeout)
--- Use only where yielding shorter than specified time is a huge problem
--- Primarily to deal with other scripts modifying system.yield, causing it to not yield like it's supposed to
-	local time <const> = utils.time_ms() + timeout
-	repeat
-		system.yield(0)
-	until utils.time_ms() > time
-end
-
-function essentials.get_time_plus_frametime(num_of_frames)
-	return utils.time_ms() + (gameplay.get_frame_time() * 1000 * num_of_frames)
 end
 
 function essentials.add_chat_event_listener(callback) -- Fixes crash if someone spams chat
@@ -224,7 +212,7 @@ function essentials.rgb_to_bytes(uint32_rgba)
 		(uint32_rgba >> 24) & 0xFF  -- A
 end
 
-function essentials.get_max_variadic(...)
+function essentials.get_max_variadic(...) -- 10% faster than select implementation
 	local max = math.mininteger
 	local t <const> = table.pack(...)
 	for i = 1, #t do
@@ -326,7 +314,7 @@ function essentials.get_player_coords(pid) -- Allows you to get player coords wi
 	if pid == player.player_id() then
 		return player.get_player_coords(pid)
 	else
-		return network._network_get_player_coords(pid)
+		return network.network_get_last_player_pos_received_over_network(pid)
 	end
 end
 
@@ -552,7 +540,7 @@ function essentials.sub_unicode_byte_len(str, start, End)
 	return utf8.char(utf8.codepoint(str, start, End))
 end
 
-do -- This function is making it so unicode character lead bytes aren't confused as regular characters.
+do -- Makes sure lead bytes aren't confused as regular characters in regex
 	local gsub <const> = string.gsub
 	local sub  <const> = string.sub
 	local byte <const> = string.byte
@@ -574,30 +562,12 @@ do -- This function is making it so unicode character lead bytes aren't confused
 	end -- Converts lead bytes into characters that doesnt interfere with patterns
 end
 
-function essentials.get_safe_feat_name(name) -- Checks if valid utf8 code, removes corrupted bytes if not
+function essentials.get_safe_feat_name(name) -- Checks if string is valid utf8, removes corrupted bytes if not
 	local str = name
 	if not utf8.len(name) then
 		str = name:gsub("[^A-Za-z0-9%s%p%c]", "")
 	end
 	return str
-end
-
-function essentials.rename_file(...)
-	local file_path <const>, 
-	original_file_name <const>, 
-	new_file_name <const>, 
-	file_extension = ...
-	file_extension = "."..file_extension
-	local original_file_path <const> = file_path..original_file_name..file_extension
-	local new_file_path <const> = file_path..new_file_name..file_extension
-	essentials.assert(not new_file_name:find("[<>:\"/\\|%?%*]"), "Tried to rename file to a name containing illegal characters:", new_file_name)
-	essentials.assert(utils.file_exists(original_file_path), "Tried to rename a file that doesn't exist.", original_file_path)
-	essentials.assert(not utils.file_exists(new_file_path), "Tried to overwrite an existing file while attempting to rename a file.", original_file_path, new_file_path)
-	local file_string <const> = essentials.get_file_string(original_file_path, "rb"):gsub("\r", "")
-	io.remove(original_file_path)
-	local file <close> = io.open(new_file_path, "w+")
-	file:write(file_string)
-	file:flush()
 end
 
 function essentials.wait_conditional(duration, func, ...)
@@ -610,29 +580,41 @@ function essentials.wait_conditional(duration, func, ...)
 	until not func(...) or utils.time_ms() > time
 end
 
-function essentials.write_table_recursively_to_file(Table, tracker, file, level)
+function essentials.write_table_recursively_to_file(Table, tracker, file, level) -- File is written in json format.
 	tracker = tracker or {}
 	level = level or 0
 	file = file or io.open(paths.home.."scripts\\printed_table.txt", "w+")
+	if level == 0 then
+		file:write("{\n")
+	end
 	for key, value in pairs(Table) do
 		if type(value) == "table" and not tracker[value] then
-			file:write(string.format("\n%s%s:\n", string.rep("\t", level), key))
+			file:write(string.format("\n%s\"%s\": {\n", string.rep("\t", level), key))
 			tracker[value] = true
 			essentials.write_table_recursively_to_file(value, tracker, file, level + 1)
-			file:write("\n")
+			if next(Table, key) == nil then -- Some json parsers fails if there's a comma at the last entry in an array
+				file:write(string.rep("\t", level).."}\n\n")
+			else
+				file:write(string.rep("\t", level).."},\n\n")
+			end
 		else
-			file:write(string.format("%s%s: %s\n", string.rep("\t", level), key, value))
+			if next(Table, key) == nil then -- Some json parsers fails if there's a comma at the last entry in an array
+				file:write(string.format("%s\"%s\": %s\n", string.rep("\t", level), key, value))
+			else
+				file:write(string.format("%s\"%s\": %s,\n", string.rep("\t", level), key, value))
+			end
 		end
 	end
 	if level == 0 then
-		essentials.msg(paths.home.."scripts\\printed_table.txt", "green", true, 10)
+		file:write("}\n")
 		file:flush()
 		file:close()
+		return essentials.get_file_string(paths.home.."scripts\\printed_table.txt")
 	end
 end
 
 do
-	local files_extensions <const> = {
+	local files_extensions <const> = { -- Those allowed by the api
 		"txt",
 		"log",
 		"xml",
@@ -641,7 +623,13 @@ do
 		"csv",
 		"json",
 		"lua",
-		"2t1"
+		"2t1",
+		"jpg",
+		"jpeg",
+		"png",
+		"gif",
+		"bmp",
+		"dds"
 	}
 	function essentials.get_all_files_recursively(path, obtained_folders)
 		obtained_folders = obtained_folders or {}
@@ -663,19 +651,19 @@ end
 
 function essentials.is_file_name_change_is_invalid(folder_path, input, extension)
 	if input:find("..", 1, true) or input:find("%.$") then
-		essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red", true)
+		essentials.msg(lang["There can't be a \"..\" in the name. There also can't be a \".\" at the end of the name."], "red")
 		return true
 	elseif input:find("[<>:\"/\\|%?%*]") then
-		essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", true, 7)
+		essentials.msg(lang["Illegal characters detected. Please try again. Illegal chars:"].." \"<\", \">\", \":\", \"/\", \"\\\", \"|\", \"?\", \"*\"", "red", 7)
 		return true
 	elseif extension ~= "FOLDER" and not utils.dir_exists(folder_path) then
-		essentials.msg(lang["This folder no longer exists."], "red", true, 8)
+		essentials.msg(lang["This folder no longer exists."], "red", 8)
 		return true
 	elseif extension == "FOLDER" and utils.dir_exists(folder_path.."\\"..input) then
-		essentials.msg(lang["Existing folder found. Please choose another name."], "red", true)
+		essentials.msg(lang["Existing folder found. Please choose another name."], "red")
 		return true
 	elseif extension ~= "FOLDER" and utils.file_exists(folder_path.."\\"..input.."."..extension) then
-		essentials.msg(lang["Existing file found. Please choose another name."], "red", true)
+		essentials.msg(lang["Existing file found. Please choose another name."], "red")
 		return true
 	end
 end
@@ -716,24 +704,22 @@ function essentials.table_to_xml(...)
 	end
 end
 
-function essentials.cast_value(value, parse_type)
-	if parse_type == "xml" and value:find(",", 1, true) then
-		local values = {}
-		for value in value:gmatch("([^,%s]+)") do
-			values[#values + 1] = essentials.cast_value(value, "xml")
+local function cast_string_element(string_element)
+	if string_element:find(",", 1, true) then
+		local string_elements = {}
+		for string_element in string_element:gmatch("([^,%s]+)") do
+			string_elements[#string_elements + 1] = cast_string_element(string_element)
 		end
-		return values
+		return string_elements
+	elseif string_element == "false" then
+		return false
 	else
-		if value == "false" then
-			return false
-		else
-			return
-				value == "true"
-				or tonumber(value)
-				or tonumber(value, 16)
-				or tonumber("0x"..value) -- The former tonumber doesn't support hexadecimal with fractions.
-				or value
-		end
+		return
+			string_element == "true"
+			or tonumber(string_element)
+			or tonumber(string_element, 16)
+			or tonumber("0x"..string_element) -- The former tonumber doesn't support hexadecimal with fractions.
+			or string_element
 	end
 end
 
@@ -743,7 +729,7 @@ local function parse_attribute(str)
 	if str:find("=", where + 1, true) then
 		values = {}
 		for index, value in str:gmatch("([^=]+)=[\"']([^=]+)[\"'][\32>]", where + 1) do
-			values[index] = essentials.cast_value(value, "xml")
+			values[index] = cast_string_element(value)
 		end
 	end
 	return name, values
@@ -797,7 +783,7 @@ function essentials.parse_xml(str)
 	local match <const> = string.match
 	local setmetatable <const> = setmetatable
 	local parse_attribute <const> = parse_attribute
-	local cast_value <const> = essentials.cast_value
+	local cast_string_element <const> = cast_string_element
 
 	local info = memoized[str]
 
@@ -809,8 +795,9 @@ function essentials.parse_xml(str)
 	local memoized <const> = {}
 	local parent_tree <const> = {}
 	if pcall(function()
-		local end_of_first_line <const> = select(2, find(str, "\n", 1, true))
-		local first_line <const> = str:sub(1, end_of_first_line - 1)
+		local start_of_first_line <const> = find(str, "<?", 1, true) -- some files have hidden characters in its first line
+		local end_of_first_line <const> = select(2, find(str, "\n", start_of_first_line, true))
+		local first_line <const> = str:sub(start_of_first_line, end_of_first_line - 1)
 		info.prologue = select(2, parse_attribute(first_line:gsub("%?", "")))
 	end) then
 
@@ -830,7 +817,7 @@ function essentials.parse_xml(str)
 					local value = gsub(match(line, ">([^<>]+)</"), "\n\t*", "\n")
 					value = gsub(value, "&%a%a%a?%a?;", escape_seq_map)
 					memoized.index = match(line, "^<([^>]+)>")
-					memoized.value = cast_value(value, "xml")
+					memoized.value = cast_string_element(value)
 				end
 				local parent <const> = parent_tree[#parent_tree][memoized.index]
 				if parent then
@@ -908,31 +895,33 @@ function essentials.get_random_string(...)
 	return utils.vecu64_to_str(vecu64_table)
 end
 
-essentials.notif_colors = essentials.const({
-	red = 0xff0000ff,
-	yellow = 0xff00ffff,
-	blue = 0xffff0000,
-	green = 0xff00ff00,
-	purple = 0xff800080,
-	orange = 0xff0080ff,
-	brown = 0xff336699,
-	pink = 0xffff00ff
-})
+do
+	local notif_colors <const> = {
+		red = 0xff0000ff,
+		yellow = 0xff00ffff,
+		blue = 0xffff0000,
+		green = 0xff00ff00,
+		purple = 0xff800080,
+		orange = 0xff0080ff,
+		brown = 0xff336699,
+		pink = 0xffff00ff
+	}
 
-function essentials.msg(...)
-	local text <const>,
-	color <const>,
-	notifyOn <const>,
-	duration <const>,
-	header = ...
-	essentials.assert(essentials.notif_colors[color], "Invalid color to notification.", color)
-	essentials.assert(type(text) == "string", "Failed to send a notification.", text)
-	if notifyOn then
-		header = header or ""
-		if header == "" and __kek_menu.version then
-			header = lang["Kek's menu"].." "..__kek_menu.version
-		end
-		menu.notify(text, header, duration or 3, essentials.notif_colors[color])
+	local header_text <const> = lang["Kek's menu"].." "..__kek_menu.version
+
+	function essentials.msg(...)
+		local message_text <const>, color_name <const>, duration <const> = ...
+
+		essentials.assert(notif_colors[color_name], "Invalid color to notification.", color_name, message_text, type(message_text))
+
+		essentials.assert(type(message_text) == "string", "Expected a string for the notification's text.", message_text, type(message_text))
+
+		menu.notify(
+			message_text, 
+			header_text, 
+			duration or 5, 
+			notif_colors[color_name]
+		)
 	end
 end
 
@@ -1241,7 +1230,7 @@ function essentials.is_any_virtual_key_pressed(...)
 end
 
 do
-	local _1440p_magnitude <const> = (2560^2 + 1440^2)^0.5 -- Faster to find magnitude manually than creating v2 objects.
+	local _1440p_magnitude <const> = math.sqrt(2560^2 + 1440^2) -- Faster to find magnitude manually than creating v2 objects.
 	function essentials.correct_scale_for_resolution(scale, text)
 		local width <const> = graphics.get_screen_width()
 		local height <const> = graphics.get_screen_height()
@@ -1450,7 +1439,7 @@ function essentials.update_keks_menu()
 		kek_menu_file_string = true, 0, {}, {}
 
 	if enums.html_response_codes[status] ~= "OK" then
-		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", true, 6)
+		essentials.msg(lang["Failed to check what the latest version of the script is."], "red", 6)
 		return "failed to check what is the latest version"
 	end
 	update_details = load(update_details, "Update info", "t", {})()
@@ -1459,11 +1448,11 @@ function essentials.update_keks_menu()
 	local updated_language_files <const> = update_details.language_files
 
 	if __kek_menu.version == script_version then
-		essentials.msg(lang["You have the latest version of Kek's menu."], "green", true, 3)
+		essentials.msg(lang["You have the latest version of Kek's menu."], "green", 3)
 		return "is latest version"
 	else
 		if __kek_menu_has_done_update then
-			essentials.msg(lang["Kektram messed up the version strings! You have the latest version."], "green", true, 8)
+			essentials.msg(lang["Kektram messed up the version strings! You have the latest version."], "green", 8)
 			return "already updated"
 		end
 		while essentials.is_any_virtual_key_pressed( -- Prevent accidental presses
@@ -1509,7 +1498,7 @@ function essentials.update_keks_menu()
 		end
 
 		if __kek_menu.debug_mode then
-			essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", true, 6)
+			essentials.msg(lang["Turn off debug mode to use auto-updater."], "red", 6)
 			return "tried to update with debug mode on"
 		end
 
@@ -1586,7 +1575,7 @@ function essentials.update_keks_menu()
 				local msg <const> = lang["Missing write permissions for \"%s\". Update cancelled, no files changed."]
 				local file <close> = io.open(paths.home.."scripts\\Kek's menu.lua", "a")
 				if utils.file_exists(paths.home.."scripts\\Kek's menu.lua") and not file then
-					essentials.msg(msg:format("Kek's menu.lua"), "red", true, 10)
+					essentials.msg(msg:format("Kek's menu.lua"), "red", 10)
 					update_status = "done"
 					return "missing write permissions"
 				end
@@ -1596,7 +1585,7 @@ function essentials.update_keks_menu()
 					if utils.file_exists(file_path) then
 						local file <close> = io.open(file_path, "a")
 						if not file then
-							essentials.msg(msg:format(file_name), "red", true, 10)
+							essentials.msg(msg:format(file_name), "red", 10)
 							update_status = "done"
 							return "missing write permissions"
 						end
@@ -1608,7 +1597,7 @@ function essentials.update_keks_menu()
 					if utils.file_exists(file_path) then
 						local file <close> = io.open(file_path, "a")
 						if not file and language_file_strings[file_name] then
-							essentials.msg(msg:format(file_name), "red", true, 10)
+							essentials.msg(msg:format(file_name), "red", 10)
 							update_status = "done"
 							return "missing write permissions"
 						end
@@ -1617,7 +1606,7 @@ function essentials.update_keks_menu()
 			end
 
 			__kek_menu.version = script_version
-			essentials.msg(lang["Update successfully installed."], "green", true, 6)
+			essentials.msg(lang["Update successfully installed."], "green", 6)
 
 			-- Remove old files & undo all changes to the global space
 			for _, file_name in pairs(utils.get_all_files_in_directory(paths.kek_menu_stuff.."kekMenuLibs", "lua")) do
@@ -1655,7 +1644,7 @@ function essentials.update_keks_menu()
 			return "has updated"
 		else
 			update_status = "done"
-			essentials.msg(lang["Update failed. No files are changed."], "green", true, 6)
+			essentials.msg(lang["Update failed. No files are changed."], "green", 6)
 			return "failed update"
 		end
 	end
@@ -1709,13 +1698,13 @@ function essentials.dec_to_ipv4(ip)
 	)
 end
 
-function essentials.ipv4_to_dec(...)
-	local ip <const> = ...
-	local dec = 0
-	for octet in ip:gmatch("%d+") do 
-		dec = octet + dec << 8 
-	end
-	return math.ceil(dec)
+function essentials.ipv4_to_dec(ipv4)
+    local which_oct, dec = 24, 0
+    for octet in ipv4:gmatch("%d+") do
+        dec = dec | tonumber(octet) << which_oct
+        which_oct = which_oct - 8
+    end
+    return dec
 end
 
 function essentials.get_position_of_previous_newline(str, str_pos)
@@ -1875,7 +1864,7 @@ function essentials.send_pattern_guide_msg(...)
 	table.move(parts.regular, 1, #parts.regular, #parts[Type] + 1, parts[Type])
 	for i = 1, #parts[Type] do
 		if part + 1 == i then
-			essentials.msg(lang[parts[Type][i]], "blue", true, 12)
+			essentials.msg(lang[parts[Type][i]], "blue", 12)
 			break
 		end
 	end
@@ -1887,7 +1876,7 @@ end
 --]]
 function essentials.invalid_pattern(...)
 	local text <const>,
-	msg <const>,
+	display_feedback <const>,
 	warn <const> = ...
 	if warn then
 		if text:find("[.+-*?^$]") and not text:find("%%[.+-*?^$]") then
@@ -1895,14 +1884,16 @@ function essentials.invalid_pattern(...)
 				lang["Warning: missing \"%\" before any of these characters;"],
 				"\".\", \"+\", \"-\", \"*\", \"?\", \"^\", \"$\"",
 				lang["This is fine, just note that if you don't put the \"%\" before those characters, they mean something else."]), 
-			"red", true, 12)
+			"red", 12)
 		end
 	end
 	local status <const> = pcall(function() 
 		return text:find(text)
 	end)
 	if not status then
-		essentials.msg(lang["Invalid pattern. Most likely missing a \"[\", \"]\", \"(\", \")\" or a \"%\" somewhere. Could also be \"[]\", having \"[]\" causes an error."], "red", msg, 12)
+		if display_feedback then
+			essentials.msg(lang["Invalid pattern. Most likely missing a \"[\", \"]\", \"(\", \")\" or a \"%\" somewhere. Could also be \"[]\", having \"[]\" causes an error."], "red", 12)
+		end
 		return true
 	end
 end

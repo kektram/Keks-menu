@@ -379,7 +379,6 @@ local function send_spawn_counter_msg(counts)
 		lang["Objects"],
 		counts.object),
 		"green", 
-		true,
 		6
 	)
 end
@@ -390,9 +389,9 @@ end
 
 local function send_is_networked_msg(counts, network_status)
 	if network_status == "is_networked" then
-		essentials.msg(lang["The map/vehicle will be visible to other people."], "green", true, 5)
+		essentials.msg(lang["The map/vehicle will be visible to other people."], "green", 5)
 	elseif counts.object <= network.get_max_num_network_objects() and counts.ped <= network.get_max_num_network_peds() and counts.vehicle <= get_max_networked_vehicles() then
-		essentials.msg(lang["The map/vehicle can be networked if you clear all entities. Currently there are other networked entities taking up space."], "yellow", true, 8)
+		essentials.msg(lang["The map/vehicle can be networked if you clear all entities. Currently there are other networked entities taking up space."], "yellow", 8)
 	else
 		essentials.msg(
 			string.format(
@@ -402,7 +401,6 @@ local function send_is_networked_msg(counts, network_status)
 				network.get_max_num_network_peds()
 			), 
 			"red", 
-			true, 
 			8
 		)
 	end
@@ -456,21 +454,21 @@ local function is_spawn_too_many_entities(counts, network_status)
 	local number_of_peds <const> = math.ceil(network_status == "is_networked" and counts.ped * 1.5 or counts.ped)
 	local ped_cap <const> = math.ceil(settings.valuei["ped limits"].value - (kek_entity.entity_manager.counts.ped / 10))
 	if number_of_peds > ped_cap then
-		essentials.msg(lang["Requires %i more peds than can be spawned. Try deleting all peds, then try to spawn it again."]:format(number_of_peds - ped_cap), "red", true, 12)
+		essentials.msg(lang["Requires %i more peds than can be spawned. Try deleting all peds, then try to spawn it again."]:format(number_of_peds - ped_cap), "red", 12)
 		status = true
 	end
 
 	local number_of_vehicles <const> = math.ceil(counts.vehicle)
 	local vehicle_cap <const> = math.ceil(settings.valuei["vehicle limits"].value - (kek_entity.entity_manager.counts.vehicle / 10))
 	if number_of_vehicles > vehicle_cap then
-		essentials.msg(lang["Requires %i more vehicles than can be spawned. Try deleting all vehicles, then try to spawn it again."]:format(number_of_vehicles - vehicle_cap), "red", true, 12)
+		essentials.msg(lang["Requires %i more vehicles than can be spawned. Try deleting all vehicles, then try to spawn it again."]:format(number_of_vehicles - vehicle_cap), "red", 12)
 		status = true
 	end
 
 	local number_of_objects <const> = math.ceil(network_status == "is_networked" and counts.object or counts.object * 0.5)
 	local object_cap <const> = math.ceil(settings.valuei["object limits"].value - (kek_entity.entity_manager.counts.object / 10))
 	if number_of_objects > object_cap then
-		essentials.msg(lang["Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again."]:format(number_of_objects - object_cap), "red", true, 12)
+		essentials.msg(lang["Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again."]:format(number_of_objects - object_cap), "red", 12)
 		status = true
 	end
 	return status
@@ -536,7 +534,7 @@ local function attach(...)
 		end
 	end
 	if not status then
-		essentials.msg(lang["Failed to attach an entity. Check debug console for more details."], "blue", true, 6)
+		essentials.msg(lang["Failed to attach an entity. Check debug console for more details."], "blue", 6)
 		print(string.format(([[
 
 			VALUES:
@@ -584,12 +582,12 @@ function menyoo.spawn_xml_vehicle(...)
 	local file_path <const>, pid <const>, force_local <const> = ...
 	do
 		if not utils.file_exists(file_path) then
-			essentials.msg(lang["This file doesn't exist."], "red", true, 6)
+			essentials.msg(lang["This file doesn't exist."], "red", 6)
 			return 0
 		end
 		local file <close> = io.open(file_path) -- file_exists can be true, but file failed to open due to unicode characters in file path.
 		if not file then
-			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", true, 12)
+			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", 12)
 			return 0
 		end
 	end
@@ -598,7 +596,7 @@ function menyoo.spawn_xml_vehicle(...)
 	local spooner <const> = info and info.SpoonerAttachments
 
 	if not info then
-		essentials.msg(lang["Unsupported file format."], "red", true)
+		essentials.msg(lang["Unsupported file format."], "red")
 		return 0
 	end
 	local entities <const> = {}
@@ -629,11 +627,11 @@ function menyoo.spawn_xml_vehicle(...)
 			entities[info.InitialHandle or "VEHICLE"] = parent_entity
 			apply_entity_modifications(parent_entity, info, entities, pid)
 		else
-			essentials.msg(lang["Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again."], "red", true, 14)
+			essentials.msg(lang["Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again."], "red", 14)
 			return 0
 		end
 	else
-		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", 6)
 		return 0
 	end
 	if spooner and (spooner.Attachment or spooner.Placement) then -- Does it have attachments?
@@ -789,12 +787,12 @@ function menyoo.spawn_xml_map(...)
 	local file_path <const>, teleport_to_map <const> = ...
 	do
 		if not utils.file_exists(file_path) then
-			essentials.msg(lang["This file doesn't exist."], "red", true, 6)
+			essentials.msg(lang["This file doesn't exist."], "red", 6)
 			return
 		end
 		local file <close> = io.open(file_path) -- file_exists can be true, but file failed to open due to unicode characters in file path.
 		if not file then
-			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", true, 12)
+			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", 12)
 			return
 		end
 	end
@@ -802,7 +800,7 @@ function menyoo.spawn_xml_map(...)
 	local spooner <const> = info.SpoonerPlacements or info.Map
 
 	if not info.Map and not spooner then
-		essentials.msg(lang["Unsupported file format."], "red", true)
+		essentials.msg(lang["Unsupported file format."], "red")
 		return
 	end
 
@@ -842,7 +840,7 @@ function menyoo.spawn_xml_map(...)
 			local pos <const> = info.Map.Objects.ReferenceCoords or t.Position
 			kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), v3(pos.X, pos.Y, pos.Z))
 		else
-			essentials.msg(lang["Failed to find reference coordinates."], "red", true, 6)
+			essentials.msg(lang["Failed to find reference coordinates."], "red", 6)
 		end
 	end
 
@@ -863,7 +861,7 @@ function menyoo.spawn_xml_map(...)
 			status = spawn_xml_map_type_3(info, entities, network_status)
 		else
 			status = "failed"
-			essentials.msg(lang["Unsupported file format."], "red", true)
+			essentials.msg(lang["Unsupported file format."], "red")
 		end
 	end)
 	entity.freeze_entity(player.get_player_ped(player.player_id()), false)
@@ -930,23 +928,16 @@ function menyoo.clone_vehicle(...)
 	end
 end
 
-local function get_ini_type(str)
-	if str:find("^%[VEHICLE%]") or (str:find("License Plate Text Index", 1, true) and str:find("Tire Smoke Green", 1, true)) then
-		return "type_1"
-	elseif str:find("T%d+\32?=") and str:find("M%d+\32?=") then
-		if str:find("[AllObjects]", 1, true) and str:find("ScorchedRender = ", 1, true) then
-			return "type_2a"
-		else
-			return "type_2b"
-		end
-	elseif str:find("[Vehicle]", 1, true) and str:find("model=", 1, true) and str:find("%d%d=[-%d]+") then
-		return "type_3"
-	elseif (str:find("NeonEnabled", 1, true) or str:find("Radio=", 1, true)) and (str:find("TOGGLE_", 1, true) or str:find("Froozen=", 1, true)) and str:find("[Vehicle]", 1, true) then
-		return "type_4"
-	elseif str:find("[0]", 1, true) and not str:find("%[%a+%d*%]") then
-		return "type_5"
-	elseif str:find("^%[Vehicle%][\n\r]+Model=[%x-]+[\n\r]+%[0%]") then
-		return "type_6"
+local function cast_string_element(string_element)
+	if string_element == "false" then
+		return false
+	else
+		return
+			string_element == "true"
+			or tonumber(string_element)
+			or tonumber(string_element, 16)
+			or tonumber("0x"..string_element) -- The former tonumber doesn't support hexadecimal with fractions.
+			or string_element
 	end
 end
 
@@ -955,10 +946,6 @@ local gsub_map <const> = {
 	["\9"] = "",
 	[","] = ".",
 	["_"] = ""
-}
-
-local gsub_map_2 <const> = {
-	["tb"] = ""
 }
 
 local memoized <const> = setmetatable({}, {__mode = "vk"}) -- Makes parsing 2x faster. Stays in memory temporarily. Objects will be resurrected, but is eventually collected. Big files will leave memory immediately.
@@ -1031,8 +1018,8 @@ local function parse_ini(...)
 				memoized.index = match(line, "^(.-)\32*=\32*") or ""
 				memoized.value = 
 					   tonumber((gsub(value, ".", gsub_map)))
-					or tonumber((gsub(value, "..", gsub_map_2)))
-					or essentials.cast_value(value, "ini") -- extra () to only fetch first return value of gsub.
+					or tonumber((gsub(value, "tb", "")))
+					or cast_string_element(value) -- extra () to only fetch first return value of gsub.
 			end
 			if memoized.index ~= "" then -- In case some format has no name for the value
 				current_table[memoized.index] = memoized.value
@@ -1064,7 +1051,7 @@ local function spawn_type_1_ini(info, network_status)
 	local entities <const> = {}
 	local hash <const> = info["Vehicle"] and info["Vehicle"]["Model"] or info.VEHICLE and info.VEHICLE.hash
 	if not streaming.is_model_a_vehicle(hash) then
-		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+		essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", 6)
 		return -1
 	end
 	local Vehicle
@@ -1323,7 +1310,7 @@ local function spawn_type_2_ini(...)
 					parent_entity = Entity
 					entities.parent_entity = Entity
 					if not streaming.is_model_a_vehicle(hash) then
-						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", 6)
 						kek_entity.clear_entities(entities)
 						return -1
 					end
@@ -1416,7 +1403,7 @@ local function spawn_type_3_ini(...)
 					essentials.assert(not entities.is_parent_vehicle, "Tried to set multiple parent vehicles.")
 					entities.parent_entity = Entity
 					if not streaming.is_model_a_vehicle(info.Model or info.model) then
-						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", 6)
 						kek_entity.clear_entities(entities)
 						return -1
 					end
@@ -1510,7 +1497,7 @@ local function spawn_type_4_ini(...)
 					essentials.assert(not entities.is_parent_vehicle, "Tried to set multiple parent vehicles.")
 					entities.parent_entity = Entity
 					if not streaming.is_model_a_vehicle(info.Model or info.model) then
-						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", 6)
 						kek_entity.clear_entities(entities)
 						return -1
 					end
@@ -1554,7 +1541,7 @@ local function spawn_type_5_ini(...)
 					entities.parent_entity = Entity
 					entities.parent_entity_info = info
 					if not streaming.is_model_a_vehicle(info.Model or info.model) then
-						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", true, 6)
+						essentials.msg(lang["Failed to spawn vehice. Driver vehicle was an invalid model hash."], "red", 6)
 						kek_entity.clear_entities(entities)
 						return -1
 					end
@@ -1572,23 +1559,43 @@ local function spawn_type_5_ini(...)
 	return entities.parent_entity
 end
 
+local function get_ini_type(str)
+	if str:find("^%[VEHICLE%]") or (str:find("License Plate Text Index", 1, true) and str:find("Tire Smoke Green", 1, true)) then
+		return "type_1"
+	elseif str:find("T%d+\32?=") and str:find("M%d+\32?=") then
+		if str:find("[AllObjects]", 1, true) and str:find("ScorchedRender = ", 1, true) then
+			return "type_2a"
+		else
+			return "type_2b"
+		end
+	elseif str:find("[Vehicle]", 1, true) and str:find("model=", 1, true) and str:find("%d%d=[-%d]+") then
+		return "type_3"
+	elseif (str:find("NeonEnabled", 1, true) or str:find("Radio=", 1, true)) and (str:find("TOGGLE_", 1, true) or str:find("Froozen=", 1, true)) and str:find("[Vehicle]", 1, true) then
+		return "type_4"
+	elseif str:find("[0]", 1, true) and not str:find("%[%a+%d*%]") then
+		return "type_5"
+	elseif str:find("^%[Vehicle%][\n\r]+Model=[%x-]+[\n\r]+%[0%]") then
+		return "type_6"
+	end
+end
+
 function menyoo.spawn_ini_vehicle(...)
 	local file_path <const> = ...
 	do
 		if not utils.file_exists(file_path) then
-			essentials.msg(lang["This file doesn't exist."], "red", true, 6)
+			essentials.msg(lang["This file doesn't exist."], "red", 6)
 			return 0
 		end
 		local file <close> = io.open(file_path) -- file_exists can be true, but file failed to open due to unicode characters in file path.
 		if not file then
-			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", true, 12)
+			essentials.msg(lang["Invalid file path. Check that all category folders and the file name doesn't contain unicode."], "red", 12)
 			return 0
 		end
 	end
 
 	local str <const> = essentials.get_file_string(file_path)
 	if str:find("?xml", 1, true) and str:find("Spooner", 1, true) then
-		essentials.msg(lang["Tried to spawn a xml vehicle with ini spawner."], "red", true, 6)
+		essentials.msg(lang["Tried to spawn a xml vehicle with ini spawner."], "red", 6)
 		return 0
 	end
 	local parent_entity
@@ -1619,18 +1626,19 @@ function menyoo.spawn_ini_vehicle(...)
 	elseif ini_type == "type_5" then
 		parent_entity = spawn_type_5_ini(ini_parse, network_status)
 	else
-		essentials.msg(lang["Unsupported file format."], "red", true)
+		essentials.msg(lang["Unsupported file format."], "red")
 		return 0
 	end
 	if parent_entity and entity.is_entity_a_vehicle(parent_entity) then
 		entity.set_entity_rotation(parent_entity, memoize.v3())
 		kek_entity.set_entity_heading(parent_entity, player.get_player_heading(player.player_id()))
 	elseif parent_entity ~= -1 then
-		essentials.msg(lang["Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again."], "red", true, 6)
+		essentials.msg(lang["Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again."], "red", 6)
 	end
 
 	send_spawn_counter_msg(counts)
 	send_is_networked_msg(counts, network_status)
 	return parent_entity or 0
 end
+
 return essentials.const_all(menyoo)
