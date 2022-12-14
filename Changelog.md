@@ -22,3 +22,5 @@
 ```
 
 I've started a patreon: patreon.com/keks_menu
+
+Beta 2: Fixed some errors.
