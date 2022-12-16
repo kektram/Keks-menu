@@ -146,7 +146,7 @@ Successfully loaded Kek's menu. §成功加载Kek菜单.
 Type in why you're adding this person. §请输入添加原因.
 Type in social club ID, also known as: rid / scid. §请输入RID.
 Type in ip. §请输入IP.
-Type in their name. §输入他的名称.
+Type in their name. §输入TA的名称.
 Type in why you're adding everyone. §请输入添加原因.
 Type in what player you wanna search for. rid / name / ip §请输入玩家信息(RID/名称/IP).
 Type in what to add. §请输入你想添加的内容.
@@ -207,7 +207,7 @@ Notification spam §通知轰炸
 Spawn vehicles maxed §生成满改载具
 Delete old vehicle §删除上一辆载具
 Spawn inside of spawned vehicle §生成时在车内
-Always f1 wheels §生成的车带F1车轮
+Always f1 wheels §生成的载具带F1车轮
 Always ask what vehicle §生成时询问要生成的载具
 Spawn air vehicle mid-air §飞机等载具在空中生成
 Spawn vehicles in godmode §生成无敌载具
@@ -221,7 +221,7 @@ Avoid objects §避开物体
 Unknown §未知
 Stop at traffic lights §等红绿灯
 Allow offroad when avoiding §避让时允许越野
-Allow going wrong way §允许驾驶到车流中
+Allow driving into traffic §允许驾驶到车流中
 Drive in reverse §逆向行驶
 Take shortest path §走最短的路
 Allow overtaking vehicles §允许超车
@@ -231,7 +231,7 @@ Avoid highways §避开高速公路
 Freeze session §冻结战局
 Ai driving §AI自动驾驶
 waypoint §标记点
-Follow player §尾随他
+Follow player §尾随TA
 Wander §到处闲逛
 Drive speed §驾驶速度
 Drive style §驾驶风格
@@ -404,7 +404,7 @@ Unblock §取消阻止
 Type in what to spam in chat §请输入文本内容
 Warning: missing "%" before any of these characters; §警告:在这些字符前面缺少 "%" .
 This is fine, just note that if you don't put the "%" before those characters, they mean something else. §这还好,但请注意,如果你不把 "%" 放在这些字符前,它们就意味着别的东西.
-Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §无效模式.很可能在某处缺少 “[” 、“]” 、“(” 、“)” 或 “%”.也可能是“[]”,有“[]”会导致错误
+Invalid pattern. Most likely missing a "[", "]", "(", ")" or a "%" somewhere. Could also be "[]", having "[]" causes an error. §无效模式.很可能在某处缺少 "[" 、"]" 、"(" 、")" 或 "%".也可能是"[]",有"[]"会导致错误
 Give §给予
 Attackers can't use planes. Cancelled. §攻击者不能使用飞机.已取消.
 Chance to reply §回复概率
@@ -434,7 +434,7 @@ When adding entries, it's important to know about patterns. A pattern could look
 Note that these characters: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ")" have special meanings. Google "Lua magic characters" to find out what they mean. §请注意,这些字符: "*", "+", "-", "^", "$", ".", "?", "[", "]", "(" & ") "有特殊的含义.\n使用谷歌或百度搜索: "Lua magic characters" 以找出它们的含义.
 For further assistance, join the Kek's menu discord. An invite comes with the script. It is in a file called "Discord invite.txt". §如需进一步帮助,请加入Kek's menu Discord服务器.\n脚本压缩包里有邀请链接.它在一个名为 "Discord invite.txt "的文本文件中.
 Get parachute §获得降落伞
-Anti stuck §防堵车
+Anti stuck §防卡住
 Entry already exists in this profile. §此配置文件中已存在该条目.
 Clear tasks §冻结
 Disable weapons §禁用武器
@@ -531,7 +531,7 @@ Save settings and reset lua state to load in debug mode. §现在去保存脚本
 All scripts will run slower and might lag. More errors will occur, especially if you run other scripts. §所有脚本都会运行得更慢,并且可能会出现掉帧.会出现更多的错误,特别是当你一起运行其他脚本的时候.
 Only use this mode if you intend to find bugs. §只有在你想找BUG的时候才使用此模式.
 Failed to find reference coordinates. §查找参考坐标失败
-The player must be an associate of an organization to use this. They can't be the ceo. §该玩家必须组织成员才能对他使用.他不能是CEO.
+The player must be an associate of an organization to use this. They can't be the ceo. §该玩家必须组织成员才能对TA使用.他不能是CEO或者首领.
 Also known as §是否遇见过
 Check rid in also known as §检查rid是否遇见过
 Check name in also known as §检查名称是否遇见过
@@ -579,7 +579,7 @@ Swap nearby vehicles to police §将附近的载具变成警车并为警察驾�
 Respawn vehicle after death §死亡后重新生成载具
 Failed to get control. If you're blocking "give control" in net event hooks, disable it. Even if it's disabled, it can fail to get control for a variety of reasons. §未能获得控制权.如果你在网络事件中启用了阻止"给予控制",请关闭它.即使它已经是关闭状态,也可能因为各种原因而无法获得控制权.
 Teleport to Perico island §传送到佩里科海岛
-"Log to file" must be toggled on in 2take1 notification settings in order for this to work. §必须在2take1的通知设置中打开“记录到文件”才能使其正常工作
+"Log to file" must be toggled on in 2take1 notification settings in order for this to work. §必须在2take1的通知设置中打开"记录到文件"才能使其正常工作
 No filter §不过滤
 Display 2take1 notifications §显示2take1通知
 Set vehicle in use §设置要使用的载具
@@ -610,11 +610,11 @@ Block passive mode §阻止被动模式
 Organization §组织
 Ptfx §粒子特效
 Ptfx clear distance §粒子特效清除距离
-Unlocked their car. §已解锁他的车
-Locked their car. §已锁住他的车
+Unlocked their car. §已解锁TA的车
+Locked their car. §已锁住TA的车
 Unlock / lock inside §解锁 / 锁 在里面
-Killed their engine. §已熄灭他的引擎
-Revived their engine. §已恢复他的引擎
+Killed their engine. §已熄灭TA的引擎
+Revived their engine. §已恢复TA的引擎
 Clear owned entities before spawning map §在生成地图前清除拥有的实体
 Notify when typing & stopped typing §当有人在打字时通知
 is typing. §正在打字
@@ -785,7 +785,7 @@ Type in the maximum number of characters per line. §输入每行的最大字符
 Type in number of notifications to display. §输入要显示的通知数量.
 24-hour clock §24 小时制
 12-hour clock §12 小时制
-They were spoofing as §他正在伪装为
+They were spoofing as §TA正在伪装为
 The green line is where it will align itself to if there's enough space. §如果有足够的屏幕空间,绿线就是对齐的位置.
 The text is auto aligned to never be off-screen. §文字是自动对齐的,永远不会超过屏幕.
 Attempt %s / %s to fetch %s. §尝试获取 %s / %s,%s.
@@ -850,8 +850,8 @@ Gravity is reverted back to default when the feature is toggled off. §关闭该
 Click on this feature to input a value. §点击此功能以输入一个数值.
 Detects illegal characters.\nDetects names under 6 and over 16 characters long. §检测非法字符.\n检测长度小于6个和大于16个字符的名称.
 When a blacklisted person joins, or when you join a session with a blacklisted person, action is taken. §当被列入黑名单的人加入时,或者当你加入与被列入黑名单的人的战局时,将采取行动.
-Marks people as modder if multiple stats are suspicious. Looks for kd, rank, money and modded weapons. Negative kd/rank is enough to mark people by itself. Other detections need 3 suspicious stats at once to mark someone. §如果多个统计数据可疑,则将玩家记为作弊者.查询kd,等级,金钱和非法武器.负kd/等级会直接标记.其他的检测需要3个同时触发才会标记.
-Very strict. You may not detect every godmodder, but the detections it get are reliable. Ignores people if they are in a vehicle. §非常严格. 你可能无法检测到每个无敌者,但它获得的检测结果是可靠的. 将忽略在载具里的玩家.
+Marks people as modder if multiple stats are suspicious. Looks for kd, rank, money and modded weapons. Negative kd/rank is enough to mark people by itself. Other detections need 3 suspicious stats at once to mark someone. §如果玩家多个统计数据可疑,则将玩家记为作弊者.\n查询玩家的kd,等级,金钱和非法武器.\n负kd/等级会直接标记.\n其他的检测需要其中3个同时触发才会标记.
+Very strict. You may not detect every godmodder, but the detections it get are reliable. Ignores people if they are in a vehicle. §非常严格. 你可能无法检测到每个无敌者,但它获得的检测结果是可靠的.\n将忽略在载具里的玩家.
 Kicks people if they are marked by a flag enabled below. §踢出玩家,如果他们被下面已启用的标志标记.
 The blacklist file is located at:\n%s §黑名单文件位于:\n%s
 The chat log file is located at:\n%s §聊天记录文件位于:\n%s
@@ -866,14 +866,14 @@ This might crash anyone within 900 meters of the target, and may crash more peop
 Spawns an invisible cage, then continuously spawns a new one after the target escaped the old one.\nThe old cage is deleted.\nThe current cage is deleted if you turn off the feature. §生成一个隐形笼子到玩家身上,当目标逃离后再重新生成,不断循环.\n旧的笼子将被删除.\n如果关闭该功能,当前笼子将被删除.
 Automatically kicks everyone in front of you in the host queue when you're not host. §当你不是主机时,自动将你队列前的任何人踢出主机队列.
 Kicks everyone in front of you in the host queue. §踢掉主机队列在你前面的所有人.
-Max number of people that "%s", can kick. If you set this to 5 and it requires to 6 people to get host, it won't trigger and will instead wait until there are 5 or less people. §可以踢的最大人数 "%s". 例如你将此设置为5,但需要踢掉6个人你才能成为主机,它将不会触发,而是等到只有5个或更少人的时候才生效.
-Prevents friends from being affected by features such as "%s", "%s" or "%s".\nAnything that ruins gameplay. §防止好友受到例如"%s", "%s" 或 "%s"功能的影响.\n任何破坏游戏玩法的东西.
-If they try to use a blacklisted weapon, it's removed from their inventory.\n\nThey will get the weapon back if they join a new session. §如果他们试图使用被列入黑名单的武器,将会临时从他们的武器库中删除.\n\n武器将会在他们重新急啊如一个战局后恢复.
+Max number of people that "%s", can kick. If you set this to 5 and it requires to 6 people to get host, it won't trigger and will instead wait until there are 5 or less people. §"%s" 可以踢的最大人数. 例如你将此设置为5,但需要踢掉6个人你才能成为主机,它将不会触发,而是等到只有5个或更少人的时候才生效.
+Prevents friends from being affected by features such as "%s", "%s" or "%s".\nAnything that ruins gameplay. §防止好友受到例如 "%s" , "%s" 或 "%s" 功能的影响.\n任何破坏游戏玩法的东西.
+If they try to use a blacklisted weapon, it's removed from their inventory.\n\nThey will get the weapon back if they join a new session. §如果他们试图使用被列入黑名单的武器,将会临时从他们的武器库中删除.\n\n武器将会在他们重新加入一个战局后恢复.
 This only works for players that are within 900 meters of you. §这只适用于距离你900米以内的玩家.
 Successfully loaded Kek's menu.\n\nIt's recommended that you enable hints.\n[Local tab]: Settings->Hints §已成功加载Kek菜单.\n\n建议你启用提示.\n[本地 标签]: 设置 -> 提示
 Profiles §配置文件
-Removes the Kek's menu parent.\n\nTurns:\nKek's menu >> Vehicle >> Menyoo vehicles\nINTO\nVehicle >> Menyoo vehicles\n\nSave the settings and reset lua state to see the change. §已移除Kek菜单的父项.\n\n已从:\nKek菜单 >> 载具选项 >> Menyoo载具\n变为\n载具选项 >> Menyoo载具\n\n保存设置并重置lua状态以查看更改.
-The auto updater will download beta versions of the script.\nBeware, you are likely to experience bugs in beta versions.\n\nPlease report any bugs you find to the bug-reports channel in the Kek's menu Discord. §自动更新器将会下载脚本的测试版本.\n注意: 你可能会在测试版本中遇到bug.\n\n请将你发现的任何bug报告到Kek菜单discord服务器中的"bug-reports"频道.
+Removes the Kek's menu parent.\n\nTurns:\nKek's menu >> Vehicle >> Menyoo vehicles\nINTO\nVehicle >> Menyoo vehicles\n\nSave the settings and reset lua state to see the change. §移除Kek菜单中的父项.\n\n从:\nKek菜单 >> 载具选项 >> Menyoo载具\n变为\n载具选项 >> Menyoo载具\n\n保存设置并重置lua状态以查看更改.
+The auto updater will download beta versions of the script.\nBeware, you are likely to experience bugs in beta versions.\n\nPlease report any bugs you find to the bug-reports channel in the Kek's menu Discord. §自动更新器将会下载脚本的测试版本.\n注意: 你可能会在测试版本中遇到bug.\n\n请将你发现的任何bug报告到Kek菜单discord服务器中的 "bug-reports" 频道.
 Save your Kek's menu settings here. §在此处保存你的Kek菜单的设置.
 Deletes objects/peds/vehicles the player shoots at.\nYou must be within 200 meters of the player for it to work.\n\nBe aware, most objects are local. That means deleting objects will work perfectly for you, but rarely for others. §删除该玩家射击的物体/NPC/载具.\n你必须在玩家的200米范围内它才能正常工作.\n\n请注意,大多数对象都是本地的.这意味着删除物体对你来说是完美的,但其他人并非如此.
 Turns yourself into an ai driver that follows the player. §将自己变成跟随玩家的AI司机.
@@ -888,4 +888,4 @@ Avoid player peds §避开玩家人物
 Wander randomly if pathing fails §如果寻路失败则随机闲逛
 Avoid restricted areas §避开禁区
 Use string pulling at junctions §在交界处使用拉绳
-Force join in road direction §强制加入道路方向
+Force join in road direction §强制加入道路正向
