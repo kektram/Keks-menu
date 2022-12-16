@@ -1,8 +1,12 @@
 # **Kek's menu 0.4.8.4**
 
 ## **Improvements**```md
+### Removed dismiss / ban / terminate ceo session
+> Patched by Rockstar
+
 ### Updated objects list
 ### Fixed xml parser failing to handle BOM files
+### Fixed "Send menyoo vehicle attacker" not searching through the folder hierarchy
 ### Fixed blacklist marking people for detections when joining a new session
 ### Fixed bad feedback when missing all library files
 ### Fixed ipv4 to decimal conversations
@@ -18,9 +22,6 @@
 ### Added hints to features that needs extra explanation
 ### Readded modded name detection
 ### Display model names above entities
-> Recommended that you increase max script entities to 1600. You will crash if you enter the Casino or other high object areas, without this change.
 ```
 
 I've started a patreon: patreon.com/keks_menu
-
-Beta 2: Fixed some errors.
