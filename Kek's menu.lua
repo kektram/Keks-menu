@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.4b2",
+	version = "0.4.8.4",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -56,7 +56,7 @@ for name, version in pairs({
 	["Kek's Enums"] = "1.0.6",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.6.4"
+	["Kek's Essentials"] = "1.6.5"
 }) do
 	local missing_file_msg <const> = "You're missing a file in kekMenuLibs. Please reinstall Kek's menu."
 	local wrong_version_msg <const> = "There's a library file which is the wrong version, please reinstall kek's menu."
@@ -147,7 +147,7 @@ for name, version in pairs({
 	["Kek's Vehicle mapper"] = "1.4.1", 
 	["Kek's Ped mapper"] = "1.2.8",
 	["Kek's Object mapper"] = "1.2.8", 
-	["Kek's Globals"] = "1.3.9",
+	["Kek's Globals"] = "1.4.0",
 	["Kek's Weapon mapper"] = "1.0.6",
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
@@ -1158,7 +1158,7 @@ for _, properties in pairs({
 	{
 		setting_name = "Always f1 wheels on #vehicle#", 
 		setting = false, 
-		feature_name = lang["Always spawn with f1 wheels"],
+		feature_name = lang["Always f1 wheels"],
 		hint = lang["This affects maxing vehicles and all networked vehicle spawns."]
 	},
 	{
@@ -1697,7 +1697,7 @@ settings.toggle["Revenge"] = essentials.add_feature(lang["Revenge"], "value_str"
 	while f.on do
 		system.yield(0)
 		if player.is_player_dead(player.player_id()) then
-			local pid <const> = network._network_get_player_killer_of_player(player.player_id()):__tointeger64() -- is -1 if not killed by player
+			local pid <const> = network.network_get_killer_of_player(player.player_id()) -- is -1 if not killed by player
 			if player.is_player_valid(pid) and essentials.is_not_friend(pid) and player.can_player_be_modder(pid) and player.player_id() ~= pid then
 				if essentials.is_str(f, "Kill") then
 					essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(player.player_id()))
@@ -3789,36 +3789,6 @@ essentials.add_feature(lang["Teleport to Perico island"], "action", u.session_tr
 	end
 	globals.send_script_event(bits, "Send to Perico island", {send_to_multiple_people = true}, globals.get_script_event_hash("Send to Perico island"), 0, 0)
 end)
-
-essentials.add_feature(lang["Organization"], "action_value_str", u.session_trolling.id, function(f)
-	local bits = 0
-	if essentials.is_str(f, "Ban") then
-		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
-				bits = bits | 1 << pid
-			end
-		end
-		globals.send_script_event(bits, "CEO ban", {send_to_multiple_people = true}, 1)
-	elseif essentials.is_str(f, "Dismiss") then
-		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
-				bits = bits | 1 << pid
-			end
-		end
-		globals.send_script_event(bits, "Dismiss or terminate from CEO", {send_to_multiple_people = true}, 1, 5)
-	elseif essentials.is_str(f, "Terminate") then
-		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
-				bits = bits | 1 << pid
-			end
-		end
-		globals.send_script_event(bits, "Dismiss or terminate from CEO", {send_to_multiple_people = true}, 1, 6)
-	end
-end):set_str_data({
-	lang["Ban"],
-	lang["Dismiss"],
-	lang["Terminate"]
-})
 
 essentials.add_feature(lang["Notification spam"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
@@ -7112,27 +7082,37 @@ essentials.add_player_feature(lang["Spastic car"], "toggle", u.player_trolling_f
 	end
 end)
 
-essentials.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player_trolling_features, function(f, pid)
-	local input <const>, status <const> = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], "", 128, 0)
-	if status == 2 then
-		return
-	end
-	for _, file_name in pairs(utils.get_all_files_in_directory(paths.menyoo_vehicles, "xml")) do
-		if file_name:lower():find(input:lower(), 1, true) then
-			local Vehicle <const> = menyoo.spawn_xml_vehicle(paths.menyoo_vehicles.."\\"..file_name, pid)
-			if entity.is_entity_a_vehicle(Vehicle) then
-				if streaming.is_model_a_plane(entity.get_entity_model_hash(Vehicle)) then
-					essentials.msg(lang["Attackers can't use planes. Cancelled."], "red")
-					kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
-					return
+do
+	local function handle_attacker_spawn(map, input, pid, parent_folder_path)
+		for folder_path, file_or_folder in pairs(map) do
+			if type(file_or_folder) == "table" then
+				if handle_attacker_spawn(file_or_folder, input, pid, folder_path) then
+					return true
 				end
-				kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(essentials.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0)
-				troll_entity.setup_peds_and_put_in_seats(kek_entity.get_empty_seats(Vehicle), ped_mapper.get_random_ped("all peds except animals"), Vehicle, pid)
+			elseif file_or_folder:lower():find(input:lower(), 1, true) then
+				local Vehicle <const> = menyoo.spawn_xml_vehicle(parent_folder_path.."\\"..file_or_folder, pid)
+				if entity.is_entity_a_vehicle(Vehicle) then
+					if streaming.is_model_a_plane(entity.get_entity_model_hash(Vehicle)) then
+						essentials.msg(lang["Attackers can't use planes. Cancelled."], "red")
+						kek_entity.hard_remove_entity_and_its_attachments(Vehicle)
+						return
+					end
+					kek_entity.teleport(Vehicle, location_mapper.get_most_accurate_position(essentials.get_player_coords(pid) + kek_entity.get_random_offset(-80, 80, 45, 75), true), 0)
+					troll_entity.setup_peds_and_put_in_seats(kek_entity.get_empty_seats(Vehicle), ped_mapper.get_random_ped("all peds except animals"), Vehicle, pid)
+				end
+				return true
 			end
-			return
 		end
 	end
-end)
+
+	essentials.add_player_feature(lang["Send Menyoo vehicle attacker"], "action", u.player_trolling_features, function(f, pid)
+		local input <const>, status <const> = keys_and_input.get_input(lang["Type in name of menyoo vehicle."], "", 128, 0)
+		if status == 2 then
+			return
+		end
+		handle_attacker_spawn(essentials.get_all_files_recursively(paths.menyoo_vehicles), input, pid, paths.menyoo_vehicles)
+	end)
+end
 
 essentials.add_player_feature(lang["Send"], "value_str", u.player_trolling_features, function(f, pid)
 	if player.player_count() == 0 then

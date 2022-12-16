@@ -716,7 +716,6 @@ local weapon_attachments <const> = essentials.const_all({
 		{"Scope", "COMPONENT_AT_SCOPE_SMALL", 0xAA2C45B4}
 	}
 })
-weapon_mapper.TEMP = weapon_attachments
 
 local melee_weapons <const> = essentials.const_all({
 	{"Pipe Wrench", 419712736},

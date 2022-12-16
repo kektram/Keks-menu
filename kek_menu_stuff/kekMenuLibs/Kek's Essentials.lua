@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.6.4"}
+local essentials <const> = {version = "1.6.5"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -51,7 +51,7 @@ function essentials.assert(bool, msg, ...) -- Does the same as regular assert, b
 				essentials.post_to_keks_menu_site, 
 				"https://keks-menu-stats.kektram.com?FROM_KEKS=true&error_msg="
 				..web.urlencode("Version: "..__kek_menu.version
-				..(network._get_online_version and " gta "..tostring(network._get_online_version()) or " gta: native lib not loaded yet") 
+				..(network.get_online_version and " gta "..tostring(network.get_online_version()) or " gta: native lib not loaded yet") 
 				-- Not calling the native directly because I don't want to risk forgetting to update the native id.
 				.."\n"..traceback))
 		end
@@ -646,6 +646,22 @@ do
 		end
 
 		return obtained_folders
+	end
+
+	function essentials.get_all_files_recursively_without_map(path, files)
+		files = files or {}
+		
+		local folders <const> = utils.get_all_sub_directories_in_directory(path)
+		for i = 1, #folders do
+			essentials.get_all_files_recursively_without_map(path.."\\"..folders[i], files)
+		end
+		
+		for i = 1, #files_extensions do
+			local folder_files <const> = utils.get_all_files_in_directory(path, files_extensions[i])
+			table.move(folder_files, 1, #folder_files, #files + 1, files)
+		end
+
+		return files
 	end
 end
 

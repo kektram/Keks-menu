@@ -91,7 +91,7 @@ local function get_properties(...)
 	elseif entity.is_entity_a_vehicle(Entity) then
 		local Cust1_R <const>, Cust1_G <const>, Cust1_B <const> = vehicle.get_vehicle_custom_primary_colour__native(Entity)
 		local Cust2_R <const>, Cust2_G <const>, Cust2_B <const> = vehicle.get_vehicle_custom_secondary_colour__native(Entity)
-		local neon_r <const>, neon_g <const>, neon_b <const> = vehicle._get_vehicle_neon_lights_colour(Entity)
+		local neon_r <const>, neon_g <const>, neon_b <const> = vehicle.get_vehicle_neon_colour(Entity)
 		local smoke_r <const>, smoke_g <const>, smoke_b <const> = vehicle.get_vehicle_tyre_smoke_color(Entity)
 		info.VehicleProperties = {
 			Colours = {

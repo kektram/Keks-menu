@@ -518,7 +518,7 @@ end
 
 function kek_entity.get_bone_entity_is_attached_to(child, parent) -- ONLY WORKS IF ENTITY IS ATTACHED WITH NO OFFSET.
 	local child_pos <const> = entity.get_entity_coords(child)
-	for i = 0, entity._get_entity_bone_count(parent) - 1 do
+	for i = 0, entity.get_entity_bone_count(parent) - 1 do
 		if entity.get_world_position_of_entity_bone(parent, i) == child_pos then
 			return i
 		end

@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local globals <const> = {version = "1.3.9"}
+local globals <const> = {version = "1.4.0"}
 
 local essentials <const> = require("Kek's Essentials")
 local settings <const> = require("Kek's Settings")
@@ -123,18 +123,6 @@ globals.player_global_indices = essentials.const({
 	is_player_typing = 				{offset = 1653913 + 2 + 241 + 136 --[[+ ((16 // 32) * 33)--]], pid_multiplier = 1} -- < this > & 1 << 16 ~= 0 if they're typing.
 })
 
---[[ Vaulted script events I won't actively update
-** FREEMODE used was obtained 27-04-2022 [GTA V build 2628 (GTA Online 1.60)]
-	995853474, -- Collectibles [10 collectible unlocks, 7.5k cash each]
-		f_1 == player.player_id(), 
-		f_2 == 1, -- What type of collectible to give
-		f_3 == 0-9, -- What stat hash to get from index 0 to 9; stat ids: 30241 - 30250
-		f_4 == 1, -- bool 
-		f_5 == 0, -- bool
-		f_6 == 1 -- bool
-
---]]
-
 local script_event_hashes <const> = essentials.const({
 	["Force player into vehicle"] = 		879177392, -- Par 4 - 35 are network hashes. par 3 is how many of those hashes to check. par 2 & 36 are bools.
 
@@ -156,10 +144,6 @@ local script_event_hashes <const> = essentials.const({
 
 	["Apartment invite"] = 					-168599209,
 
-	["CEO ban"] = 							316066012,
-
-	["Dismiss or terminate from CEO"] = 	-1831959078,
-
 	["Transaction error"] = 				-492741651,
 
 	["CEO money"] = 						245065909,
@@ -174,18 +158,6 @@ local script_event_hashes <const> = essentials.const({
 globals.GENERIC_ARG_HASHES = essentials.const({ -- Includes all cases (switch statement) with something interesting
 	clear_wanted = 615048532,
 	move_camera = gameplay.get_hash_key("pats_horse_right") -- Removes godmode for a frame
-	--[[ OUTDATED. FROM: [GTA V build 2628 (GTA Online 1.60)] 27-04-2022
-		unk1 = -1107912593,
-		unk2 = 441439430,
-		cop_timer = -2117950499,
-		crook_timer = -1428782697,
-		tunable_smt = 537560473,
-		hud_removeitem = -480053738,
-		hud_removeitem_2 = -873921503,
-		smt_todo_with_player_team = 156817356,
-		looks_like_timer = 809872998,
-		camera = 869796886, 869796886 == -1762807505 [gta 1.61, move_camera]
-	--]]
 }) -- THESE NEEDS TO GET UPDATED ON MAJOR GTA UPDATES
 
 globals.NOTIFICATION_HASHES = essentials.const({
