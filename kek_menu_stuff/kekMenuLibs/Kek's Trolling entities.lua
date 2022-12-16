@@ -285,9 +285,8 @@ function troll_entity.send_attack_chopper(...)
 end
 
 local drive_style_kek_chopper <const> = drive_style_mapper.get_drive_style_from_list({
-	["Allow going wrong way"] = true,
-	["Take shortest path"] = true,
-	["Ignore all pathing"] = true
+	"Take shortest path",
+	"Ignore all pathing"
 })
 
 local combat_attributes_kek_pilot <const> = essentials.const(		{
@@ -595,7 +594,7 @@ function troll_entity.send_clown_van(...)
 				end
 			end
 			kek_entity.clear_entities({clown}, 3000)
-		end, kek_entity.spawn_networked_ped(gameplay.get_hash_key(ped_mapper.LIST_OF_SPECIAL_PEDS[math.random(1, #ped_mapper.LIST_OF_SPECIAL_PEDS)]), function()
+		end, kek_entity.spawn_networked_ped(gameplay.get_hash_key(ped_mapper.special_peds[math.random(1, #ped_mapper.special_peds)]), function()
 			return entity.get_entity_coords(essentials.get_ped_closest_to_your_pov()) + memoize.v3(0, 0, 20), 0
 		end))
 	end

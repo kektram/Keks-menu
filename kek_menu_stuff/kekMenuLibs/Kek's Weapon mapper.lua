@@ -1,8 +1,15 @@
 -- Copyright © 2020-2022 Kektram
 
 local essentials <const> = require("Kek's Essentials")
-local weapon_mapper <const> = {version = "1.0.5"}
+local weapon_mapper <const> = {version = "1.0.6"}
 local weapon_attachments <const> = essentials.const_all({
+	[gameplay.get_hash_key("weapon_pistolxm3")] = {
+		{"Default Clip", "COMPONENT_PISTOLXM3_CLIP_01", gameplay.get_hash_key("COMPONENT_PISTOLXM3_CLIP_01")},
+		{"Suppressor Muzzle Brake", "COMPONENT_PISTOLXM3_SUPP", gameplay.get_hash_key("COMPONENT_PISTOLXM3_SUPP")}
+	},
+	[gameplay.get_hash_key("weapon_candycane")] = {},
+	[gameplay.get_hash_key("weapon_railgunxm3")] = {},
+	[gameplay.get_hash_key("weapon_acidpackage")] = {},
 	[gameplay.get_hash_key("weapon_stungun")] = {},
 	[gameplay.get_hash_key("weapon_flaregun")] = {},
 	[gameplay.get_hash_key("weapon_gadgetpistol")] = {},

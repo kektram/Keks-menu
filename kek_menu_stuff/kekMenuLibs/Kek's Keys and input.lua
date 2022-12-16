@@ -143,7 +143,7 @@ function keys_and_input.get_input(...)
 	until input_status ~= 1
 	keys_and_input.do_vk(10000, Keys)
 	if not text or input_status == 2 then
-		essentials.msg(lang["Cancelled."], "blue", true)
+		essentials.msg(lang["Cancelled."], "blue")
 		return "", 2
 	else
 		return text, 0
@@ -173,7 +173,7 @@ do
 			hash = get_info[Type].hash(input:lower())
 			if input ~= "?" and not streaming.is_model_valid(hash) then
 				default = input
-				essentials.msg(lang["Invalid model name."], "red", true, 6)
+				essentials.msg(lang["Invalid model name."], "red", 6)
 			end
 		until status == 2 or streaming.is_model_valid(hash) or input == "?"
 		if status == 2 then -- Getting model from hash raises error if invalid hash.

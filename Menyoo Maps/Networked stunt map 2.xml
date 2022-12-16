@@ -865,6 +865,40 @@
 		<Attachment isAttached="false" />
 	</Placement>
 	<Placement>
+		<ModelHash>0x76138c75</ModelHash>
+		<Type>3</Type>
+		<Dynamic>false</Dynamic>
+		<FrozenPos>true</FrozenPos>
+		<HashName>stt_prop_stunt_ramp</HashName>
+		<InitialHandle>204546</InitialHandle>
+		<ObjectProperties>
+			<TextureVariation>0</TextureVariation>
+		</ObjectProperties>
+		<OpacityLevel>255</OpacityLevel>
+		<LodDistance>16960</LodDistance>
+		<IsVisible>true</IsVisible>
+		<MaxHealth>1000</MaxHealth>
+		<Health>1000</Health>
+		<HasGravity>true</HasGravity>
+		<IsOnFire>false</IsOnFire>
+		<IsInvincible>false</IsInvincible>
+		<IsBulletProof>false</IsBulletProof>
+		<IsCollisionProof>false</IsCollisionProof>
+		<IsExplosionProof>false</IsExplosionProof>
+		<IsFireProof>false</IsFireProof>
+		<IsMeleeProof>false</IsMeleeProof>
+		<IsOnlyDamagedByPlayer>false</IsOnlyDamagedByPlayer>
+		<PositionRotation>
+			<X>-1362.935</X>
+			<Y>-1632.331</Y>
+			<Z>-174.8356</Z>
+			<Pitch>0.0000</Pitch>
+			<Roll>-9.9999</Roll>
+			<Yaw>-49.6006</Yaw>
+		</PositionRotation>
+		<Attachment isAttached="false" />
+	</Placement>
+	<Placement>
 		<ModelHash>0x8a85af58</ModelHash>
 		<Type>3</Type>
 		<Dynamic>false</Dynamic>
@@ -1231,7 +1265,7 @@
 		<PositionRotation>
 			<X>-1562.32581</X>
 			<Y>-1684.63599</Y>
-			<Z>224.483414</Z>
+			<Z>224</Z>
 			<Pitch>16.9999599</Pitch>
 			<Roll>1.9999907</Roll>
 			<Yaw>126.162743</Yaw>

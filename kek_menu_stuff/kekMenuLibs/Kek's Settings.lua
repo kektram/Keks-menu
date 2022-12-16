@@ -83,9 +83,11 @@ function settings:initialize(...)
 		end
 		self.in_use[name] = setting
 	end
+
 	local file = io.open(file_path, "a+")
+	assert(io.type(file) == "file", "Failed to open settings file.")
 	file:setvbuf("full")
-	assert(io.type(file) == "file", debug.traceback("Failed to open settings file.", 2))
+
 	for setting_name, default in pairs(self.default) do
 		if self.in_use[setting_name] == nil then
 			self.in_use[setting_name] = default
