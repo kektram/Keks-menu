@@ -777,7 +777,7 @@ Exclude friends from all disruptive features §ﺔﺑﺮﺨﻤﻟﺍ ﺕﺍﺭ�
 Language settings §ﺔﻐﻠﻟﺍ ﺕﺍﺩﺍﺪﻋﺍ
 Allow offroad when avoiding §ﻱﺩﺎﻔﺘﻟﺍ ﺪﻨﻋ ﻖﻳﺮﻄﻟﺍ ﺝﺭﺎﺧ ﺓﺩﺎﻴﻘﻟﺎﺑ ﺢﻤﺳﺍ
 Allow driving into traffic §ﺭﻭﺮﻤﻟﺍ ﺔﻛﺮﺣ ﻞﺧﺍﺩ ﺓﺩﺎﻴﻘﻟﺎﺑ ﺢﻤﺳﺍ
-W = forward\nA = leftward\nS = backward\nD = rightward\nlshift = downward\nspace = upward §W = ﻡﺍﺪﻗ\nA = ﺭﺎﺴﻳ\nS = ﺍﺭﻭ\nD = ﻦﻴﻤﻳ\nlshift = ﺖﺤﺗ\nspace = ﻕﻮﻓ
-Is affected by the filter.\nIf say you filtered it to "Krieger", it will impact kriegers only. §.ﺮﺘﻠﻔﻟﺍ ﻦﻣ ﺮﺛﺎﺘﻳ\n..ﻂﻘﻓ kriegers ﻰﻠﻋ ﺮﺛﺆﻳ ﺡﺍﺭ ,"Krieger"ﻝ ﺮﺘﻠﻓ ﺖﻳﻮﺳ ﺍﺫﺍ
+W = forward\nA = leftward\nS = backward\nD = rightward\nlshift = downward\nspace = upward §W = ﻡﺍﺪﻗ\nA = ﺭﺎﺴﻳ\nS = ﺍﺭﻭ\nD = ﻦﻴﻤﻳ\nleft shift = ﺖﺤﺗ\nspace = ﻕﻮﻓ
+Is affected by the filter.\nIf say you filtered it to "Krieger", it will impact kriegers only. §.ﺮﺘﻠﻔﻟﺍ ﻦﻣ ﺮﺛﺎﺘﻳ\n.ﻂﻘﻓ kriegers ﻰﻠﻋ ﺮﺛﺆﻳ ﺡﺍﺭ ,"Krieger"ﻝ ﺮﺘﻠﻓ ﺖﻳﻮﺳ ﺍﺫﺍ
 Set wanted level §ﻡﻮﺠﻨﻟﺍ ﺩﺪﻋ ﻊﺿﻭ
 Owned entities are objects, peds and vehicles you've spawned / gotten control of via Kek's menu. §ﻲﻫ ﺔﻜﻠﺘﻤﻤﻟﺍ ﺕﺎﻨﺋﺎﻜﻟﺍ\nﺕﺎﺒﻛﺮﻣ ﻭ ﺯﺪﻴﺑﻭ objects\n.Kek's menu ﺪﺒﻋ ﺎﻬﺘﻜﻠﺘﻣﺍ / ﻥﻭﺎﺒﺳ ﺎﻬﻟ ﺖﻳﻮﺳ
