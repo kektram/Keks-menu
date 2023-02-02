@@ -17,16 +17,11 @@ Protections §ﺔﻳﺎﻤﺤﻟﺍ
 Modder logging settings §ﺯﺭﺩﻮﻤﻟﺍ ﻞﻴﺠﺴﺗ ﺕﺍﺩﺍﺪﻋﺍ
 Weapons §ﺔﺤﻠﺳﻻﺍ
 Kek's utilities §Kek's ﺕﺍﻭﺍﺩﺍ
-Script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺳ
-Language configuration §ﺔﻐﻠﻟﺍ ﺕﺍﺩﺍﺪﻋﺍ
 Trolling §ﻖﻨﻟﻭﺮﺗ
 Malicious §ﻩﺭﺎﺿ ﺕﺍﺭﺎﻴﺧ
 Scripts §ﺕﺎﺘﺑﺮﻜﺳ
 Set §ﻊﺿﻭ
 as default language. §ﺔﻴﺳﺎﺳﻻﺍ ﺔﻐﻠﻟﺍ ﻰﻟﺍ
-Empty script loader file §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻒﻠﻣ ﻍﺍﺮﻓﺍ
-Add script to auto loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻰﻠﻟﺍ ﺖﺑﺮﻜﺴﻟﺍ ﺔﻓﺎﺿﺍ
-Remove script from auto loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻦﻣ ﺖﺑﺮﻜﺴﻟﺍ ﺔﻟﺍﺯﺍ
 Entity crash protection §ﺕﺎﻨﺋﺎﻜﻟﺍ ﻦﻣ ﺵﺍﺮﻜﻟﺍ ﺔﻳﺎﻤﺣ
 Blacklist §ﺖﺴﻟ ﻙﻼﺒﻟﺍ
 Kick any vote kickers §ﺩﺮﻄﻟﺍ ﻰﻠﻋ ﻦﻴﺗﻮﺼﻤﻟﺍ ﻱﺍ ﺩﺮﻃ
@@ -53,24 +48,18 @@ Never wanted §ﺔﻃﺮﺷ ﻥﻭﺪﺑ
 off the radar §ﺏﺎﻤﻟﺍ ﻦﻣ ﺀﺎﻔﺧﺍ
 Reapply bounty §ﻲﺘﻧﻭﺎﺒﻟﺍ ﻊﺿﻭ ﺓﺩﺎﻋﺍ
 Apartment invites §ﻖﻘﺸﻠﻟ ﺕﺍﻮﻋﺩ
-Ban §ﻥﺎﺑ
-Dismiss §ﺩﺮﻃ
-Terminate §ﺀﺎﻬﻧﺍ
 Transaction error §ﻦﺸﻛﺎﺴﻧﺍﺮﺘﻟﺍ ﻂﻠﻏ
 Custom chat judge §ﺺﺼﺨﻤﻟﺍ ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ
-Spam speed, click to type §ﺔﺑﺎﺘﻜﻠﻟ ﻂﻐﺿﺍ ,ﻡﺎﺒﺴﻟﺍ ﺔﻋﺮﺳ
 Text to spam, type it in §ﺐﺘﻜﺗ ﻥﺎﺸﻋ ﻂﻐﺿﺍ ,ﻡﺎﺒﺴﻟﺍ ﻡﻼﻛ
 Grab text from clipboard(what u copied) §(ﻪﺘﺨﺴﻧ ﻲﻠﻟﺍ) ﺩﺭﻮﺑ ﺐﻴﻠﻜﻟﺍ ﻦﻣ ﻡﻼﻜﻟﺍ ﺬﺧﺍ
 Grab text from clipboard and send each line §ﺮﻄﺳ ﻞﻛ ﻝﺎﺳﺭﺍ ﻭ ﺩﺭﻮﺑ ﺐﻴﻠﻜﻟﺍ ﻦﻣ ﻡﻼﻜﻟﺍ ﺬﺧﺍ
 Grab text from file §ﻒﻠﻣ ﻦﻣ ﻡﻼﻜﻟﺍ ﺬﺧﺍ
 Random text from file §ﻒﻠﻣ ﻦﻣ ﻲﺋﺍﻮﺸﻋ ﻡﻼﻛ
-Echo delay, click to type §ﻯﺪﺼﻟﺍ ﺮﻴﺧﺄﺗ
 Echo chat §ﺕﺎﺸﻟﺍ ﻯﺪﺻ
 Chat bot §ﺕﻮﺑ ﺕﺎﺸﻟﺍ
 Max car §ﺲﻛﺎﻤﻟﺍ ﻰﻟﺍ ﺓﺭﺎﻴﺴﻟﺍ ﻞﻳﺪﻌﺗ
 Change backplate text §ﺔﺣﻮﻠﻟﺍ ﻢﻗﺭ ﺮﻴﻴﻐﺗ
 Spawn vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ
-Vehicle fly speed, click to type §ﺔﺒﻛﺮﻤﻟﺎﺑ ﻥﺍﺮﻴﻃ
 Vehicle fly §ﺔﺒﻛﺮﻤﻟﺎﺑ ﻥﺍﺮﻴﻃ
 Object gun §ﺲﺘﻜﻴﺠﺑﻭﻻﺍ ﺡﻼﺳ
 Airstrike gun §(ﻚﻳﺍﺮﺘﺳ ﺮﻳﺍ) ﺔﻳﻮﺠﻟﺍ ﺔﺑﺮﻀﻟﺍ ﺡﻼﺳ
@@ -97,15 +86,9 @@ was set as the default language. §ﺔﻴﺴﻴﺋﺮﻟﺍ ﺔﻐﻠﻟﺍ ﺭ�
 Current language file is outdated, switched to english. §.ﺔﻳﺰﻴﻠﻘﻧﻻﺍ ﻰﻟﺍ ﻞﻳﻮﺤﺗ ,ﺔﻤﻳﺪﻗ ﺔﻴﻟﺎﺤﻟﺍ ﺔﻐﻠﻟﺍ
 You're missing a file in kekMenuLibs. Please reinstall Kek's menu. §.Kek's Menu ﺖﻴﺒﺜﺗ ﺓﺩﺎﻋﺍ ﺀﺎﺟﺮﻟﺍ .kekMenuLibs ﻲﻓ ﺩﻮﻘﻔﻣ ﻒﻠﻣ
 There's a library file which is the wrong version, please reinstall kek's menu. §.Kek's Menu ﺖﻴﺒﺜﺗ ﺓﺩﺎﻋﺍ ﺀﺎﺟﺮﻟﺍ ,ﺢﻴﺤﺻ ﺮﻴﻏ ﺭﺍﺪﺻﺍ ﻊﻣ ﻒﻠﻣ ﻙﺎﻨﻫ
-Turned off script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﺀﺎﻔﻃﺍ ﻢﺗ
-Turned on script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻞﻴﻌﻔﺗ ﻢﺗ
-Emptied script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻍﺍﺮﻓﺍ ﻢﺗ
 Added §ﺔﻓﺎﺿﻻﺍ ﺖﻤﺗ
-to script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻰﻟﺍ
-is already in the script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻲﻓ ﺩﻮﺟﻮﻣ
 Couldn't find file §ﻒﻠﻤﻟﺍ ﺪﺟﻮﻳ ﻢﻟ
 Removed §ﺔﻟﺍﺯﻻﺍ ﺖﻤﺗ
-from script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻦﻣ
 Chat judge:\nRamming §:ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\nﻡﺪﺻ ﻱﺭﺎﺟ
 with explosive tankers §ﺓﺮﺠﻔﺘﻣ ﺕﺎﻧﺍﺰﺧ ﻊﻣ
 Chat judge:\nKicking §ﺕﺎﺸﻟﺍ ﻲﺿﺎﻗ\n:ﺩﺮﻃ ﻱﺭﺎﺟ
@@ -121,7 +104,6 @@ Changed the reason this person was added to the blacklist. §.ﺖﺴﻟ ﻙﻼ�
 Added to blacklist. §.ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻰﻟﺍ ﺔﻓﺎﺿﻻﺍ ﺖﻤﺗ
 Removed rid. §.RIDﻝﺍ ﺔﻟﺍﺯﺍ ﺖﻤﺗ
 Couldn't find player. §.ﺐﻋﻼﻟﺍ ﺩﺎﺠﻳﺍ ﻦﻣ ﻦﻜﻤﺘﻳ ﻢﻟ
-Blacklist file doesn't exist. §.ﺩﻮﺟﻮﻣ ﺮﻴﻏ ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻒﻠﻣ
 You can't add yourself to the blacklist... §...ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻰﻟﺍ ﻚﺴﻔﻧ ﺔﻓﺎﺿﺍ ﻚﻨﻜﻤﻳ ﻻ
 Kicking §ﺩﺮﻄﻟﺍ ﻱﺭﺎﺟ
 , flags:\n §, ﺕﺎﻣﻼﻋ:\n
@@ -153,8 +135,6 @@ Successfully loaded §ﺡﺎﺠﻨﺑ ﻞﻴﻤﺤﺘﻟﺍ ﻢﺗ
 Saved §ﻆﻔﺤﻟﺍ ﻢﺗ
 Saved profile name. §.ﻢﺳﻻﺍ ﻆﻔﺣ ﻢﺗ
 Successfully loaded Kek's menu. §.ﺡﺎﺠﻨﺑ Kek's menuﻞﻴﻐﺸﺗ ﻢﺗ
-Type in the name of the lua script to add. §.ﺔﻔﻴﻀﺗ ﻲﺒﺗ ﻲﻠﻟﺍ lua ﻝﺍ ﺐﺘﻛﺍ
-Type in the lua script you want to remove. §.ﺔﻓﺬﺤﺗ ﻲﺒﺗ ﻲﻠﻟﺍ lua ﻝﺍ ﺐﺘﻛﺍ
 Type in why you're adding this person. §.ﺺﺨﺸﻟﺍ ﺍﺬﻫ ﺔﻓﺎﺿﺍ ﺐﺒﺳ ﺐﺘﻛﺍ
 Type in social club ID, also known as: rid / scid. §.SCID ﻭﺍ RID ﺐﺘﻛﺍ
 Type in ip. §IP ﺐﺘﻛﺍ
@@ -186,7 +166,6 @@ Lag session §ﻦﺸﻴﺴﻠﻟ ﻕﻻ
 Taze player §ﺐﻋﻼﻟﺍ ﺏﺮﻬﻛ
 Perma-cage §ﻢﺋﺍﺩ ﺺﻔﻗ
 Finished crash. §.ﺵﺍﺮﻜﻟﺍ ﺺﻠﺧ
-Exclude friends from attacks §ﺕﺎﻤﺠﻬﻟﺍ ﻦﻣ ﺀﺎﻗﺪﺻﻻﺍ ﻰﻨﺜﺘﺳﺍ
 Self options §ﻒﻠﻴﺴﻟﺍ ﺕﺍﺭﺎﻴﺧ
 Max all weapons §ﺔﺤﻠﺳﻻﺍ ﻊﻴﻤﺟ ﺲﻛﺎﻣ
 Randomize all weapons §ﺔﺤﻠﺳﻻﺍ ﻊﻴﻤﺠﻟ ﺔﻴﺋﺍﻮﺸﻋ ﺕﻼﻳﺪﻌﺗ
@@ -194,9 +173,9 @@ Give all weapons §ﺔﺤﻠﺳﻻﺍ ﻊﻴﻤﺟ ﺀﺎﻄﻋﺍ
 Random weapon camo §ﻲﺋﺍﻮﺸﻋ ﺡﻼﺳ ﻥﻮﻟ
 Has a lot of money. §ﺮﻴﺜﻛ ﻝﺎﻣ ﺔﻳﺪﻟ
 Has Negative lvl §ﺐﻟﺎﺳ ﻚﻧﺍﺭ ﺔﻳﺪﻟ
-Has Negative k/d §ﺐﻟﺎﺳ ﺩ\ﻙ ﺔﻳﺪﻟ
+Has Negative k/d §ﺐﻟﺎﺳ ﺩ/ﻙ ﺔﻳﺪﻟ
 Has a high rank. §ﻲﻟﺎﻋ ﻚﻧﺍﺭ ﺔﻳﺪﻟ
-Has a high k/d. §ﻲﻟﺎﻋ ﺩ\ﻙ ﺔﻳﺪﻟ
+Has a high k/d. §ﻲﻟﺎﻋ ﺩ/ﻙ ﺔﻳﺪﻟ
 Block areas §ﻖﻃﺎﻨﻣ ﺰﺠﺣ
 Los santos customs §Los Santos Customs
 Ammu-Nations §ﺔﺤﻠﺳﻻﺍ ﺕﻼﺤﻣ ﻊﻴﻤﺟ
@@ -220,7 +199,6 @@ Notification spam §ﺓﺮﻴﺜﻛ ﺕﺍﺭﺎﻌﺷﺍ ﻝﺎﺳﺭﺍ
 Spawn vehicles maxed §ﺲﻛﺎﻣ ﺔﻟﺪﻌﻣ ﺕﺎﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ
 Delete old vehicle §ﺔﻤﻳﺪﻘﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﻑﺬﺣﺍ
 Spawn inside of spawned vehicle §ﺔﺒﻛﺮﻤﻟﺍ ﻞﺧﺍﺩ ﻥﻭﺎﺒﺳ
-Always spawn with f1 wheels §F1 ﺕﺍﺮﻔﻛﺎﺑ ﻥﻭﺎﺒﺳ ﺎﻣﺍﺩ
 Always ask what vehicle §ﺔﺒﻛﺮﻣ ﻱﺍ ﻝﺎﺳﺍ ﺎﻣﺍﺩ
 Spawn air vehicle mid-air §ﺀﺎﻤﺴﻟﺍ ﻲﻓ ﺕﺍﺮﺋﺎﻄﻟﺍ ﻥﻭﺎﺒﺳ
 Spawn vehicles in godmode §ﺩﻮﻣ ﺩﻮﻘﻟﺍ ﻊﺿﻭ ﻲﻓ ﺕﺎﺒﻛﺮﻤﻟﺍ ﻥﻭﺎﺒﺳ
@@ -232,8 +210,6 @@ Avoid peds §ﺯﺪﻴﺒﻟﺍ ﺐﻨﺠﺗ
 Avoid objects §ﺲﺘﻜﻴﺠﺑﻭﻻﺍ ﺐﻨﺠﺗ
 Unknown §ﻑﻭﺮﻌﻣ ﺮﻴﻏ
 Stop at traffic lights §ﻉﺭﺎﺸﻟﺍ ﺕﺍﺭﺎﺷﺍ ﺪﻨﻋ ﻒﻗﻮﺗ
-Use blinkers §ﺕﺍﺭﺎﺷﻻﺍ ﻡﺍﺪﺨﺘﺳﺍ
-Allow going wrong way §ﺔﺴﻛﺎﻌﻤﻟﺍ ﺡﺎﻤﺳ
 Drive in reverse §ﺱﻮﻳﺮﻟﺎﺑ ﻕﻮﺳ
 Take shortest path §ﻖﻳﺮﻃ ﺮﺼﻗﺍ ﺬﺧ
 Allow overtaking vehicles §ﺕﺎﺒﻛﺮﻤﻟﺍ ﺯﻭﺎﺠﺘﺑ ﺡﺎﻤﺴﻟﺍ
@@ -340,8 +316,6 @@ Friends can't be targeted §ﻢﻬﻓﺍﺪﻬﺘﺳﺍ ﻦﻜﻤﻳﻻ ﺀﺎ�
 You can't be targeted §ﻚﻓﺍﺪﻬﺘﺳﺍ ﻦﻜﻤﻳﻻ
 Clear entities §ﺕﺎﻨﺋﺎﻜﻟﺍ ﻑﺬﺣ
 Auto tp to waypoint §ﺖﻨﻳﻮﺑ ﻱﺍﻮﻟﺍ ﻰﻟﺍ ﻲﺋﺎﻘﻠﺗ ﺕﺭﻮﺒﻴﻠﻴﺗ
-Turn on script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﻞﻴﻌﻔﺗ
-Turn off script loader §ﺭﺩﻮﻟ ﺖﺑﺮﻜﺴﻟﺍ ﺀﺎﻔﻃﺍ
 With your name §ﻚﻤﺳﺍ ﻊﻣ
 Anonymous §ﻝﻮﻬﺠﻣ
 Change amount §ﺔﻴﻤﻜﻟﺍ ﺮﻴﻴﻐﺗ
@@ -458,8 +432,8 @@ Display time §ﺖﻗﻮﻟﺍ ﺭﺎﻬﻇﺍ
 Type in where horizontally the time is displayed. §.ﻲﺿﺮﻌﻟﺍ ﺖﻗﻮﻟﺍ ﻥﺎﻜﻣ ﺐﺘﻛﺍ
 Type in where vertically the time is displayed. §.ﻱﺩﻮﻤﻌﻟﺍ ﺖﻗﻮﻟﺍ ﻥﺎﻜﻣ ﺐﺘﻛﺍ
 Type in RGB §(ﻕﺭﺯﺍ ﺮﻀﺧﺍ ﺮﻤﺣﺍ ﻥﺍﻮﻟﺍ) RGBﻝﺍ ﺐﺘﻛﺍ
-Display time opacity §ﺖﻗﻮﻟﺍ ﺔﻓﺎﻔﺷ
-Opacity §ﺔﻓﺎﻔﺷ
+Display time opacity §ﺖﻗﻮﻟﺍ ﺔﻴﻓﺎﻔﺷ
+Opacity §ﺔﻴﻓﺎﻔﺷ
 Type in the size of the text. §.ﻡﻼﻜﻟﺍ ﻢﺠﺣ ﺐﺘﻛﺍ
 Size §ﻢﺠﺣ
 time. §ﺕﺍﺮﻣ
@@ -504,7 +478,6 @@ has finished lap §ﺔﻔﻟ ﺺﻠﺧ
 Failed to load file. §.ﻒﻠﻤﻟﺍ ﻞﻴﻤﺤﺗ ﻲﻓ ﻞﺸﻓ
 Cleared old race & recording a new one. §.ﺪﻳﺪﺠﻟﺍ ﻞﻴﺠﺴﺗﻭ ﻢﻳﺪﻘﻟﺍ ﻕﺎﺒﺴﻟﺍ ﺔﻟﺍﺯﺍ
 Save recorded race §.ﻞﺠﺴﻤﻟﺍ ﻕﺎﺒﺴﻟﺍ ﻆﻔﺣ
-Move mini map to people you spectate §spectate ﻱﻮﺴﺗ ﺎﻤﻟ ﺮﻴﻐﺼﻟﺍ ﺏﺎﻤﻟﺍ ﻙﺮﺣ
 Flamethrower §ﺭﺎﻨﻟﺍ ﺡﻼﺳ
 Display notifications §ﺕﺍﺭﺎﻌﺷﻻﺍ ﺭﺎﻬﻇﺍ
 Number of notifications §ﺕﺍﺭﺎﻌﺷﻻﺍ ﺩﺪﻋ
@@ -526,7 +499,7 @@ Throwables §Throwables
 Heavy §Heavy
 Melee §Melee
 Miscellaneous §Miscellaneous
-Toggle engine §ﻙﺮﺤﻤﻟﺍ ﻞﻴﻐﺸﺗ\ﺀﺎﻔﻃﺍ
+Toggle engine §ﻙﺮﺤﻤﻟﺍ ﻞﻴﻐﺸﺗ/ﺀﺎﻔﻃﺍ
 Show sphere §ﺓﺭﻮﻜﻟﺍ ﺭﺎﻬﺿﺍ
 Anti chat spam §ﻡﺎﺒﺳ ﺕﺎﺸﻟﺍ ﻦﻣ ﺔﻳﺎﻤﺣ
 kicked for spamming chat. §.ﻡﺎﺒﺳ ﺕﺎﺸﻠﻟ ﺩﺮﻃ
@@ -620,7 +593,6 @@ Auto kicker settings §ﻲﺋﺎﻘﻠﺘﻟﺍ ﺩﺮﻄﻟﺍ ﺕﺍﺩﺍﺪ�
 Notify when recognized in blacklist §blacklistﻝﺍ ﻦﻣ ﺐﻋﻻ ﻰﻠﻋ ﻑﺮﻌﺘﻟﺍ ﺪﻨﻋ ﺮﻌﺷﺍ
 Modded stats detection §ﺩﺩﻮﻤﻟﺍ ﺲﺗﺎﺘﺴﻟﺍ ﻑﺎﺸﺘﻛﺍ
 Block passive mode §ﻒﺳﺎﺒﻟﺍ ﻊﺿﻭ ﻊﻨﻣ
-Organization §Organization
 Ptfx §Ptfx
 Unlocked their car. §.ﻢﻬﺗﺭﺎﻴﺳ ﺢﺘﻓ ﻢﺗ
 Locked their car. §.ﻢﻬﺗﺭﺎﻴﺳ ﻞﻔﻗ ﻢﺗ
@@ -674,7 +646,6 @@ Type in what to translate. §.ﻪﺘﻤﺟﺮﺗ ﺪﻳﺮﺗ ﺍﺫﺎﻣ ﺐ�
 Translate input §ﺏﻮﺘﻜﻤﻟﺍ ﺔﻤﺟﺮﺗ
 Send to team chat §ﻢﻴﺘﻟﺍ ﺕﺎﺷ ﻰﻟﺍ ﻞﺳﺭﺍ
 Send to all chat §ﻊﻴﻤﺠﻟﺍ ﺕﺎﺷ ﻰﻟﺍ ﻞﺳﺭﺍ
-Tip: set hotkeys for the translate inputs below §ﺖﺤﺗ ﺏﻮﺘﻜﻤﻟﺍ ﺔﻤﺟﺮﺘﻟ (hotkeys) ﺕﺍﺭﺎﺼﺘﺧﺍ ﻊﺿ :ﺢﻴﻤﻠﺗ
 Menu features §ﻮﻴﻨﻤﻟﺍ ﺕﺍﺭﺎﻴﺧ
 Type in name of feature. §.ﺭﺎﻴﺨﻟﺍ ﻢﺳﺍ ﺐﺘﻛﺍ
 Failed to go to feature. §.ﺭﺎﻴﺨﻟﺍ ﻰﻟﺍ ﺏﺎﻫﺬﻟﺍ ﻲﻓ ﻞﺸﻓ
@@ -732,3 +703,81 @@ Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicl
 Failed to create folder. §.ﻒﻠﻤﻟﺍ ﻊﻨﺻ ﻲﻓ ﻞﺸﻓ
 Mark as blacklisted §ﺖﺴﻠﻛﻼﺒﻟﺍ ﻲﻓ ﻞﺠﺳ
 Reapply logged marks §ﺔﻠﺠﺴﻤﻟﺍ ﺕﺎﻣﻼﻌﻟﺍ ﻊﺿﻭ ﻩﺩﺎﻋﺍ
+Patreon supporters §Patreon ﻦﻣ ﻦﻴﻤﻋﺍﺪﻟﺍ
+Display name above entities §ﻦﺋﺎﻜﻟﺍ ﻕﻮﻓ ﻢﺳﻻﺍ ﺮﻬﻇﺍ
+Modded name detection §ﻝﺪﻌﻤﻟﺍ ﻢﺳﻻﺍ ﻑﺎﺸﺘﻛﺍ
+has a modded name. §ﻝﺪﻌﻣ ﻢﺳﺍ ﻪﻳﺪﻟ
+You must turn on trusted mode->memory to use this script. §ﻞﻐﺸﺗ ﻡﺯﻻ trusted mode->memory ﺖﺑﺮﻜﺴﻟﺍ ﺍﺬﻫ ﻡﺪﺨﺘﺴﺗ ﻥﺎﺸﻋ
+Recommended to set a hotkey on this. Press %s to set a hotkey. §.ﺭﺎﺼﺘﺧﺍ ﻊﻀﺘﻟ %s ﻂﻐﺿﺍ .ﺍﺬﻫ ﻰﻠﻋ ﺭﺎﺼﺘﺧﺍ ﺔﻓﺎﺿﺍ ﻞﻀﻔﻳ
+This only applies to %s. §.%s ﻰﻠﻋ ﻖﺒﻄﻨﻳ ﻂﻘﻓ ﺍﺬﻫ
+Go to "%s" >> "%s" >> "%s" to change what vehicle is used for this feature.\n\nIt's recommended you set a hotkey on "%s". §ﻰﻟﺍ ﺐﻫﺫﺍ\n"%s" >> "%s" >> "%s"\n.ﺭﺎﻴﺨﻟﺍ ﺍﺬﻬﻟ ﻡﺪﺨﺘﺴﺗ ﺔﺒﻛﺮﻣ ﻱﺍ ﺮﻴﻐﺘﻟ\n\n."%s" ﻰﻠﻋ ﺭﺎﺼﺘﺧﺍ ﻎﺿﻭ ﻞﻀﻔﻳ
+Go to "%s" >> "%s" >> "%s" to change what ped is used for this feature.\n\nIt's recommended you set a hotkey on "%s". §ﻰﻟﺍ ﺐﻫﺫﺍ\n"%s" >> "%s" >> "%s"\n.ﺭﺎﻴﺨﻟﺍ ﺍﺬﻬﻟ ﻡﺪﺨﺘﺴﺗ ped ﻱﺍ ﺮﻴﻐﺘﻟ\n\n."%s" ﻰﻠﻋ ﺭﺎﺼﺘﺧﺍ ﻎﺿﻭ ﻞﻀﻔﻳ
+Go to "%s" >> "%s" >> "%s" to change what object is used for this feature.\n\nIt's recommended you set a hotkey on "%s". §ﻰﻟﺍ ﺐﻫﺫﺍ\n"%s" >> "%s" >> "%s"\n.ﺭﺎﻴﺨﻟﺍ ﺍﺬﻬﻟ ﻡﺪﺨﺘﺴﺗ object ﻱﺍ ﺮﻴﻐﺘﻟ\n\n."%s" ﻰﻠﻋ ﺭﺎﺼﺘﺧﺍ ﻎﺿﻭ ﻞﻀﻔﻳ
+After someone killed you, they get punished. §.ﺏﺎﻘﻋ ﻢﻬﻴﺠﻳ ,ﺪﺣﺍ ﻚﻠﺘﻘﻳ ﺎﻣ ﺪﻌﺑ
+When a player aims at you, they get punished. §.ﺏﺎﻘﻋ ﻢﻬﻴﺠﻳ ,ﻚﻴﻠﻋ ﺏﻮﺻ ﺪﺣﺍ ﺍﺫﺍ
+If anyone vote kicks anyone (not just you), they are kicked. There's no way to know who they targeted with the vote kick. §.ﻥﻭﺩﺮﻄﻨﻳ ﺡﺍﺭ ,ﺺﺨﺷ ﻱﺍ ﺩﺮﻃ ﻰﻠﻋ ﺕﻮﺻ ﺪﺣﺍ ﻱﺍ ﺍﺫﺍ\n.ﻪﻴﻠﻋ ﻮﺗﻮﺻ ﻦﻣ ﻪﻓﺮﻌﻣ ﻦﻜﻤﻳﺎﻣ
+For example, if there are 50 "n" letters on a line and max characters is set to 45, it will be ignored.\n\nThis setting is here to prevent your screen from being blocked by text.\nBest left on default. §.ﻪﻠﻫﺎﺠﺘﻳ ﺡﺍﺭ ,45 ﻰﺼﻗﻻﺍ ﺪﺤﻟﺍﻭ ﺮﻄﺻ ﻰﻠﻋ "n" ﻑﺮﺣ 50 ﻪﻴﻓ ﻥﺎﻛ ﺍﺫﺍ ,ﻼﺜﻣ\n\n.ﻡﻼﻜﺑ ﻚﺘﺷﺎﺷ ﻲﻠﻤﻨﺗﺎﻣ ﻥﺎﺸﻋ ﺩﻮﺟﻮﻣ ﺩﺍﺪﻋﻻﺍ ﺍﺬﻫ
+This setting affects all spawned vehicles that are to be used by you or other players. §.ﻦﻳﺮﺧﺍ ﻦﻴﺒﻋﻻ ﻭﺍ ﻚﻠﺒﻗ ﻦﻣ ﻪﻣﺪﺨﺘﺴﻣ ﻲﻠﻟﺍ ﻥﻭﺎﺒﺴﻟﺍ ﺕﺎﺒﻛﺮﻤﻟﺍ ﻊﻴﻤﺟ ﺮﺛﺆﻳ ﺩﺍﺪﻋﻻﺍ ﺍﺬﻫ
+This affects maxing vehicles and all networked vehicle spawns. §.ﺔﻜﺒﺸﻟﺎﺑ ﻂﺒﺗﺮﻤﻟﺍ ﻥﻭﺎﺒﺴﻟﺍ ﺕﺎﺒﻛﺮﻣ ﻊﻴﻤﺟﻭ ﺲﻛﺎﻤﻟﺍ ﻰﻟﺍ ﺕﺎﺒﻛﺮﻤﻟﺍ ﻞﻳﺪﻌﺗ ﻰﻠﻋ ﺮﺛﺆﻳ ﺍﺬﻫ
+This will ask you what vehicle to spawn for:\n"%s" >> "%s" >> "%s". §:ﻝ ﺎﻬﻟ ﻥﻭﺎﺒﺳ ﻱﻮﺴﺗ ﻲﺒﺗ ﺔﺒﻛﺮﻣ ﻱﺍ ﻚﻟﺎﺴﻳ ﺡﺍﺭ ﺍﺬﻫ\n\n"%s" >> "%s" >> "%s"
+This will make air ini/menyoo vehicles and regular vehicles spawned for yourself, spawn mid-air.\n[100 meters above ground]. §menyoo/ini ﻦﻣ ﺓﺮﺋﺎﻃ ﻪﺒﻛﺮﻣ ﻱﺍ ﻲﻠﺨﻳ ﺡﺍﺭ ﺍﺬﻫ\n.ﺀﺍﻮﻬﻟﺍ ﻲﻓ ﻊﻠﻄﺗ ﻥﻭﺎﺒﺳ ﺎﻬﻟ ﺖﻳﻮﺳ ﻲﻠﻟﺍ ﺔﻳﺩﺎﻌﻟﺍ ﺕﺎﺒﻛﺮﻤﻟﺍﻭ\n.ﺽﺭﻻﺍ ﻕﻮﻓ ﺮﺘﻣ ﺔﺌﻣ
+This will delete your previously used vehicle and previously spawned regular, ini and menyoo vehicle. §.ﺎﻬﻣﺪﺨﺘﺴﺗ/ﺎﻬﺘﻣﺪﺨﺘﺳﺍ ﺓﺭﺎﻴﺳ ﺮﺧﺍ ﻑﺬﺤﻳ ﺡﺍﺭ ﺍﺬﻫ
+This will make you spawn inside of ini/menyoo vehicles and regular vehicles spawned for yourself. §.ﻥﻭﺎﺒﺳ ﺎﻬﻟ ﺖﻳﻮﺳ ﻲﻠﻟﺍ ﺔﺒﻛﺮﻤﻟﺍ ﻞﺧﺍﺩ ﺮﻴﺼﺗ ﻚﻴﻠﺨﻳ ﺡﺍﺭ ﺍﺬﻫ
+Prevents your vehicle from being upside down, teleports you out of water and some measures to prevent AI from getting stuck driving into walls, tight spaces and other stuff. §.ﺐﺸﻨﻳﺎﻣ ﻥﺎﺸﻋ AIﻝﺍ ﺪﻋﺎﺴﺗ ﻯﺮﺧﺍ ﺕﺍﺀﺍﺮﺟﺍﻭ ﺔﻳﻮﻤﻟﺍ ﻦﻣ ﻚﻌﻠﻄﻳ ,ﺐﻠﻘﻨﺗ ﻚﺗﺭﺎﻴﺳ ﻲﻠﺨﻳﺎﻣ
+Godmode is removed when the feature is toggled off. §.ﺭﺎﻴﺨﻟﺍ ﺍﺬﻫ ﺖﻴﻔﻃ ﺍﺫﺍ ﺡﻭﺮﻴﺑ Godmodeﻝﺍ
+Collision is enabled again when the feature is toggled off. §.ﺭﺎﻴﺨﻟﺍ ﺍﺬﻫ ﺖﻴﻔﻃ ﺍﺫﺍ ﻞﻐﺘﺸﺗ ﻊﺟﺮﺘﺑ ﻡﺩﺎﺼﺘﻟﺍ ﺔﻴﺻﺎﺧ
+Gravity is reverted back to default when the feature is toggled off. §.ﺭﺎﻴﺨﻟﺍ ﺍﺬﻫ ﺀﺎﻔﻃﺍ ﺪﻌﺑ ﻲﻌﻴﺒﻄﻟﺍ ﻊﺿﻮﻠﻟ ﻊﺟﺮﺗ ﺡﺍﺭ ﺔﻴﺑﺫﺎﺠﻟﺍ
+Click on this feature to input a value. §.ﺔﻤﻴﻗ ﻊﺿﻮﻟ ﻂﻐﺿﺍ
+Detects illegal characters.\nDetects names under 6 and over 16 characters long. §.ﺔﺣﻮﻤﺴﻣ ﺮﻴﻏ ﻑﻭﺮﺣ ﻒﺸﺘﻜﻳ\n.ﻑﺮﺣ 16 ﻕﻮﻓﻭ ﻑﻭﺮﺣ 6 ﺖﺤﺗ ﻲﻣﺎﺳﺍ ﻒﺸﺘﻜﻳ
+When a blacklisted person joins, or when you join a session with a blacklisted person, action is taken. §.ﺕﺍﺀﺍﺮﺟﻹﺍ ﺫﺎﺨﺗﺍ ﻢﺘﻳ ﻑﻮﺳ ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻲﻓ ﺺﺨﺷ ﻚﻴﻠﻋ ﻞﺧﺩ ﻭﺍ ﻰﻠﻋ ﺖﻠﺧﺩ ﺍﺫﺍ
+Marks people as modder if multiple stats are suspicious. Looks for kd, rank, money and modded weapons. Negative kd/rank is enough to mark people by itself. Other detections need 3 suspicious stats at once to mark someone. §.ﺔﻟﺪﻌﻣ ﺔﺤﻠﺳﺍﻭ ﺱﻮﻠﻓ ,ﻞﻔﻟ ,kdﻝﺍ ﻑﻮﺸﻳ .ﻚﺸﻠﻟ ﺓﺮﻴﺜﻣ ﺔﻤﻴﻗ ﻦﻣ ﺮﺜﻛﺍ ﻦﻣ ﺯﺭﺩﻮﻤﻟﺍ ﻒﺸﻜﻳ
+Very strict. You may not detect every godmodder, but the detections it get are reliable. Ignores people if they are in a vehicle. §.ﺍﺪﺟ ﻡﺭﺎﺻ\ngodmoddersﻝﺍ ﻊﻴﻤﺟ ﻒﺸﺘﻜﻳﺎﻣ ﻦﻜﻤﻳ\n.ﺢﺻ ﺔﺒﻴﺠﻳ ﻒﺸﻛ ﺍﺫﺍ ﺲﺑ\n.ﺕﺎﺒﻛﺮﻣ ﻦﻴﺒﻛﺍﺭ ﻲﻠﻟﺍ ﻦﻴﺒﻋﻼﻟﺍ ﻞﻫﺎﺠﺘﻳ
+Kicks people if they are marked by a flag enabled below. §.ﺖﺤﺗ ﻲﻠﻟﺍ ﺔﻠﻌﻔﻤﻟﺍ ﺕﺎﻣﻼﻌﻟﺍ ﺪﺣﺎﺑ ﺩﺪﺤﻣ ﻥﺎﻛ ﺍﺫﺍ ﺐﻋﻼﻟﺍ ﺩﺮﻄﻳ
+The blacklist file is located at:\n%s §:ﻲﻓ ﺩﻮﺟﻮﻣ ﺖﺴﻟ ﻙﻼﺒﻟﺍ ﻒﻠﻣ\n%s
+The chat log file is located at:\n%s §:ﻲﻓ ﺩﻮﺟﻮﻣ ﺕﺎﺸﻟﺍ ﻞﺠﺳ\n%s
+Detects multiple of the same message in a row.\nEither 12 messages in a row with 9 or less characters or 3 with 10 or more.\n\nDetects spam where the letters used doesn't matter, based on spam speed and message size. §.ﺕﺎﺸﻟﺍ ﻲﻓ ﻩﺭﺮﻜﻣ ﻞﻳﺎﺳﺭ ﻒﺸﻜﻳ\n.ﺮﺜﻛﺍ ﻭﺍ ﻑﻭﺮﺣ 01 ﻦﻣ ﻪﻧﻮﻜﻣ ﻞﻳﺎﺳﺭ 3 ﻭﺍ ﺾﻌﺑ ﺍﺭﻭ ﻞﻗﺍ ﻭﺍ ﻑﻭﺮﺣ 9 ﻦﻣ ﻪﻧﻮﻜﻣ ﻪﻟﺎﺳﺭ 21 ﺎﻳ\n\n.ﺔﻟﺎﺳﺮﻟﺍ ﻢﺠﺣﻭ ﺭﺍﺮﻜﺘﻟﺍ ﻪﻋﺮﺳ ﻡﺍﺪﺨﺘﺳﺎﺑ ﻑﺮﺣﻻﺍ ﺩﺪﻋ ﻢﻬﻳ ﺎﻣ ,ﺓﺭﺮﻜﻤﻟﺍ ﻞﻳﺎﺳﺮﻟﺍ ﻒﺸﻜﻳ
+Repeats what people say. §.ﻦﻴﺒﻋﻼﻟﺍ ﺔﻧﻮﺒﺘﻜﻳ ﻲﻠﻟﺍ ﺭﺮﻜﻳ
+Click on this to copy this whole page of messages to the clipboard. §.ﻞﻳﺎﺳﺮﻟﺍ ﻦﻣ ﺔﻠﻣﺎﻛ ﺔﺤﻔﺻ ﺦﺴﻨﻟ ﻂﻐﺿﺍ
+Click on this to copy this message to the clipboard. §.ﺔﻟﺎﺳﺮﻟﺍ ﺍﺬﻫ ﺦﺴﻨﻟ ﻂﻐﺿﺍ
+Takes the chat log from the chat logger feature. §.ﺕﺎﺸﻟﺍ ﻞﻴﺠﺴﺗ ﺭﺎﻴﺧ ﻦﻣ ﺕﺎﺸﻟﺍ ﻞﺠﺳ ﺬﺧﺎﻳ
+This will only give to people who are an associate or member of a securoserv organization or biker club. §.biker club ﻭﺍ securoserv organization ﻲﻓ ﻚﻳﺮﺷ ﻥﻮﻧﻮﻜﻳ ﻲﻠﻟﺍ ﻦﻴﺒﻋﻼﻟﺍ ﻲﻄﻌﻳ ﺡﺍﺭ ﻂﻘﻓ ﺍﺬﻫ
+This crash doesn't affect anyone but the target. §.ﻂﻘﻓ ﻑﺪﻬﻟﺍ ﺮﺛﺆﻳ ﺵﺍﺮﻜﻟﺍ ﺍﺬﻫ
+This might crash anyone within 900 meters of the target, and may crash more people later if the clean-up fails. §.ﻞﺸﻓ ﻒﻴﻈﻨﺘﻟﺍ ﺍﺫﺍ ﺓﺩﺎﻳﺯ ﻦﻴﺒﻋﻻ ﺮﺛﺆﻳ ﻦﻜﻤﻣﻭ ,ﻑﺪﻬﻟﺍ ﻦﻣ ﺮﺘﻣ 900 ﺔﻓﺎﺴﻣ ﻲﻓ ﺪﺣﺍ ﻱﺍ ﻰﻠﻋ ﺮﺛﺆﻳ ﺪﻗ ﺵﺍﺮﻜﻟﺍ ﺍﺬﻫ
+Spawns an invisible cage, then continuously spawns a new one after the target escaped the old one.\nThe old cage is deleted.\nThe current cage is deleted if you turn off the feature. §,ﻲﻔﺨﻣ ﺺﻔﻘﻟ ﻥﻭﺎﺒﺳ ﻱﻮﺴﻳ\nﻢﻳﺪﻘﻟﺍ ﻑﺬﺤﻨﻳ ﻪﻨﻣ ﺐﻋﻼﻟﺍ ﺝﺮﺧ ﺍﺫﺍ\n.ﺐﻋﻼﻟﺍ ﻥﺎﻜﻣ ﻲﻓ ﺪﻳﺪﺟ ﺪﺣﺍﻮﻟ ﻥﻭﺎﺒﺳ ﻱﻮﺴﻳﻭ \n.ﺭﺎﻴﺨﻟﺍ ﺖﻴﻔﻃ ﺍﺫﺍ ﻑﺬﺤﻨﻴﺑ ﻲﻟﺎﺤﻟﺍ ﺺﻔﻘﻟﺍ
+Automatically kicks everyone in front of you in the host queue when you're not host. §.ﺖﺳﻮﻫ ﺖﻨﻛﺎﻣ ﺍﺫﺍ ﺎﻴﺋﺎﻘﻠﺗ ﺖﺳﻮﻬﻟﺍ ﺭﻮﺑﺎﻃ ﻲﻓ ﻚﻣﺍﺪﻗ ﺪﺣﺍﻭ ﻞﻛ ﺩﺮﻄﻳ
+Kicks everyone in front of you in the host queue. §.ﺖﺳﻮﻬﻟﺍ ﺭﻮﺑﺎﻃ ﻲﻓ ﻚﻣﺍﺪﻗ ﺪﺣﺍﻭ ﻞﻛ ﺩﺮﻄﻳ
+Max number of people that "%s", can kick. If you set this to 5 and it requires to 6 people to get host, it won't trigger and will instead wait until there are 5 or less people. §.ﺪﺣﺍ ﺩﺮﻄﻳ ﺡﺍﺭﺎﻣ ,ﺮﺜﻛﺍ ﺭﻮﺑﺎﻄﻟﺍ ﻲﻓ ﺩﺪﻌﻟﺍ ﺍﺫﺍ ,"%s" ﻢﻫﺩﺮﻄﻴﺑ ﻲﻠﻟﺍ ﻦﻴﺒﻋﻼﻟﺍ ﻦﻣ ﻰﺼﻗﻻﺍ ﺩﺪﻌﻟﺍ
+Prevents friends from being affected by features such as "%s", "%s" or "%s".\nAnything that ruins gameplay. §ﻱﺯ ﺕﺍﺭﺎﻴﺧ ﻦﻣ ﻥﻭﺮﺜﺌﺘﻳ ﻚﺋﺎﻗﺪﺻﺍ ﻲﻠﺨﻳﺎﻣ\n."%s" ﻭﺍ "%s" ﻭﺍ "%s"\n.ﺐﻌﻠﻟﺍ ﺏﺮﺨﻳ ﻲﺷ ﻱﺍ
+If they try to use a blacklisted weapon, it's removed from their inventory.\n\nThey will get the weapon back if they join a new session. §.ﻢﻫﺪﻨﻋ ﻦﻣ ﻪﻓﺬﺤﻳ ﺡﺍﺭ ,ﻉﻮﻨﻤﻣ ﺡﻼﺳ ﻡﺍﺪﺨﺘﺳﺍ ﻮﻟﻭﺎﺣ ﺍﺫﺍ\n.ﻦﺸﻴﺴﻟﺍ ﻭﺮﻴﻏ ﺍﺫﺍ ﻢﻬﻟ ﻊﺟﺮﻳ ﺡﺍﺭ
+This only works for players that are within 900 meters of you. §.ﻲﻟﺎﺤﻟﺍ ﻚﻧﺎﻜﻣ ﻦﻣ ﻂﻘﻓ ﻞﻗﺍ ﻭﺍ ﺮﺘﻣ 900 ﻪﻓﺎﺴﻣ ﺪﻌﺑ ﻰﻠﻋ ﻦﻴﺒﻋﻼﻟ ﻞﻐﺘﺸﻳ ﺡﺍﺭ ﺍﺬﻫ
+Successfully loaded Kek's menu.\n\nIt's recommended that you enable hints.\n[Local tab]: Settings->Hints §.Kek's menu ﻞﻴﻐﺸﺗ ﻢﺗ\n.ﺕﺎﺤﻴﻤﻠﺘﻟﺍ ﻞﻴﻐﺸﺘﺑ ﺢﺼﻨﻳ\n[Local tab]: Settings->Hints
+Profiles §Profiles (ﺕﺍﺩﺍﺪﻋﻻﺍ ﻆﻔﺣ)
+Removes the Kek's menu parent.\n\nTurns:\nKek's menu >> Vehicle >> Menyoo vehicles\nINTO\nVehicle >> Menyoo vehicles\n\nSave the settings and reset lua state to see the change. §.Kek's menu ﻑﺬﺤﻳ\n\nKek's menu >> ﺕﺎﺒﻛﺮﻣ >> ﻭﻮﻴﻨﻣ ﺕﺎﺒﻛﺮﻣ ﻝﻮﺤﻳ\nﻰﻟﺍ\nﺕﺎﺒﻛﺮﻣ >> ﻭﻮﻴﻨﻣ ﺕﺎﺒﻛﺮﻣ\n\n.ﺖﺑﺮﻜﺴﻟﺍ ﻞﻴﻐﺸﺗ ﺪﻋ ﻦﻳﺪﻌﺑ ﺕﺍﺩﺍﺪﻋﻻﺍ ﻆﻔﺣﺍ
+The auto updater will download beta versions of the script.\nBeware, you are likely to experience bugs in beta versions.\n\nPlease report any bugs you find to the bug-reports channel in the Kek's menu Discord. §.betaﻝﺍ ﻪﺨﺴﻧ ﻞﻤﺤﻴﺑ ﻲﺋﺎﻘﻠﺘﻟﺍ ﺚﻳﺪﺤﺘﻟﺍ\n.betaﻝﺍ ﺔﺨﺴﻧ ﻲﻓ ﻞﻛﺎﺸﻣ ﻪﺟﺍﻮﺗ ﺮﻴﺒﻛ ﻝﺎﻤﺘﺣﺍ ﻪﻴﻓ ﻚﻟﺎﺑ ﻲﻓ ﻂﺣ\n\n.ﺩﺭﻮﻜﺳﺪﻟﺍ ﻲﻓ bug-reports ﻲﻓ ﻪﻬﺟﺍﻮﺗ ﻖﺑ ﻱﺍ ﻝﺎﺳﺭﺍ ﺀﺎﺟﺮﻟﺍ
+Save your Kek's menu settings here. §.ﺎﻨﻫ Kek's menu ﺕﺍﺩﺍﺪﻋﺍ ﻆﻔﺣﺍ
+Deletes objects/peds/vehicles the player shoots at.\nYou must be within 200 meters of the player for it to work.\n\nBe aware, most objects are local. That means deleting objects will work perfectly for you, but rarely for others. §.ﺎﻬﻴﻠﻋ ﺐﻋﻼﻟﺍ ﻖﻠﻄﻳ ﻲﻠﻟﺍ objects/peds/vehicles ﻑﺬﺤﻳ\n.ﻞﻐﺘﺸﻳ ﻥﺎﺸﻋ ﺐﻋﻼﻟﺍ ﻦﻣ ﻞﻗﺍ ﻭﺍ ﺮﺘﻣ 200 ﺪﻌﺑ ﻰﻠﻋ ﻥﻮﻜﺗ ﻡﺯﻻ\n\n.ﻦﻳﺮﺧﻻﺍ ﻦﻴﺒﻋﻼﻟﺍ ﻊﻣ ﻂﺑﺰﻳ ﺭﺩﺎﻧ ﺲﺑ ﻚﻌﻣ ﻁﻮﺑﺰﻣ ﻑﺬﺤﻳ ﺡﺍﺭ ﻪﻓﺬﺣ ﻥﺍ ﻲﻨﻌﻳ ﺍﺬﻫ .ﺔﻴﻠﺤﻣ objectsﻝﺍ ﺐﻠﻏﺍ ,ﻪﺒﺘﻧﺍ
+Turns yourself into an ai driver that follows the player. §.ﺐﻋﻼﻟﺍ ﻖﺤﻠﻳ ﻲﻟﺍ ﻕﺍﻮﺳ ﻰﻟﺍ ﻚﺴﻔﻧ ﻝﻮﺣ
+If the player already has the flag, it will unmark that flag instead. §.ﺎﻬﻠﻴﺸﻳ ﺡﺍﺭ ,ﻞﺒﻗ ﻦﻣ ﺔﻣﻼﻌﻟﺍ ﻩﺪﻨﻋ ﺐﻋﻼﻟﺍ ﺍﺫﺍ
+Spawns a random entity from a set of objects, peds & vehicles. Each of them break physics in their own way.\n\nThere must be a free seat in their vehicle for it to work. §ﺔﻋﻮﻤﺠﻣ ﻦﻣ ﻲﺋﺍﻮﺸﻋ ﻦﺋﺎﻜﻟ ﻥﻭﺎﺒﺳ ﻱﻮﺴﻳ\nﺪﺣﺍﻭ ﻞﻛ .objects, peds & vehicles \n.ﺔﻨﻴﻌﻣ ﺔﻘﻳﺮﻄﺑ ﺔﺒﻛﺮﻤﻟﺍ ﺀﺎﻳﺰﻴﻓ ﺏﺮﺨﻳ ﻢﻬﻨﻣ \n\n.ﻢﻬﺘﺒﻛﺮﻣ ﻲﻓ ﻲﺿﺎﻓ ﻲﺳﺮﻛ ﻪﻴﻓ ﻥﻮﻜﻳ ﻡﺯﻻ
+If a player shoot another player, they are kicked.\nThey can't use it on you. §ﺐﻋﻻ ﻖﻠﻃ ﺍﺫﺍ\n.ﻥﻭﺩﺮﻄﻨﻳ ﺡﺍﺭ ﺮﺧﺍ ﺐﻋﻻ ﻰﻠﻋ\n.ﻚﻴﻠﻋ ﻪﻧﻮﻣﺪﺨﺘﺴﻳ ﻥﻭﺭﺪﻘﻳﺎﻣ
+Gives them a black screen and stops their current movement immediately.\nToggling this off stops the black screens. §.ﻝﻮﻃ ﻰﻠﻋ ﻢﻬﺘﻛﺮﺣ ﻒﻗﻮﻳﻭ ﺍﺩﻮﺳ ﺔﺷﺎﺷ ﻢﻬﻟ ﻊﻠﻄﻳ\n.ﺍﺩﻮﺴﻟﺍ ﺔﺷﺎﺸﻟﺍ ﺮﺧﻮﻳ ﺍﺬﻫ ﺀﺎﻔﻃﺍ
+Prevents people from moving, use weapons and drive vehicles.\nEveryone is kicked out of their vehicle immediately. §.ﺕﺎﺒﻛﺮﻤﻟﺍ ﺓﺩﺎﻴﻗﻭ ﺔﺤﻠﺳﻻﺍ ﻡﺍﺪﺨﺘﺳﺍ ,ﻙﺮﺤﺘﻟﺍ ﻦﻣ ﻦﻴﺒﻋﻼﻟﺍ ﻊﻨﻤﻳ\n.ﻢﻬﺘﺒﻛﺮﻣ ﻦﻣ ﻥﻭﺩﺮﻄﻨﻳ ﺡﺍﺭ ﻊﻴﻤﺠﻟﺍ
+Prevents the game engine from spawning peds & removes peds already spawned by the game engine.\nDoesn't work well if there are other players within 500 meters of you. §.ﻦﻴﻤﻳﺪﻘﻟﺍ ﺓﺎﺸﻤﻟﺍ ﻑﺬﺤﻳﻭ peds ﻭﺍ ﺓﺎﺸﻣ ﻦﻳﻮﻜﺗ ﻦﻣ ﺔﺒﻌﻠﻟﺍ ﻊﻤﻨﻳ\n.ﻚﻨﻣ ﺮﺘﻣ 500 ﻯﺪﻣ ﻲﻓ ﻦﻴﺒﻋﻻ ﻪﻴﻓ ﻥﺎﻛ ﺍﺫﺍ ﺲﻳﻮﻛ ﻞﻐﺘﺸﻳﺎﻣ
+Prevents the game engine from spawning vehicles & removes vehicles already spawned by the game engine.\nDoesn't work well if there are other players within 500 meters of you. §.ﺔﻤﻳﺪﻘﻟﺍ ﺕﺎﺒﻛﺮﻤﻟﺍ ﻑﺬﺤﻳﻭ ﺕﺎﺒﻛﺮﻣ ﻦﻳﻮﻜﺗ ﻦﻣ ﺔﺒﻌﻠﻟﺍ ﻊﻤﻨﻳ\n.ﻚﻨﻣ ﺮﺘﻣ 500 ﻯﺪﻣ ﻲﻓ ﻦﻴﺒﻋﻻ ﻪﻴﻓ ﻥﺎﻛ ﺍﺫﺍ ﺲﻳﻮﻛ ﻞﻐﺘﺸﻳﺎﻣ
+Avoid player peds §ﻦﻴﺒﻋﻼﻟﺍ ﺍﺩﺎﻔﺗ
+Wander randomly if pathing fails §ﺢﻴﺤﺻ ﻖﻳﺮﻃ ﺪﺠﻳ ﻢﻟ ﺍﺫﺍ ﻲﺋﺍﻮﺸﻋ ﺶﻤﺗ
+Avoid restricted areas §ﺓﺭﻮﻀﺤﻤﻟﺍ ﻖﻃﺎﻨﻤﻟﺍ ﻦﻋ ﺩﺎﻌﺘﺑﻻﺍ
+Use string pulling at junctions §Use string pulling at junctions
+Force join in road direction §Force join in road direction
+Always f1 wheels §F1 ﺕﺍﺮﻔﻛﺎﺑ ﺎﻣﺍﺩ
+Chat spam speed §ﻡﺎﺒﺴﻟﺍ ﺔﻋﺮﺳ
+Echo delay §ﻯﺪﺼﻟﺍ ﺮﻴﺧﺄﺗ
+Vehicle fly speed §ﺔﺒﻛﺮﻤﻟﺍ ﻥﺍﺮﻴﻃ ﺔﻋﺮﺳ
+Exclude friends from all disruptive features §ﺔﺑﺮﺨﻤﻟﺍ ﺕﺍﺭﺎﻴﺨﻟﺍ ﻦﻣ ﺀﺎﻗﺪﺻﻻﺍ ﻊﻴﻤﺟ ﻰﻨﺜﺘﺳﺍ
+Language settings §ﺔﻐﻠﻟﺍ ﺕﺍﺩﺍﺪﻋﺍ
+Allow offroad when avoiding §ﻱﺩﺎﻔﺘﻟﺍ ﺪﻨﻋ ﻖﻳﺮﻄﻟﺍ ﺝﺭﺎﺧ ﺓﺩﺎﻴﻘﻟﺎﺑ ﺢﻤﺳﺍ
+Allow driving into traffic §ﺭﻭﺮﻤﻟﺍ ﺔﻛﺮﺣ ﻞﺧﺍﺩ ﺓﺩﺎﻴﻘﻟﺎﺑ ﺢﻤﺳﺍ
+W = forward\nA = leftward\nS = backward\nD = rightward\nlshift = downward\nspace = upward §W = ﻡﺍﺪﻗ\nA = ﺭﺎﺴﻳ\nS = ﺍﺭﻭ\nD = ﻦﻴﻤﻳ\nlshift = ﺖﺤﺗ\nspace = ﻕﻮﻓ
+Is affected by the filter.\nIf say you filtered it to "Krieger", it will impact kriegers only. §.ﺮﺘﻠﻔﻟﺍ ﻦﻣ ﺮﺛﺎﺘﻳ\n..ﻂﻘﻓ kriegers ﻰﻠﻋ ﺮﺛﺆﻳ ﺡﺍﺭ ,"Krieger"ﻝ ﺮﺘﻠﻓ ﺖﻳﻮﺳ ﺍﺫﺍ
+Set wanted level §ﻡﻮﺠﻨﻟﺍ ﺩﺪﻋ ﻊﺿﻭ
+Owned entities are objects, peds and vehicles you've spawned / gotten control of via Kek's menu. §ﻲﻫ ﺔﻜﻠﺘﻤﻤﻟﺍ ﺕﺎﻨﺋﺎﻜﻟﺍ\nﺕﺎﺒﻛﺮﻣ ﻭ ﺯﺪﻴﺑﻭ objects\n.Kek's menu ﺪﺒﻋ ﺎﻬﺘﻜﻠﺘﻣﺍ / ﻥﻭﺎﺒﺳ ﺎﻬﻟ ﺖﻳﻮﺳ
