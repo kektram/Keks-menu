@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.4",
+	version = "0.4.8.5b1",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -147,7 +147,7 @@ for name, version in pairs({
 	["Kek's Vehicle mapper"] = "1.4.1", 
 	["Kek's Ped mapper"] = "1.2.8",
 	["Kek's Object mapper"] = "1.2.8", 
-	["Kek's Globals"] = "1.4.0",
+	["Kek's Globals"] = "1.4.1",
 	["Kek's Weapon mapper"] = "1.0.6",
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
@@ -157,7 +157,7 @@ for name, version in pairs({
 	["Kek's Trolling entities"] = "1.0.7",
 	["Kek's Custom upgrades"] = "1.0.2",
 	["Kek's Menyoo saver"] = "1.0.9",
-	["Kek's Natives"] = "1.0.4"
+	["Kek's Natives"] = "1.0.5"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 12, 0xff0000ff)
@@ -203,9 +203,9 @@ local commonly_used_lang_strings <const> = {
 	goto_settings_vehicle = lang["Go to \"%s\" >> \"%s\" >> \"%s\" to change what vehicle is used for this feature.\n\nIt's recommended you set a hotkey on \"%s\"."]:format(lang["Kek's menu"], lang["Settings"], lang["Set vehicle in use"], lang["Set vehicle in use"]),
 	goto_settings_ped = lang["Go to \"%s\" >> \"%s\" >> \"%s\" to change what ped is used for this feature.\n\nIt's recommended you set a hotkey on \"%s\"."]:format(lang["Kek's menu"], lang["Settings"], lang["Set ped in use"], lang["Set ped in use"]),
 	goto_settings_object = lang["Go to \"%s\" >> \"%s\" >> \"%s\" to change what object is used for this feature.\n\nIt's recommended you set a hotkey on \"%s\"."]:format(lang["Kek's menu"], lang["Settings"], lang["Set object in use"], lang["Set object in use"]),
-	click_to_type = lang["Click on this feature to input a value."]
+	click_to_type = lang["Click on this feature to input a value."],
+	clear_owned = lang["Owned entities are objects, peds and vehicles you've spawned / gotten control of via Kek's menu."]
 }
-
 
 do -- What kek's menu modifies in the global space. The natives library adds to the global space, but never modifies anything.
 	do
@@ -1915,6 +1915,7 @@ do
 		"GhostOne",
 		"Vladyy",
 		"zzzz",
+		"SonusNoctis",
 		"Anonymous #1"
 	}
 
@@ -3759,6 +3760,19 @@ settings.toggle["Is player typing"] = essentials.add_feature(lang["Notify when t
 	end
 end)
 settings.toggle["Is player typing"].data = {}
+
+essentials.add_feature(lang["Set wanted level"], "value_i", u.session_trolling.id, function(f)
+	while f.on do
+		for pid in essentials.players() do
+			if essentials.is_not_friend(pid) and player.can_player_be_modder(pid) and player.get_player_wanted_level(pid) ~= f.value then
+				menu.get_feature_by_hierarchy_key("online.online_players.player_"..pid..".give_wanted_level").value = f.value
+				menu.get_feature_by_hierarchy_key("online.online_players.player_"..pid..".give_wanted_level"):toggle()
+				system.yield(0)
+			end
+		end
+		system.yield(1000)
+	end
+end).max = 5
 
 essentials.add_feature(lang["Block passive mode"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
@@ -6434,11 +6448,16 @@ do
 	})
 	main_feat.data = "MAIN_FEAT"
 
-	essentials.add_feature(lang["Clear all owned entities"], "action", custom_maps_parent.id, function()
-		u.clear_owned_entities.on = true
-	end).data = "CLEAR_ENTITIES_FEAT"
+	do
+		local feat <const> = essentials.add_feature(lang["Clear all owned entities"], "action", custom_maps_parent.id, function()
+			u.clear_owned_entities.on = true
+		end)
+		feat.data = "CLEAR_ENTITIES_FEAT"
+		feat.hint = commonly_used_lang_strings.clear_owned
+	end
 
 	settings.toggle["Clear before spawning xml map"] = essentials.add_feature(lang["Clear owned entities before spawning map"], "toggle", custom_maps_parent.id)
+	settings.toggle["Clear before spawning xml map"].hint = commonly_used_lang_strings.clear_owned
 
 	local files <const> = utils.get_all_files_in_directory(paths.menyoo_maps, "xml")
 	for i = 1, #files do
@@ -6586,6 +6605,7 @@ u.vehicle_fly = essentials.add_feature(lang["Vehicle fly"], "toggle", u.gvehicle
 		kek_entity.clear_entities({fly_entity})
 	end
 end)
+u.vehicle_fly.hint = lang["W = forward\nA = leftward\nS = backward\nD = rightward\nlshift = downward\nspace = upward"]
 
 player_feat_ids["player otr"] = essentials.add_player_feature(lang["Off the radar"], "toggle", u.player_peaceful, function(f, pid)
 	while f.on do
@@ -7571,6 +7591,7 @@ u.clear_owned_entities = essentials.add_feature(lang["Clear all owned entities"]
 	kek_entity.entity_manager:clear()
 	essentials.msg(lang["Cleared owned entities."], "green")
 end)
+u.clear_owned_entities.hint = commonly_used_lang_strings.clear_owned
 
 essentials.add_feature(lang["Disable ped spawning"], "toggle", u.kek_utilities.id, function(f)
 	while f.on do
@@ -7882,7 +7903,7 @@ do
 				teleport_all_in_front_of_player[i].data[#teleport_all_in_front_of_player[i].data + 1] = pid
 			end
 			teleport_all_in_front_of_player[i]:set_str_data(player_names)
-		end)
+		end).hint = lang["Is affected by the filter.\nIf say you filtered it to \"Krieger\", it will impact kriegers only."]
 
 		essentials.add_feature(lang["Filter"].." < >", "action", entity_manager_parents[i].id, function(f)
 			local input <const>, status <const> = keys_and_input.get_input(lang["Type in name of entity."], "", 128, 0)
