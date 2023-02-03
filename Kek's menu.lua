@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.5b1",
+	version = "0.4.8.5",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -3765,8 +3765,8 @@ essentials.add_feature(lang["Set wanted level"], "value_i", u.session_trolling.i
 	while f.on do
 		for pid in essentials.players() do
 			if essentials.is_not_friend(pid) and player.can_player_be_modder(pid) and player.get_player_wanted_level(pid) ~= f.value then
-				menu.get_feature_by_hierarchy_key("online.online_players.player_"..pid..".give_wanted_level").value = f.value
-				menu.get_feature_by_hierarchy_key("online.online_players.player_"..pid..".give_wanted_level"):toggle()
+				menu.get_feature_by_hierarchy_key("online.online_players.player_"..pid..".services.give_wanted_level").value = f.value
+				menu.get_feature_by_hierarchy_key("online.online_players.player_"..pid..".services.give_wanted_level"):toggle()
 				system.yield(0)
 			end
 		end

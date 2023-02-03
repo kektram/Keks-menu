@@ -1154,7 +1154,7 @@ do
 	local offset <const> = {0x2E}
 	function kek_entity.is_entity_frozen(Entity)
 		if entity.is_an_entity(Entity) then -- read_u8 crashes the game if nil is passed. get_entity returns nil if entity doesn't exist.
-			return memory.read_u8(memory.get_entity(Entity), offset) & 1 << 1 ~= 0
+			return (memory.read_u8(memory.get_entity(Entity), offset) or 0) & 1 << 1 ~= 0 -- read_u8 can return nil, even when the function is up-to-date and works. Unknown cause, reported by random user.
 		else
 			return false
 		end
