@@ -886,6 +886,6 @@ Avoid restricted areas §避开禁区
 Use string pulling at junctions §在交界处使用拉绳
 Force join in road direction §强制加入道路正向
 W = forward\nA = leftward\nS = backward\nD = rightward\nlshift = downward\nspace = upward §W = 向前\nA = 向左\nS = 向后\nD = 向右\nlshift = 向下\nspace = 向上
-Is affected by the filter.\nIf say you filtered it to "Krieger", it will impact kriegers only. §如果你过滤 "Krieger", 它只会显示和krieger有关的实体.
+Is affected by the filter.\nIf say you filtered it to "Krieger", it will impact kriegers only. §受过滤器影响.\n如果你过滤 "Krieger", 它只会影响krieger.
 Set wanted level §设置通缉等级
 Owned entities are objects, peds and vehicles you've spawned / gotten control of via Kek's menu. §拥有的实体是你通过Kek菜单生成/获得控制的物体、NPC和载具.
