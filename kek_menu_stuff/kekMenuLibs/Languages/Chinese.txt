@@ -50,9 +50,6 @@ Never wanted §永不通缉
 off the radar §人间蒸发
 Reapply bounty §悬赏循环
 Apartment invites §公寓邀请
-Ban §禁止注册
-Dismiss §解散
-Terminate §踢出
 Transaction error §交易错误弹屏
 Custom chat judge §聊天审判
 Chat spam speed §聊天轰炸速度
@@ -195,10 +192,10 @@ Hotkey:\nloaded §快捷键:\n已加载
 One of the people further in host queue is your friend! Cancelled. §主机队列中在你前一位的玩家是你的好友!已取消.
 Max kicks for auto host §尝试获得主机时最大踢出数量
 Type in clear distance limit. §请输入清除距离.
-Vehicle clear distance §载具清除距离
-Ped clear distance §NPC清除距离
-Object clear distance §物体清除距离
-Pickup clear distance §可拾取物清除距离
+Vehicle clear distance §载具 清除距离
+Ped clear distance §NPC 清除距离
+Object clear distance §物体 清除距离
+Pickup clear distance §可拾取物 清除距离
 Make nearby peds hostile §附近的npc充满敌意
 Kick gun §踢出枪
 Kidnap player §绑架玩家
@@ -259,7 +256,7 @@ All entities of this type §此类型的所有实体
 Set speed §设置速度
 Disable ped spawning §禁止附近生成NPC
 Disable vehicle spawning §禁止附近生成载具
-Cops clear distance §警察清除距离
+Cops clear distance §警察 清除距离
 Clear ped tasks §清除NPC的任务
 Kek's chopper §kek直升机
 Session trolling §战局恶搞
@@ -552,7 +549,7 @@ Is added to join timeout §添加到加入超时中
 isn't blacklisted §未添加到黑名单
 Type in name of entity. §请输入实体名称.
 Invalid model name. §模型名称无效.
-Draw number of se sent §显示发送次数
+Draw number of se sent §显示脚本事件发送次数
 Number of script events sent §发送脚本事件次数
 You can't use this on yourself. §你不能对自己使用这个
 The 30k loop for session is already toggled on. §战局3万奖励金循环已打开.
@@ -607,9 +604,8 @@ Auto kicker settings §自动踢设置
 Notify when recognized in blacklist §检测到黑名单时通知
 Modded stats detection §检查修改后的统计
 Block passive mode §阻止被动模式
-Organization §组织
 Ptfx §粒子特效
-Ptfx clear distance §粒子特效清除距离
+Ptfx clear distance §粒子特效 清除距离
 Unlocked their car. §已解锁TA的车
 Locked their car. §已锁住TA的车
 Unlock / lock inside §解锁 / 锁 在里面
@@ -620,7 +616,7 @@ Notify when typing & stopped typing §当有人在打字时通知
 is typing. §正在打字
 is no longer typing. §已停止打字
 Debug mode §调试模式
-Draw garbage collection stats §显示垃圾收集统计
+Draw garbage collection stats §显示垃圾采集统计
 Garbage count §垃圾数量
 Garbage change §垃圾更改
 Jet §天煞
@@ -679,7 +675,7 @@ Hmong §苗族语
 Hungarian §匈牙利语
 Icelandic §冰岛语
 Igbo §伊博语
-Indonesian §印度尼西亚语
+Indonesian §印尼语
 Irish §爱尔兰语
 Italian §意大利语
 Japanese §日语
@@ -756,7 +752,7 @@ Check for updates §自动检查更新
 You must turn on trusted mode->Http to use this script. §你必须打开 信任模式 -> Http 才能使用此脚本.
 The map/vehicle won't be visible to other players, it has too many entities. Networked maps/vehicles supports max:\n%i objects\n%i vehicles\n%i peds. §这个 地图/载具 其他玩家看不到,它有太多实体. 联网地图/载具最多支持: \n%i 个物体\n%i 辆载具\n%i 个NPC.
 The map/vehicle will be visible to other people. §这个 地图/载具 其他人可以看到.
-The map/vehicle can be networked if you clear all entities. Currently there are other networked entities taking up space. §如果你清除掉所有实体,地图/载具 将可以联网. 目前还有其他网络实体占用空间.
+The map/vehicle can be networked if you clear all entities. Currently there are other networked entities taking up space. §如果你清除掉所有实体, 地图/载具 将对其他人可见. 目前还有其他联网的实体占用空间.
 Notification §通知
 Languages to not translate §不翻译的语言
 Type in what to translate. §输入要翻译的内容.
@@ -817,8 +813,8 @@ Type in name of the folder. §输入文件夹名称.
 Create new folder §创建新文件夹
 Existing folder found. Please choose another name. §发现同名文件夹. 请输入其他名称.
 Requires %i more peds than can be spawned. Try deleting all peds, then try to spawn it again. §需要多于 %i 个NPC才能生成. 尝试删除所有NPC,然后尝试再次生成它.
-Requires %i more vehicles than can be spawned. Try deleting all vehicles, then try to spawn it again. §需要多于 %i 个载具才能生成. 尝试删除所有NPC,然后尝试再次生成它.
-Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again. §需要多于 %i 个物体才能生成. 尝试删除所有NPC,然后尝试再次生成它.
+Requires %i more vehicles than can be spawned. Try deleting all vehicles, then try to spawn it again. §需要多于 %i 个载具才能生成. 尝试删除所有载具,然后尝试再次生成它.
+Requires %i more objects than can be spawned. Try deleting all objects, then try to spawn it again. §需要多于 %i 个物体才能生成. 尝试删除所有物体,然后尝试再次生成它.
 Spawn failed. The vehicle pool is probably full. I recommend deleting all vehicles and then try again. §生成失败. 载具池可能已满. 我建议删除所有车辆,然后重试.
 Failed to create folder. §创建文件夹失败.
 Mark as blacklisted §标记为黑名单
@@ -889,3 +885,7 @@ Wander randomly if pathing fails §如果寻路失败则随机闲逛
 Avoid restricted areas §避开禁区
 Use string pulling at junctions §在交界处使用拉绳
 Force join in road direction §强制加入道路正向
+W = forward\nA = leftward\nS = backward\nD = rightward\nlshift = downward\nspace = upward §W = 向前\nA = 向左\nS = 向后\nD = 向右\nlshift = 向下\nspace = 向上
+Is affected by the filter.\nIf say you filtered it to "Krieger", it will impact kriegers only. §受过滤器影响.\n如果你过滤 "Krieger", 它只会影响krieger.
+Set wanted level §设置通缉等级
+Owned entities are objects, peds and vehicles you've spawned / gotten control of via Kek's menu. §拥有的实体是你通过Kek菜单生成/获得控制的物体、NPC和载具.
