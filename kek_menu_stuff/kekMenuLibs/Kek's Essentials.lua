@@ -1013,11 +1013,6 @@ function essentials.is_not_friend(pid)
 	return not settings.toggle["Exclude friends from attacks"].on or not network.is_scid_friend(player.get_player_scid(pid))
 end
 
-function essentials.kick_player(pid)
-	essentials.assert(pid ~= player.player_id(), "Tried to kick yourself.")
-	return network.force_remove_player(pid)
-end
-
 do
 	local msg_queue <const> = {}
 	local id = 0

@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local kek_entity <const> = {version = "1.2.7"}
+local kek_entity <const> = {version = "1.2.8"}
 
 local lang <const> = require("Kek's Language").lang
 local memoize <const> = require("Kek's Memoize")
@@ -1161,6 +1161,16 @@ do
 	end
 end
 
+function kek_entity.set_entity_alpha(Entity, alpha)
+	if entity.is_an_entity(Entity) then
+		if alpha == 255 then
+			entity.reset_entity_alpha(Entity)
+		else
+			entity.set_entity_alpha(Entity, alpha, false)
+		end
+	end
+end
+
 function kek_entity.spawn_and_push_a_vehicle_in_direction(...)
 	local pid <const>,
 	clear_vehicle_after_ram <const>,
@@ -1537,12 +1547,11 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 end
 
 do
-	local threads <const> = {}
 	function kek_entity.teleport_session(...)
 		local pos <const>, f <const> = ...
 		local pids <const> = {}
 		for pid in essentials.players() do
-			if not threads[pid] and pos:magnitude(essentials.get_player_coords(pid)) > 150 and not player.is_player_dead(pid) and essentials.is_not_friend(pid) then
+			if pos:magnitude(essentials.get_player_coords(pid)) > 150 and not player.is_player_dead(pid) and essentials.is_not_friend(pid) then
 				pids[#pids + 1] = pid
 			end
 		end
@@ -1566,16 +1575,10 @@ do
 			local pid <const> = pids[1]
 			table.remove(pids, 1)
 
-			if not essentials.is_in_vehicle(pid) then
-				threads[pid] = essentials.create_thread(function()
-					globals.force_player_into_vehicle(pid)
-					threads[pid] = nil
-				end)
-			else
+			if essentials.is_in_vehicle(pid) then
 				kek_entity.teleport_player_and_vehicle_to_position(pid, pos, nil, f, true)
 			end
 		end
-		return threads
 	end
 end
 

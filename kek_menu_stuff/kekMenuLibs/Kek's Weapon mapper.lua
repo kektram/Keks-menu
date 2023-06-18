@@ -714,6 +714,12 @@ local weapon_attachments <const> = essentials.const_all({
 		{"Flashlight", "COMPONENT_AT_AR_FLSH", 0x7BC4CDDC},
 		{"Grip", "COMPONENT_AT_AR_AFGRIP", 0xC164F53},
 		{"Scope", "COMPONENT_AT_SCOPE_SMALL", 0xAA2C45B4}
+	},
+	[gameplay.get_hash_key("weapon_tecpistol")] = {
+		{"Default Clip", "COMPONENT_TECPISTOL_CLIP_01", gameplay.get_hash_key("COMPONENT_TECPISTOL_CLIP_01")},
+		{"Extended Clip", "COMPONENT_TECPISTOL_CLIP_02", gameplay.get_hash_key("COMPONENT_TECPISTOL_CLIP_02")},
+		{"Suppressor Muzzle Brake", "COMPONENT_AT_AR_SUPP_02", 0xA73D4664},
+		{"Scope", "COMPONENT_AT_SCOPE_MACRO", 0x9D2FBF29}
 	}
 })
 

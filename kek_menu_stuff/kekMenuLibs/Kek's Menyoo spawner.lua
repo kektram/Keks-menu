@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local menyoo <const> = {version = "2.2.8"}
+local menyoo <const> = {version = "2.2.9"}
 
 local lang <const> = require("Kek's Language").lang
 local essentials <const> = require("Kek's Essentials")
@@ -316,7 +316,7 @@ local function apply_entity_modifications(...)
 			object.set_object_tint_index(Entity, info.ObjectProperties.TextureVariation)
 		end
 		if info.OpacityLevel then
-			entity.set_entity_alpha(Entity, info.OpacityLevel, 1)
+			kek_entity.set_entity_alpha(Entity, info.OpacityLevel)
 		end
 		if info.LodDistance then
 			entity.set_entity_lod_dist(Entity, info.LodDistance)
@@ -731,7 +731,7 @@ local function spawn_xml_map_type_2(info, entities, network_status) -- Same as t
 		local Entity <const> = spawn_entity(info, entities, network_status)
 		if entity.is_an_entity(Entity) then
 			entities[info.InitialHandle] = Entity
-			entity.set_entity_alpha(Entity, info.OpacityLevel, 1)
+			kek_entity.set_entity_alpha(Entity, info.OpacityLevel)
 			entity.set_entity_visible(Entity, info.IsVisible)
 			if info.IsOnFire == true then
 				fire.start_entity_fire(Entity)
@@ -1297,7 +1297,7 @@ local function spawn_type_2_ini(...)
 					entity.set_entity_visible(Entity, info.Visible)
 				end
 				if info.Alpha then
-					entity.set_entity_alpha(Entity, info.Alpha, true)
+					kek_entity.set_entity_alpha(Entity, info.Alpha)
 				end
 				if info.Health then
 					entity.set_entity_health(Entity, info.Health, 0)

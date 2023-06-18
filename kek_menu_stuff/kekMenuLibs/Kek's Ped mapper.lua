@@ -984,6 +984,14 @@ local ped_models <const> = essentials.const({
 	[80921836] = "g_m_m_friedlandergoons_01",
 	[620276966] = "g_m_m_fooliganz_01",
 	[3645767658] = "a_m_m_bankrobber_01",
+	[2086307585] = "ig_roostermccraw",
+	[10366540] = "csb_charlie_reed",
+	[1818503341] = "ig_charlie_reed",
+	[2239793254] = "ig_pernell_moss",
+	[3080868068] = "s_m_m_ccrew_02",
+	[399022197] = "csb_avischwartzman_03",
+	[2100370963] = "ig_avischwartzman_03",
+	[2680892058] = "u_m_m_juggernaut_03",
 	-- Animals --
 	[gameplay.get_hash_key("a_c_chop_02")] = "a_c_chop_02",
 	[3462393972] = "a_c_boar",
@@ -1020,9 +1028,15 @@ local ped_models <const> = essentials.const({
 	[2705875277] = "a_c_stingray",
 	[2910340283] = "a_c_westy",
 	[2114741418] = "a_c_chimp_02",
-	[1553815115] = "a_c_rabbit_02"
+	[1553815115] = "a_c_rabbit_02",
+	[2334752500] = "a_c_boar_02",
+	[734582471] = "a_c_coyote_02",
+	[2857068496] = "a_c_deer_02",
+	[2368442193] = "a_c_mtlion_02",
+	[1072872081] = "a_c_pug_02"
 	-- Animals --
 })
+
 ped_mapper.BLACKLISTED_PEDS = essentials.const({ -- These will crash yours or other's game
 	[762327283] = "slod_small_quadped",
 	[1057201338] = "slod_human",
@@ -1066,7 +1080,12 @@ ped_mapper.ANIMAL_HASHES = essentials.const({
 	2910340283,
 	1039404993,
 	2114741418, 
-	1553815115
+	1553815115,
+	2334752500,
+	734582471,
+	2857068496,
+	2368442193,
+	1072872081
 })
 ped_mapper.PED_HASHES = {}
 for hash, model in pairs(ped_models) do

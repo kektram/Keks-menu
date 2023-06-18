@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.8.5",
+	version = "0.4.9.0",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -147,13 +147,13 @@ for name, version in pairs({
 	["Kek's Vehicle mapper"] = "1.4.1", 
 	["Kek's Ped mapper"] = "1.2.8",
 	["Kek's Object mapper"] = "1.2.8", 
-	["Kek's Globals"] = "1.4.1",
+	["Kek's Globals"] = "1.4.2",
 	["Kek's Weapon mapper"] = "1.0.6",
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
 	["Kek's Drive style mapper"] = "1.0.5",
-	["Kek's Menyoo spawner"] = "2.2.8",
-	["Kek's Entity functions"] = "1.2.7",
+	["Kek's Menyoo spawner"] = "2.2.9",
+	["Kek's Entity functions"] = "1.2.8",
 	["Kek's Trolling entities"] = "1.0.7",
 	["Kek's Custom upgrades"] = "1.0.2",
 	["Kek's Menyoo saver"] = "1.0.9",
@@ -1269,7 +1269,7 @@ settings.toggle["Auto kicker"] = essentials.add_feature(lang["Auto kicker"], "va
 					if essentials.is_str(f, "Notifications on") then
 						essentials.msg(string.format("%s %s%s%s", lang["Kicking"], player.get_player_name(pid), lang[", flags:\n"], modder_flags), "red")
 					end
-					essentials.kick_player(pid)
+					globals.kick_player(pid)
 					f.data[scid] = utils.time_ms() + 20000
 				end
 			end
@@ -1481,7 +1481,7 @@ settings.toggle["Blacklist"] = essentials.add_feature(lang["Blacklist"], "value_
 					end
 
 					if essentials.is_str(f, "Kick") then
-						essentials.kick_player(pid)
+						globals.kick_player(pid)
 					elseif essentials.is_str(f, "Mark as blacklisted") then
 						player.set_player_as_modder(pid, keks_custom_modder_flags["Blacklist"])
 					elseif essentials.is_str(f, "Reapply logged marks") then
@@ -1681,9 +1681,8 @@ settings.toggle["Kick any vote kickers"] = essentials.add_feature(lang["Kick any
 			and essentials.is_not_friend(sender) then
 				local player_name <const> = player.get_player_name(sender) -- Player is most likely gone after kick
 				local scid <const> = player.get_player_scid(sender)
-				if essentials.kick_player(sender) then
-					essentials.msg(string.format("%s %s", player_name, lang["sent vote kick. Kicking them..."]), "orange")
-				end
+				globals.kick_player(sender)
+				essentials.msg(string.format("%s %s", player_name, lang["sent vote kick. Kicking them..."]), "orange")
 			end
 		end)
 	else
@@ -1704,7 +1703,7 @@ settings.toggle["Revenge"] = essentials.add_feature(lang["Revenge"], "value_str"
 				elseif essentials.is_str(f, "Clown vans") then
 					troll_entity.send_clown_van(pid)
 				elseif essentials.is_str(f, "Kick") then
-					essentials.kick_player(pid)
+					globals.kick_player(pid)
 				elseif essentials.is_str(f, "Crash") then
 					globals.script_event_crash(pid)
 				end
@@ -2927,18 +2926,10 @@ do
 end
 
 do
-	local feat <const> = essentials.add_player_feature(lang["Script event crash"], "action_value_str", u.malicious_player_features, function(f, pid)
-		if essentials.is_str(f, "Big while loops") then
-			globals.script_event_crash(pid)
-		elseif essentials.is_str(f, "25 notifs in one frame") then
-			globals.script_event_crash_2(pid)
-		end
+	local feat <const> = essentials.add_player_feature(lang["Script event crash"], "action", u.malicious_player_features, function(f, pid)
+		globals.script_event_crash(pid)
 	end)
 	feat.hint = lang["This crash doesn't affect anyone but the target."]
-	feat:set_str_data({
-		lang["Big while loops"],
-		lang["25 notifs in one frame"]
-	})
 end
 
 essentials.add_player_feature(lang["Crash"], "action", u.malicious_player_features, function(f, pid)
@@ -3203,7 +3194,7 @@ do
 									if notif_on then
 										essentials.msg(string.format("%s %s %s %s.", lang["Vehicle blacklist:\nKicked"], name, lang["for using"], veh_name), "orange")
 									end
-									essentials.kick_player(pid)
+									globals.kick_player(pid)
 								elseif setting == "Crash" then
 									if notif_on then
 										essentials.msg(string.format("%s %s %s %s.", lang["Vehicle blacklist:\nCrashed"], name, lang["for using"], veh_name), "orange")
@@ -3419,35 +3410,28 @@ menu.get_player_feature(player_feat_ids["Mad peds"]):set_str_data({
 })
 
 essentials.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, function(f)
-	local initial_pos <const>, threads <const> = essentials.get_player_coords(player.player_id()), {}
+	local initial_pos <const> = essentials.get_player_coords(player.player_id())
 	essentials.create_thread(function()
 		while f.on do
 			entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
 			system.yield(0)
 		end
 	end, nil)
-	local threads = {}
 	while f.on do
 		if essentials.is_str(f, "Current position") then
 			local pos <const> = essentials.get_player_coords(player.player_id())
 			while essentials.is_str(f, "Current position") and f.on do
-				threads = kek_entity.teleport_session(pos, f)
+				kek_entity.teleport_session(pos, f)
 				system.yield(0)
 			end
 		elseif essentials.is_str(f, "Waypoint") and hud.is_waypoint_active() then
 			local pos <const> = location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50))
 			while essentials.is_str(f, "Waypoint") and f.on do
-				threads = kek_entity.teleport_session(pos, f)
+				kek_entity.teleport_session(pos, f)
 				system.yield(0)
 			end
 		end
 		system.yield(0)
-	end
-	for pid, thread in pairs(threads) do
-		threads[pid] = nil -- The table is a reference to a local table used in essentials lib.
-		if not menu.has_thread_finished(thread) then
-			essentials.delete_thread(thread)
-		end
 	end
 	kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 end):set_str_data({
@@ -3480,7 +3464,7 @@ do
 			essentials.msg(lang["One of the people further in host queue is your friend! Cancelled."], "red")
 		elseif hosts then
 			for _, pid in pairs(hosts) do
-				essentials.kick_player(pid)
+				globals.kick_player(pid)
 				system.yield(0)
 			end
 		end
@@ -3794,16 +3778,6 @@ essentials.add_feature(lang["Block passive mode"], "toggle", u.session_trolling.
 	globals.send_script_event(bits, "Block passive", {send_to_multiple_people = true}, 0)
 end)
 
-essentials.add_feature(lang["Teleport to Perico island"], "action", u.session_trolling.id, function(f)
-	local bits = 0
-	for pid in essentials.players() do
-		if not player.is_player_modder(pid, -1) and essentials.is_not_friend(pid) then
-			bits = bits | 1 << pid
-		end
-	end
-	globals.send_script_event(bits, "Send to Perico island", {send_to_multiple_people = true}, globals.get_script_event_hash("Send to Perico island"), 0, 0)
-end)
-
 essentials.add_feature(lang["Notification spam"], "toggle", u.session_trolling.id, function(f)
 	while f.on do
 		local bits = 0
@@ -3824,17 +3798,6 @@ essentials.add_feature(lang["Notification spam"], "toggle", u.session_trolling.i
 		system.yield(1000)
 	end
 end)
-
-essentials.add_feature(lang["Transaction error"], "toggle", u.session_trolling.id, function(f)
-	while f.on do
-		for pid in essentials.players() do
-			if not player.is_player_modder(pid, -1) then
-				globals.send_script_event(pid, "Transaction error", {friend_condition = true}, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1)
-			end
-		end
-		system.yield(1000)
-	end
-end).hint = lang["Gives them a black screen and stops their current movement immediately.\nToggling this off stops the black screens."]
 
 settings.toggle["Chat logger"] = essentials.add_feature(lang["Chat logger"], "toggle", u.chat_stuff.id, function(f)
 	if f.on then
@@ -3922,7 +3885,7 @@ settings.toggle["Anti chat spam"] = essentials.add_feature(lang["Anti chat spam"
 					if essentials.is_str(f, "Kick & add to timeout") then
 						essentials.add_to_timeout(sender)
 					end
-					essentials.kick_player(sender)
+					globals.kick_player(sender)
 				end
 			end
 		end)
@@ -4442,7 +4405,7 @@ do
 											)
 										end
 									end
-									essentials.kick_player(sender)
+									globals.kick_player(sender)
 								elseif essentials.is_str(f, "Crash") then
 									if settings.in_use["Chat judge #notifications#"] then
 										if is_chat_spoofing then
@@ -4858,7 +4821,7 @@ settings.toggle["Chat commands"] = essentials.add_feature(lang["Chat commands"],
 				f.data.send_message("You can't kick this player.", event.sender)
 				return
 			end
-			essentials.kick_player(command_target)
+			globals.kick_player(command_target)
 		elseif what_command == "crash" then
 			if command_target == event.sender then
 				f.data.send_message("You can't crash yourself.", event.sender)
@@ -4891,6 +4854,10 @@ settings.toggle["Chat commands"] = essentials.add_feature(lang["Chat commands"],
 				end
 			end, nil)
 		elseif what_command == "tp" then
+			if not essentials.is_in_vehicle(command_target) and command_target ~= player.player_id() then
+				f.data.send_message("You must be in a vehicle for teleport to work.", event.sender)
+				return
+			end
 			essentials.create_thread(function()
 				local pos
 				if player.is_player_valid(essentials.name_to_pid(args["player name/location"])) then
@@ -4910,10 +4877,6 @@ settings.toggle["Chat commands"] = essentials.add_feature(lang["Chat commands"],
 				end
 				if pos then
 					essentials.create_thread(function()
-						if player.player_id() ~= command_target and not essentials.is_in_vehicle(command_target) then
-							f.data.send_message("Forcing player into a vehicle. This may take up to 45 seconds.", event.sender)
-							globals.force_player_into_vehicle(command_target, 30000)
-						end
 						if player.is_player_valid(command_target) then
 							if pos == "player_pos" then
 								pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(args["player name/location"])), 7)
@@ -6715,10 +6678,6 @@ end):set_str_data({
 })
 
 
-essentials.add_player_feature(lang["Teleport to Perico island"], "action", u.script_stuff, function(f, pid)
-	globals.send_script_event(pid, "Send to Perico island", nil, globals.get_script_event_hash("Send to Perico island"), 0, 0)
-end)
-
 essentials.add_player_feature(lang["Apartment invites"], "toggle", u.script_stuff, function(f, pid)
 	while f.on do
 		globals.send_script_event(pid, "Apartment invite", nil, pid, 1, 0, math.random(1, 113), 1, 1, 1, 0)
@@ -6749,24 +6708,13 @@ essentials.add_player_feature(lang["Notification spam"], "toggle", u.script_stuf
 	end
 end)
 
-essentials.add_player_feature(lang["Transaction error"], "toggle", u.script_stuff, function(f, pid)
-	while f.on do
-		globals.send_script_event(pid, "Transaction error", nil, 50000, 0, 1, globals.get_player_global("generic", pid), globals.get_global("current"), globals.get_global("previous"), 1)
-		system.yield(500)
-	end
-end).hint = lang["Gives them a black screen and stops their current movement immediately.\nToggling this off stops the black screens."]
-
 essentials.add_player_feature(lang["Teleport to"], "action_value_str", u.player_vehicle_features, function(f, pid)
 	if essentials.is_str(f, "waypoint") and not hud.is_waypoint_active() then
 		essentials.msg(lang["Please set a waypoint."], "red")
 		return
 	end
 	if not essentials.is_in_vehicle(pid) and pid ~= player.player_id() then
-		essentials.msg(lang["Forcing player into vehicle. This can take up to 15 seconds."], "yellow", 6)
-		globals.force_player_into_vehicle(pid)
-	end
-	if not essentials.is_in_vehicle(pid) and pid ~= player.player_id() then
-		essentials.msg(lang["Failed to teleport player."], "red", 6)
+		essentials.msg(lang["Player is not in a vehicle."], "red", 6)
 		return
 	end
 	if essentials.is_str(f, "me") then
@@ -7419,7 +7367,7 @@ essentials.add_player_feature(lang["Kick gun"], "toggle", u.pWeapons, function(f
 		if entity.is_entity_a_ped(Ped) and ped.is_ped_a_player(Ped) then
 			local target_pid <const> = player.get_player_from_ped(Ped)
 			if target_pid ~= player.player_id() and player.can_player_be_modder(target_pid) and ped.is_ped_shooting(player.get_player_ped(pid)) and essentials.is_not_friend(target_pid) then
-				essentials.kick_player(target_pid)
+				globals.kick_player(target_pid)
 			end
 		end
 	end
