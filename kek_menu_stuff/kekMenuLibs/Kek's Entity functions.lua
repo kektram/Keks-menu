@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local kek_entity <const> = {version = "1.2.8"}
+local kek_entity <const> = {version = "1.2.9"}
 
 local lang <const> = require("Kek's Language").lang
 local memoize <const> = require("Kek's Memoize")
@@ -1544,42 +1544,6 @@ function kek_entity.teleport_player_and_vehicle_to_position(...)
 		kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 	end
 	return is_player_in_vehicle
-end
-
-do
-	function kek_entity.teleport_session(...)
-		local pos <const>, f <const> = ...
-		local pids <const> = {}
-		for pid in essentials.players() do
-			if pos:magnitude(essentials.get_player_coords(pid)) > 150 and not player.is_player_dead(pid) and essentials.is_not_friend(pid) then
-				pids[#pids + 1] = pid
-			end
-		end
-		local value <const> = f.value
-		while #pids > 0 and f.on and f.value == value do
-			local my_pos <const> = player.get_player_coords(player.player_id())
-			table.sort(pids, function(a, b) -- Makes sure closest player is teleported at all times. Needs to be updated on each iteration.
-				local score_a, score_b = my_pos:magnitude(essentials.get_player_coords(a)), my_pos:magnitude(essentials.get_player_coords(b))
-				
-				-- Makes those in a vehicle come last in the list.
-				if essentials.is_in_vehicle(a) then
-					score_a = score_a + 10^8
-				end
-				if essentials.is_in_vehicle(b) then
-					score_b = score_b + 10^8
-				end
-
-				return score_a < score_b
-			end)
-
-			local pid <const> = pids[1]
-			table.remove(pids, 1)
-
-			if essentials.is_in_vehicle(pid) then
-				kek_entity.teleport_player_and_vehicle_to_position(pid, pos, nil, f, true)
-			end
-		end
-	end
 end
 
 function kek_entity.generate_vehicle_list(...)

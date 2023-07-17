@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.9.0",
+	version = "0.4.9.1",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -147,13 +147,13 @@ for name, version in pairs({
 	["Kek's Vehicle mapper"] = "1.4.1", 
 	["Kek's Ped mapper"] = "1.2.8",
 	["Kek's Object mapper"] = "1.2.8", 
-	["Kek's Globals"] = "1.4.2",
+	["Kek's Globals"] = "1.4.3",
 	["Kek's Weapon mapper"] = "1.0.6",
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
 	["Kek's Drive style mapper"] = "1.0.5",
 	["Kek's Menyoo spawner"] = "2.2.9",
-	["Kek's Entity functions"] = "1.2.8",
+	["Kek's Entity functions"] = "1.2.9",
 	["Kek's Trolling entities"] = "1.0.7",
 	["Kek's Custom upgrades"] = "1.0.2",
 	["Kek's Menyoo saver"] = "1.0.9",
@@ -3409,31 +3409,28 @@ menu.get_player_feature(player_feat_ids["Mad peds"]):set_str_data({
 	lang["Fill"]
 })
 
-essentials.add_feature(lang["Teleport session"], "value_str", u.session_trolling.id, function(f)
-	local initial_pos <const> = essentials.get_player_coords(player.player_id())
-	essentials.create_thread(function()
-		while f.on do
-			entity.set_entity_velocity(kek_entity.get_most_relevant_entity(player.player_id()), memoize.v3())
+essentials.add_feature(lang["Teleport session"], "action_value_str", u.session_trolling.id, function(f)
+	if essentials.is_str(f, "Current position") then
+		local pos <const> = essentials.get_player_coords(player.player_id())
+		for pid in essentials.players() do
+			if essentials.is_not_friend(pid) then
+				if player.is_player_valid(pid) then
+					player.teleport_player_on_foot(pid, pos)
+				end
+			end
 			system.yield(0)
 		end
-	end, nil)
-	while f.on do
-		if essentials.is_str(f, "Current position") then
-			local pos <const> = essentials.get_player_coords(player.player_id())
-			while essentials.is_str(f, "Current position") and f.on do
-				kek_entity.teleport_session(pos, f)
-				system.yield(0)
+	elseif essentials.is_str(f, "Waypoint") and hud.is_waypoint_active() then
+		local pos <const> = location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50))
+		for pid in essentials.players() do
+			if essentials.is_not_friend(pid) then
+				if player.is_player_valid(pid) then
+					player.teleport_player_on_foot(pid, pos)
+				end
 			end
-		elseif essentials.is_str(f, "Waypoint") and hud.is_waypoint_active() then
-			local pos <const> = location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50))
-			while essentials.is_str(f, "Waypoint") and f.on do
-				kek_entity.teleport_session(pos, f)
-				system.yield(0)
-			end
+			system.yield(0)
 		end
-		system.yield(0)
 	end
-	kek_entity.teleport(kek_entity.get_most_relevant_entity(player.player_id()), initial_pos)
 end):set_str_data({
 	lang["Current position"],
 	lang["Waypoint"]
@@ -4786,14 +4783,44 @@ settings.toggle["Chat commands"] = essentials.add_feature(lang["Chat commands"],
 			end
 		elseif what_command == "kill" then
 			essentials.create_thread(function()
-				ped.clear_ped_tasks_immediately(player.get_player_ped(command_target))
-				system.yield(300)
+				
+				-- Prepare player for death by removing interior godmode and taking them out of vehicle
+				local pos = essentials.get_player_coords(command_target)
+				if pos.z < -100 then -- Is in impractical location to teleport relatively from?
+					pos = location_mapper.get_closest_vector_to_pos(pos)
+				end
+				pos.z = pos.z + 1000
+
+				if player.is_player_valid(command_target) then
+					if command_target == player.player_id() then -- teleport_player_on_foot doesn't work on own ped
+						kek_entity.teleport(kek_entity.get_most_relevant_entity(command_target), pos)
+					else
+						player.teleport_player_on_foot(command_target, pos)
+					end
+					system.yield(1000) -- Waits for the game to fully process the teleport
+				end
+				essentials.wait_conditional(5000, function() -- If player is in interior, first teleport sets them in a state where the second teleport can successfully teleport the target
+					return player.is_player_valid(command_target) and essentials.get_player_coords(command_target):magnitude(pos) > 25
+				end)
+
+				if player.is_player_valid(command_target) and essentials.get_player_coords(command_target):magnitude(pos) > 25 then
+					if command_target == player.player_id() then -- teleport_player_on_foot doesn't work on own ped
+						kek_entity.teleport(kek_entity.get_most_relevant_entity(command_target), pos)
+					else
+						player.teleport_player_on_foot(command_target, pos)
+					end
+					system.yield(1000)
+				end
+				essentials.wait_conditional(20000, function()
+					return player.is_player_valid(command_target) and essentials.get_player_coords(command_target):magnitude(pos) > 25
+				end)
+				
+				-- Kill player with explosions
 				local time <const> = utils.time_ms() + 900
 				while not player.is_player_dead(command_target) and time > utils.time_ms() do
 					essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(command_target), enums.explosion_types.BARREL, true, false, 0, player.get_player_ped(event.sender))
 					system.yield(75)
 				end
-				kek_entity.ram_player(command_target)
 			end, nil)
 		elseif what_command == "cage" then
 			local update <const> = kek_entity.entity_manager:update()
@@ -4854,10 +4881,6 @@ settings.toggle["Chat commands"] = essentials.add_feature(lang["Chat commands"],
 				end
 			end, nil)
 		elseif what_command == "tp" then
-			if not essentials.is_in_vehicle(command_target) and command_target ~= player.player_id() then
-				f.data.send_message("You must be in a vehicle for teleport to work.", event.sender)
-				return
-			end
 			essentials.create_thread(function()
 				local pos
 				if player.is_player_valid(essentials.name_to_pid(args["player name/location"])) then
@@ -4881,10 +4904,16 @@ settings.toggle["Chat commands"] = essentials.add_feature(lang["Chat commands"],
 							if pos == "player_pos" then
 								pos = kek_entity.get_vector_relative_to_entity(player.get_player_ped(essentials.name_to_pid(args["player name/location"])), 7)
 							end
-							kek_entity.teleport_player_and_vehicle_to_position(
-								command_target, 
-								pos
-							)
+							if not essentials.is_in_vehicle(command_target) and command_target ~= player.player_id() then
+								if player.is_player_valid(command_target) then
+									player.teleport_player_on_foot(command_target, pos)
+								end
+							else
+								kek_entity.teleport_player_and_vehicle_to_position(
+									command_target, 
+									pos
+								)
+							end
 						end
 					end, nil)
 				else
@@ -6713,29 +6742,40 @@ essentials.add_player_feature(lang["Teleport to"], "action_value_str", u.player_
 		essentials.msg(lang["Please set a waypoint."], "red")
 		return
 	end
-	if not essentials.is_in_vehicle(pid) and pid ~= player.player_id() then
-		essentials.msg(lang["Player is not in a vehicle."], "red", 6)
-		return
-	end
+
+	local is_in_vehicle <const> = essentials.is_in_vehicle(pid) and pid ~= player.player_id()
+
 	if essentials.is_str(f, "me") then
 		if pid == player.player_id() then
 			essentials.msg(lang["You can't use this on yourself."], "red", 6)
 			return
 		end
-		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true)
-	elseif essentials.is_str(f, "waypoint") then
-		kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), false, f)
-	elseif essentials.is_str(f, "Mount Chiliad & kill") then
-		if kek_entity.teleport_player_and_vehicle_to_position(pid, v3(491.9401550293, 5587, 794.00347900391), true) then
-			globals.disable_vehicle(pid)
-			system.yield(1500)
-			for i = 1, 20 do
-				system.yield(0)
-				essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(pid))
+		if is_in_vehicle then
+			kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8)), true)
+		else
+			local pos <const> = location_mapper.get_most_accurate_position_soft(kek_entity.get_vector_relative_to_entity(player.get_player_ped(player.player_id()), 8))
+			if player.is_player_valid(pid) then
+				player.teleport_player_on_foot(pid, pos)
 			end
 		end
+	elseif essentials.is_str(f, "waypoint") then
+		if is_in_vehicle then
+			kek_entity.teleport_player_and_vehicle_to_position(pid, location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50)), false, f)
+		else
+			local pos <const> = location_mapper.get_most_accurate_position(v3(ui.get_waypoint_coord().x, ui.get_waypoint_coord().y, -50))
+			if player.is_player_valid(pid) then
+				player.teleport_player_on_foot(pid, pos)
+			end
+		end
+	elseif essentials.is_str(f, "Mount Chiliad & kill") then
+		player.teleport_player_on_foot(pid, v3(491.9401550293, 5587, 794.00347900391))
+		system.yield(1500)
+		for i = 1, 20 do
+			system.yield(0)
+			essentials.use_ptfx_function(fire.add_explosion, essentials.get_player_coords(pid), enums.explosion_types.BLIMP, true, false, 0, player.get_player_ped(pid))
+		end
 	elseif essentials.is_str(f, "far away") then
-		kek_entity.teleport_player_and_vehicle_to_position(pid, v3(math.random(20000, 25000), math.random(-25000, -20000), math.random(-2400, 2400)), true)
+		player.teleport_player_on_foot(pid, v3(math.random(7000, 9000), math.random(-9000, -7000), math.random(1000, 2400)))
 	end
 end):set_str_data({
 	lang["me"],

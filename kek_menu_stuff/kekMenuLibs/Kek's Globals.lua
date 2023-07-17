@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local globals <const> = {version = "1.4.2"}
+local globals <const> = {version = "1.4.3"}
 
 local essentials <const> = require("Kek's Essentials")
 local settings <const> = require("Kek's Settings")
@@ -446,7 +446,8 @@ function globals.kick_player(pid)
 	if network.network_is_host() then
 		network.network_session_kick_player(pid)
 	else
-		globals.send_script_event(pid, "Bail kick", nil, globals.get_player_global("generic", pid))
+		-- globals.send_script_event(pid, "Bail kick", nil, globals.get_player_global("generic", pid))
+		network.force_remove_player(pid)
 	end
 end
 
