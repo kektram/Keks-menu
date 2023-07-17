@@ -1,13 +1,9 @@
-# **Kek's menu 0.4.9.0**
+# **Kek's menu 0.4.9.1**
 
 ## **Improvements**```md
-### Fixed a bug with menyoo map/vehicle spawner & ini spawner having peds with invisible torsos.
-### Changed back to script event bail kick [force_remove patched]
-	- Uses host kick if possible
-	
-### Removed "Big while loops crash" [Patched]
-### Removed transaction error [Patched]
-### Removed perico teleport [Patched]
-### Removed forcing of players into vehicles [Patched]
-### Updated for gta 1.67
+### Changed all kicks back to new force_remove_player function
+### "Player features -> Vehicle -> Teleport to" now able to teleport people not in a vehicle again
+### "!tp chat command" now able to teleport people not in a vehicle again
+### Teleport session reworked around new teleport function
+### !kill chat command now goes through interior godmode [there are some interiors it won't work on]
 ```
