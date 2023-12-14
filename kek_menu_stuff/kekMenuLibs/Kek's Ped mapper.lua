@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local ped_mapper <const> = {version = "1.2.8"}
+local ped_mapper <const> = {version = "1.2.9"}
 local essentials <const> = require("Kek's Essentials")
 
 local ped_models <const> = essentials.const({
@@ -992,6 +992,28 @@ local ped_models <const> = essentials.const({
 	[399022197] = "csb_avischwartzman_03",
 	[2100370963] = "ig_avischwartzman_03",
 	[2680892058] = "u_m_m_juggernaut_03",
+	[3867258530] = "s_m_m_ccrew_03",
+	[2872523215] = "ig_callgirl_01",
+	[2363925622] = "u_m_m_yeti",
+	[1608114028] = "ig_yusufamir",
+	[1011548258] = "ig_jamalamir",
+	[3801918077] = "ig_subcrewhead",
+	[1613083234] = "csb_callgirl_01",
+	[2450524033] = "ig_callgirl_02",
+	[3014899707] = "csb_jamalamir",
+	[1762753038] = "s_m_m_cop_01",
+	[1283622549] = "ig_jaywalker",
+	[2572894111] = "g_m_m_cartelgoons_01",
+	[1764259993] = "ig_vincent_4",
+	[482489509] = "ig_mechanic_01",
+	[927014855] = "ig_ahronward",
+	[3738560875] = "s_m_m_subcrew_01",
+	[1590147279] = "ig_mechanic_02",
+	[2487843240] = "g_m_m_maragrande_01",
+	[183230355] = "ig_pilot_02",
+	[779177722] = "csb_callgirl_02",
+	[2709440876] = "csb_yusufamir",
+	[2149958315] = "csb_vincent_4",
 	-- Animals --
 	[gameplay.get_hash_key("a_c_chop_02")] = "a_c_chop_02",
 	[3462393972] = "a_c_boar",

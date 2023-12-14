@@ -53,10 +53,10 @@ __kek_menu = {
 require = __kek_menu.require
 for name, version in pairs({
 	["Kek's Language"] = "1.0.0",
-	["Kek's Enums"] = "1.0.6",
+	["Kek's Enums"] = "1.0.7",
 	["Kek's Settings"] = "1.0.2",
 	["Kek's Memoize"] = "1.0.1",
-	["Kek's Essentials"] = "1.6.5"
+	["Kek's Essentials"] = "1.6.6"
 }) do
 	local missing_file_msg <const> = "You're missing a file in kekMenuLibs. Please reinstall Kek's menu."
 	local wrong_version_msg <const> = "There's a library file which is the wrong version, please reinstall kek's menu."
@@ -144,11 +144,11 @@ local player_feat_ids <const> = {}
 
 require = __kek_menu.require
 for name, version in pairs({
-	["Kek's Vehicle mapper"] = "1.4.1", 
-	["Kek's Ped mapper"] = "1.2.8",
+	["Kek's Vehicle mapper"] = "1.4.2", 
+	["Kek's Ped mapper"] = "1.2.9",
 	["Kek's Object mapper"] = "1.2.8", 
-	["Kek's Globals"] = "1.4.3",
-	["Kek's Weapon mapper"] = "1.0.6",
+	["Kek's Globals"] = "1.4.4",
+	["Kek's Weapon mapper"] = "1.0.7",
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
 	["Kek's Drive style mapper"] = "1.0.5",
@@ -1219,12 +1219,15 @@ settings.toggle["Log modders"] = essentials.add_feature(lang["Log flags below to
 			) then
 				f.data[scid] = ((f.data[scid] or 0) | player.get_player_modder_flags(pid) | blacklist_flag) ~ blacklist_flag
 				local name = player.get_player_name(pid)
-				local ip <const> = player.get_player_ip(pid)
+				local ip = player.get_player_ip(pid)
+				if ip == 4294967295 then -- Prevent 255.255.255.255 false positive from triggering log duplicate protection
+					ip = tostring(player.get_player_name(pid)) .. tostring(math.random(1, math.maxinteger))
+				end
 				local str_to_log = string.format("§%s§ /%s/ &%s& <%s>", name, scid, ip, essentials.modder_flags_to_text(f.data[scid]))
 				local found_str <const> = essentials.log(
 					paths.blacklist, 
 					str_to_log, 
-					{string.format("/%i/", scid), string.format("&%i&", ip), string.format("§%s§", name)}
+					{string.format("/%i/", scid), string.format("&%s&", ip), string.format("§%s§", name)}
 				)
 				local flags_from_file 
 				if found_str then
@@ -1454,9 +1457,14 @@ settings.toggle["Blacklist"] = essentials.add_feature(lang["Blacklist"], "value_
 			local pid <const> = event.player
 			if player.is_player_valid(pid) and player.player_id() ~= pid and essentials.is_not_friend(pid) and essentials.how_many_people_named(pid) == 1 then
 				
+				local player_ip = player.get_player_ip(pid)
+				if player_ip == 4294967295 then -- 255.255.255.255 ip is false positive.
+					player_ip = math.maxinteger -- Done this way so search_for_match_and_get_line isnt interrupted by false positive ip 
+				end -- which could cause a potential rid / name recognition to be missed
+
 				local line_from_file, what_was_detected = essentials.search_for_match_and_get_line(paths.blacklist, {
 					string.format("/%i/", player.get_player_scid(pid)),
-					string.format("&%i&", player.get_player_ip(pid)),
+					string.format("&%i&", player_ip),
 					string.format("§%s§", player.get_player_name(pid))
 				})
 
@@ -1589,13 +1597,17 @@ end
 
 local function add_to_blacklist(...)
 	local name,
-	ip <const>,
+	ip,
 	rid <const>,
 	reason,
 	display_feedback_messages <const> = ...
 
 	if not reason or #reason == 0 then
 		reason = "Manually added"
+	end
+
+	if ip == 4294967295 then -- Prevent 255.255.255.255 false positive from triggering log duplicate protection
+		ip = tostring(name) .. tostring(math.random(1, math.maxinteger))
 	end
 
 	local results <const> = essentials.log(paths.blacklist, string.format("§%s§ /%s/ &%s& <%s>", name, rid, ip, reason), {

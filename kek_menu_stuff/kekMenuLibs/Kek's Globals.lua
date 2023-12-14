@@ -1,14 +1,14 @@
 -- Copyright © 2020-2022 Kektram
 
-local globals <const> = {version = "1.4.3"}
+local globals <const> = {version = "1.4.4"}
 
 local essentials <const> = require("Kek's Essentials")
 local settings <const> = require("Kek's Settings")
 local memoize <const> = require("Kek's Memoize")
 
 local offsets <const> = essentials.const({
-	["MAIN"] = 1853988,
-	["OFFSET_PER_PLAYER"] = 867,
+	["MAIN"] = 1845263,
+	["OFFSET_PER_PLAYER"] = 877,
 	["OFFSET_TO_INFO"] = 205
 })
 
@@ -98,29 +98,29 @@ function globals.get_player_deaths(pid)
 end
 
 globals.global_indices = essentials.const({
-	time = 					2794162 + 4661, 	-- NETWORK::GET_NETWORK_TIME()
+	time = 					2738587 + 4661, 	-- NETWORK::GET_NETWORK_TIME()
 
-	transition = 			1574996, -- Is 66 if fully loaded into session
+	transition = 			1575008, -- Is 66 if fully loaded into session
 
-	current = 				1924276 + 9, 		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
+	current = 				1916087 + 9, 		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
 
-	previous = 				1924276 + 10		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
+	previous = 				1916087 + 10		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
 })
 
 globals.player_global_indices = essentials.const({
-	personal_vehicle = 				{offset = 2672524 + 1 + 187, 		pid_multiplier = 1},
+	personal_vehicle = 				{offset = 2672741 + 1 + 191, 		pid_multiplier = 1},
 
-	generic = 						{offset = 1895156 + 1 + 511, 		pid_multiplier = 609}, 		-- Equivalent to global(1921036 + 9) if pid is script host
+	generic = 						{offset = 1886967 + 1 + 511, 		pid_multiplier = 609}, 		-- Equivalent to global(1921036 + 9) if pid is script host
 
-	organization_associate_hash = 	{offset = 1895156 + 1 + 10 + 2, 	pid_multiplier = 609},		-- Seems to be 1639791091 + (unknown * 3)
+	organization_associate_hash = 	{offset = 1886967 + 1 + 10 + 2, 	pid_multiplier = 609},		-- Seems to be 1639791091 + (unknown * 3)
 
-	organization_id = 				{offset = 1895156 + 1 + 10, 		pid_multiplier = 609},		-- Is -1 if no organization
+	organization_id = 				{offset = 1886967 + 1 + 10, 		pid_multiplier = 609},		-- Is -1 if no organization
 
-	otr_status = 					{offset = 2657704 + 1 + 210, 		pid_multiplier = 463}, 		-- Returns 1 if player is otr
+	otr_status = 					{offset = 2657921 + 1 + 210, 		pid_multiplier = 463}, 		-- Returns 1 if player is otr
 
-	bounty_status = 				{offset = 1835504 + 1 + 4,			pid_multiplier = 3}, 		-- Returns 1 if player has bounty.
+	bounty_status = 				{offset = 1835505 + 1 + 4,			pid_multiplier = 3}, 		-- Returns 1 if player has bounty.
 
-	is_player_typing = 				{offset = 1654054 + 2 + 241 + 136 --[[+ ((16 // 32) * 33)--]], pid_multiplier = 1} -- < this > & 1 << 16 ~= 0 if they're typing.
+	is_player_typing = 				{offset = 1668317 + 2 + 241 + 136 --[[+ ((16 // 32) * 33)--]], pid_multiplier = 1} -- < this > & 1 << 16 ~= 0 if they're typing.
 })
 
 local script_event_hashes <const> = essentials.const({
@@ -426,7 +426,7 @@ do
 				script.trigger_script_event_2(
 					properties.send_to_multiple_people and pid_or_bits or 1 << pid_or_bits, 
 					globals.get_script_event_hash(script_hash_name), 
-					player.player_id(), ...
+					player.player_id(), 0, ...
 				)
 				return true
 			end
@@ -496,6 +496,7 @@ function globals.script_event_crash(...) -- Has been unstable in the past, might
 		local rand_pid <const> = essentials.get_random_player_except({[player.player_id()] = true})
 		script.trigger_script_event_2(1 << pid, globals.get_script_event_hash("Notifications"), 
 			player.player_id(), 
+			0,
 			globals.NOTIFICATION_HASHES_RAW.crash_notification, 
 			math.random(-2147483647, 2147483647),
 			1, 0, 0, 0, 0, 0, pid, 

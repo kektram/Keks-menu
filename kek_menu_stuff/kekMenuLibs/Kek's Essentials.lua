@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local essentials <const> = {version = "1.6.5"}
+local essentials <const> = {version = "1.6.6"}
 
 local language <const> = require("Kek's Language")
 local lang <const> = language.lang
@@ -16,7 +16,7 @@ essentials.listeners = {
 }
 essentials.nethooks = {}
 
-essentials.number_of_explosion_types = 84 -- This must be updated sometimes after major gta update.
+essentials.number_of_explosion_types = 85 -- This must be updated sometimes after major gta update.
 essentials.init_delay = utils.time_ms() + 1000 -- if utils.time_ms() > essentials.init_delay then < STUFF > end, makes sure < STUFF > won't run during script init.
 
 local paths <const> = {home = utils.get_appdata_path("PopstarDevs", "2Take1Menu").."\\"}

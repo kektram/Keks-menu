@@ -1,7 +1,7 @@
 -- Copyright © 2020-2022 Kektram
 
 return {
-	version = "1.0.6",
+	version = "1.0.7",
 	supported_langs_by_google_to_code = {
 		["Afrikaans"] = "af",
 		["Albanian"] = "sq",
@@ -786,7 +786,8 @@ return {
 		SCRIPT_MISSILE_LARGE = 81,
 		SUBMARINE_BIG = 82,
 		EMPLAUNCHER_EMP = 83,
-		RAILGUNXM3 = 84
+		RAILGUNXM3 = 84,
+		v2944 = 85
 
 	},
 	combat_attributes = {
