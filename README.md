@@ -1,115 +1,115 @@
-<h1 align="center">Kek's menu</h1>
+<h1 align="center">Kek菜单</h1>
 
-> Kek's menu is a 2take1 lua script.<br/>
-> The aim is to deliver a script that is stable and fills the gaps in the vanilla feature set of 2take1.<br/>
-> Whether you like to mess with people, help people out or just try to be low-key, this script offers something useful.<br/>
-> Kek's menu is available in 10 languages.<br/>
+> Kek菜单是2Take1的一个lua脚本。<br/>
+> 目的是提供一个稳定的脚本并填补2take1本体功能的空白。<br/>
+> 无论你是喜欢捣乱、帮助别人还是只想低调行事，这个脚本都能提供一些有用的东西。<br/>
+> Kek菜单有 10 种语言可供选择。<br/>
 > 
-> The feature list will be structured like the script is.<br/>
-> This means you can figure out where features are located based on the structure of this document.<br/>
-> Example: General settings > Settings > Save to default<br/>
-> If there's anything confusing or vague in the feature list, feel free to suggest improvements.<br/>
-> I'm open to people translating this to another language. You have to speak the language fluently.<br/>
+> 功能列表的结构会与脚本相同。<br/>
+> 这意味着您可以根据本文档的结构找出功能在脚本中所在的位置。<br/>
+> 示例: 设置选项 > 设置选项 > 保存为默认设置<br/>
+> 如果功能列表中有任何令人困惑或含糊不清的地方，请随时提出改进建议。<br/>
+> 我愿意接受将其翻译成另一种语言的人。你必须能流利的说这门语言。<br/>
 >
-> The feature list isn't finished yet.
+> 功能列表尚未完成。
 
-<h2 align="center">Kek's menu discord</h2>
+<h2 align="center">Kek菜单 discord</h2>
 
-> Get support<br/>
-> Lots of resources such as packs of xml vehicles<br/>
-> Get the latest version of Moist's script<br/>
-> Share your creations related to Kek's menu
+> 获得支持<br/>
+> 大量的资源，例如xml模组包<br/>
+> 获得最新版本的Moist脚本<br/>
+> 分享你与Kek菜单相关的创作
 
-[Join the kek's menu discord](https://discord.gg/CPSgPz4D7X "Kek's menu Discord")
+[加入 kek菜单 discord](https://discord.gg/CPSgPz4D7X "Kek菜单 Discord")
 
-## How to install
-	1. Open keks_menu.zip
-	2. Drag all the files to C:\Users\USERNAME\AppData\Roaming\PopstarDevs\2Take1Menu\scripts
+## 如何安装
+	1. 打开 keks_menu.zip
+	2. 将所有文件拖放或解压到 C:\Users\USERNAME\AppData\Roaming\PopstarDevs\2Take1Menu\scripts
 
-## Updating to a new version
-> The script will check for a new update whenever you run the script.
-> Accept the update, and it installs it for you.
+## 更新为新版本
+> 每次运行脚本时，脚本都会自动检查是否有新的更新。
+> 同意更新，它会为你自动安装更新。
 
-## Feature list
+## 功能列表
 
-### General settings
+### 设置选项
 
-> Miscellaneous settings and how to save your settings.
+> 其他设置以及如何保存设置。
 
-#### Settings
+#### 设置选项
 
-##### Save to default
-	Overwrites the kekSettings.ini file and the current settings become the defaults.
+##### 保存为默认设置
+	覆盖kekSettings.ini文件，当前设置将变为默认。
 
-##### New profile
-	Creates a new settings profile.
-	These can be loaded and saved to. Very similar to 2take1 setting profiles.
+##### 创建配置文件
+	创建一个新的配置文件。
+	使功能状态单独并保存到一个新的配置文件中。非常类似于 2take1 设置配置文件。
 
-##### Setting profiles
-	Load
-	Rename
-	Save
-	Delete
+##### 设置配置文件
+	加载
+	更改名称
+	保存
+	删除
 
-#### Script loader
-	Turn it on / off
-	Empty the script loader
-	Add a script
-	Remove a script
+#### 脚本加载器
+	开启脚本加载器 / 关闭脚本加载器
+	清空脚本加载器
+	设置自动加载某个脚本
+	取消自动加载某个脚本
 
-#### Language configuration
-	To change your language, just click on one of the "set X as default language" and reset lua state.
+#### 语言切换
+	要更改你的脚本语言，只需要点击任意 "设置 XXX 作为默认语言"，然后重新运行脚本。
 
-#### Script quick access
-	This will make accessing all features faster.
-	Normally, you need to: Script features > Kek's menu > Session trolling
-	After turning on quick access, it becomes: Script features > Session trolling
+#### 脚本快速访问
+	这将能够更快访问所有功能。
+	正常情况下，你需要先访问: 脚本功能 > Kek脚本 > 战局恶搞
+	在开启脚本快速访问后，变成: 脚本功能 > 战局恶搞
 
-### Modder detection
+### 作弊者检测
 
-> Detection of modders, the blacklist and what to do against detected modders.<br/>
-> Friends are excluded from all the options in this category by default
+> 检测其他作弊者或黑名单中的玩家以及如何处理检测到的作弊者和黑名单玩家。<br/>
+> 默认情况下，好友不包含在该类别的所有选项中。
 
-#### Which modder detections are on
+#### 启用了哪些作弊者检测
 
-##### Godmode detection
-	Detects people with godmode status on + doing multiple things that can't be done when legit players are in godmode
+##### 无敌检测
+	检测有哪些玩家启用了无敌模式。
 
-##### Check people's stats
-	Based on a system of severity
-	To triggers it detection, the person must have a severity of 3 or higher
+##### 检测修改后的统计
+	基于严重程度的系统
+	要触发它的检测，此人的严重性必须为 3 或更高
 
-###### Severity table
-> Suspicious amount of money = 1<br/>
-> Suspicious rank = 1<br/>
-> Suspicious kd = 1<br/>
-> Negative stats = 3<br/>
-> Illegal weapons = 2
+###### 严重性表
+> 可疑的存款 = 1<br/>
+> 可疑的等级 = 1<br/>
+> 可疑的kd = 1<br/>
+> 负统计数据 = 3<br/>
+> 非法武器 = 2
 
-#### Blacklist
-	Add to blacklist
-		Type in name, rid, ip and reason
+#### 黑名单
+	添加到黑名单
+		输入名称、rid、ip和原因
 
-	Remove from blacklist
-	Add session to blacklist
-	Remove session from blacklist
-	Blacklist notifications
+	从黑名单中移除
+	添加战局到黑名单
+	在黑名单中删除战局
+	黑名单通知
 
-#### Turn all on or off
-	This feature is in Modder logging and auto kicker settings
-	If 1 or more setting is on, everything is turned off.
-	If nothing is on, everything is turned on.
+#### 启用所有或关闭
+    此功能在作弊者记录设置和自动踢设置中
+    如果启用了 1 个或多个设置，则所有设置都将关闭。
+    如果什么都没有打开，那么所有都将启用。
 
-#### Log modders with selected tags to blacklist
+#### 将带有选定标签的作弊者记录到黑名单
 
-#### Modder logging settings
-	A list of all possible modder detections
-	Select which to log
+#### 作弊者记录设置
+    所有可能的模组检测列表
+    选择要记录的内容
 
-#### Auto kicker
-	Automatically kicks out people based on the auto kicker settings. Will use host kick if available.
-	Get notified when the auto kicker is triggered
+#### 自动踢
+    根据自动踢设置自动踢出玩家。如果可用，将使用主机踢。
+    触发自动踢时将收到通知
 
-#### Auto kicker settings
-	A list of all possible modder detections
-	Select which detection will trigger the auto kicker
+#### 自动踢设置
+    所有可能的作弊者检测列表
+    选择哪个检测将触发自动踢
