@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.9.1",
+	version = "0.4.9.2",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
