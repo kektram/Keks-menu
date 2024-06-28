@@ -1,4 +1,4 @@
--- Copyright © 2020-2022 Kektram
+-- Copyright © 2020-2024 Kektram
 if __kek_menu then 
 	menu.notify("Kek's menu is already loaded!", "Initialization cancelled.", 3, 0xff0000ff) 
 	return
@@ -31,7 +31,7 @@ if not (package.path or ""):find(paths.kek_menu_stuff.."kekMenuLibs\\?.lua;", 1,
 end
 
 __kek_menu = {
-	version = "0.4.9.2",
+	version = "0.4.9.3",
 	debug_mode = false,
 	participate_in_betas = false,
 	check_for_updates = false,
@@ -144,20 +144,20 @@ local player_feat_ids <const> = {}
 
 require = __kek_menu.require
 for name, version in pairs({
-	["Kek's Vehicle mapper"] = "1.4.2", 
-	["Kek's Ped mapper"] = "1.2.9",
+	["Kek's Vehicle mapper"] = "1.4.3", 
+	["Kek's Ped mapper"] = "1.3.0",
 	["Kek's Object mapper"] = "1.2.8", 
-	["Kek's Globals"] = "1.4.4",
-	["Kek's Weapon mapper"] = "1.0.7",
+	["Kek's Globals"] = "1.4.5",
+	["Kek's Weapon mapper"] = "1.0.8",
 	["Kek's Location mapper"] = "1.0.2",
 	["Kek's Keys and input"] = "1.0.7",
 	["Kek's Drive style mapper"] = "1.0.5",
-	["Kek's Menyoo spawner"] = "2.2.9",
+	["Kek's Menyoo spawner"] = "2.3.0",
 	["Kek's Entity functions"] = "1.2.9",
 	["Kek's Trolling entities"] = "1.0.7",
 	["Kek's Custom upgrades"] = "1.0.2",
 	["Kek's Menyoo saver"] = "1.0.9",
-	["Kek's Natives"] = "1.0.5"
+	["Kek's Natives"] = "1.0.6"
 }) do
 	if not utils.file_exists(paths.kek_menu_stuff.."kekMenuLibs\\"..name..".lua") then
 		menu.notify(string.format("%s [%s]", lang["You're missing a file in kekMenuLibs. Please reinstall Kek's menu."], name), "Kek's "..__kek_menu.version, 12, 0xff0000ff)

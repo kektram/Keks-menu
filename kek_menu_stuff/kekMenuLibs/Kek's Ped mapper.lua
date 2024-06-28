@@ -1,6 +1,6 @@
--- Copyright © 2020-2022 Kektram
+-- Copyright © 2020-2024 Kektram
 
-local ped_mapper <const> = {version = "1.2.9"}
+local ped_mapper <const> = {version = "1.3.0"}
 local essentials <const> = require("Kek's Essentials")
 
 local ped_models <const> = essentials.const({
@@ -1014,6 +1014,21 @@ local ped_models <const> = essentials.const({
 	[779177722] = "csb_callgirl_02",
 	[2709440876] = "csb_yusufamir",
 	[2149958315] = "csb_vincent_4",
+	[1928962749] = "CSB_Maude_02",
+	[1581050842] = "IG_MaudeBF",
+	[4095622650] = "CSB_JenetteE",
+	[1457317744] = "IG_JenetteE",
+	[2765596315] = "IG_BountyTarget_01",
+	[3690927337] = "IG_BountyTarget_05",
+	[1574377635] = "IG_BountyTarget_02",
+	[2408643606] = "IG_BountyTarget_03",
+	[3921981556] = "IG_BountyTarget_04",
+	[2561707597] = "IG_BountyTarget_06",
+	[1349590050] = "IG_Mechanic_03",
+	[3323689041] = "G_M_M_Zombie_01",
+	[2555681988] = "G_M_M_Zombie_02",
+	[396172111] = "G_M_M_Zombie_03",
+	[173935423] = "S_M_M_BailOffice_01",
 	-- Animals --
 	[gameplay.get_hash_key("a_c_chop_02")] = "a_c_chop_02",
 	[3462393972] = "a_c_boar",
