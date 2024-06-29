@@ -1,15 +1,15 @@
 -- Copyright © 2020-2022 Kektram
 
-local globals <const> = {version = "1.4.4"}
+local globals <const> = {version = "1.4.5"}
 
 local essentials <const> = require("Kek's Essentials")
 local settings <const> = require("Kek's Settings")
 local memoize <const> = require("Kek's Memoize")
 
 local offsets <const> = essentials.const({
-	["MAIN"] = 1845263,
-	["OFFSET_PER_PLAYER"] = 877,
-	["OFFSET_TO_INFO"] = 205
+	["MAIN"] = 1845281,
+	["OFFSET_PER_PLAYER"] = 883,
+	["OFFSET_TO_INFO"] = 206
 })
 
 local stats <const> = essentials.const({
@@ -59,6 +59,14 @@ local stats <const> = essentials.const({
 	-- Freemode script doesn't explicitly define these, but it seems highly likely they are correct.
 })
 
+function globals.all_stats_to_clipboard(pid)
+	local str <const> = {}
+	for name, offset in pairs(stats) do
+		str[#str + 1] = name..": "..script.get_global_i(globals.get_player_info_offset(pid, offset))
+	end
+	utils.to_clipboard(table.concat(str, "\n"))
+end
+
 function globals.get_player_info_offset(pid, info_offset)
 	return offsets.MAIN + (1 + (pid * offsets.OFFSET_PER_PLAYER)) + offsets.OFFSET_TO_INFO + info_offset
 end
@@ -98,29 +106,29 @@ function globals.get_player_deaths(pid)
 end
 
 globals.global_indices = essentials.const({
-	time = 					2738587 + 4661, 	-- NETWORK::GET_NETWORK_TIME()
+	time = 					2738934 + 4676, 	-- NETWORK::GET_NETWORK_TIME()
 
-	transition = 			1575008, -- Is 66 if fully loaded into session
+	transition = 			1575011, -- Is 66 if fully loaded into session
 
-	current = 				1916087 + 9, 		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
+	current = 				1916617 + 9, 		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
 
-	previous = 				1916087 + 10		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
+	previous = 				1916617 + 10		-- Negative framecount * ((joaat(script host name) * cloud time) + random(0, 65534) + random(0, 65534))
 })
 
 globals.player_global_indices = essentials.const({
-	personal_vehicle = 				{offset = 2672741 + 1 + 191, 		pid_multiplier = 1},
+	personal_vehicle = 				{offset = 2672855 + 1 + 198, 		pid_multiplier = 1},
 
-	generic = 						{offset = 1886967 + 1 + 511, 		pid_multiplier = 609}, 		-- Equivalent to global(1921036 + 9) if pid is script host
+	generic = 						{offset = 1887305 + 1 + 512, 		pid_multiplier = 610}, 		-- Equivalent to global(1921036 + 9) if pid is script host
 
-	organization_associate_hash = 	{offset = 1886967 + 1 + 10 + 2, 	pid_multiplier = 609},		-- Seems to be 1639791091 + (unknown * 3)
+	organization_associate_hash = 	{offset = 1887305 + 1 + 10 + 2, 	pid_multiplier = 610},		-- Seems to be 1639791091 + (unknown * 3)
 
-	organization_id = 				{offset = 1886967 + 1 + 10, 		pid_multiplier = 609},		-- Is -1 if no organization
+	organization_id = 				{offset = 1887305 + 1 + 10, 		pid_multiplier = 610},		-- Is -1 if no organization
 
-	otr_status = 					{offset = 2657921 + 1 + 210, 		pid_multiplier = 463}, 		-- Returns 1 if player is otr
+	otr_status = 					{offset = 2657971 + 1 + 211, 		pid_multiplier = 465}, 		-- Returns 1 if player is otr
 
 	bounty_status = 				{offset = 1835505 + 1 + 4,			pid_multiplier = 3}, 		-- Returns 1 if player has bounty.
 
-	is_player_typing = 				{offset = 1668317 + 2 + 241 + 136 --[[+ ((16 // 32) * 33)--]], pid_multiplier = 1} -- < this > & 1 << 16 ~= 0 if they're typing.
+	is_player_typing = 				{offset = 1668667 + 2 + 241 + 136 --[[+ ((16 // 32) * 33)--]], pid_multiplier = 1} -- < this > & 1 << 16 ~= 0 if they're typing.
 })
 
 local script_event_hashes <const> = essentials.const({

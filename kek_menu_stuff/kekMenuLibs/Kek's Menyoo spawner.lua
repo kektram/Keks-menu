@@ -1,6 +1,6 @@
 -- Copyright © 2020-2022 Kektram
 
-local menyoo <const> = {version = "2.2.9"}
+local menyoo <const> = {version = "2.3.0"}
 
 local lang <const> = require("Kek's Language").lang
 local essentials <const> = require("Kek's Essentials")
@@ -325,7 +325,7 @@ local function apply_entity_modifications(...)
 			entity.set_entity_max_health(Entity, info.MaxHealth)
 		end
 		if info.Health then
-			entity.set_entity_health(Entity, info.Health, 0) -- Third parameter is always 0 in freemode.ysc
+			entity.set_entity_health(Entity, info.Health, 0, 0) -- Third parameter is always 0 in freemode.ysc
 		end
 
 		local entity_proofs <const> = kek_entity.get_entity_proofs(Entity)
@@ -1300,7 +1300,7 @@ local function spawn_type_2_ini(...)
 					kek_entity.set_entity_alpha(Entity, info.Alpha)
 				end
 				if info.Health then
-					entity.set_entity_health(Entity, info.Health, 0)
+					entity.set_entity_health(Entity, info.Health, 0, 0)
 				end
 				if info.Gravity == false then
 					entity.set_entity_gravity(Entity, false)
